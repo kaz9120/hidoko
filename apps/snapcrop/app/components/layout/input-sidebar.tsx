@@ -5,13 +5,15 @@ import {
 	type LucideIcon,
 	MonitorIcon,
 } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { CameraDialog } from "~/components/camera-dialog";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 import { readImageFromClipboard } from "~/lib/clipboard";
 
 export function InputSidebar() {
 	const { loadImageFromBlob } = useSnapcrop();
 	const fileInputRef = useRef<HTMLInputElement>(null);
+	const [cameraOpen, setCameraOpen] = useState(false);
 
 	const handleUploadClick = () => {
 		fileInputRef.current?.click();
@@ -63,8 +65,8 @@ export function InputSidebar() {
 					<InputMethodButton
 						Icon={CameraIcon}
 						description="写真を撮影"
-						disabled
 						name="カメラ"
+						onClick={() => setCameraOpen(true)}
 					/>
 				</div>
 			</div>
@@ -74,6 +76,13 @@ export function InputSidebar() {
 				onChange={handleFileChange}
 				ref={fileInputRef}
 				type="file"
+			/>
+			<CameraDialog
+				onCaptured={(blob) => {
+					void loadImageFromBlob(blob);
+				}}
+				onOpenChange={setCameraOpen}
+				open={cameraOpen}
 			/>
 		</aside>
 	);
