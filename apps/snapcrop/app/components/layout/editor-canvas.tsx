@@ -2,11 +2,13 @@ import Cropper from "cropperjs";
 import { ImageIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
+import { useClipboardPaste } from "~/hooks/use-clipboard-paste";
 import { useFileDrop } from "~/hooks/use-file-drop";
 
 export function EditorCanvas() {
 	const { image, loadImageFromBlob, cropperRef } = useSnapcrop();
 	const isDragging = useFileDrop(loadImageFromBlob);
+	useClipboardPaste(loadImageFromBlob);
 	const imgRef = useRef<HTMLImageElement>(null);
 
 	useEffect(() => {
