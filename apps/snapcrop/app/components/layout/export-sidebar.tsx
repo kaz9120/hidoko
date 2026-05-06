@@ -1,5 +1,6 @@
 import { CheckIcon, CopyIcon, DownloadIcon } from "lucide-react";
 import { useState } from "react";
+import { ImageInfo } from "~/components/layout/image-info";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 import { writeImageToClipboard } from "~/lib/clipboard";
 import {
@@ -107,25 +108,7 @@ export function ExportSidebar() {
 				</div>
 			</div>
 
-			<div className="p-5">
-				<h2 className="mb-4 font-semibold text-muted-foreground text-xs uppercase tracking-wide">
-					画像情報
-				</h2>
-				<dl className="flex flex-col gap-2 text-sm">
-					<div className="flex items-baseline justify-between gap-4">
-						<dt className="text-muted-foreground">サイズ:</dt>
-						<dd className="text-foreground/60">—</dd>
-					</div>
-					<div className="flex items-baseline justify-between gap-4">
-						<dt className="text-muted-foreground">ファイルサイズ:</dt>
-						<dd className="text-foreground/60">—</dd>
-					</div>
-					<div className="flex items-baseline justify-between gap-4">
-						<dt className="text-muted-foreground">形式:</dt>
-						<dd className="text-foreground/60">—</dd>
-					</div>
-				</dl>
-			</div>
+			<ImageInfo />
 		</aside>
 	);
 }
