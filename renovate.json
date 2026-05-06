@@ -1,0 +1,16 @@
+{
+	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+	"extends": ["config:recommended"],
+	"enabledManagers": ["bun", "github-actions"],
+	"pinDigests": true,
+	"timezone": "Asia/Tokyo",
+	"schedule": ["after 9am and before 10am on Monday"],
+	"packageRules": [
+		{
+			"description": "Bun runtime types は groupName で同一 PR にまとめる",
+			"matchManagers": ["bun"],
+			"matchPackageNames": ["@types/bun", "bun-types"],
+			"groupName": "bun"
+		}
+	]
+}
