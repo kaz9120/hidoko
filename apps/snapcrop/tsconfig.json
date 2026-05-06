@@ -8,6 +8,7 @@
 		"types": ["vite/client"],
 		"baseUrl": ".",
 		"rootDirs": [".", "./.react-router/types"],
+		"ignoreDeprecations": "6.0",
 		"paths": {
 			"~/*": ["./app/*"]
 		}
