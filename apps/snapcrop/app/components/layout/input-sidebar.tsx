@@ -8,15 +8,17 @@ import {
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { CameraDialog } from "~/components/camera-dialog";
+import { SidebarShell } from "~/components/layout/sidebar-shell";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 import { readImageFromClipboard } from "~/lib/clipboard";
 import { captureScreen, isScreenCaptureSupported } from "~/lib/screen-capture";
 
 type InputSidebarProps = {
-	mobileVisible: boolean;
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
 };
 
-export function InputSidebar({ mobileVisible }: InputSidebarProps) {
+export function InputSidebar({ open, onOpenChange }: InputSidebarProps) {
 	const { loadImageFromBlob } = useSnapcrop();
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [cameraOpen, setCameraOpen] = useState(false);
@@ -36,12 +38,14 @@ export function InputSidebar({ mobileVisible }: InputSidebarProps) {
 		}
 		await loadImageFromBlob(file);
 		event.target.value = "";
+		onOpenChange(false);
 	};
 
 	const handleClipboardClick = async () => {
 		const blob = await readImageFromClipboard();
 		if (blob) {
 			await loadImageFromBlob(blob);
+			onOpenChange(false);
 		} else {
 			toast.error("クリップボードに画像が見つかりません");
 		}
@@ -56,6 +60,7 @@ export function InputSidebar({ mobileVisible }: InputSidebarProps) {
 			const blob = await captureScreen();
 			if (blob) {
 				await loadImageFromBlob(blob);
+				onOpenChange(false);
 			}
 		} finally {
 			setIsCapturing(false);
@@ -63,8 +68,12 @@ export function InputSidebar({ mobileVisible }: InputSidebarProps) {
 	};
 
 	return (
-		<aside
-			className={`${mobileVisible ? "flex" : "hidden"} w-full shrink-0 flex-col overflow-y-auto border-border bg-card md:flex md:w-72 md:border-r`}
+		<SidebarShell
+			description="画像をブラウザに取り込む方法を選ぶ"
+			onOpenChange={onOpenChange}
+			open={open}
+			side="left"
+			title="画像を取得"
 		>
 			<div className="border-border border-b p-5">
 				<h2 className="mb-4 font-semibold text-muted-foreground text-xs uppercase tracking-wide">
@@ -114,11 +123,12 @@ export function InputSidebar({ mobileVisible }: InputSidebarProps) {
 			<CameraDialog
 				onCaptured={(blob) => {
 					void loadImageFromBlob(blob);
+					onOpenChange(false);
 				}}
 				onOpenChange={setCameraOpen}
 				open={cameraOpen}
 			/>
-		</aside>
+		</SidebarShell>
 	);
 }
 

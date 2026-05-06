@@ -3,7 +3,6 @@ import { AspectToolbar } from "~/components/layout/aspect-toolbar";
 import { EditorCanvas } from "~/components/layout/editor-canvas";
 import { ExportSidebar } from "~/components/layout/export-sidebar";
 import { InputSidebar } from "~/components/layout/input-sidebar";
-import { type MobileTabId, MobileTabs } from "~/components/layout/mobile-tabs";
 import { SiteHeader } from "~/components/layout/site-header";
 import { SnapcropProvider } from "~/contexts/snapcrop-context";
 
@@ -19,23 +18,27 @@ export function meta() {
 }
 
 export default function Home() {
-	const [activeTab, setActiveTab] = useState<MobileTabId>("editor");
+	// モバイルでのみ意味のある state。md 以上では SidebarShell が常時 aside を
+	// 表示するので open フラグは無視される。Sheet を閉じる責務はサイドバー側
+	// (input/export sidebar) が onOpenChange と各アクション完了時に持つ。
+	const [inputOpen, setInputOpen] = useState(false);
+	const [exportOpen, setExportOpen] = useState(false);
 
 	return (
 		<SnapcropProvider>
 			<div className="flex h-screen flex-col">
-				<SiteHeader />
+				<SiteHeader
+					onOpenExportSidebar={() => setExportOpen(true)}
+					onOpenInputSidebar={() => setInputOpen(true)}
+				/>
 				<div className="flex flex-1 overflow-hidden">
-					<InputSidebar mobileVisible={activeTab === "input"} />
-					<main
-						className={`${activeTab === "editor" ? "flex" : "hidden"} flex-1 flex-col overflow-hidden md:flex`}
-					>
+					<InputSidebar onOpenChange={setInputOpen} open={inputOpen} />
+					<main className="flex flex-1 flex-col overflow-hidden">
 						<EditorCanvas />
 						<AspectToolbar />
 					</main>
-					<ExportSidebar mobileVisible={activeTab === "export"} />
+					<ExportSidebar onOpenChange={setExportOpen} open={exportOpen} />
 				</div>
-				<MobileTabs active={activeTab} onChange={setActiveTab} />
 			</div>
 		</SnapcropProvider>
 	);

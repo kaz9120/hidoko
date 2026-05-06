@@ -1,10 +1,23 @@
 import logoUrl from "design-system/assets/logo/mark-dark.svg?url";
-import { Redo2Icon, Undo2Icon } from "lucide-react";
+import {
+	DownloadIcon,
+	PanelLeftIcon,
+	Redo2Icon,
+	Undo2Icon,
+} from "lucide-react";
 import { useEffect } from "react";
 import { Button } from "~/components/shadcn-ui/button";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 
-export function SiteHeader() {
+type SiteHeaderProps = {
+	onOpenInputSidebar: () => void;
+	onOpenExportSidebar: () => void;
+};
+
+export function SiteHeader({
+	onOpenInputSidebar,
+	onOpenExportSidebar,
+}: SiteHeaderProps) {
 	const { canUndo, canRedo, undo, redo } = useSnapcrop();
 
 	// Cmd/Ctrl+Z で undo、Cmd/Ctrl+Shift+Z または Cmd/Ctrl+Y で redo
@@ -36,11 +49,23 @@ export function SiteHeader() {
 	}, [undo, redo]);
 
 	return (
-		<header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-background/95 px-5 py-3 backdrop-blur">
-			<h1 className="flex items-center gap-2.5 font-semibold text-2xl text-foreground">
-				<img alt="" aria-hidden="true" className="size-7" src={logoUrl} />
-				snapcrop
-			</h1>
+		<header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-background/95 px-3 py-3 backdrop-blur md:px-5">
+			<div className="flex items-center gap-2">
+				<Button
+					aria-label="入力サイドバーを開く"
+					className="md:hidden"
+					onClick={onOpenInputSidebar}
+					size="icon-sm"
+					title="入力"
+					variant="ghost"
+				>
+					<PanelLeftIcon strokeWidth={1.75} />
+				</Button>
+				<h1 className="flex items-center gap-2.5 font-semibold text-2xl text-foreground">
+					<img alt="" aria-hidden="true" className="size-7" src={logoUrl} />
+					snapcrop
+				</h1>
+			</div>
 			<div className="flex items-center gap-1.5">
 				<Button
 					aria-label="元に戻す"
@@ -61,6 +86,16 @@ export function SiteHeader() {
 					variant="ghost"
 				>
 					<Redo2Icon strokeWidth={1.75} />
+				</Button>
+				<Button
+					aria-label="エクスポートサイドバーを開く"
+					className="md:hidden"
+					onClick={onOpenExportSidebar}
+					size="icon-sm"
+					title="エクスポート"
+					variant="ghost"
+				>
+					<DownloadIcon strokeWidth={1.75} />
 				</Button>
 			</div>
 		</header>

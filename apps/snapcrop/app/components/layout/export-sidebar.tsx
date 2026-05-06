@@ -2,6 +2,7 @@ import { CopyIcon, DownloadIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ImageInfo } from "~/components/layout/image-info";
+import { SidebarShell } from "~/components/layout/sidebar-shell";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 import { writeImageToClipboard } from "~/lib/clipboard";
 import {
@@ -11,10 +12,11 @@ import {
 } from "~/lib/image-export";
 
 type ExportSidebarProps = {
-	mobileVisible: boolean;
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
 };
 
-export function ExportSidebar({ mobileVisible }: ExportSidebarProps) {
+export function ExportSidebar({ open, onOpenChange }: ExportSidebarProps) {
 	const { image, cropperRef } = useSnapcrop();
 	const [isDownloading, setIsDownloading] = useState(false);
 	const [isCopying, setIsCopying] = useState(false);
@@ -56,8 +58,12 @@ export function ExportSidebar({ mobileVisible }: ExportSidebarProps) {
 	};
 
 	return (
-		<aside
-			className={`${mobileVisible ? "flex" : "hidden"} w-full shrink-0 flex-col overflow-y-auto border-border bg-card md:flex md:w-72 md:border-l`}
+		<SidebarShell
+			description="クロップ済み画像の保存先を選ぶ"
+			onOpenChange={onOpenChange}
+			open={open}
+			side="right"
+			title="エクスポート"
 		>
 			<div className="border-border border-b p-5">
 				<h2 className="mb-4 font-semibold text-muted-foreground text-xs uppercase tracking-wide">
@@ -110,6 +116,6 @@ export function ExportSidebar({ mobileVisible }: ExportSidebarProps) {
 			</div>
 
 			<ImageInfo />
-		</aside>
+		</SidebarShell>
 	);
 }
