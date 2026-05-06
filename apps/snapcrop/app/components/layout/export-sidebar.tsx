@@ -1,5 +1,6 @@
-import { CheckIcon, CopyIcon, DownloadIcon } from "lucide-react";
+import { CopyIcon, DownloadIcon } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { ImageInfo } from "~/components/layout/image-info";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 import { writeImageToClipboard } from "~/lib/clipboard";
@@ -17,7 +18,6 @@ export function ExportSidebar({ mobileVisible }: ExportSidebarProps) {
 	const { image, cropperRef } = useSnapcrop();
 	const [isDownloading, setIsDownloading] = useState(false);
 	const [isCopying, setIsCopying] = useState(false);
-	const [copyResult, setCopyResult] = useState<"idle" | "ok" | "fail">("idle");
 	const hasImage = image !== null;
 
 	const handleDownload = async () => {
@@ -29,6 +29,8 @@ export function ExportSidebar({ mobileVisible }: ExportSidebarProps) {
 		try {
 			const blob = await getCroppedBlob(cropper, "image/png");
 			downloadBlob(blob, makeDownloadFilename("png"));
+		} catch {
+			toast.error("画像の書き出しに失敗しました");
 		} finally {
 			setIsDownloading(false);
 		}
@@ -43,8 +45,11 @@ export function ExportSidebar({ mobileVisible }: ExportSidebarProps) {
 		try {
 			const blob = await getCroppedBlob(cropper, "image/png");
 			const ok = await writeImageToClipboard(blob);
-			setCopyResult(ok ? "ok" : "fail");
-			window.setTimeout(() => setCopyResult("idle"), 2000);
+			if (ok) {
+				toast.success("クリップボードにコピーしました");
+			} else {
+				toast.error("クリップボードへのコピーに失敗しました");
+			}
 		} finally {
 			setIsCopying(false);
 		}
@@ -91,24 +96,14 @@ export function ExportSidebar({ mobileVisible }: ExportSidebarProps) {
 							<span
 								className={hasImage ? "text-primary" : "text-muted-foreground"}
 							>
-								{copyResult === "ok" ? (
-									<CheckIcon size={18} strokeWidth={1.75} />
-								) : (
-									<CopyIcon size={18} strokeWidth={1.75} />
-								)}
+								<CopyIcon size={18} strokeWidth={1.75} />
 							</span>
 							<span className="font-medium text-foreground text-sm">
 								クリップボード
 							</span>
 						</div>
 						<span className="text-muted-foreground text-xs">
-							{copyResult === "ok"
-								? "コピー完了"
-								: copyResult === "fail"
-									? "コピーに失敗"
-									: isCopying
-										? "コピー中..."
-										: "画像をコピー"}
+							{isCopying ? "コピー中..." : "画像をコピー"}
 						</span>
 					</button>
 				</div>

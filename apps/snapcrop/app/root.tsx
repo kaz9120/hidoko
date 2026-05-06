@@ -7,6 +7,7 @@ import {
 	ScrollRestoration,
 } from "react-router";
 
+import { Toaster } from "~/components/shadcn-ui/sonner";
 import type { Route } from "./+types/root";
 import "./globals.css";
 
@@ -29,7 +30,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-	return <Outlet />;
+	return (
+		<>
+			<Outlet />
+			<Toaster position="bottom-center" />
+		</>
+	);
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

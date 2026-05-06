@@ -6,6 +6,7 @@ import {
 	MonitorIcon,
 } from "lucide-react";
 import { useRef, useState } from "react";
+import { toast } from "sonner";
 import { CameraDialog } from "~/components/camera-dialog";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 import { readImageFromClipboard } from "~/lib/clipboard";
@@ -41,6 +42,8 @@ export function InputSidebar({ mobileVisible }: InputSidebarProps) {
 		const blob = await readImageFromClipboard();
 		if (blob) {
 			await loadImageFromBlob(blob);
+		} else {
+			toast.error("クリップボードに画像が見つかりません");
 		}
 	};
 
