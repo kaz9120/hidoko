@@ -1,6 +1,10 @@
 import { RotateCwSquareIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Button } from "~/components/shadcn-ui/button";
+import { Toggle } from "~/components/shadcn-ui/toggle";
+import {
+	ToggleGroup,
+	ToggleGroupItem,
+} from "~/components/shadcn-ui/toggle-group";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 
 type AspectRatio = {
@@ -83,52 +87,66 @@ export function AspectToolbar() {
 		return null;
 	}
 
-	const handleAspectClick = (next: AspectRatio) => {
-		setSelectedId(next.id);
-		cropperRef.current?.setAspectRatio(effectiveRatio(next.ratio, isPortrait));
+	const handleAspectChange = (next: string) => {
+		// ToggleGroup type="single" は同じ項目を再クリックすると "" になるので
+		// 常に何かしら選択された状態を保つために空文字を弾く
+		if (!next) {
+			return;
+		}
+		const found = ASPECT_RATIOS.find((r) => r.id === next);
+		if (!found) {
+			return;
+		}
+		setSelectedId(found.id);
+		cropperRef.current?.setAspectRatio(effectiveRatio(found.ratio, isPortrait));
 	};
 
-	const handleOrientationToggle = () => {
-		const nextPortrait = !isPortrait;
-		setIsPortrait(nextPortrait);
+	const handleOrientationToggle = (pressed: boolean) => {
+		setIsPortrait(pressed);
 		const current = ASPECT_RATIOS.find((r) => r.id === selectedId);
 		if (current) {
 			cropperRef.current?.setAspectRatio(
-				effectiveRatio(current.ratio, nextPortrait),
+				effectiveRatio(current.ratio, pressed),
 			);
 		}
 	};
 
 	return (
 		<div className="flex flex-wrap items-center gap-3 border-border border-t bg-card px-5 py-3">
-			<span className="shrink-0 text-muted-foreground text-sm">
+			<span
+				className="shrink-0 text-muted-foreground text-sm"
+				id="aspect-label"
+			>
 				アスペクト比:
 			</span>
-			<Button
-				aria-label="縦横切り替え"
-				aria-pressed={isPortrait}
-				className={isPortrait ? "border-primary text-primary" : undefined}
-				onClick={handleOrientationToggle}
-				size="icon-sm"
+			<Toggle
+				aria-label={isPortrait ? "横向きに切り替え" : "縦向きに切り替え"}
+				onPressedChange={handleOrientationToggle}
+				pressed={isPortrait}
+				size="sm"
 				title={isPortrait ? "横向きに切り替え" : "縦向きに切り替え"}
 				variant="outline"
 			>
 				<RotateCwSquareIcon strokeWidth={1.75} />
-			</Button>
-			<div className="flex flex-wrap items-center gap-1.5">
+			</Toggle>
+			<ToggleGroup
+				aria-labelledby="aspect-label"
+				onValueChange={handleAspectChange}
+				type="single"
+				value={selectedId}
+				variant="outline"
+			>
 				{ASPECT_RATIOS.map((aspect) => (
-					<Button
-						className="px-3"
+					<ToggleGroupItem
 						key={aspect.id}
-						onClick={() => handleAspectClick(aspect)}
 						size="sm"
 						title={aspect.title}
-						variant={selectedId === aspect.id ? "secondary" : "ghost"}
+						value={aspect.id}
 					>
 						{aspect.label}
-					</Button>
+					</ToggleGroupItem>
 				))}
-			</div>
+			</ToggleGroup>
 		</div>
 	);
 }
