@@ -1,24 +1,24 @@
 {
-  "name": "hidoko",
-  "private": true,
-  "type": "module",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "scripts": {
-    "format": "biome format --write .",
-    "lint": "biome lint .",
-    "check": "biome check --write .",
-    "check:ci": "biome check .",
-    "typecheck": "bun run --filter '*' typecheck"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.4.14",
-    "@types/bun": "^1.3.13",
-    "typescript": "^6.0.3"
-  },
-  "engines": {
-    "bun": ">=1.3.9"
-  }
+	"name": "hidoko",
+	"private": true,
+	"type": "module",
+	"workspaces": [
+		"apps/*",
+		"packages/*"
+	],
+	"scripts": {
+		"format": "biome format --write .",
+		"lint": "biome lint .",
+		"check": "biome check --write .",
+		"check:ci": "biome check .",
+		"typecheck": "bun run --filter '*' typecheck"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.14",
+		"@types/bun": "^1.3.13",
+		"typescript": "^6.0.3"
+	},
+	"engines": {
+		"bun": ">=1.3.9"
+	}
 }
