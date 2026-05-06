@@ -1,17 +1,20 @@
-import logoUrl from "design-system/assets/logo/mark-dark.svg?url";
+import logoCreamUrl from "design-system/assets/logo/mark-cream.svg?url";
+import logoDarkUrl from "design-system/assets/logo/mark-dark.svg?url";
 import {
 	DownloadIcon,
 	PanelLeftIcon,
 	Redo2Icon,
 	Undo2Icon,
 } from "lucide-react";
-import { type ReactNode, useEffect } from "react";
+import { useTheme } from "next-themes";
+import { type ReactNode, useEffect, useState } from "react";
 import { Button } from "~/components/shadcn-ui/button";
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
 } from "~/components/shadcn-ui/tooltip";
+import { ThemeToggle } from "~/components/theme-toggle";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 
 type SiteHeaderProps = {
@@ -24,6 +27,16 @@ export function SiteHeader({
 	onOpenExportSidebar,
 }: SiteHeaderProps) {
 	const { canUndo, canRedo, undo, redo } = useSnapcrop();
+	const { resolvedTheme } = useTheme();
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
+
+	// hydration 前は dark 想定で描画。design-system は dark が初期状態。
+	const logoUrl =
+		mounted && resolvedTheme === "light" ? logoCreamUrl : logoDarkUrl;
 
 	// Cmd/Ctrl+Z で undo、Cmd/Ctrl+Shift+Z または Cmd/Ctrl+Y で redo
 	useEffect(() => {
@@ -83,6 +96,7 @@ export function SiteHeader({
 				>
 					<Redo2Icon strokeWidth={1.75} />
 				</TooltipIconButton>
+				<ThemeToggle />
 				<TooltipIconButton
 					className="md:hidden"
 					label="エクスポートサイドバーを開く"

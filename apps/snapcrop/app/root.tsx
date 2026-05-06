@@ -1,4 +1,5 @@
 import faviconUrl from "design-system/assets/logo/mark-cream.svg?url";
+import { ThemeProvider } from "next-themes";
 import {
 	isRouteErrorResponse,
 	Links,
@@ -19,7 +20,9 @@ export const links: Route.LinksFunction = () => [
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="ja" className="dark">
+		// next-themes が html.class を後付けで切り替えるため、prerender の HTML
+		// と差分が出る。SPA でも React の hydration 警告を抑える必要がある。
+		<html lang="ja" className="dark" suppressHydrationWarning>
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -37,10 +40,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
 	return (
-		<TooltipProvider>
-			<Outlet />
-			<Toaster position="bottom-center" />
-		</TooltipProvider>
+		<ThemeProvider
+			attribute="class"
+			defaultTheme="dark"
+			disableTransitionOnChange
+			enableSystem={false}
+		>
+			<TooltipProvider>
+				<Outlet />
+				<Toaster position="bottom-center" />
+			</TooltipProvider>
+		</ThemeProvider>
 	);
 }
 

@@ -8,41 +8,33 @@
 /*
  * 火床デザインシステム → shadcn/ui CSS 変数の橋渡し
  *
- * 設計はダークモードが正典 (README.md L116) なので :root と .dark で同じ値を返す。
- * shadcn の light テーマは利用しない方針。
+ * design-system/tokens.css のセマンティックトークン (--bg / --text / --accent
+ * など) を経由して shadcn の CSS 変数を解決する。design-system 側が `:root`
+ * (ダーク) と `.light` (ライト) で値を切り替えるので、html に `class="dark"`
+ * / `class="light"` を切り替えるだけで配色全体が追従する。
  *
- * 主要マッピング:
- *   --primary       → --ember-400 (CTA / リンク / フォーカスのブランド色)
- *   --background    → --ink-50    (アプリ背景)
- *   --foreground    → --ink-800   (主要テキスト)
- *   --card / popover→ --ink-100   (持ち上げた面)
- *   --secondary/muted → --ink-200 (補助面)
- *   --destructive   → --rust      (エラー)
- *   --ring          → --ember-400 (フォーカス)
- *
- * --accent は design-system 側で `var(--ember-400)` (リンク色等) として既に
- * 定義されているので意図的に上書きしない。shadcn の bg-accent / text-accent
- * もブランド色として表示される。
+ * `--accent` `--border` は design-system が既に定義しているため、ここでは
+ * 再宣言せずそのまま参照する (shadcn の bg-accent / border-border はブランド
+ * 色 / セマンティックボーダー色として解決される)。
  */
-:root,
-.dark {
+:root {
 	--radius: 0.625rem;
-	--background: var(--ink-50);
-	--foreground: var(--ink-800);
-	--card: var(--ink-100);
-	--card-foreground: var(--ink-800);
-	--popover: var(--ink-100);
-	--popover-foreground: var(--ink-800);
-	--primary: var(--ember-400);
-	--primary-foreground: var(--ink-0);
-	--secondary: var(--ink-200);
-	--secondary-foreground: var(--ink-800);
-	--muted: var(--ink-200);
-	--muted-foreground: var(--ink-500);
-	--accent-foreground: var(--ink-0);
-	--destructive: var(--rust);
-	--input: var(--ink-300);
-	--ring: var(--ember-400);
+	--background: var(--bg);
+	--foreground: var(--text);
+	--card: var(--bg-raised);
+	--card-foreground: var(--text);
+	--popover: var(--bg-raised);
+	--popover-foreground: var(--text);
+	--primary: var(--accent);
+	--primary-foreground: var(--text-on-ember);
+	--secondary: var(--bg-overlay);
+	--secondary-foreground: var(--text);
+	--muted: var(--bg-overlay);
+	--muted-foreground: var(--text-muted);
+	--accent-foreground: var(--text-on-ember);
+	--destructive: var(--danger);
+	--input: var(--border);
+	--ring: var(--accent);
 }
 
 @theme inline {
