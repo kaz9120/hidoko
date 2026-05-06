@@ -1,10 +1,16 @@
 import { RotateCwSquareIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "~/components/shadcn-ui/button";
+import { useSnapcrop } from "~/contexts/snapcrop-context";
 
 type AspectRatio = {
 	id: string;
 	label: string;
 	title: string;
+	/**
+	 * 横長を基準とした比率。null は自由選択 (NaN) を意味する。1 (正方形) と null
+	 * は portrait モードでも値が変わらないので effectiveRatio で特別扱いする。
+	 */
 	ratio: number | null;
 	group: "free" | "standard" | "social" | "design";
 };
@@ -50,7 +56,49 @@ const ASPECT_RATIOS: AspectRatio[] = [
 	{ id: "3:2", label: "3:2", title: "写真", ratio: 3 / 2, group: "design" },
 ];
 
+function effectiveRatio(ratio: number | null, isPortrait: boolean): number {
+	if (ratio === null) {
+		return Number.NaN;
+	}
+	if (ratio === 1) {
+		return 1;
+	}
+	return isPortrait ? 1 / ratio : ratio;
+}
+
 export function AspectToolbar() {
+	const { image, cropperRef } = useSnapcrop();
+	const [selectedId, setSelectedId] = useState<string>("free");
+	const [isPortrait, setIsPortrait] = useState(false);
+
+	// 画像が差し替わったら自由 + 横向きにリセット。image の値そのものは使わず、
+	// 識別子の変化だけを購読する意図的な「effect-as-event」パターン。
+	// biome-ignore lint/correctness/useExhaustiveDependencies: intentional change-detection
+	useEffect(() => {
+		setSelectedId("free");
+		setIsPortrait(false);
+	}, [image]);
+
+	if (!image) {
+		return null;
+	}
+
+	const handleAspectClick = (next: AspectRatio) => {
+		setSelectedId(next.id);
+		cropperRef.current?.setAspectRatio(effectiveRatio(next.ratio, isPortrait));
+	};
+
+	const handleOrientationToggle = () => {
+		const nextPortrait = !isPortrait;
+		setIsPortrait(nextPortrait);
+		const current = ASPECT_RATIOS.find((r) => r.id === selectedId);
+		if (current) {
+			cropperRef.current?.setAspectRatio(
+				effectiveRatio(current.ratio, nextPortrait),
+			);
+		}
+	};
+
 	return (
 		<div className="flex flex-wrap items-center gap-3 border-border border-t bg-card px-5 py-3">
 			<span className="shrink-0 text-muted-foreground text-sm">
@@ -58,24 +106,26 @@ export function AspectToolbar() {
 			</span>
 			<Button
 				aria-label="縦横切り替え"
-				disabled
+				aria-pressed={isPortrait}
+				className={isPortrait ? "border-primary text-primary" : undefined}
+				onClick={handleOrientationToggle}
 				size="icon-sm"
-				title="縦横切り替え"
+				title={isPortrait ? "横向きに切り替え" : "縦向きに切り替え"}
 				variant="outline"
 			>
 				<RotateCwSquareIcon strokeWidth={1.75} />
 			</Button>
 			<div className="flex flex-wrap items-center gap-1.5">
-				{ASPECT_RATIOS.map(({ id, label, title }) => (
+				{ASPECT_RATIOS.map((aspect) => (
 					<Button
 						className="px-3"
-						disabled
-						key={id}
+						key={aspect.id}
+						onClick={() => handleAspectClick(aspect)}
 						size="sm"
-						title={title}
-						variant={id === "free" ? "secondary" : "ghost"}
+						title={aspect.title}
+						variant={selectedId === aspect.id ? "secondary" : "ghost"}
 					>
-						{label}
+						{aspect.label}
 					</Button>
 				))}
 			</div>
