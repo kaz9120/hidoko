@@ -1,3 +1,4 @@
+import faviconUrl from "design-system/assets/logo/mark-dark.svg?url";
 import {
 	isRouteErrorResponse,
 	Links,
@@ -10,6 +11,10 @@ import {
 import { Toaster } from "~/components/shadcn-ui/sonner";
 import type { Route } from "./+types/root";
 import "./globals.css";
+
+export const links: Route.LinksFunction = () => [
+	{ rel: "icon", type: "image/svg+xml", href: faviconUrl },
+];
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
