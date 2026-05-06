@@ -1,6 +1,21 @@
 import { ImageIcon } from "lucide-react";
+import { useSnapcrop } from "~/contexts/snapcrop-context";
 
 export function EditorCanvas() {
+	const { image } = useSnapcrop();
+
+	if (image) {
+		return (
+			<section className="relative flex flex-1 items-center justify-center overflow-hidden p-5">
+				<img
+					alt="編集中の画像"
+					className="max-h-full max-w-full object-contain"
+					src={image.src}
+				/>
+			</section>
+		);
+	}
+
 	return (
 		<section className="relative flex flex-1 items-center justify-center overflow-hidden p-5">
 			<div className="absolute inset-5 flex flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed border-border text-center">

@@ -4,6 +4,7 @@ import { ExportSidebar } from "~/components/layout/export-sidebar";
 import { InputSidebar } from "~/components/layout/input-sidebar";
 import { MobileTabs } from "~/components/layout/mobile-tabs";
 import { SiteHeader } from "~/components/layout/site-header";
+import { SnapcropProvider } from "~/contexts/snapcrop-context";
 
 export function meta() {
 	return [
@@ -18,17 +19,19 @@ export function meta() {
 
 export default function Home() {
 	return (
-		<div className="flex h-screen flex-col">
-			<SiteHeader />
-			<div className="flex flex-1 overflow-hidden">
-				<InputSidebar />
-				<main className="flex flex-1 flex-col overflow-hidden">
-					<EditorCanvas />
-					<AspectToolbar />
-				</main>
-				<ExportSidebar />
+		<SnapcropProvider>
+			<div className="flex h-screen flex-col">
+				<SiteHeader />
+				<div className="flex flex-1 overflow-hidden">
+					<InputSidebar />
+					<main className="flex flex-1 flex-col overflow-hidden">
+						<EditorCanvas />
+						<AspectToolbar />
+					</main>
+					<ExportSidebar />
+				</div>
+				<MobileTabs />
 			</div>
-			<MobileTabs />
-		</div>
+		</SnapcropProvider>
 	);
 }
