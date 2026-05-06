@@ -1,24 +1,34 @@
-import { Button } from "~/components/shadcn-ui/button";
+import { AspectToolbar } from "~/components/layout/aspect-toolbar";
+import { EditorCanvas } from "~/components/layout/editor-canvas";
+import { ExportSidebar } from "~/components/layout/export-sidebar";
+import { InputSidebar } from "~/components/layout/input-sidebar";
+import { MobileTabs } from "~/components/layout/mobile-tabs";
+import { SiteHeader } from "~/components/layout/site-header";
 
 export function meta() {
 	return [
 		{ title: "snapcrop" },
-		{ name: "description", content: "ブラウザで動く画像エディタ" },
+		{
+			name: "description",
+			content:
+				"画面キャプチャから画像の切り抜きまで、ブラウザひとつで完結する画像エディタ",
+		},
 	];
 }
 
 export default function Home() {
 	return (
-		<main className="flex min-h-screen items-center justify-center">
-			<div className="flex flex-col items-center gap-6 text-center">
-				<div>
-					<h1 className="text-4xl font-bold">snapcrop</h1>
-					<p className="mt-2 text-sm opacity-60">
-						React Router 7 + Cloudflare Workers
-					</p>
-				</div>
-				<Button>Get started</Button>
+		<div className="flex h-screen flex-col">
+			<SiteHeader />
+			<div className="flex flex-1 overflow-hidden">
+				<InputSidebar />
+				<main className="flex flex-1 flex-col overflow-hidden">
+					<EditorCanvas />
+					<AspectToolbar />
+				</main>
+				<ExportSidebar />
 			</div>
-		</main>
+			<MobileTabs />
+		</div>
 	);
 }
