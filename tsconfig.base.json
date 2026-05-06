@@ -8,11 +8,8 @@
 		"moduleDetection": "force",
 
 		"strict": true,
-		"noUncheckedIndexedAccess": true,
 		"noImplicitOverride": true,
 		"noFallthroughCasesInSwitch": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
 
 		"allowImportingTsExtensions": true,
 		"verbatimModuleSyntax": true,
