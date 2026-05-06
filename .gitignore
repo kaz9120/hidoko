@@ -9,6 +9,14 @@ out/
 
 # Bun
 .bun/
+bun.lockb
+
+# Tooling cache
+.cache/
+.tmp/
+
+# React Router (generated route types)
+.react-router/
 
 # Logs
 logs/
@@ -37,6 +45,18 @@ Thumbs.db
 .dev.vars
 .dev.vars.*
 
-# Coverage / cache
+# AI tools (per-machine local config)
+.claude/settings.local.json
+.claude/worktrees/
+CLAUDE.local.md
+.cursor/
+.codex/
+.mcp.json
+
+# Storybook
+*storybook.log
+storybook-static/
+
+# Test results
+test-results/
 coverage/
-.cache/
