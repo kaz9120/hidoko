@@ -1,14 +1,22 @@
 import Cropper from "cropperjs";
 import { ImageIcon } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { toast } from "sonner";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 import { useClipboardPaste } from "~/hooks/use-clipboard-paste";
+import { useCopyShortcut } from "~/hooks/use-copy-shortcut";
 import { useFileDrop } from "~/hooks/use-file-drop";
 
 export function EditorCanvas() {
 	const { image, loadImageFromBlob, cropperRef } = useSnapcrop();
 	const isDragging = useFileDrop(loadImageFromBlob);
 	useClipboardPaste(loadImageFromBlob);
+	useCopyShortcut({
+		cropperRef,
+		hasImage: image !== null,
+		onSuccess: () => toast.success("クリップボードにコピーしました"),
+		onFailure: () => toast.error("クリップボードへのコピーに失敗しました"),
+	});
 	const imgRef = useRef<HTMLImageElement>(null);
 
 	useEffect(() => {

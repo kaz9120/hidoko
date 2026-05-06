@@ -96,6 +96,7 @@ export function ExportSidebar({ open, onOpenChange }: ExportSidebarProps) {
 						className="flex flex-col gap-2 rounded-lg border border-border bg-background p-4 text-left transition-colors hover:border-primary hover:bg-muted disabled:opacity-50 disabled:hover:border-border disabled:hover:bg-background"
 						disabled={!hasImage || isCopying}
 						onClick={handleCopy}
+						title="画像をコピー (⌘C)"
 						type="button"
 					>
 						<div className="flex items-center gap-3">
@@ -109,7 +110,7 @@ export function ExportSidebar({ open, onOpenChange }: ExportSidebarProps) {
 							</span>
 						</div>
 						<span className="text-muted-foreground text-xs">
-							{isCopying ? "コピー中..." : "画像をコピー"}
+							{isCopying ? "コピー中..." : "画像をコピー (⌘C)"}
 						</span>
 					</button>
 				</div>
