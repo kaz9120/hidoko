@@ -9,6 +9,7 @@ import {
 } from "react-router";
 
 import { Toaster } from "~/components/shadcn-ui/sonner";
+import { TooltipProvider } from "~/components/shadcn-ui/tooltip";
 import type { Route } from "./+types/root";
 import "./globals.css";
 
@@ -36,10 +37,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
 	return (
-		<>
+		<TooltipProvider>
 			<Outlet />
 			<Toaster position="bottom-center" />
-		</>
+		</TooltipProvider>
 	);
 }
 

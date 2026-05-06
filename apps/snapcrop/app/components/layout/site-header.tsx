@@ -5,8 +5,13 @@ import {
 	Redo2Icon,
 	Undo2Icon,
 } from "lucide-react";
-import { useEffect } from "react";
+import { type ReactNode, useEffect } from "react";
 import { Button } from "~/components/shadcn-ui/button";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "~/components/shadcn-ui/tooltip";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 
 type SiteHeaderProps = {
@@ -51,53 +56,73 @@ export function SiteHeader({
 	return (
 		<header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-background/95 px-3 py-3 backdrop-blur md:px-5">
 			<div className="flex items-center gap-2">
-				<Button
-					aria-label="入力サイドバーを開く"
+				<TooltipIconButton
 					className="md:hidden"
+					label="入力サイドバーを開く"
 					onClick={onOpenInputSidebar}
-					size="icon-sm"
-					title="入力"
-					variant="ghost"
 				>
 					<PanelLeftIcon strokeWidth={1.75} />
-				</Button>
+				</TooltipIconButton>
 				<h1 className="flex items-center gap-2.5 font-semibold text-2xl text-foreground">
 					<img alt="" aria-hidden="true" className="size-7" src={logoUrl} />
 					snapcrop
 				</h1>
 			</div>
 			<div className="flex items-center gap-1.5">
-				<Button
-					aria-label="元に戻す"
+				<TooltipIconButton
 					disabled={!canUndo}
+					label="元に戻す (⌘Z)"
 					onClick={undo}
-					size="icon-sm"
-					title="元に戻す (⌘Z)"
-					variant="ghost"
 				>
 					<Undo2Icon strokeWidth={1.75} />
-				</Button>
-				<Button
-					aria-label="やり直す"
+				</TooltipIconButton>
+				<TooltipIconButton
 					disabled={!canRedo}
+					label="やり直す (⌘⇧Z)"
 					onClick={redo}
-					size="icon-sm"
-					title="やり直す (⌘⇧Z)"
-					variant="ghost"
 				>
 					<Redo2Icon strokeWidth={1.75} />
-				</Button>
-				<Button
-					aria-label="エクスポートサイドバーを開く"
+				</TooltipIconButton>
+				<TooltipIconButton
 					className="md:hidden"
+					label="エクスポートサイドバーを開く"
 					onClick={onOpenExportSidebar}
-					size="icon-sm"
-					title="エクスポート"
-					variant="ghost"
 				>
 					<DownloadIcon strokeWidth={1.75} />
-				</Button>
+				</TooltipIconButton>
 			</div>
 		</header>
+	);
+}
+
+function TooltipIconButton({
+	label,
+	onClick,
+	disabled,
+	className,
+	children,
+}: {
+	label: string;
+	onClick: () => void;
+	disabled?: boolean;
+	className?: string;
+	children: ReactNode;
+}) {
+	return (
+		<Tooltip>
+			<TooltipTrigger asChild>
+				<Button
+					aria-label={label}
+					className={className}
+					disabled={disabled}
+					onClick={onClick}
+					size="icon-sm"
+					variant="ghost"
+				>
+					{children}
+				</Button>
+			</TooltipTrigger>
+			<TooltipContent>{label}</TooltipContent>
+		</Tooltip>
 	);
 }
