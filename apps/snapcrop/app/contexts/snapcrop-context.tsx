@@ -1,4 +1,12 @@
-import { createContext, type ReactNode, use, useState } from "react";
+import type Cropper from "cropperjs";
+import {
+	createContext,
+	type ReactNode,
+	type RefObject,
+	use,
+	useRef,
+	useState,
+} from "react";
 
 export type LoadedImage = {
 	src: string;
@@ -13,12 +21,14 @@ type SnapcropContextValue = {
 	image: LoadedImage | null;
 	loadImageFromBlob: (blob: Blob) => Promise<void>;
 	clearImage: () => void;
+	cropperRef: RefObject<Cropper | null>;
 };
 
 const SnapcropContext = createContext<SnapcropContextValue | null>(null);
 
 export function SnapcropProvider({ children }: { children: ReactNode }) {
 	const [image, setImage] = useState<LoadedImage | null>(null);
+	const cropperRef = useRef<Cropper | null>(null);
 
 	const loadImageFromBlob = async (blob: Blob) => {
 		const next = await readImageFromBlob(blob);
@@ -40,7 +50,9 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 	};
 
 	return (
-		<SnapcropContext.Provider value={{ image, loadImageFromBlob, clearImage }}>
+		<SnapcropContext.Provider
+			value={{ image, loadImageFromBlob, clearImage, cropperRef }}
+		>
 			{children}
 		</SnapcropContext.Provider>
 	);

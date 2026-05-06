@@ -1,6 +1,7 @@
 @import "tailwindcss" source(".");
 @import "design-system/tokens.css";
 @import "design-system/fonts.css";
+@import "cropperjs/dist/cropper.css";
 
 @custom-variant dark (&:is(.dark *));
 
