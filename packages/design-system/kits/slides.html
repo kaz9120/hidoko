@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<title>Hidoko / Slides</title>
+<link rel="stylesheet" href="../tokens.css"/>
+<link rel="stylesheet" href="../components.css"/>
+<style>
+  body { margin: 0; background: #000; font-family: var(--font-sans); }
+
+  deck-stage > section {
+    width: 1920px; height: 1080px;
+    background: var(--bg-0);
+    color: var(--text);
+    position: relative;
+    overflow: hidden;
+    padding: 96px 128px;
+    display: flex; flex-direction: column;
+    box-sizing: border-box;
+  }
+
+  /* Common scaffolding */
+  .mark {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    color: var(--accent);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: 12px;
+  }
+  .mark::before { content: ""; width: 24px; height: 1px; background: currentColor; }
+  .footer-bar {
+    position: absolute; left: 128px; right: 128px; bottom: 56px;
+    display: flex; align-items: baseline; justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 16px; color: var(--text-faint); letter-spacing: 0.18em; text-transform: uppercase;
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 20px;
+  }
+  .footer-bar .logo { color: var(--text-strong); display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-sans); font-weight: 600; letter-spacing: -0.01em; text-transform: none; font-size: 18px; }
+  .footer-bar .logo svg { color: var(--accent); }
+
+  /* Title slide */
+  .title-slide { background: var(--bg-0); }
+  .title-slide .embers-wrap { position: absolute; inset: 0; }
+  .title-slide .content { position: relative; z-index: 2; margin-top: auto; max-width: 1400px; }
+  .title-slide h1 {
+    font-size: 168px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+    color: var(--text-strong);
+    margin: 32px 0 32px;
+  }
+  .title-slide h1 em { font-style: normal; color: var(--accent); }
+  .title-slide .sub { font-size: 32px; color: var(--text-muted); max-width: 900px; line-height: 1.5; margin-bottom: 56px; }
+  .title-slide .meta { font-family: var(--font-mono); font-size: 18px; color: var(--text-faint); letter-spacing: 0.18em; text-transform: uppercase; }
+
+  /* Section divider slide */
+  .section-slide { background: linear-gradient(135deg, #c64414 0%, #6b220c 100%); color: #fff8ee; padding-left: 160px; }
+  .section-slide .num { font-family: var(--font-mono); font-size: 32px; color: rgba(255,248,238,0.7); letter-spacing: 0.18em; }
+  .section-slide h2 { font-size: 200px; font-weight: 600; line-height: 1; letter-spacing: -0.03em; margin: 16px 0 24px; }
+  .section-slide .desc { font-size: 36px; max-width: 1000px; line-height: 1.5; color: rgba(255,248,238,0.85); }
+  .section-slide .footer-bar { color: rgba(255,248,238,0.6); border-top-color: rgba(255,248,238,0.2); }
+  .section-slide .footer-bar .logo { color: #fff8ee; }
+  .section-slide .footer-bar .logo svg { color: #fff8ee; }
+
+  /* Content slide */
+  .content-slide .head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 48px; }
+  .content-slide h2 { font-size: 84px; font-weight: 500; letter-spacing: -0.025em; line-height: 1.05; color: var(--text-strong); margin: 16px 0 0; max-width: 1400px; }
+  .content-slide .lead { font-size: 28px; color: var(--text-muted); max-width: 1100px; line-height: 1.6; margin: 28px 0 56px; }
+
+  /* Three-up cards */
+  .three-up { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-top: 24px; }
+  .three-up .item {
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: var(--shadow-rim);
+  }
+  .three-up .num { font-family: var(--font-mono); font-size: 18px; color: var(--accent); letter-spacing: 0.18em; }
+  .three-up h3 { font-size: 40px; font-weight: 500; color: var(--text-strong); margin: 18px 0 16px; letter-spacing: -0.02em; }
+  .three-up p { font-size: 22px; color: var(--text-muted); line-height: 1.6; margin: 0; }
+
+  /* Quote slide */
+  .quote-slide { padding: 128px 200px; }
+  .quote-slide .quote {
+    border-left: 4px solid var(--accent);
+    padding-left: 56px;
+    max-width: 1400px;
+    margin: auto 0;
+  }
+  .quote-slide .quote p { font-size: 76px; line-height: 1.3; color: var(--text-strong); font-weight: 500; letter-spacing: -0.015em; margin: 0 0 32px; }
+  .quote-slide .quote cite { font-style: normal; font-family: var(--font-mono); font-size: 20px; color: var(--text-faint); letter-spacing: 0.18em; text-transform: uppercase; }
+
+  /* Code slide */
+  .code-slide { padding: 96px 128px; }
+  .code-slide .head { margin-bottom: 32px; }
+  .code-slide pre {
+    font-family: var(--font-mono);
+    font-size: 28px;
+    line-height: 1.6;
+    background: #08070a;
+    border: 1px solid var(--ink-200);
+    border-radius: 12px;
+    padding: 48px 56px;
+    color: var(--text);
+    margin: 0;
+    flex: 1;
+  }
+  .code-slide pre .c-c { color: var(--text-faint); }
+  .code-slide pre .c-k { color: var(--moon); }
+  .code-slide pre .c-v { color: var(--ember-200); }
+  .code-slide pre .c-str { color: var(--ember-300); }
+  .code-slide pre .c-s { color: var(--moss); }
+
+  /* Closing */
+  .end-slide { background: var(--bg-0); padding: 128px 160px; }
+  .end-slide .center {
+    margin: auto;
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 24px;
+  }
+  .end-slide .mk { font-size: 240px; color: var(--accent); line-height: 1; filter: drop-shadow(0 0 80px rgba(244,125,58,0.4)); }
+  .end-slide h2 { font-size: 96px; font-weight: 600; letter-spacing: -0.02em; color: var(--text-strong); margin: 24px 0 8px; }
+  .end-slide p { font-size: 28px; color: var(--text-muted); margin: 0; }
+</style>
+</head>
+<body>
+
+<deck-stage>
+
+  <!-- 01: Title -->
+  <section class="title-slide" data-screen-label="01 Title">
+    <div class="embers-wrap"><hi-embers density="80" wind="0.04"></hi-embers></div>
+    <div class="content">
+      <span class="mark">EMBER × 個人開発 / 2026</span>
+      <h1>静かに燃える、<br/><em>道具の話。</em></h1>
+      <div class="sub">焚き火を愛するエンジニアが、なぜ自分でツールを作り続けるのか。</div>
+      <div class="meta">火床（HIDOKO）/ 内部 LT / 12:34</div>
+    </div>
+    <div class="footer-bar">
+      <span class="logo">
+        <svg width="22" height="22" viewBox="0 0 142 142" xmlns="http://www.w3.org/2000/svg"><circle cx="26" cy="26" r="3.37" fill="currentColor" opacity="0.33"/><circle cx="44" cy="26" r="4.41" fill="currentColor" opacity="0.43"/><circle cx="98" cy="26" r="4.41" fill="currentColor" opacity="0.43"/><circle cx="116" cy="26" r="3.37" fill="currentColor" opacity="0.33"/><circle cx="8" cy="44" r="3.04" fill="currentColor" opacity="0.30"/><circle cx="26" cy="44" r="4.59" fill="currentColor" opacity="0.45"/><circle cx="44" cy="44" r="5.92" fill="currentColor" opacity="0.58"/><circle cx="62" cy="44" r="6.78" fill="currentColor" opacity="0.67"/><circle cx="80" cy="44" r="6.78" fill="currentColor" opacity="0.67"/><circle cx="98" cy="44" r="5.92" fill="currentColor" opacity="0.58"/><circle cx="116" cy="44" r="4.59" fill="currentColor" opacity="0.45"/><circle cx="134" cy="44" r="3.04" fill="currentColor" opacity="0.30"/><circle cx="8" cy="62" r="3.66" fill="currentColor" opacity="0.36"/><circle cx="26" cy="62" r="5.41" fill="currentColor" opacity="0.53"/><circle cx="44" cy="62" r="7.08" fill="currentColor" opacity="0.70"/><circle cx="62" cy="62" r="8.45" fill="currentColor" opacity="0.83"/><circle cx="80" cy="62" r="8.45" fill="currentColor" opacity="0.83"/><circle cx="98" cy="62" r="7.08" fill="currentColor" opacity="0.70"/><circle cx="116" cy="62" r="5.41" fill="currentColor" opacity="0.53"/><circle cx="134" cy="62" r="3.66" fill="currentColor" opacity="0.36"/><circle cx="26" cy="80" r="5.62" fill="currentColor" opacity="0.55"/><circle cx="44" cy="80" r="7.42" fill="currentColor" opacity="0.73"/><circle cx="62" cy="80" r="9.19" fill="currentColor" opacity="0.90"/><circle cx="80" cy="80" r="9.19" fill="currentColor" opacity="0.90"/><circle cx="98" cy="80" r="7.42" fill="currentColor" opacity="0.73"/><circle cx="116" cy="80" r="5.62" fill="currentColor" opacity="0.55"/><circle cx="26" cy="98" r="5.14" fill="currentColor" opacity="0.50"/><circle cx="44" cy="98" r="6.68" fill="currentColor" opacity="0.66"/><circle cx="62" cy="98" r="7.81" fill="currentColor" opacity="0.77"/><circle cx="80" cy="98" r="7.81" fill="currentColor" opacity="0.77"/><circle cx="98" cy="98" r="6.68" fill="currentColor" opacity="0.66"/><circle cx="116" cy="98" r="5.14" fill="currentColor" opacity="0.50"/><circle cx="44" cy="116" r="5.34" fill="currentColor" opacity="0.52"/><circle cx="62" cy="116" r="6.08" fill="currentColor" opacity="0.60"/><circle cx="80" cy="116" r="6.08" fill="currentColor" opacity="0.60"/><circle cx="98" cy="116" r="5.34" fill="currentColor" opacity="0.52"/><circle cx="62" cy="134" r="4.30" fill="currentColor" opacity="0.42"/><circle cx="80" cy="134" r="4.30" fill="currentColor" opacity="0.42"/></svg>
+        hidoko<span style="color: var(--accent);">.</span>
+      </span>
+      <span>01</span>
+    </div>
+  </section>
+
+  <!-- 02: Section divider -->
+  <section class="section-slide" data-screen-label="02 Section">
+    <div class="num">CHAPTER / 01</div>
+    <h2>火床、<br/>とは何か。</h2>
+    <div class="desc">焚き火の中心にある、熾火が眠る場所。<br/>派手な炎ではなく、長く、深く、燃え続けるもの。</div>
+    <div class="footer-bar">
+      <span class="logo">
+        <svg width="22" height="22" viewBox="0 0 142 142" xmlns="http://www.w3.org/2000/svg"><circle cx="26" cy="26" r="3.37" fill="currentColor" opacity="0.33"/><circle cx="44" cy="26" r="4.41" fill="currentColor" opacity="0.43"/><circle cx="98" cy="26" r="4.41" fill="currentColor" opacity="0.43"/><circle cx="116" cy="26" r="3.37" fill="currentColor" opacity="0.33"/><circle cx="8" cy="44" r="3.04" fill="currentColor" opacity="0.30"/><circle cx="26" cy="44" r="4.59" fill="currentColor" opacity="0.45"/><circle cx="44" cy="44" r="5.92" fill="currentColor" opacity="0.58"/><circle cx="62" cy="44" r="6.78" fill="currentColor" opacity="0.67"/><circle cx="80" cy="44" r="6.78" fill="currentColor" opacity="0.67"/><circle cx="98" cy="44" r="5.92" fill="currentColor" opacity="0.58"/><circle cx="116" cy="44" r="4.59" fill="currentColor" opacity="0.45"/><circle cx="134" cy="44" r="3.04" fill="currentColor" opacity="0.30"/><circle cx="8" cy="62" r="3.66" fill="currentColor" opacity="0.36"/><circle cx="26" cy="62" r="5.41" fill="currentColor" opacity="0.53"/><circle cx="44" cy="62" r="7.08" fill="currentColor" opacity="0.70"/><circle cx="62" cy="62" r="8.45" fill="currentColor" opacity="0.83"/><circle cx="80" cy="62" r="8.45" fill="currentColor" opacity="0.83"/><circle cx="98" cy="62" r="7.08" fill="currentColor" opacity="0.70"/><circle cx="116" cy="62" r="5.41" fill="currentColor" opacity="0.53"/><circle cx="134" cy="62" r="3.66" fill="currentColor" opacity="0.36"/><circle cx="26" cy="80" r="5.62" fill="currentColor" opacity="0.55"/><circle cx="44" cy="80" r="7.42" fill="currentColor" opacity="0.73"/><circle cx="62" cy="80" r="9.19" fill="currentColor" opacity="0.90"/><circle cx="80" cy="80" r="9.19" fill="currentColor" opacity="0.90"/><circle cx="98" cy="80" r="7.42" fill="currentColor" opacity="0.73"/><circle cx="116" cy="80" r="5.62" fill="currentColor" opacity="0.55"/><circle cx="26" cy="98" r="5.14" fill="currentColor" opacity="0.50"/><circle cx="44" cy="98" r="6.68" fill="currentColor" opacity="0.66"/><circle cx="62" cy="98" r="7.81" fill="currentColor" opacity="0.77"/><circle cx="80" cy="98" r="7.81" fill="currentColor" opacity="0.77"/><circle cx="98" cy="98" r="6.68" fill="currentColor" opacity="0.66"/><circle cx="116" cy="98" r="5.14" fill="currentColor" opacity="0.50"/><circle cx="44" cy="116" r="5.34" fill="currentColor" opacity="0.52"/><circle cx="62" cy="116" r="6.08" fill="currentColor" opacity="0.60"/><circle cx="80" cy="116" r="6.08" fill="currentColor" opacity="0.60"/><circle cx="98" cy="116" r="5.34" fill="currentColor" opacity="0.52"/><circle cx="62" cy="134" r="4.30" fill="currentColor" opacity="0.42"/><circle cx="80" cy="134" r="4.30" fill="currentColor" opacity="0.42"/></svg>
+        hidoko<span style="color: #fff8ee;">.</span>
+      </span>
+      <span>02</span>
+    </div>
+  </section>
+
+  <!-- 03: Three-up content -->
+  <section class="content-slide" data-screen-label="03 Tenets">
+    <div class="head">
+      <span class="mark">CHAPTER / 02 — 原則</span>
+    </div>
+    <h2>火床の原則、3 つ。</h2>
+    <div class="lead">すべての Hidoko プロダクトが共有する、態度。</div>
+    <div class="three-up">
+      <div class="item">
+        <div class="num">01</div>
+        <h3>引き算で整える</h3>
+        <p>機能を足し続けない。最小の部品で、最長の灯を保つ。</p>
+      </div>
+      <div class="item">
+        <div class="num">02</div>
+        <h3>夜に優しい</h3>
+        <p>暗闇で開いても眩しくない。色温度は炭と熾火に揃える。</p>
+      </div>
+      <div class="item">
+        <div class="num">03</div>
+        <h3>声を小さく</h3>
+        <p>ポップアップで叫ばない。通知は煙のように、薄く。</p>
+      </div>
+    </div>
+    <div class="footer-bar">
+      <span class="logo">
+        <svg width="22" height="22" viewBox="0 0 142 142" xmlns="http://www.w3.org/2000/svg"><circle cx="26" cy="26" r="3.37" fill="currentColor" opacity="0.33"/><circle cx="44" cy="26" r="4.41" fill="currentColor" opacity="0.43"/><circle cx="98" cy="26" r="4.41" fill="currentColor" opacity="0.43"/><circle cx="116" cy="26" r="3.37" fill="currentColor" opacity="0.33"/><circle cx="8" cy="44" r="3.04" fill="currentColor" opacity="0.30"/><circle cx="26" cy="44" r="4.59" fill="currentColor" opacity="0.45"/><circle cx="44" cy="44" r="5.92" fill="currentColor" opacity="0.58"/><circle cx="62" cy="44" r="6.78" fill="currentColor" opacity="0.67"/><circle cx="80" cy="44" r="6.78" fill="currentColor" opacity="0.67"/><circle cx="98" cy="44" r="5.92" fill="currentColor" opacity="0.58"/><circle cx="116" cy="44" r="4.59" fill="currentColor" opacity="0.45"/><circle cx="134" cy="44" r="3.04" fill="currentColor" opacity="0.30"/><circle cx="8" cy="62" r="3.66" fill="currentColor" opacity="0.36"/><circle cx="26" cy="62" r="5.41" fill="currentColor" opacity="0.53"/><circle cx="44" cy="62" r="7.08" fill="currentColor" opacity="0.70"/><circle cx="62" cy="62" r="8.45" fill="currentColor" opacity="0.83"/><circle cx="80" cy="62" r="8.45" fill="currentColor" opacity="0.83"/><circle cx="98" cy="62" r="7.08" fill="currentColor" opacity="0.70"/><circle cx="116" cy="62" r="5.41" fill="currentColor" opacity="0.53"/><circle cx="134" cy="62" r="3.66" fill="currentColor" opacity="0.36"/><circle cx="26" cy="80" r="5.62" fill="currentColor" opacity="0.55"/><circle cx="44" cy="80" r="7.42" fill="currentColor" opacity="0.73"/><circle cx="62" cy="80" r="9.19" fill="currentColor" opacity="0.90"/><circle cx="80" cy="80" r="9.19" fill="currentColor" opacity="0.90"/><circle cx="98" cy="80" r="7.42" fill="currentColor" opacity="0.73"/><circle cx="116" cy="80" r="5.62" fill="currentColor" opacity="0.55"/><circle cx="26" cy="98" r="5.14" fill="currentColor" opacity="0.50"/><circle cx="44" cy="98" r="6.68" fill="currentColor" opacity="0.66"/><circle cx="62" cy="98" r="7.81" fill="currentColor" opacity="0.77"/><circle cx="80" cy="98" r="7.81" fill="currentColor" opacity="0.77"/><circle cx="98" cy="98" r="6.68" fill="currentColor" opacity="0.66"/><circle cx="116" cy="98" r="5.14" fill="currentColor" opacity="0.50"/><circle cx="44" cy="116" r="5.34" fill="currentColor" opacity="0.52"/><circle cx="62" cy="116" r="6.08" fill="currentColor" opacity="0.60"/><circle cx="80" cy="116" r="6.08" fill="currentColor" opacity="0.60"/><circle cx="98" cy="116" r="5.34" fill="currentColor" opacity="0.52"/><circle cx="62" cy="134" r="4.30" fill="currentColor" opacity="0.42"/><circle cx="80" cy="134" r="4.30" fill="currentColor" opacity="0.42"/></svg>
+        hidoko<span style="color: var(--accent);">.</span>
+      </span>
+      <span>03</span>
+    </div>
+  </section>
+
+  <!-- 04: Quote -->
+  <section class="quote-slide" data-screen-label="04 Quote">
+    <span class="mark" style="margin-bottom: auto;">QUOTE / 焚き火</span>
+    <div class="quote">
+      <p>道具は、手の動きを邪魔しない。<br/>夜の机に、ちょうど良い熱量を置く。</p>
+      <cite>— 火床 マニフェスト</cite>
+    </div>
+    <div class="footer-bar">
+      <span class="logo">
+        <svg width="22" height="22" viewBox="0 0 142 142" xmlns="http://www.w3.org/2000/svg"><circle cx="26" cy="26" r="3.37" fill="currentColor" opacity="0.33"/><circle cx="44" cy="26" r="4.41" fill="currentColor" opacity="0.43"/><circle cx="98" cy="26" r="4.41" fill="currentColor" opacity="0.43"/><circle cx="116" cy="26" r="3.37" fill="currentColor" opacity="0.33"/><circle cx="8" cy="44" r="3.04" fill="currentColor" opacity="0.30"/><circle cx="26" cy="44" r="4.59" fill="currentColor" opacity="0.45"/><circle cx="44" cy="44" r="5.92" fill="currentColor" opacity="0.58"/><circle cx="62" cy="44" r="6.78" fill="currentColor" opacity="0.67"/><circle cx="80" cy="44" r="6.78" fill="currentColor" opacity="0.67"/><circle cx="98" cy="44" r="5.92" fill="currentColor" opacity="0.58"/><circle cx="116" cy="44" r="4.59" fill="currentColor" opacity="0.45"/><circle cx="134" cy="44" r="3.04" fill="currentColor" opacity="0.30"/><circle cx="8" cy="62" r="3.66" fill="currentColor" opacity="0.36"/><circle cx="26" cy="62" r="5.41" fill="currentColor" opacity="0.53"/><circle cx="44" cy="62" r="7.08" fill="currentColor" opacity="0.70"/><circle cx="62" cy="62" r="8.45" fill="currentColor" opacity="0.83"/><circle cx="80" cy="62" r="8.45" fill="currentColor" opacity="0.83"/><circle cx="98" cy="62" r="7.08" fill="currentColor" opacity="0.70"/><circle cx="116" cy="62" r="5.41" fill="currentColor" opacity="0.53"/><circle cx="134" cy="62" r="3.66" fill="currentColor" opacity="0.36"/><circle cx="26" cy="80" r="5.62" fill="currentColor" opacity="0.55"/><circle cx="44" cy="80" r="7.42" fill="currentColor" opacity="0.73"/><circle cx="62" cy="80" r="9.19" fill="currentColor" opacity="0.90"/><circle cx="80" cy="80" r="9.19" fill="currentColor" opacity="0.90"/><circle cx="98" cy="80" r="7.42" fill="currentColor" opacity="0.73"/><circle cx="116" cy="80" r="5.62" fill="currentColor" opacity="0.55"/><circle cx="26" cy="98" r="5.14" fill="currentColor" opacity="0.50"/><circle cx="44" cy="98" r="6.68" fill="currentColor" opacity="0.66"/><circle cx="62" cy="98" r="7.81" fill="currentColor" opacity="0.77"/><circle cx="80" cy="98" r="7.81" fill="currentColor" opacity="0.77"/><circle cx="98" cy="98" r="6.68" fill="currentColor" opacity="0.66"/><circle cx="116" cy="98" r="5.14" fill="currentColor" opacity="0.50"/><circle cx="44" cy="116" r="5.34" fill="currentColor" opacity="0.52"/><circle cx="62" cy="116" r="6.08" fill="currentColor" opacity="0.60"/><circle cx="80" cy="116" r="6.08" fill="currentColor" opacity="0.60"/><circle cx="98" cy="116" r="5.34" fill="currentColor" opacity="0.52"/><circle cx="62" cy="134" r="4.30" fill="currentColor" opacity="0.42"/><circle cx="80" cy="134" r="4.30" fill="currentColor" opacity="0.42"/></svg>
+        hidoko<span style="color: var(--accent);">.</span>
+      </span>
+      <span>04</span>
+    </div>
+  </section>
+
+  <!-- 05: Code -->
+  <section class="code-slide content-slide" data-screen-label="05 Code">
+    <div class="head"><span class="mark">CODE / hidoko cli</span></div>
+    <h2 style="font-size: 56px; margin-bottom: 32px;">火を起こす、ひと行。</h2>
+<pre><span class="c-c">$ hidoko ignite</span>
+<span class="c-c">  火を起こしました。</span>
+<span class="c-c">  3 件の薪をくべました。</span>
+
+<span class="c-k">export const</span> <span class="c-v">ember</span> = {
+  <span class="c-s">400</span>: <span class="c-str">"#f47d3a"</span>, <span class="c-c">// 基準色</span>
+  <span class="c-s">500</span>: <span class="c-str">"#e85d20"</span>,
+  <span class="c-s">600</span>: <span class="c-str">"#c64414"</span>,
+};</pre>
+    <div class="footer-bar">
+      <span class="logo">
+        <svg width="22" height="22" viewBox="0 0 142 142" xmlns="http://www.w3.org/2000/svg"><circle cx="26" cy="26" r="3.37" fill="currentColor" opacity="0.33"/><circle cx="44" cy="26" r="4.41" fill="currentColor" opacity="0.43"/><circle cx="98" cy="26" r="4.41" fill="currentColor" opacity="0.43"/><circle cx="116" cy="26" r="3.37" fill="currentColor" opacity="0.33"/><circle cx="8" cy="44" r="3.04" fill="currentColor" opacity="0.30"/><circle cx="26" cy="44" r="4.59" fill="currentColor" opacity="0.45"/><circle cx="44" cy="44" r="5.92" fill="currentColor" opacity="0.58"/><circle cx="62" cy="44" r="6.78" fill="currentColor" opacity="0.67"/><circle cx="80" cy="44" r="6.78" fill="currentColor" opacity="0.67"/><circle cx="98" cy="44" r="5.92" fill="currentColor" opacity="0.58"/><circle cx="116" cy="44" r="4.59" fill="currentColor" opacity="0.45"/><circle cx="134" cy="44" r="3.04" fill="currentColor" opacity="0.30"/><circle cx="8" cy="62" r="3.66" fill="currentColor" opacity="0.36"/><circle cx="26" cy="62" r="5.41" fill="currentColor" opacity="0.53"/><circle cx="44" cy="62" r="7.08" fill="currentColor" opacity="0.70"/><circle cx="62" cy="62" r="8.45" fill="currentColor" opacity="0.83"/><circle cx="80" cy="62" r="8.45" fill="currentColor" opacity="0.83"/><circle cx="98" cy="62" r="7.08" fill="currentColor" opacity="0.70"/><circle cx="116" cy="62" r="5.41" fill="currentColor" opacity="0.53"/><circle cx="134" cy="62" r="3.66" fill="currentColor" opacity="0.36"/><circle cx="26" cy="80" r="5.62" fill="currentColor" opacity="0.55"/><circle cx="44" cy="80" r="7.42" fill="currentColor" opacity="0.73"/><circle cx="62" cy="80" r="9.19" fill="currentColor" opacity="0.90"/><circle cx="80" cy="80" r="9.19" fill="currentColor" opacity="0.90"/><circle cx="98" cy="80" r="7.42" fill="currentColor" opacity="0.73"/><circle cx="116" cy="80" r="5.62" fill="currentColor" opacity="0.55"/><circle cx="26" cy="98" r="5.14" fill="currentColor" opacity="0.50"/><circle cx="44" cy="98" r="6.68" fill="currentColor" opacity="0.66"/><circle cx="62" cy="98" r="7.81" fill="currentColor" opacity="0.77"/><circle cx="80" cy="98" r="7.81" fill="currentColor" opacity="0.77"/><circle cx="98" cy="98" r="6.68" fill="currentColor" opacity="0.66"/><circle cx="116" cy="98" r="5.14" fill="currentColor" opacity="0.50"/><circle cx="44" cy="116" r="5.34" fill="currentColor" opacity="0.52"/><circle cx="62" cy="116" r="6.08" fill="currentColor" opacity="0.60"/><circle cx="80" cy="116" r="6.08" fill="currentColor" opacity="0.60"/><circle cx="98" cy="116" r="5.34" fill="currentColor" opacity="0.52"/><circle cx="62" cy="134" r="4.30" fill="currentColor" opacity="0.42"/><circle cx="80" cy="134" r="4.30" fill="currentColor" opacity="0.42"/></svg>
+        hidoko<span style="color: var(--accent);">.</span>
+      </span>
+      <span>05</span>
+    </div>
+  </section>
+
+  <!-- 06: End -->
+  <section class="end-slide" data-screen-label="06 End">
+    <div class="center" style="margin: auto;">
+      <svg width="180" height="180" viewBox="0 0 142 142" xmlns="http://www.w3.org/2000/svg"><circle cx="26" cy="26" r="3.37" fill="currentColor" opacity="0.33"/><circle cx="44" cy="26" r="4.41" fill="currentColor" opacity="0.43"/><circle cx="98" cy="26" r="4.41" fill="currentColor" opacity="0.43"/><circle cx="116" cy="26" r="3.37" fill="currentColor" opacity="0.33"/><circle cx="8" cy="44" r="3.04" fill="currentColor" opacity="0.30"/><circle cx="26" cy="44" r="4.59" fill="currentColor" opacity="0.45"/><circle cx="44" cy="44" r="5.92" fill="currentColor" opacity="0.58"/><circle cx="62" cy="44" r="6.78" fill="currentColor" opacity="0.67"/><circle cx="80" cy="44" r="6.78" fill="currentColor" opacity="0.67"/><circle cx="98" cy="44" r="5.92" fill="currentColor" opacity="0.58"/><circle cx="116" cy="44" r="4.59" fill="currentColor" opacity="0.45"/><circle cx="134" cy="44" r="3.04" fill="currentColor" opacity="0.30"/><circle cx="8" cy="62" r="3.66" fill="currentColor" opacity="0.36"/><circle cx="26" cy="62" r="5.41" fill="currentColor" opacity="0.53"/><circle cx="44" cy="62" r="7.08" fill="currentColor" opacity="0.70"/><circle cx="62" cy="62" r="8.45" fill="currentColor" opacity="0.83"/><circle cx="80" cy="62" r="8.45" fill="currentColor" opacity="0.83"/><circle cx="98" cy="62" r="7.08" fill="currentColor" opacity="0.70"/><circle cx="116" cy="62" r="5.41" fill="currentColor" opacity="0.53"/><circle cx="134" cy="62" r="3.66" fill="currentColor" opacity="0.36"/><circle cx="26" cy="80" r="5.62" fill="currentColor" opacity="0.55"/><circle cx="44" cy="80" r="7.42" fill="currentColor" opacity="0.73"/><circle cx="62" cy="80" r="9.19" fill="currentColor" opacity="0.90"/><circle cx="80" cy="80" r="9.19" fill="currentColor" opacity="0.90"/><circle cx="98" cy="80" r="7.42" fill="currentColor" opacity="0.73"/><circle cx="116" cy="80" r="5.62" fill="currentColor" opacity="0.55"/><circle cx="26" cy="98" r="5.14" fill="currentColor" opacity="0.50"/><circle cx="44" cy="98" r="6.68" fill="currentColor" opacity="0.66"/><circle cx="62" cy="98" r="7.81" fill="currentColor" opacity="0.77"/><circle cx="80" cy="98" r="7.81" fill="currentColor" opacity="0.77"/><circle cx="98" cy="98" r="6.68" fill="currentColor" opacity="0.66"/><circle cx="116" cy="98" r="5.14" fill="currentColor" opacity="0.50"/><circle cx="44" cy="116" r="5.34" fill="currentColor" opacity="0.52"/><circle cx="62" cy="116" r="6.08" fill="currentColor" opacity="0.60"/><circle cx="80" cy="116" r="6.08" fill="currentColor" opacity="0.60"/><circle cx="98" cy="116" r="5.34" fill="currentColor" opacity="0.52"/><circle cx="62" cy="134" r="4.30" fill="currentColor" opacity="0.42"/><circle cx="80" cy="134" r="4.30" fill="currentColor" opacity="0.42"/></svg>
+      <h2>火を、絶やさない。</h2>
+      <p>hidoko.dev — © 2026</p>
+    </div>
+    <div class="footer-bar">
+      <span class="logo">
+        <svg width="22" height="22" viewBox="0 0 142 142" xmlns="http://www.w3.org/2000/svg"><circle cx="26" cy="26" r="3.37" fill="currentColor" opacity="0.33"/><circle cx="44" cy="26" r="4.41" fill="currentColor" opacity="0.43"/><circle cx="98" cy="26" r="4.41" fill="currentColor" opacity="0.43"/><circle cx="116" cy="26" r="3.37" fill="currentColor" opacity="0.33"/><circle cx="8" cy="44" r="3.04" fill="currentColor" opacity="0.30"/><circle cx="26" cy="44" r="4.59" fill="currentColor" opacity="0.45"/><circle cx="44" cy="44" r="5.92" fill="currentColor" opacity="0.58"/><circle cx="62" cy="44" r="6.78" fill="currentColor" opacity="0.67"/><circle cx="80" cy="44" r="6.78" fill="currentColor" opacity="0.67"/><circle cx="98" cy="44" r="5.92" fill="currentColor" opacity="0.58"/><circle cx="116" cy="44" r="4.59" fill="currentColor" opacity="0.45"/><circle cx="134" cy="44" r="3.04" fill="currentColor" opacity="0.30"/><circle cx="8" cy="62" r="3.66" fill="currentColor" opacity="0.36"/><circle cx="26" cy="62" r="5.41" fill="currentColor" opacity="0.53"/><circle cx="44" cy="62" r="7.08" fill="currentColor" opacity="0.70"/><circle cx="62" cy="62" r="8.45" fill="currentColor" opacity="0.83"/><circle cx="80" cy="62" r="8.45" fill="currentColor" opacity="0.83"/><circle cx="98" cy="62" r="7.08" fill="currentColor" opacity="0.70"/><circle cx="116" cy="62" r="5.41" fill="currentColor" opacity="0.53"/><circle cx="134" cy="62" r="3.66" fill="currentColor" opacity="0.36"/><circle cx="26" cy="80" r="5.62" fill="currentColor" opacity="0.55"/><circle cx="44" cy="80" r="7.42" fill="currentColor" opacity="0.73"/><circle cx="62" cy="80" r="9.19" fill="currentColor" opacity="0.90"/><circle cx="80" cy="80" r="9.19" fill="currentColor" opacity="0.90"/><circle cx="98" cy="80" r="7.42" fill="currentColor" opacity="0.73"/><circle cx="116" cy="80" r="5.62" fill="currentColor" opacity="0.55"/><circle cx="26" cy="98" r="5.14" fill="currentColor" opacity="0.50"/><circle cx="44" cy="98" r="6.68" fill="currentColor" opacity="0.66"/><circle cx="62" cy="98" r="7.81" fill="currentColor" opacity="0.77"/><circle cx="80" cy="98" r="7.81" fill="currentColor" opacity="0.77"/><circle cx="98" cy="98" r="6.68" fill="currentColor" opacity="0.66"/><circle cx="116" cy="98" r="5.14" fill="currentColor" opacity="0.50"/><circle cx="44" cy="116" r="5.34" fill="currentColor" opacity="0.52"/><circle cx="62" cy="116" r="6.08" fill="currentColor" opacity="0.60"/><circle cx="80" cy="116" r="6.08" fill="currentColor" opacity="0.60"/><circle cx="98" cy="116" r="5.34" fill="currentColor" opacity="0.52"/><circle cx="62" cy="134" r="4.30" fill="currentColor" opacity="0.42"/><circle cx="80" cy="134" r="4.30" fill="currentColor" opacity="0.42"/></svg>
+        hidoko<span style="color: var(--accent);">.</span>
+      </span>
+      <span>06 / 06</span>
+    </div>
+  </section>
+
+</deck-stage>
+
+<script src="../components/embers.js"></script>
+<script src="deck-stage.js"></script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<title>Hidoko / Spacing</title>
+<meta name="viewport" content="width=1200"/>
+<link rel="stylesheet" href="../tokens.css"/>
+<style>
+  body { padding: 56px 64px; }
+  .head { margin-bottom: 40px; }
+  .head h1 { font-size: var(--text-3xl); margin: 0; color: var(--text-strong); font-weight: 500; letter-spacing: var(--tracking-tight); }
+  .head p  { margin: 8px 0 0; color: var(--text-muted); }
+  h2 { color: var(--text-faint); font-size: var(--text-sm); font-weight: 500; letter-spacing: var(--tracking-mark); text-transform: uppercase; font-family: var(--font-mono); margin: 56px 0 20px; }
+
+  .row {
+    display: grid;
+    grid-template-columns: 130px 1fr 80px;
+    gap: 24px;
+    align-items: center;
+    padding: 10px 0;
+  }
+  .row .name { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-faint); }
+  .row .name b { color: var(--text); font-family: var(--font-sans); font-size: var(--text-sm); display: block; font-weight: 500; }
+  .row .px { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--text-muted); text-align: right; }
+  .bar { height: 12px; background: var(--accent); border-radius: 2px; box-shadow: var(--glow-ember-soft); }
+
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .card {
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    padding: 24px;
+    box-shadow: var(--shadow-rim);
+  }
+  .card .lbl { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-faint); margin-bottom: 6px; letter-spacing: var(--tracking-mark); text-transform: uppercase; }
+  .card .nm  { color: var(--text-strong); font-weight: 500; }
+  .card .px  { color: var(--text-muted); font-family: var(--font-mono); font-size: var(--text-xs); }
+
+  .shadow-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+  .sh-card {
+    aspect-ratio: 1.4;
+    border-radius: var(--radius-lg);
+    background: var(--bg-raised);
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--text-strong);
+    font-weight: 500;
+  }
+  .sh-card .v { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-faint); }
+</style>
+</head>
+<body>
+
+<div class="head">
+  <h1>間隔・角丸・影</h1>
+  <p>4px ベース。広がり過ぎず、詰め過ぎず。影は黒の代わりに「光のリム」と「炎のグロー」で立体を作る。</p>
+</div>
+
+<h2>Spacing — 間隔</h2>
+<div>
+  <div class="row"><div class="name"><b>--space-1</b>tight</div><div><div class="bar" style="width:4px"></div></div><div class="px">4 px</div></div>
+  <div class="row"><div class="name"><b>--space-2</b>compact</div><div><div class="bar" style="width:8px"></div></div><div class="px">8 px</div></div>
+  <div class="row"><div class="name"><b>--space-3</b>—</div><div><div class="bar" style="width:12px"></div></div><div class="px">12 px</div></div>
+  <div class="row"><div class="name"><b>--space-4</b>base</div><div><div class="bar" style="width:16px"></div></div><div class="px">16 px</div></div>
+  <div class="row"><div class="name"><b>--space-5</b>—</div><div><div class="bar" style="width:24px"></div></div><div class="px">24 px</div></div>
+  <div class="row"><div class="name"><b>--space-6</b>roomy</div><div><div class="bar" style="width:32px"></div></div><div class="px">32 px</div></div>
+  <div class="row"><div class="name"><b>--space-7</b>—</div><div><div class="bar" style="width:48px"></div></div><div class="px">48 px</div></div>
+  <div class="row"><div class="name"><b>--space-8</b>section</div><div><div class="bar" style="width:64px"></div></div><div class="px">64 px</div></div>
+  <div class="row"><div class="name"><b>--space-9</b>section ＋</div><div><div class="bar" style="width:96px"></div></div><div class="px">96 px</div></div>
+  <div class="row"><div class="name"><b>--space-10</b>chapter</div><div><div class="bar" style="width:128px"></div></div><div class="px">128 px</div></div>
+</div>
+
+<h2>Radius — 角丸</h2>
+<div class="grid3">
+  <div class="card" style="border-radius: var(--radius-xs);"><div class="lbl">XS</div><div class="nm">--radius-xs</div><div class="px">2 px</div></div>
+  <div class="card" style="border-radius: var(--radius-sm);"><div class="lbl">SM</div><div class="nm">--radius-sm</div><div class="px">4 px</div></div>
+  <div class="card" style="border-radius: var(--radius-md);"><div class="lbl">MD ★</div><div class="nm">--radius-md</div><div class="px">6 px（標準）</div></div>
+  <div class="card" style="border-radius: var(--radius-lg);"><div class="lbl">LG</div><div class="nm">--radius-lg</div><div class="px">10 px</div></div>
+  <div class="card" style="border-radius: var(--radius-xl);"><div class="lbl">XL</div><div class="nm">--radius-xl</div><div class="px">16 px</div></div>
+  <div class="card" style="border-radius: var(--radius-2xl);"><div class="lbl">2XL</div><div class="nm">--radius-2xl</div><div class="px">24 px</div></div>
+</div>
+
+<h2>Shadow & Glow — 影と光</h2>
+<div class="shadow-grid">
+  <div class="sh-card" style="box-shadow: var(--shadow-rim);">Rim<div class="v">--shadow-rim</div></div>
+  <div class="sh-card" style="box-shadow: var(--shadow-card);">Card<div class="v">--shadow-card</div></div>
+  <div class="sh-card" style="box-shadow: var(--shadow-pop);">Pop<div class="v">--shadow-pop</div></div>
+  <div class="sh-card" style="box-shadow: var(--glow-ember);">Glow<div class="v">--glow-ember</div></div>
+  <div class="sh-card" style="box-shadow: var(--glow-ember-soft);">Glow Soft<div class="v">--glow-ember-soft</div></div>
+  <div class="sh-card" style="box-shadow: var(--glow-ember-strong);">Glow Strong<div class="v">--glow-ember-strong</div></div>
+</div>
+
+</body>
+</html>

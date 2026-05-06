@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<title>Hidoko / Colors</title>
+<meta name="viewport" content="width=1200"/>
+<link rel="stylesheet" href="../tokens.css"/>
+<style>
+  body { padding: 56px 64px; }
+  .head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 40px; }
+  .head h1 { font-size: var(--text-3xl); margin: 0; letter-spacing: var(--tracking-tight); color: var(--text-strong); font-weight: 500; }
+  .head p  { margin: 0; color: var(--text-muted); }
+  section { margin-bottom: 64px; }
+  h2 { font-size: var(--text-sm); margin: 0 0 20px; color: var(--text-faint); font-weight: 500; letter-spacing: var(--tracking-mark); text-transform: uppercase; font-family: var(--font-mono); }
+  .scale { display: grid; grid-template-columns: repeat(11, 1fr); gap: 6px; }
+  .swatch {
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm);
+    position: relative;
+    border: 1px solid rgba(255,255,255,0.04);
+    box-shadow: var(--shadow-rim);
+  }
+  .swatch .label {
+    position: absolute; left: 8px; bottom: 8px;
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--ink-900); mix-blend-mode: difference;
+  }
+  .scale-name { color: var(--text); font-weight: 500; margin-bottom: 8px; display: flex; gap: 12px; align-items: baseline; }
+  .scale-name small { color: var(--text-faint); font-family: var(--font-mono); font-size: var(--text-xs); }
+  .semantic { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .sem-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    background: var(--bg-raised);
+  }
+  .sem-card .chip { width: 100%; height: 56px; border-radius: var(--radius-md); margin-bottom: 14px; border: 1px solid var(--border-subtle); }
+  .sem-card .name { font-weight: 500; color: var(--text-strong); margin-bottom: 4px; }
+  .sem-card .var { font-family: var(--font-mono); color: var(--accent); font-size: var(--text-xs); }
+  .sem-card .use { color: var(--text-muted); font-size: var(--text-sm); margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<div class="head">
+  <h1>カラー</h1>
+  <p>夜の焚き火を基準に。純白は使わず、黒はわずかに茶色を含む。</p>
+</div>
+
+<section>
+  <h2>Ink — 中性色（炭・夜）</h2>
+  <div class="scale-name">ink <small>背景・ボーダー・文字。純黒/純白を避け、わずかに暖を残す。</small></div>
+  <div class="scale">
+    <div class="swatch" style="background:var(--ink-0)"><span class="label">0</span></div>
+    <div class="swatch" style="background:var(--ink-50)"><span class="label">50</span></div>
+    <div class="swatch" style="background:var(--ink-100)"><span class="label">100</span></div>
+    <div class="swatch" style="background:var(--ink-200)"><span class="label">200</span></div>
+    <div class="swatch" style="background:var(--ink-300)"><span class="label">300</span></div>
+    <div class="swatch" style="background:var(--ink-400)"><span class="label">400</span></div>
+    <div class="swatch" style="background:var(--ink-500)"><span class="label">500</span></div>
+    <div class="swatch" style="background:var(--ink-600)"><span class="label">600</span></div>
+    <div class="swatch" style="background:var(--ink-700)"><span class="label">700</span></div>
+    <div class="swatch" style="background:var(--ink-800)"><span class="label">800</span></div>
+    <div class="swatch" style="background:var(--ink-900)"><span class="label">900</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>Ember — 焚き火色（炎・熾火）</h2>
+  <div class="scale-name">ember <small>ブランドの主役。<code class="hi-mono">--ember-400</code> が基準色。</small></div>
+  <div class="scale">
+    <div class="swatch" style="background:var(--ember-50)"><span class="label">50</span></div>
+    <div class="swatch" style="background:var(--ember-100)"><span class="label">100</span></div>
+    <div class="swatch" style="background:var(--ember-200)"><span class="label">200</span></div>
+    <div class="swatch" style="background:var(--ember-300)"><span class="label">300</span></div>
+    <div class="swatch" style="background:var(--ember-400); box-shadow: var(--glow-ember-soft);"><span class="label">400 ★</span></div>
+    <div class="swatch" style="background:var(--ember-500)"><span class="label">500</span></div>
+    <div class="swatch" style="background:var(--ember-600)"><span class="label">600</span></div>
+    <div class="swatch" style="background:var(--ember-700)"><span class="label">700</span></div>
+    <div class="swatch" style="background:var(--ember-800)"><span class="label">800</span></div>
+    <div class="swatch" style="background:var(--ember-900)"><span class="label">900</span></div>
+    <div class="swatch" style="background:transparent; border:1px dashed var(--border)"></div>
+  </div>
+</section>
+
+<section>
+  <h2>Auxiliary — 補助色</h2>
+  <div class="scale" style="grid-template-columns: repeat(4, 1fr); gap: 16px;">
+    <div class="sem-card"><div class="chip" style="background:var(--smoke)"></div><div class="name">Smoke / 煙</div><div class="var">--smoke</div><div class="use">寒色寄りのグレー。アイコン・補助線。</div></div>
+    <div class="sem-card"><div class="chip" style="background:var(--moss)"></div><div class="name">Moss / 苔</div><div class="var">--moss</div><div class="use">成功状態。鮮やかな緑は使わない。</div></div>
+    <div class="sem-card"><div class="chip" style="background:var(--moon)"></div><div class="name">Moon / 月</div><div class="var">--moon</div><div class="use">情報メッセージ。月夜の青白。</div></div>
+    <div class="sem-card"><div class="chip" style="background:var(--rust)"></div><div class="name">Rust / 鉄錆</div><div class="var">--rust</div><div class="use">エラー・破壊操作。赤を抑える。</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>Semantic — 役割別</h2>
+  <div class="semantic">
+    <div class="sem-card"><div class="chip" style="background:var(--bg)"></div><div class="name">Background</div><div class="var">--bg</div><div class="use">ページ背景。</div></div>
+    <div class="sem-card"><div class="chip" style="background:var(--bg-raised)"></div><div class="name">Raised</div><div class="var">--bg-raised</div><div class="use">カード、パネル。</div></div>
+    <div class="sem-card"><div class="chip" style="background:var(--bg-overlay)"></div><div class="name">Overlay</div><div class="var">--bg-overlay</div><div class="use">ホバー、メニュー。</div></div>
+    <div class="sem-card"><div class="chip" style="background:var(--accent); box-shadow: var(--glow-ember-soft);"></div><div class="name">Accent</div><div class="var">--accent</div><div class="use">CTA、リンク、フォーカス。</div></div>
+  </div>
+</section>
+
+</body>
+</html>

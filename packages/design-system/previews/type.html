@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<title>Hidoko / Type</title>
+<meta name="viewport" content="width=1200"/>
+<link rel="stylesheet" href="../tokens.css"/>
+<style>
+  body { padding: 56px 64px; max-width: 1200px; }
+  .head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 48px; }
+  .head h1 { font-size: var(--text-3xl); margin: 0; color: var(--text-strong); font-weight: 500; letter-spacing: var(--tracking-tight); }
+  .head p  { margin: 0; color: var(--text-muted); }
+  .row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 32px;
+    padding: 22px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    align-items: baseline;
+  }
+  .meta {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--text-faint);
+    letter-spacing: var(--tracking-mark);
+    text-transform: uppercase;
+    padding-top: 8px;
+  }
+  .meta b { display: block; color: var(--text); font-weight: 500; letter-spacing: 0; text-transform: none; font-family: var(--font-sans); font-size: var(--text-sm); margin-bottom: 4px; }
+  .sample { color: var(--text-strong); }
+  h2 { color: var(--text-faint); font-size: var(--text-sm); font-weight: 500; letter-spacing: var(--tracking-mark); text-transform: uppercase; font-family: var(--font-mono); margin: 56px 0 16px; }
+  .families { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 24px; }
+  .fam {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    background: var(--bg-raised);
+  }
+  .fam .label { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-faint); letter-spacing: var(--tracking-mark); text-transform: uppercase; }
+  .fam .name { font-size: var(--text-2xl); color: var(--text-strong); margin: 6px 0 4px; font-weight: 500; }
+  .fam .roles { color: var(--text-muted); font-size: var(--text-sm); margin-bottom: 16px; }
+  .weights { display: flex; flex-direction: column; gap: 6px; }
+  .weights span { color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="head">
+  <h1>タイポグラフィ</h1>
+  <p>和文：LINE Seed JP　／　欧文：Inter　／　等幅：JetBrains Mono</p>
+</div>
+
+<div class="families">
+  <div class="fam" style="font-family: 'Inter';">
+    <div class="label">Latin</div>
+    <div class="name">Inter</div>
+    <div class="roles">本文・見出し（欧文）</div>
+    <div class="weights">
+      <span style="font-weight:400">Ember 400 — Regular</span>
+      <span style="font-weight:500">Ember 500 — Medium</span>
+      <span style="font-weight:600">Ember 600 — Semibold</span>
+      <span style="font-weight:700">Ember 700 — Bold</span>
+    </div>
+  </div>
+  <div class="fam" style="font-family: 'LINE Seed JP';">
+    <div class="label">和文</div>
+    <div class="name">LINE Seed JP</div>
+    <div class="roles">本文・見出し（和文）</div>
+    <div class="weights">
+      <span style="font-weight:400">熾火 400 — Regular</span>
+      <span style="font-weight:700">熾火 700 — Bold</span>
+    </div>
+  </div>
+  <div class="fam" style="font-family: 'JetBrains Mono';">
+    <div class="label">Mono</div>
+    <div class="name">JetBrains Mono</div>
+    <div class="roles">コード・数値・キー</div>
+    <div class="weights">
+      <span style="font-weight:400">$ git commit -m "ignite"</span>
+      <span style="font-weight:500">--ember-400: #f47d3a;</span>
+      <span style="font-weight:400">12:34 / 1,240 件 / ⌘ K</span>
+    </div>
+  </div>
+</div>
+
+<h2>Scale — タイプスケール</h2>
+
+<div class="row">
+  <div class="meta"><b>Display</b>--text-6xl<br/>88 / 1.0 / 700</div>
+  <div class="sample" style="font-size: var(--text-6xl); line-height: 1.0; font-weight: 700; letter-spacing: var(--tracking-tight);">火を絶やさない</div>
+</div>
+<div class="row">
+  <div class="meta"><b>Hero</b>--text-5xl<br/>64 / 1.05 / 700</div>
+  <div class="sample" style="font-size: var(--text-5xl); line-height: 1.05; font-weight: 700; letter-spacing: var(--tracking-tight);">静かに燃える、道具</div>
+</div>
+<div class="row">
+  <div class="meta"><b>Page Title</b>--text-4xl<br/>48 / 1.1 / 600</div>
+  <div class="sample" style="font-size: var(--text-4xl); line-height: 1.1; font-weight: 600;">ダッシュボード</div>
+</div>
+<div class="row">
+  <div class="meta"><b>H2</b>--text-3xl<br/>36 / 1.2 / 600</div>
+  <div class="sample" style="font-size: var(--text-3xl); line-height: 1.2; font-weight: 600;">焚き火を、手元に</div>
+</div>
+<div class="row">
+  <div class="meta"><b>H3</b>--text-2xl<br/>28 / 1.3 / 500</div>
+  <div class="sample" style="font-size: var(--text-2xl); line-height: 1.3; font-weight: 500;">薪をくべる</div>
+</div>
+<div class="row">
+  <div class="meta"><b>H4</b>--text-xl<br/>22 / 1.4 / 500</div>
+  <div class="sample" style="font-size: var(--text-xl); line-height: 1.4; font-weight: 500;">熾火が灯る場所</div>
+</div>
+<div class="row">
+  <div class="meta"><b>Lead</b>--text-lg<br/>18 / 1.6 / 400</div>
+  <div class="sample" style="font-size: var(--text-lg); line-height: 1.6;">焚き火を愛するエンジニアの個人プロジェクト群を、ひとつの温度で束ねる。</div>
+</div>
+<div class="row">
+  <div class="meta"><b>Body</b>--text-base<br/>16 / 1.7 / 400</div>
+  <div class="sample" style="font-size: var(--text-base); line-height: 1.7;">夜が深くなるほど、火床は静かに熱を保つ。派手な炎ではなく、長く、深く、燃え続けるもの。Hidoko はそういう道具のための、共通の温度感を提供する。</div>
+</div>
+<div class="row">
+  <div class="meta"><b>Small</b>--text-sm<br/>14 / 1.55 / 400</div>
+  <div class="sample" style="font-size: var(--text-sm); line-height: 1.55; color: var(--text-muted);">補助テキスト、フォームラベル、メタ情報に使う。</div>
+</div>
+<div class="row">
+  <div class="meta"><b>Caption</b>--text-xs<br/>12 / 1.5 / 400</div>
+  <div class="sample" style="font-size: var(--text-xs); line-height: 1.5; color: var(--text-faint);">キャプション、タグ、タイムスタンプ。</div>
+</div>
+<div class="row">
+  <div class="meta"><b>Mark</b>mono / uppercase<br/>tracking 0.18em</div>
+  <div class="sample"><span class="hi-mark hi-mark--ember">EMBER × 火床</span> &nbsp; <span class="hi-mark">SECTION / 02</span></div>
+</div>
+
+</body>
+</html>

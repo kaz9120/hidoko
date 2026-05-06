@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<title>Hidoko / Brand — Motion</title>
+<meta name="viewport" content="width=1280"/>
+<link rel="stylesheet" href="../tokens.css"/>
+<style>
+  body { padding: 64px 72px; background: var(--bg-0); }
+  .head { margin-bottom: 56px; max-width: 820px; }
+  .head .mk { font-family: var(--font-mono); font-size: 12px; color: var(--accent); letter-spacing: 0.18em; text-transform: uppercase; display: inline-flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+  .head .mk::before { content: ""; width: 18px; height: 1px; background: currentColor; }
+  .head h1 { font-size: 40px; margin: 0 0 14px; color: var(--text-strong); font-weight: 500; letter-spacing: -0.02em; }
+  .head p  { margin: 0; color: var(--text-muted); font-size: 16px; line-height: 1.7; }
+
+  h2 { color: var(--text-faint); font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; font-family: var(--font-mono); margin: 80px 0 18px; display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+  h2 .num { color: var(--accent); }
+  h2 .desc { color: var(--text-muted); font-family: var(--font-sans); font-size: 13px; letter-spacing: 0; text-transform: none; font-weight: 400; }
+
+  .slot { margin: 0 0 24px; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); overflow: hidden; background: var(--bg); }
+  .slot__head { display: flex; align-items: baseline; padding: 18px 28px; border-bottom: 1px solid var(--border-subtle); gap: 24px; }
+  .slot__head .tag { font-family: var(--font-mono); font-size: 11px; color: var(--accent); letter-spacing: 0.18em; text-transform: uppercase; }
+  .slot__head h3 { margin: 0; color: var(--text-strong); font-size: 17px; font-weight: 500; }
+  .slot__head .meta { margin-left: auto; color: var(--text-faint); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; }
+
+  .stage-row { display: grid; grid-template-columns: 1fr 1fr; }
+  .stage-row > div { aspect-ratio: 16 / 9; background: #0c0a08; display: flex; align-items: center; justify-content: center; position: relative; border-right: 1px solid var(--border-subtle); }
+  .stage-row > div:last-child { border-right: none; }
+  .stage-row .label { position: absolute; top: 14px; left: 16px; font-family: var(--font-mono); font-size: 10px; color: var(--text-faint); letter-spacing: 0.18em; text-transform: uppercase; }
+  .stage-row .replay { position: absolute; bottom: 14px; right: 16px; font-family: var(--font-mono); font-size: 10px; color: var(--accent); letter-spacing: 0.18em; cursor: pointer; background: transparent; border: 1px solid currentColor; padding: 6px 12px; border-radius: 4px; }
+
+  .mark { width: 220px; height: 220px; }
+</style>
+</head>
+<body>
+
+<header class="head">
+  <span class="mk">BRAND / Motion</span>
+  <h1>火が、灯る。</h1>
+  <p>Heart Field マークのアニメーション。<b>点灯シーケンス</b>（外周→中心へ熱が集まる）と<b>揺らぎ</b>（中心が呼吸する）の 2 種を定義する。</p>
+</header>
+
+<h2><span class="num">01</span> Ignite — 点灯シーケンス <span class="desc">中心から外周へ、距離順に灯る。約 1.4 秒。ロード時 / ページ遷移時に。</span></h2>
+<div class="slot">
+  <div class="slot__head"><span class="tag">SEQUENCE</span><h3>中心 → 外周</h3><span class="meta">stagger by heat · ease-out · 1400ms</span></div>
+  <div class="stage-row">
+    <div>
+      <span class="label">DARK / 夜</span>
+      <div class="mark" data-variant="dark" data-anim="ignite"></div>
+      <button class="replay" onclick="replay(this)">▶ REPLAY</button>
+    </div>
+    <div style="background:#f1ebdd;">
+      <span class="label" style="color:#8a7c63;">CREAM / 紙</span>
+      <div class="mark" data-variant="cream" data-anim="ignite"></div>
+      <button class="replay" onclick="replay(this)" style="color:#9b3f18;">▶ REPLAY</button>
+    </div>
+  </div>
+</div>
+
+<h2><span class="num">02</span> Breathe — 呼吸する熾火 <span class="desc">中心ほど大きく、ゆっくり脈打つ。常時ループ。</span></h2>
+<div class="slot">
+  <div class="slot__head"><span class="tag">LOOP</span><h3>呼吸</h3><span class="meta">scale ±6% · 3.6s · sine · centered</span></div>
+  <div class="stage-row">
+    <div>
+      <span class="label">DARK / 夜</span>
+      <div class="mark" data-variant="dark" data-anim="breathe"></div>
+    </div>
+    <div style="background:#f1ebdd;">
+      <span class="label" style="color:#8a7c63;">CREAM / 紙</span>
+      <div class="mark" data-variant="cream" data-anim="breathe"></div>
+    </div>
+  </div>
+</div>
+
+<h2><span class="num">03</span> Embers — 火の粉の揺らぎ <span class="desc">不規則に明滅。常時ループ。動かしすぎないために、対象は 4 セルに限定。</span></h2>
+<div class="slot">
+  <div class="slot__head"><span class="tag">LOOP</span><h3>明滅</h3><span class="meta">opacity 0.7→1.0 · random offset · 4 cells max</span></div>
+  <div class="stage-row">
+    <div>
+      <span class="label">DARK / 夜</span>
+      <div class="mark" data-variant="dark" data-anim="embers"></div>
+    </div>
+    <div style="background:#f1ebdd;">
+      <span class="label" style="color:#8a7c63;">CREAM / 紙</span>
+      <div class="mark" data-variant="cream" data-anim="embers"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const palettes = {
+    dark:  ['#0c0a08','#1a120a','#3a160a','#6b1f0c','#9b2f0e','#c64414','#e85d20','#f47d3a','#fbc66f','#fde7c4'],
+    cream: ['#f1ebdd','#e6dcc6','#d4b58a','#c08850','#b06530','#9b3f18','#7a2810','#52180a','#2e0c04','#180603'],
+  };
+  const heart = [
+    [0,0,0,0,0,0,0,0],
+    [0,1,1,0,0,1,1,0],
+    [1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1],
+    [0,1,1,1,1,1,1,0],
+    [0,1,1,1,1,1,1,0],
+    [0,0,1,1,1,1,0,0],
+    [0,0,0,1,1,0,0,0],
+  ];
+  function heat(x, y) {
+    if (!heart[y][x]) return 0;
+    const dx = x - 3.5, dy = y - 3.8;
+    return Math.max(0, Math.min(1, 1 - Math.sqrt(dx*dx + dy*dy) / 4.2));
+  }
+
+  function build(el) {
+    const variant = el.dataset.variant;
+    const anim = el.dataset.anim;
+    const pal = palettes[variant];
+    const stride = 18, cell = 16, total = 8 * stride - 2;
+    const ns = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${total} ${total}`);
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+
+    const cells = [];
+    for (let y = 0; y < 8; y++) {
+      for (let x = 0; x < 8; x++) {
+        if (!heart[y][x]) continue;
+        const t = heat(x, y);
+        const idx = Math.floor(t * (pal.length - 1));
+        const scale = 0.32 + t * 0.95;
+        const cx = x * stride + cell / 2;
+        const cy = y * stride + cell / 2;
+        const r = (cell / 2) * scale;
+        const c = document.createElementNS(ns, 'circle');
+        c.setAttribute('cx', cx);
+        c.setAttribute('cy', cy);
+        c.setAttribute('r', r.toFixed(2));
+        c.setAttribute('fill', pal[idx]);
+        cells.push({ el: c, x, y, t, baseR: r, cx, cy });
+        svg.appendChild(c);
+      }
+    }
+    el.innerHTML = '';
+    el.appendChild(svg);
+    return cells;
+  }
+
+  // 01 Ignite — 距離順に灯す（中心→外周）
+  function igniteAnim(cells) {
+    cells.forEach(c => {
+      c.el.style.opacity = '0';
+      c.el.style.transformOrigin = `${c.cx}px ${c.cy}px`;
+      c.el.style.transform = 'scale(0.2)';
+      c.el.style.transition = 'opacity 320ms ease-out, transform 480ms cubic-bezier(.2,.8,.2,1)';
+    });
+    // 中心ほど早く（t が大きいほど早く）
+    cells.forEach(c => {
+      const delay = (1 - c.t) * 1100; // 0..1100ms
+      setTimeout(() => {
+        c.el.style.opacity = '1';
+        c.el.style.transform = 'scale(1)';
+      }, delay);
+    });
+  }
+
+  // 02 Breathe — 中心ほど大きく脈打つ
+  function breatheAnim(cells) {
+    let start = performance.now();
+    function tick(now) {
+      const elapsed = (now - start) / 1000;
+      const phase = Math.sin(elapsed * (Math.PI * 2 / 3.6));
+      cells.forEach(c => {
+        const scale = 1 + phase * 0.06 * c.t; // 中心ほど振れ幅大
+        c.el.setAttribute('r', (c.baseR * scale).toFixed(2));
+      });
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // 03 Embers — ランダムに明滅（対象を限定）
+  function embersAnim(cells) {
+    // 中心付近のセル4つを選んで明滅させる
+    const hot = cells.filter(c => c.t > 0.6);
+    const targets = hot.slice(0, 4);
+    targets.forEach((c, i) => {
+      const period = 1.6 + Math.random() * 1.4;
+      const offset = i * 0.4 + Math.random() * 0.6;
+      let start = performance.now() / 1000 - offset;
+      function tick() {
+        const t = performance.now() / 1000 - start;
+        const op = 0.7 + (Math.sin(t * (Math.PI * 2 / period)) * 0.5 + 0.5) * 0.3;
+        c.el.style.opacity = op;
+        requestAnimationFrame(tick);
+      }
+      tick();
+    });
+  }
+
+  const all = [];
+  document.querySelectorAll('.mark').forEach(el => {
+    const cells = build(el);
+    const anim = el.dataset.anim;
+    all.push({ el, cells, anim });
+    if (anim === 'ignite') igniteAnim(cells);
+    if (anim === 'breathe') breatheAnim(cells);
+    if (anim === 'embers') embersAnim(cells);
+  });
+
+  function replay(btn) {
+    const stage = btn.parentElement;
+    const mark = stage.querySelector('.mark');
+    const found = all.find(a => a.el === mark);
+    if (!found) return;
+    igniteAnim(found.cells);
+  }
+</script>
+
+</body>
+</html>
