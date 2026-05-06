@@ -9,11 +9,14 @@ import { useRef, useState } from "react";
 import { CameraDialog } from "~/components/camera-dialog";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 import { readImageFromClipboard } from "~/lib/clipboard";
+import { captureScreen, isScreenCaptureSupported } from "~/lib/screen-capture";
 
 export function InputSidebar() {
 	const { loadImageFromBlob } = useSnapcrop();
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [cameraOpen, setCameraOpen] = useState(false);
+	const [isCapturing, setIsCapturing] = useState(false);
+	const screenshotSupported = isScreenCaptureSupported();
 
 	const handleUploadClick = () => {
 		fileInputRef.current?.click();
@@ -37,6 +40,21 @@ export function InputSidebar() {
 		}
 	};
 
+	const handleScreenshotClick = async () => {
+		if (isCapturing) {
+			return;
+		}
+		setIsCapturing(true);
+		try {
+			const blob = await captureScreen();
+			if (blob) {
+				await loadImageFromBlob(blob);
+			}
+		} finally {
+			setIsCapturing(false);
+		}
+	};
+
 	return (
 		<aside className="hidden w-72 shrink-0 overflow-y-auto border-border border-r bg-card md:block">
 			<div className="border-border border-b p-5">
@@ -46,9 +64,16 @@ export function InputSidebar() {
 				<div className="flex flex-col gap-2.5">
 					<InputMethodButton
 						Icon={MonitorIcon}
-						description="画面をキャプチャ"
-						disabled
+						description={
+							screenshotSupported
+								? isCapturing
+									? "キャプチャ中..."
+									: "画面をキャプチャ"
+								: "このブラウザでは利用不可"
+						}
+						disabled={!screenshotSupported || isCapturing}
 						name="スクリーンショット"
+						onClick={handleScreenshotClick}
 					/>
 					<InputMethodButton
 						Icon={FolderOpenIcon}
