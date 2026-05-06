@@ -4,8 +4,9 @@ import {
 	type ReactNode,
 	type RefObject,
 	use,
+	useMemo,
+	useReducer,
 	useRef,
-	useState,
 } from "react";
 
 export type LoadedImage = {
@@ -22,37 +23,87 @@ type SnapcropContextValue = {
 	loadImageFromBlob: (blob: Blob) => Promise<void>;
 	clearImage: () => void;
 	cropperRef: RefObject<Cropper | null>;
+	canUndo: boolean;
+	canRedo: boolean;
+	undo: () => void;
+	redo: () => void;
 };
 
 const SnapcropContext = createContext<SnapcropContextValue | null>(null);
 
+const HISTORY_LIMIT = 50;
+
+type State = {
+	history: LoadedImage[];
+	index: number;
+};
+
+type Action =
+	| { type: "LOAD"; image: LoadedImage }
+	| { type: "UNDO" }
+	| { type: "REDO" }
+	| { type: "CLEAR" };
+
+const initialState: State = { history: [], index: -1 };
+
+function reducer(state: State, action: Action): State {
+	switch (action.type) {
+		case "LOAD": {
+			// 現在位置より先の履歴 (redo 候補) は破棄され URL を revoke する
+			for (const discard of state.history.slice(state.index + 1)) {
+				URL.revokeObjectURL(discard.src);
+			}
+			let next = [...state.history.slice(0, state.index + 1), action.image];
+			let nextIndex = next.length - 1;
+			while (next.length > HISTORY_LIMIT) {
+				const removed = next[0];
+				URL.revokeObjectURL(removed.src);
+				next = next.slice(1);
+				nextIndex -= 1;
+			}
+			return { history: next, index: nextIndex };
+		}
+		case "UNDO":
+			return state.index > 0 ? { ...state, index: state.index - 1 } : state;
+		case "REDO":
+			return state.index < state.history.length - 1
+				? { ...state, index: state.index + 1 }
+				: state;
+		case "CLEAR": {
+			for (const item of state.history) {
+				URL.revokeObjectURL(item.src);
+			}
+			return initialState;
+		}
+		default:
+			return state;
+	}
+}
+
 export function SnapcropProvider({ children }: { children: ReactNode }) {
-	const [image, setImage] = useState<LoadedImage | null>(null);
+	const [state, dispatch] = useReducer(reducer, initialState);
 	const cropperRef = useRef<Cropper | null>(null);
 
-	const loadImageFromBlob = async (blob: Blob) => {
-		const next = await readImageFromBlob(blob);
-		setImage((prev) => {
-			if (prev) {
-				URL.revokeObjectURL(prev.src);
-			}
-			return next;
-		});
-	};
+	const value = useMemo<SnapcropContextValue>(() => {
+		const image = state.index >= 0 ? state.history[state.index] : null;
 
-	const clearImage = () => {
-		setImage((prev) => {
-			if (prev) {
-				URL.revokeObjectURL(prev.src);
-			}
-			return null;
-		});
-	};
+		return {
+			image: image ?? null,
+			loadImageFromBlob: async (blob: Blob) => {
+				const next = await readImageFromBlob(blob);
+				dispatch({ type: "LOAD", image: next });
+			},
+			clearImage: () => dispatch({ type: "CLEAR" }),
+			cropperRef,
+			canUndo: state.index > 0,
+			canRedo: state.index < state.history.length - 1,
+			undo: () => dispatch({ type: "UNDO" }),
+			redo: () => dispatch({ type: "REDO" }),
+		};
+	}, [state]);
 
 	return (
-		<SnapcropContext.Provider
-			value={{ image, loadImageFromBlob, clearImage, cropperRef }}
-		>
+		<SnapcropContext.Provider value={value}>
 			{children}
 		</SnapcropContext.Provider>
 	);
