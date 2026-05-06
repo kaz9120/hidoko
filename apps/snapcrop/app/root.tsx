@@ -1,4 +1,4 @@
-import faviconUrl from "design-system/assets/logo/mark-dark.svg?url";
+import faviconUrl from "design-system/assets/logo/mark-cream.svg?url";
 import {
 	isRouteErrorResponse,
 	Links,
