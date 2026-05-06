@@ -1,6 +1,7 @@
-import { CopyIcon, DownloadIcon } from "lucide-react";
+import { CheckIcon, CopyIcon, DownloadIcon } from "lucide-react";
 import { useState } from "react";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
+import { writeImageToClipboard } from "~/lib/clipboard";
 import {
 	downloadBlob,
 	getCroppedBlob,
@@ -10,6 +11,8 @@ import {
 export function ExportSidebar() {
 	const { image, cropperRef } = useSnapcrop();
 	const [isDownloading, setIsDownloading] = useState(false);
+	const [isCopying, setIsCopying] = useState(false);
+	const [copyResult, setCopyResult] = useState<"idle" | "ok" | "fail">("idle");
 	const hasImage = image !== null;
 
 	const handleDownload = async () => {
@@ -23,6 +26,22 @@ export function ExportSidebar() {
 			downloadBlob(blob, makeDownloadFilename("png"));
 		} finally {
 			setIsDownloading(false);
+		}
+	};
+
+	const handleCopy = async () => {
+		const cropper = cropperRef.current;
+		if (!cropper || isCopying) {
+			return;
+		}
+		setIsCopying(true);
+		try {
+			const blob = await getCroppedBlob(cropper, "image/png");
+			const ok = await writeImageToClipboard(blob);
+			setCopyResult(ok ? "ok" : "fail");
+			window.setTimeout(() => setCopyResult("idle"), 2000);
+		} finally {
+			setIsCopying(false);
 		}
 	};
 
@@ -55,19 +74,35 @@ export function ExportSidebar() {
 						</span>
 					</button>
 					<button
-						className="flex flex-col gap-2 rounded-lg border border-border bg-background p-4 text-left opacity-50"
-						disabled
+						aria-busy={isCopying}
+						className="flex flex-col gap-2 rounded-lg border border-border bg-background p-4 text-left transition-colors hover:border-primary hover:bg-muted disabled:opacity-50 disabled:hover:border-border disabled:hover:bg-background"
+						disabled={!hasImage || isCopying}
+						onClick={handleCopy}
 						type="button"
 					>
 						<div className="flex items-center gap-3">
-							<span className="text-muted-foreground">
-								<CopyIcon size={18} strokeWidth={1.75} />
+							<span
+								className={hasImage ? "text-primary" : "text-muted-foreground"}
+							>
+								{copyResult === "ok" ? (
+									<CheckIcon size={18} strokeWidth={1.75} />
+								) : (
+									<CopyIcon size={18} strokeWidth={1.75} />
+								)}
 							</span>
 							<span className="font-medium text-foreground text-sm">
 								クリップボード
 							</span>
 						</div>
-						<span className="text-muted-foreground text-xs">画像をコピー</span>
+						<span className="text-muted-foreground text-xs">
+							{copyResult === "ok"
+								? "コピー完了"
+								: copyResult === "fail"
+									? "コピーに失敗"
+									: isCopying
+										? "コピー中..."
+										: "画像をコピー"}
+						</span>
 					</button>
 				</div>
 			</div>
