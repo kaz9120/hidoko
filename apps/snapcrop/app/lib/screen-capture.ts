@@ -9,10 +9,20 @@ export function isScreenCaptureSupported(): boolean {
 	);
 }
 
+function isConditionalFocusSupported(): boolean {
+	return (
+		typeof CaptureController !== "undefined" &&
+		"setFocusBehavior" in CaptureController.prototype
+	);
+}
+
 /**
  * 画面キャプチャを 1 枚撮って PNG Blob を返す。
  * - キャンセル / 権限拒否 / API 非対応では null
  * - stream は撮影後すぐ stop する (track を残すと「画面共有中」表示が消えない)
+ * - Conditional Focus API 対応ブラウザでは、別タブ / ウィンドウをキャプチャした
+ *   場合に setFocusBehavior("no-focus-change") を呼んで snapcrop タブを
+ *   フォアグラウンドに保つ。'monitor' (画面全体) は対象外
  *
  * 必ずユーザーのクリックなどジェスチャー内で呼び出すこと。
  */
@@ -21,12 +31,29 @@ export async function captureScreen(): Promise<Blob | null> {
 		return null;
 	}
 
+	const controller = isConditionalFocusSupported()
+		? new CaptureController()
+		: undefined;
+
 	let stream: MediaStream | null = null;
 	try {
 		stream = await navigator.mediaDevices.getDisplayMedia({
 			video: true,
 			audio: false,
+			...(controller ? { controller } : {}),
 		});
+
+		if (controller) {
+			const displaySurface = stream
+				.getVideoTracks()[0]
+				?.getSettings().displaySurface;
+			// browser タブ / アプリウィンドウは setFocusBehavior でフォーカス移動を防げる。
+			// monitor (画面全体共有) は別 OS ウィンドウなのでこの API は効かない
+			if (displaySurface === "browser" || displaySurface === "window") {
+				controller.setFocusBehavior("no-focus-change");
+			}
+		}
+
 		return await captureStreamFrame(stream);
 	} catch {
 		return null;
