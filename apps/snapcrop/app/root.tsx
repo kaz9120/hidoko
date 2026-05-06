@@ -8,11 +8,11 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
-import "./app.css";
+import "./globals.css";
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="ja">
+		<html lang="ja" className="dark">
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
