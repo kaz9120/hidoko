@@ -11,7 +11,11 @@ import { useSnapcrop } from "~/contexts/snapcrop-context";
 import { readImageFromClipboard } from "~/lib/clipboard";
 import { captureScreen, isScreenCaptureSupported } from "~/lib/screen-capture";
 
-export function InputSidebar() {
+type InputSidebarProps = {
+	mobileVisible: boolean;
+};
+
+export function InputSidebar({ mobileVisible }: InputSidebarProps) {
 	const { loadImageFromBlob } = useSnapcrop();
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [cameraOpen, setCameraOpen] = useState(false);
@@ -56,7 +60,9 @@ export function InputSidebar() {
 	};
 
 	return (
-		<aside className="hidden w-72 shrink-0 overflow-y-auto border-border border-r bg-card md:block">
+		<aside
+			className={`${mobileVisible ? "flex" : "hidden"} w-full shrink-0 flex-col overflow-y-auto border-border bg-card md:flex md:w-72 md:border-r`}
+		>
 			<div className="border-border border-b p-5">
 				<h2 className="mb-4 font-semibold text-muted-foreground text-xs uppercase tracking-wide">
 					画像を取得

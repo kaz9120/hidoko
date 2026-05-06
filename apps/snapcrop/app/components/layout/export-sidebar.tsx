@@ -9,7 +9,11 @@ import {
 	makeDownloadFilename,
 } from "~/lib/image-export";
 
-export function ExportSidebar() {
+type ExportSidebarProps = {
+	mobileVisible: boolean;
+};
+
+export function ExportSidebar({ mobileVisible }: ExportSidebarProps) {
 	const { image, cropperRef } = useSnapcrop();
 	const [isDownloading, setIsDownloading] = useState(false);
 	const [isCopying, setIsCopying] = useState(false);
@@ -47,7 +51,9 @@ export function ExportSidebar() {
 	};
 
 	return (
-		<aside className="hidden w-72 shrink-0 overflow-y-auto border-border border-l bg-card md:block">
+		<aside
+			className={`${mobileVisible ? "flex" : "hidden"} w-full shrink-0 flex-col overflow-y-auto border-border bg-card md:flex md:w-72 md:border-l`}
+		>
 			<div className="border-border border-b p-5">
 				<h2 className="mb-4 font-semibold text-muted-foreground text-xs uppercase tracking-wide">
 					エクスポート
