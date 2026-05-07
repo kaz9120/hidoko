@@ -10,7 +10,9 @@
 		"deploy": "bun run build && wrangler deploy",
 		"deploy:dry": "bun run build && wrangler deploy --dry-run",
 		"typegen": "react-router typegen",
-		"typecheck": "bun run typegen && tsc -b"
+		"typecheck": "bun run typegen && tsc -b",
+		"storybook": "storybook dev -p 6006",
+		"build-storybook": "storybook build"
 	},
 	"dependencies": {
 		"class-variance-authority": "^0.7.1",
@@ -29,9 +31,11 @@
 	"devDependencies": {
 		"@react-router/dev": "^7.13.1",
 		"@react-router/node": "^7.15.0",
+		"@storybook/react-vite": "^10.3.6",
 		"@tailwindcss/vite": "^4.2.2",
 		"@types/react": "^19.2.0",
 		"@types/react-dom": "^19.2.0",
+		"storybook": "^10.3.6",
 		"tailwindcss": "^4.2.2",
 		"vite": "^7.0.0",
 		"vite-tsconfig-paths": "^5.1.4",
