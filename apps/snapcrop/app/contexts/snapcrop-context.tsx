@@ -4,9 +4,11 @@ import {
 	type ReactNode,
 	type RefObject,
 	use,
+	useCallback,
 	useMemo,
 	useReducer,
 	useRef,
+	useState,
 } from "react";
 
 export type LoadedImage = {
@@ -23,6 +25,14 @@ type SnapcropContextValue = {
 	loadImageFromBlob: (blob: Blob) => Promise<void>;
 	clearImage: () => void;
 	cropperRef: RefObject<Cropper | null>;
+	/**
+	 * 現在のクロップ範囲（画像座標系）。Cropper の `crop` イベントに合わせて
+	 * 更新される。ヘッダーの数値表示・ステータスバー両方が購読する。
+	 */
+	cropData: Cropper.Data | null;
+	setCropData: (data: Cropper.Data | null) => void;
+	historyIndex: number;
+	historyLength: number;
 	canUndo: boolean;
 	canRedo: boolean;
 	undo: () => void;
@@ -83,6 +93,15 @@ function reducer(state: State, action: Action): State {
 export function SnapcropProvider({ children }: { children: ReactNode }) {
 	const [state, dispatch] = useReducer(reducer, initialState);
 	const cropperRef = useRef<Cropper | null>(null);
+	const [cropData, setCropData] = useState<Cropper.Data | null>(null);
+
+	// `image` の参照差し替え時に setCropData を呼びたい場面が複数ある
+	// (新画像ロード / undo / redo)。シグネチャを安定させて子の useEffect 依存を
+	// 増やさないために useCallback で固定する。
+	const stableSetCropData = useCallback(
+		(data: Cropper.Data | null) => setCropData(data),
+		[],
+	);
 
 	const value = useMemo<SnapcropContextValue>(() => {
 		const image = state.index >= 0 ? state.history[state.index] : null;
@@ -95,12 +114,16 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 			},
 			clearImage: () => dispatch({ type: "CLEAR" }),
 			cropperRef,
+			cropData,
+			setCropData: stableSetCropData,
+			historyIndex: state.index,
+			historyLength: state.history.length,
 			canUndo: state.index > 0,
 			canRedo: state.index < state.history.length - 1,
 			undo: () => dispatch({ type: "UNDO" }),
 			redo: () => dispatch({ type: "REDO" }),
 		};
-	}, [state]);
+	}, [state, cropData, stableSetCropData]);
 
 	return (
 		<SnapcropContext.Provider value={value}>
