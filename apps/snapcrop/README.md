@@ -46,7 +46,7 @@ SDK v3 が拾う標準名)。
 
 リポジトリルートで:
 
-```sh
+```bash
 set -a; source .env.local; set +a
 bun run vrt:run                                          # = reg-suit run
 ```
