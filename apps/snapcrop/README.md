@@ -40,9 +40,12 @@ S3 互換 API トークンを発行し、[.env.example](../../.env.example) を 
 SDK v3 が拾う標準名)。
 
 `R2_PUBLIC_URL` には R2 ダッシュボードでバケットの「Public R2 dev URL」を有効化
-して得られる `https://pub-<hash>.r2.dev` を入れる。これがないと reg-suit が出す
-レポート URL が AWS S3 のホスト (`https://<bucket>.s3.amazonaws.com/...`) で
-組まれてしまい、ブラウザからアクセスできない。
+して得られるホスト `pub-<hash>.r2.dev` を **プロトコル (`https://`) を付けずに**
+入れる。reg-publish-s3-plugin は customDomain を `https://<customDomain>/...` の
+形で組み立てるので、`https://` を含めると `https://https://...` になってリンクが
+壊れる。これがないと reg-suit が出すレポート URL が AWS S3 のホスト
+(`https://<bucket>.s3.amazonaws.com/...`) で組まれてしまい、ブラウザからアクセス
+できない。
 
 リポジトリルートで:
 
