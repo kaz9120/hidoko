@@ -25,6 +25,7 @@
 		"husky": "^9.1.7",
 		"lint-staged": "^16.4.0",
 		"reg-keygen-git-hash-plugin": "^0.14.5",
+		"reg-notify-github-plugin": "^0.14.5",
 		"reg-publish-s3-plugin": "^0.14.4",
 		"reg-suit": "^0.14.5",
 		"typescript": "^6.0.3"
