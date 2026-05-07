@@ -58,6 +58,9 @@ CLAUDE.local.md
 storybook-static/
 __screenshots__/
 
+# reg-suit working dir
+.reg/
+
 # Test results
 test-results/
 coverage/
