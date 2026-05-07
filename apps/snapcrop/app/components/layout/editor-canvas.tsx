@@ -165,6 +165,8 @@ function CanvasActions() {
 			} else {
 				toast.error("クリップボードへのコピーに失敗しました");
 			}
+		} catch {
+			toast.error("クリップボードへのコピーに失敗しました");
 		} finally {
 			setIsCopying(false);
 		}
