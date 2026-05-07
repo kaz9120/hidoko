@@ -83,6 +83,10 @@ jobs:
           # reg-keygen-git-hash-plugin が base コミットを履歴から探すため、
           # shallow clone では足りない。
           fetch-depth: 0
+          # actions/checkout のデフォルトは detached HEAD だが、
+          # reg-keygen-git-hash-plugin はブランチ名を必要とする。
+          # PR では head ブランチ、main push ではそのまま main を checkout する。
+          ref: ${{ github.head_ref || github.ref_name }}
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version: ${{ env.BUN_VERSION }}
