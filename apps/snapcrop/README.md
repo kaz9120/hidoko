@@ -39,6 +39,11 @@ S3 互換 API トークンを発行し、[.env.example](../../.env.example) を 
 にコピーして実値を埋める (`AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` は AWS
 SDK v3 が拾う標準名)。
 
+`R2_PUBLIC_URL` には R2 ダッシュボードでバケットの「Public R2 dev URL」を有効化
+して得られる `https://pub-<hash>.r2.dev` を入れる。これがないと reg-suit が出す
+レポート URL が AWS S3 のホスト (`https://<bucket>.s3.amazonaws.com/...`) で
+組まれてしまい、ブラウザからアクセスできない。
+
 リポジトリルートで:
 
 ```sh
