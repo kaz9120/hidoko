@@ -8,6 +8,9 @@ import { X_PROFILE_URL } from "~/data/profile";
 
 const NAV_ITEMS = [
 	{ href: "#about", label: "About" },
+	{ href: "#picks", label: "Notes" },
+	{ href: "#decks", label: "Decks" },
+	{ href: "#media", label: "Media" },
 	{ href: "#tools", label: "Tools" },
 ] as const;
 
