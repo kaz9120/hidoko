@@ -1,3 +1,113 @@
+@import "tailwindcss" source(".");
 @import "design-system/tokens.css";
 @import "design-system/components.css";
-@import "./styles.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * 火床デザインシステム → shadcn/ui CSS 変数の橋渡し
+ *
+ * design-system/tokens.css のセマンティックトークン (--bg / --text / --accent
+ * など) を経由して shadcn の CSS 変数を解決する。design-system 側が `:root`
+ * (ダーク) と `.light` で値を切り替えるため、html の class 切替だけで配色
+ * 全体が追従する (snapcrop と同じパターン)。
+ */
+:root {
+	/* ページ共通の左右パディング (Hero / Section / TopNav / Footer で共有) */
+	--ykz-pad: clamp(20px, 4vw, 56px);
+
+	--radius: 0.625rem;
+	--background: var(--bg);
+	--foreground: var(--text);
+	--card: var(--bg-raised);
+	--card-foreground: var(--text);
+	--popover: var(--bg-raised);
+	--popover-foreground: var(--text);
+	--primary: var(--accent);
+	--primary-foreground: var(--text-on-ember);
+	--secondary: var(--bg-overlay);
+	--secondary-foreground: var(--text);
+	--muted: var(--bg-overlay);
+	--muted-foreground: var(--text-muted);
+	--accent-foreground: var(--text-on-ember);
+	--destructive: var(--danger);
+	--input: var(--border);
+	--ring: var(--accent);
+}
+
+@theme inline {
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+
+	/* design-system 固有のサブレベル — Tailwind ユーティリティで触れるように */
+	--color-text-strong: var(--text-strong);
+	--color-text-faint: var(--text-faint);
+	--color-bg-0: var(--bg-0);
+	--color-border-subtle: var(--border-subtle);
+	--color-border-strong: var(--border-strong);
+	--color-accent-hover: var(--accent-hover);
+	--color-ember-200: var(--ember-200);
+	--color-ember-300: var(--ember-300);
+	--color-ember-400: var(--ember-400);
+	--color-moon: var(--moon);
+
+	--font-sans: var(--font-sans);
+	--font-mono: var(--font-mono);
+}
+
+@layer base {
+	html,
+	body {
+		background: var(--bg-0);
+		scroll-behavior: smooth;
+	}
+	body {
+		overflow-x: hidden;
+	}
+}
+
+@layer components {
+	/*
+	 * ヒーロー背景 — 下から立ち上る焚き火の輝き。
+	 * Tailwind の任意値で書くと長くなりすぎるので意味を持つクラスに切り出す。
+	 */
+	.ykz-hero-glow {
+		background: radial-gradient(
+			ellipse at 50% 110%,
+			rgba(244, 125, 58, 0.1) 0%,
+			transparent 55%
+		);
+	}
+
+	/*
+	 * <hi-embers> はシャドウ DOM の中で動く Web Component なので、Tailwind の
+	 * className が当たっても内側の Canvas の position に影響しない。inset/z-index
+	 * の前提を確実に効かせるため専用クラスにする。
+	 */
+	.ykz-embers {
+		position: absolute !important;
+		inset: 0;
+		z-index: 0;
+	}
+}

@@ -2,6 +2,8 @@ import { SendIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { HidokoMark } from "~/components/hidoko-mark";
+import { Button } from "~/components/shadcn-ui/button";
+import { cn } from "~/components/shadcn-ui/utils";
 import { X_PROFILE_URL } from "~/data/profile";
 
 const NAV_ITEMS = [
@@ -20,29 +22,46 @@ export function TopNav() {
 	}, []);
 
 	return (
-		<nav className={`ykz-nav ${scrolled ? "is-scrolled" : ""}`}>
-			<a className="ykz-nav__logo" href="#top">
+		<nav
+			className={cn(
+				"fixed inset-x-0 top-0 z-50 flex items-center gap-8 px-[var(--ykz-pad)] py-3.5 transition-all duration-200",
+				// 一定スクロール後だけ半透明 + ぼかしで地のヒーローと分離する
+				scrolled &&
+					"border-b border-border-subtle bg-[color-mix(in_oklab,var(--bg-0)_82%,transparent)] [backdrop-filter:blur(14px)_saturate(140%)]",
+			)}
+		>
+			<a
+				className="inline-flex items-center gap-2.5 text-[14.5px] font-medium text-text-strong"
+				href="#top"
+			>
 				<HidokoMark size={26} />
-				<span className="ykz-nav__logo-text hi-mono">y-kaz.com</span>
+				<span className="font-mono tracking-[-0.005em] text-foreground">
+					y-kaz.com
+				</span>
 			</a>
-			<div className="ykz-nav__items">
+			<div className="hidden gap-[26px] min-[880px]:flex">
 				{NAV_ITEMS.map((item) => (
-					<a key={item.href} href={item.href} className="ykz-nav__item">
+					<a
+						key={item.href}
+						href={item.href}
+						className="text-[13.5px] text-muted-foreground transition-colors hover:text-text-strong"
+					>
 						{item.label}
 					</a>
 				))}
 			</div>
-			<div className="ykz-nav__cta">
-				<a
-					className="ykz-nav__contact"
-					href={X_PROFILE_URL}
-					target="_blank"
-					rel="noreferrer"
-				>
-					<SendIcon className="hi-icon-sm" aria-hidden="true" />
+			<Button
+				asChild
+				variant="outline"
+				size="sm"
+				// shadcn outline の hover (bg-accent) を打ち消し、文字とボーダーだけアクセント化する
+				className="ml-auto bg-secondary hover:border-[color-mix(in_oklab,var(--accent)_50%,var(--border))] hover:bg-secondary hover:text-primary"
+			>
+				<a href={X_PROFILE_URL} target="_blank" rel="noreferrer">
+					<SendIcon aria-hidden="true" />
 					<span>X DM</span>
 				</a>
-			</div>
+			</Button>
 		</nav>
 	);
 }
