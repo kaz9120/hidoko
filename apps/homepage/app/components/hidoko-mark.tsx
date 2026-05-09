@@ -11,7 +11,7 @@ export function HidokoMark({ size = 22 }: Props) {
 			alt=""
 			width={size}
 			height={size}
-			className="ykz-mark-img"
+			className="block rounded-md"
 			aria-hidden="true"
 		/>
 	);

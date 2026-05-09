@@ -1,4 +1,5 @@
 import faviconUrl from "design-system/assets/logo/mark-cream.svg?url";
+import { ThemeProvider } from "next-themes";
 import {
 	isRouteErrorResponse,
 	Links,
@@ -8,6 +9,8 @@ import {
 	ScrollRestoration,
 } from "react-router";
 
+import { Toaster } from "~/components/shadcn-ui/sonner";
+import { TooltipProvider } from "~/components/shadcn-ui/tooltip";
 import type { Route } from "./+types/root";
 import "./globals.css";
 
@@ -17,7 +20,9 @@ export const links: Route.LinksFunction = () => [
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="ja">
+		// next-themes が html.class を後付けで切り替えるため、prerender の HTML
+		// と差分が出る。SPA でも React の hydration 警告を抑える必要がある。
+		<html lang="ja" className="dark" suppressHydrationWarning>
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -34,7 +39,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-	return <Outlet />;
+	return (
+		<ThemeProvider
+			attribute="class"
+			defaultTheme="dark"
+			disableTransitionOnChange
+			enableSystem={false}
+		>
+			<TooltipProvider>
+				<Outlet />
+				<Toaster position="bottom-center" />
+			</TooltipProvider>
+		</ThemeProvider>
+	);
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
@@ -54,11 +71,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 	}
 
 	return (
-		<main className="ykz-error">
-			<h1>{message}</h1>
-			<p>{details}</p>
+		<main className="mx-auto max-w-2xl px-6 pt-24 pb-16 text-foreground">
+			<h1 className="text-2xl font-semibold text-text-strong">{message}</h1>
+			<p className="mt-2 text-muted-foreground">{details}</p>
 			{stack && (
-				<pre>
+				<pre className="mt-4 w-full overflow-x-auto rounded-md bg-secondary p-4 text-xs">
 					<code>{stack}</code>
 				</pre>
 			)}
