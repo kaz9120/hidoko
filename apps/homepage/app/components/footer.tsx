@@ -4,6 +4,7 @@ import { HidokoMark } from "~/components/hidoko-mark";
 import { PROFILE, X_HANDLE, X_PROFILE_URL } from "~/data/profile";
 
 export function Footer() {
+	const year = new Date().getFullYear();
 	return (
 		<footer className="ykz-footer">
 			<div className="ykz-footer__inner">
@@ -26,7 +27,9 @@ export function Footer() {
 					<span>{X_HANDLE}</span>
 					<ArrowUpRightIcon className="hi-icon-sm" aria-hidden="true" />
 				</a>
-				<div className="ykz-footer__meta hi-mono">© 2026 {PROFILE.name}</div>
+				<div className="ykz-footer__meta hi-mono">
+					© {year} {PROFILE.name}
+				</div>
 			</div>
 		</footer>
 	);
