@@ -6,7 +6,10 @@
 		"./tokens.css": "./tokens.css",
 		"./fonts.css": "./fonts.css",
 		"./components.css": "./components.css",
-		"./embers": "./components/embers.js",
+		"./embers": {
+			"types": "./components/embers.d.ts",
+			"default": "./components/embers.js"
+		},
 		"./assets/*": "./assets/*"
 	}
 }

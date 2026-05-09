@@ -1,0 +1,12 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "hidoko-homepage",
+	"compatibility_date": "2026-05-09",
+	"assets": {
+		"directory": "./build/client",
+		"not_found_handling": "single-page-application"
+	},
+	"observability": {
+		"enabled": true
+	}
+}
