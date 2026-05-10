@@ -38,8 +38,14 @@ export function useSelectAllShortcut({ cropperRef, hasImage }: Options) {
 				target instanceof HTMLElement &&
 				(target.tagName === "INPUT" ||
 					target.tagName === "TEXTAREA" ||
+					target.tagName === "SELECT" ||
 					target.isContentEditable)
 			) {
+				return;
+			}
+
+			// テキスト選択中は通常の全選択を優先
+			if (window.getSelection()?.toString()) {
 				return;
 			}
 
