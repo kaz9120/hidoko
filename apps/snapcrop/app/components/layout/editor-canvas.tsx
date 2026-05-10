@@ -11,6 +11,7 @@ import { type LoadedImage, useSnapcrop } from "~/contexts/snapcrop-context";
 import { useClipboardPaste } from "~/hooks/use-clipboard-paste";
 import { useCopyShortcut } from "~/hooks/use-copy-shortcut";
 import { useFileDrop } from "~/hooks/use-file-drop";
+import { useSelectAllShortcut } from "~/hooks/use-select-all-shortcut";
 import { writeImageToClipboard } from "~/lib/clipboard";
 import {
 	downloadBlob,
@@ -28,6 +29,7 @@ export function EditorCanvas() {
 		onSuccess: () => toast.success("クリップボードにコピーしました"),
 		onFailure: () => toast.error("クリップボードへのコピーに失敗しました"),
 	});
+	useSelectAllShortcut({ cropperRef, hasImage: image !== null });
 
 	if (image) {
 		// 画像 src が変わったら Cropper を作り直すために key を付ける。再 mount で
