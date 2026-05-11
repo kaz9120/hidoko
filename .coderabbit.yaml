@@ -19,8 +19,10 @@ early_access: false
 # レビュー
 # ---------------------------------------------------------------------------
 reviews:
-  # 個人開発のためノイズを抑えた chill プロファイル。
-  profile: chill
+  # Hidoko は Claude Code との AI-in-the-loop で開発しているため、
+  # nitpick 込みで多めに指摘を出させる assertive を採用する。
+  # 妥当性は AI Agents 向けプロンプト経由で都度検証してから直す前提。
+  profile: assertive
   request_changes_workflow: false
 
   # ウォークスルーは折り畳んで PR 説明欄を圧迫しない。
