@@ -164,6 +164,13 @@ reviews:
     gitleaks:
       enabled: true       # シークレット検出（唯一の secret scanner）
 
+    # --- 採用: GitHub 連携（linter ではなく integration） ---
+    github-checks:
+      # Biome / typecheck / build / commitlint / Workers Builds 等の CI 結果を
+      # CodeRabbit に取り込ませたいので明示的に有効化する。
+      enabled: true
+      timeout_ms: 90000
+
     # --- 不採用: 他ツールと重複 ---
     eslint:
       enabled: false      # Biome が代替
@@ -180,7 +187,12 @@ reviews:
     languagetool:
       enabled: false      # ドキュメントは日本語中心で ja 精度が限定的
     ast-grep:
-      enabled: false      # ルールを定義していない
+      # ast-grep のスキーマには enabled キーがないため、essential_rules を
+      # 切り、ルールディレクトリ/パッケージも空のままにして実質オフにする。
+      essential_rules: false
+      rule_dirs: []
+      util_dirs: []
+      packages: []
     presidio:
       enabled: false      # 個人 monorepo では PII を扱わない
     semgrep:
