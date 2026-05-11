@@ -1,0 +1,313 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+#
+# Hidoko の CodeRabbit 設定
+# - リファレンス: https://docs.coderabbit.ai/reference/configuration
+# - サンプル集:   https://github.com/coderabbitai/awesome-coderabbit/tree/main/configs
+
+# ---------------------------------------------------------------------------
+# 全体設定
+# ---------------------------------------------------------------------------
+language: ja-JP
+tone_instructions: |
+  あなたは Hidoko の CodeRabbit レビュアーです。日本語で、親しみやすくかつ
+  簡潔にレビューしてください。指摘は「何が問題か」「なぜ問題か」「どう直すと
+  良いか」の3点をセットで示し、AGENTS.md と packages/design-system/SKILL.md
+  の方針を尊重してください。装飾的な絵文字や顔文字は控えめにしてください。
+early_access: false
+
+# ---------------------------------------------------------------------------
+# レビュー
+# ---------------------------------------------------------------------------
+reviews:
+  # Hidoko は Claude Code との AI-in-the-loop で開発しているため、
+  # nitpick 込みで多めに指摘を出させる assertive を採用する。
+  # 妥当性は AI Agents 向けプロンプト経由で都度検証してから直す前提。
+  profile: assertive
+  request_changes_workflow: false
+
+  # ウォークスルーは折り畳んで PR 説明欄を圧迫しない。
+  high_level_summary: true
+  collapse_walkthrough: true
+  changed_files_summary: true
+  sequence_diagrams: true
+  assess_linked_issues: true
+  related_issues: true
+  related_prs: true
+
+  # 装飾系はオフ。レビュー本体に集中する。
+  poem: false
+  in_progress_fortune: false
+
+  # ラベルは提案だけ受け取り、自動付与はしない。
+  suggested_labels: true
+  auto_apply_labels: false
+
+  # ソロ開発のためレビュアー提案は不要。
+  suggested_reviewers: false
+
+  # レビュー対象から外すパス。
+  # 生成物・ロックファイル・バイナリアセット・shadcn-ui の自動生成分を除外する。
+  path_filters:
+    - "!bun.lock"
+    - "!**/*.lock"
+    - "!**/.DS_Store"
+    - "!**/dist/**"
+    - "!**/build/**"
+    - "!**/.wrangler/**"
+    - "!**/.cache/**"
+    - "!packages/design-system/assets/**"
+    - "!apps/*/app/components/shadcn-ui/**"
+
+  # パスごとのレビュー指針（短く、判断の足がかりだけ書く）。
+  path_instructions:
+    - path: "**/*.{ts,tsx}"
+      instructions: |
+        - TypeScript は tsconfig.base.json で strict を継承している前提。
+          `any` の追加や `// @ts-ignore` / `// @ts-expect-error` などの抑制は
+          原則避け、必要なときは理由をコメントに残してください。
+        - import の並び替えは Biome の責務です。手動の並び替え指摘は不要です。
+
+    - path: "apps/snapcrop/**"
+      instructions: |
+        - React Router 7 + Vite + Cloudflare Workers の SPA です。ブラウザで
+          動く前提なので、Node 専用 API（`fs` / `path` 等）を直接使ってい
+          ないか確認してください。
+        - 画像処理は Web 標準 API（Canvas / OffscreenCanvas / Web Worker）を
+          優先し、重い処理がメインスレッドを止めていないか見てください。
+
+    - path: "apps/homepage/**"
+      instructions: |
+        - Cloudflare Workers 上で動くアプリです。Workers ランタイム互換性を
+          意識し、Node 専用 API より Web 標準 API を優先してください。
+
+    - path: "packages/design-system/**"
+      instructions: |
+        - Hidoko のブランド言語そのものです。
+          `packages/design-system/SKILL.md` と `README.md` のルールを必ず
+          参照したうえでレビューしてください。
+        - 守るべき原則: 純粋な白 (`#ffffff`) は使わない / 彩度の高い緑・青は
+          避ける / 絵文字は控えめにする。
+        - 生のカラーコードを直書きせず、`tokens.css` のトークン経由で参照
+          しているか確認してください。
+
+    - path: ".github/workflows/**"
+      instructions: |
+        - CI では lint / typecheck / build / commitlint を回します。
+        - Cloudflare Workers Builds が PR ごとに preview URL を sticky
+          コメントしてくれるため、GitHub Actions 側で preview URL を投稿
+          するワークフローは追加しないでください。
+
+    - path: "**/package.json"
+      instructions: |
+        - パッケージマネージャは Bun (>=1.3.9) のみ。`npm` / `yarn` /
+          `pnpm` 前提のスクリプトや lockfile が混入していないか確認して
+          ください。
+        - workspace 配下のスクリプトを増やす場合は、ルートからの
+          `bun --filter <name> <script>` でも実行できる名前にしてください。
+
+    - path: "**/*.md"
+      instructions: |
+        - Hidoko のドキュメントは基本的に日本語、語調は丁寧体で統一です。
+        - リポジトリ内へのリンクは相対パス、外部リンクはフル URL を使って
+          ください。
+
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    drafts: false
+    ignore_title_keywords:
+      - "WIP"
+      - "wip"
+      - "DO NOT MERGE"
+      - "作業中"
+      - "ドラフト"
+
+  finishing_touches:
+    docstrings:
+      enabled: true
+
+  pre_merge_checks:
+    title:
+      # commitlint で各コミットは検証済みなので、PR タイトルは warning に留める。
+      mode: warning
+      requirements: |
+        Conventional Commits (`@commitlint/config-conventional`) 準拠を推奨します。
+        - 形式: `<type>(<scope>): <subject>`
+        - type:  feat / fix / chore / docs / refactor / test / ci / build /
+                 perf / style / revert のいずれか。
+        - scope: 影響範囲（例: snapcrop, design-system）。リポジトリ全体に
+                 及ぶときは省略可。
+        - subject: 先頭は lowercase Latin か日本語にしてください。`Capital`
+                   始まりの英文は不可。
+    description:
+      mode: warning
+    issue_assessment:
+      mode: warning
+
+  tools:
+    # CodeRabbit のスキーマでは tools 配下の各 enabled が既定で true。
+    # 未指定のツールも有効になるため、Hidoko で使うものだけを明示的に有効化し、
+    # 残りは明示的に無効化する allowlist 運用にする。
+    # ref: https://docs.coderabbit.ai/reference/tools-reference
+
+    # --- 採用: Hidoko のスタックで実際に意味があるツール ---
+    biome:
+      enabled: true       # TS / JS / JSON / CSS の formatter + linter
+    actionlint:
+      enabled: true       # .github/workflows/*.yml
+    yamllint:
+      enabled: true       # YAML 全般
+    markdownlint:
+      enabled: true       # Markdown ドキュメントの整形チェック
+    shellcheck:
+      enabled: true       # .husky/* の shell スクリプト
+    gitleaks:
+      enabled: true       # シークレット検出（唯一の secret scanner）
+
+    # --- 採用: GitHub 連携（linter ではなく integration） ---
+    github-checks:
+      # Biome / typecheck / build / commitlint / Workers Builds 等の CI 結果を
+      # CodeRabbit に取り込ませたいので明示的に有効化する。
+      enabled: true
+      timeout_ms: 90000
+
+    # --- 不採用: 他ツールと重複 ---
+    eslint:
+      enabled: false      # Biome が代替
+    oxc:
+      enabled: false      # Biome が代替
+    stylelint:
+      enabled: false      # Biome が CSS を扱う
+    trufflehog:
+      enabled: false      # gitleaks に一本化
+    osvScanner:
+      enabled: false      # 依存更新は Renovate が管理
+
+    # --- 不採用: 想定外の誤検知やノイズを避けるため ---
+    languagetool:
+      enabled: false      # ドキュメントは日本語中心で ja 精度が限定的
+    ast-grep:
+      # ast-grep のスキーマには enabled キーがないため、essential_rules を
+      # 切り、ルールディレクトリ/パッケージも空のままにして実質オフにする。
+      essential_rules: false
+      rule_dirs: []
+      util_dirs: []
+      packages: []
+    presidio:
+      enabled: false      # 個人 monorepo では PII を扱わない
+    semgrep:
+      enabled: false      # 設定なしの汎用 SAST はノイズが上回ると判断
+    opengrep:
+      enabled: false      # 同上
+
+    # --- 不採用: 該当ファイル / プラットフォームが存在しない ---
+    htmlhint:
+      enabled: false
+    hadolint:
+      enabled: false      # Dockerfile なし
+    checkov:
+      enabled: false      # IaC なし
+    tflint:
+      enabled: false      # Terraform なし
+    trivy:
+      enabled: false      # IaC / コンテナなし
+    circleci:
+      enabled: false      # CI は GitHub Actions
+    checkmake:
+      enabled: false      # Makefile なし
+    dotenvLint:
+      enabled: false      # .env.example は最小限のため対象外
+    # 言語系（リポジトリで使っていない）
+    ruff:
+      enabled: false
+    flake8:
+      enabled: false
+    pylint:
+      enabled: false
+    golangci-lint:
+      enabled: false
+    pmd:
+      enabled: false
+    detekt:
+      enabled: false
+    swiftlint:
+      enabled: false
+    phpstan:
+      enabled: false
+    phpmd:
+      enabled: false
+    phpcs:
+      enabled: false
+    rubocop:
+      enabled: false
+    brakeman:
+      enabled: false
+    clippy:
+      enabled: false
+    clang:
+      enabled: false
+    cppcheck:
+      enabled: false
+    sqlfluff:
+      enabled: false
+    prismaLint:
+      enabled: false
+    buf:
+      enabled: false
+    regal:
+      enabled: false
+    shopifyThemeCheck:
+      enabled: false
+    luacheck:
+      enabled: false
+    smartyLint:
+      enabled: false
+    emberTemplateLint:
+      enabled: false
+    psscriptanalyzer:
+      enabled: false
+    blinter:
+      enabled: false
+    fortitudeLint:
+      enabled: false
+
+# ---------------------------------------------------------------------------
+# チャット
+# ---------------------------------------------------------------------------
+chat:
+  auto_reply: true
+
+# ---------------------------------------------------------------------------
+# ナレッジベース
+# ---------------------------------------------------------------------------
+knowledge_base:
+  opt_out: false
+  web_search:
+    enabled: true
+  # AGENTS.md / CLAUDE.md / SKILL.md / 各 README.md をレビュー基準として読ませる。
+  # ※既定でも AGENTS.md・CLAUDE.md 等は対象だが、デザインシステムの SKILL.md
+  #   とリポジトリ全体の README.md を明示的に追加する。
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "README.md"
+      - "AGENTS.md"
+      - "CLAUDE.md"
+      - "**/AGENTS.md"
+      - "**/CLAUDE.md"
+      - "packages/design-system/SKILL.md"
+      - "packages/*/README.md"
+      - "apps/*/README.md"
+  learnings:
+    scope: auto
+  issues:
+    scope: auto
+  pull_requests:
+    scope: auto
+
+# ---------------------------------------------------------------------------
+# コード生成
+# ---------------------------------------------------------------------------
+code_generation:
+  docstrings:
+    language: ja-JP
