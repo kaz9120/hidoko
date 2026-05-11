@@ -145,24 +145,118 @@ reviews:
       mode: warning
 
   tools:
-    # 採用済みの静的解析（既定で有効だが、明示しておく）
-    biome:
-      enabled: true
-    actionlint:
-      enabled: true
-    yamllint:
-      enabled: true
-    markdownlint:
-      enabled: true
-    gitleaks:
-      enabled: true
-    languagetool:
-      enabled: true
+    # CodeRabbit のスキーマでは tools 配下の各 enabled が既定で true。
+    # 未指定のツールも有効になるため、Hidoko で使うものだけを明示的に有効化し、
+    # 残りは明示的に無効化する allowlist 運用にする。
+    # ref: https://docs.coderabbit.ai/reference/tools-reference
 
-    # 使っていない linter は明示的に無効化し、重複・ノイズを避ける
+    # --- 採用: Hidoko のスタックで実際に意味があるツール ---
+    biome:
+      enabled: true       # TS / JS / JSON / CSS の formatter + linter
+    actionlint:
+      enabled: true       # .github/workflows/*.yml
+    yamllint:
+      enabled: true       # YAML 全般
+    markdownlint:
+      enabled: true       # Markdown ドキュメントの整形チェック
+    shellcheck:
+      enabled: true       # .husky/* の shell スクリプト
+    gitleaks:
+      enabled: true       # シークレット検出（唯一の secret scanner）
+
+    # --- 不採用: 他ツールと重複 ---
     eslint:
-      enabled: false
+      enabled: false      # Biome が代替
     oxc:
+      enabled: false      # Biome が代替
+    stylelint:
+      enabled: false      # Biome が CSS を扱う
+    trufflehog:
+      enabled: false      # gitleaks に一本化
+    osvScanner:
+      enabled: false      # 依存更新は Renovate が管理
+
+    # --- 不採用: 想定外の誤検知やノイズを避けるため ---
+    languagetool:
+      enabled: false      # ドキュメントは日本語中心で ja 精度が限定的
+    ast-grep:
+      enabled: false      # ルールを定義していない
+    presidio:
+      enabled: false      # 個人 monorepo では PII を扱わない
+    semgrep:
+      enabled: false      # 設定なしの汎用 SAST はノイズが上回ると判断
+    opengrep:
+      enabled: false      # 同上
+
+    # --- 不採用: 該当ファイル / プラットフォームが存在しない ---
+    htmlhint:
+      enabled: false
+    hadolint:
+      enabled: false      # Dockerfile なし
+    checkov:
+      enabled: false      # IaC なし
+    tflint:
+      enabled: false      # Terraform なし
+    trivy:
+      enabled: false      # IaC / コンテナなし
+    circleci:
+      enabled: false      # CI は GitHub Actions
+    checkmake:
+      enabled: false      # Makefile なし
+    dotenvLint:
+      enabled: false      # .env.example は最小限のため対象外
+    # 言語系（リポジトリで使っていない）
+    ruff:
+      enabled: false
+    flake8:
+      enabled: false
+    pylint:
+      enabled: false
+    golangci-lint:
+      enabled: false
+    pmd:
+      enabled: false
+    detekt:
+      enabled: false
+    swiftlint:
+      enabled: false
+    phpstan:
+      enabled: false
+    phpmd:
+      enabled: false
+    phpcs:
+      enabled: false
+    rubocop:
+      enabled: false
+    brakeman:
+      enabled: false
+    clippy:
+      enabled: false
+    clang:
+      enabled: false
+    cppcheck:
+      enabled: false
+    sqlfluff:
+      enabled: false
+    prismaLint:
+      enabled: false
+    buf:
+      enabled: false
+    regal:
+      enabled: false
+    shopifyThemeCheck:
+      enabled: false
+    luacheck:
+      enabled: false
+    smartyLint:
+      enabled: false
+    emberTemplateLint:
+      enabled: false
+    psscriptanalyzer:
+      enabled: false
+    blinter:
+      enabled: false
+    fortitudeLint:
       enabled: false
 
 # ---------------------------------------------------------------------------
