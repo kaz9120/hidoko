@@ -90,6 +90,16 @@ ci: PR ベースで lint / typecheck / build / commitlint を回す
 
 純粋な白（`#ffffff`）は使わない、彩度の高い緑・青は避ける、絵文字は控えめに、といったブランドの「らしくないもの」も SKILL.md / README.md に書いてある。新しい画面を作る前に必ず一読する。
 
+## UI コンポーネント
+
+shadcn/ui のコンポーネントは [packages/ui](packages/ui) に一元化されている。`apps/*` が shadcn 系コンポーネントを使うときは、必ずこのパッケージから import する。詳細な使い方・更新方法は [packages/ui/README.md](packages/ui/README.md) を参照。
+
+- **shadcn の写経を app 側に置かない** — `bunx shadcn add` は必ず `--cwd packages/ui` で実行する。`apps/*/app/components/` 配下に shadcn 由来のコードを置かない。
+- **packages/ui のコンポーネントを手で編集しない** — shadcn の最新化フロー (`bun run ui:sync`) で上書きされる前提のコード。直したくなったら、まず「shadcn 本家を直してもらう」か「app 側で wrap する」を検討する。
+- **shadcn registry にあるものは自前で作らない** — `Button` / `Dialog` / `Form` などは全て packages/ui に揃っている。同等品を自前で書かない。
+- **app 固有の組み合わせ UI は app 側に置いてよい** — `<TopNav>` のような「shadcn コンポーネントを組み合わせた業務 UI」は `apps/*/app/components/` に置く。
+- **最新化は `bun run ui:diff` → `bun run ui:sync`** — 定期的に diff を確認し、適用したいときに sync を走らせる。両方ともリポジトリルートから実行できる。
+
 ## AI エージェント向けの注意
 
 - 上記のルールは人間にもエージェントにも等しく適用される。
