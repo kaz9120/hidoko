@@ -1,65 +1,17 @@
 @import "tailwindcss" source(".");
+@source "../../../packages/ui/src";
 @import "design-system/tokens.css";
 @import "design-system/components.css";
+@import "ui/styles.css";
 
 @custom-variant dark (&:is(.dark *));
 
-/*
- * 火床デザインシステム → shadcn/ui CSS 変数の橋渡し
- *
- * design-system/tokens.css のセマンティックトークン (--bg / --text / --accent
- * など) を経由して shadcn の CSS 変数を解決する。design-system 側が `:root`
- * (ダーク) と `.light` で値を切り替えるため、html の class 切替だけで配色
- * 全体が追従する (snapcrop と同じパターン)。
- */
 :root {
 	/* ページ共通の左右パディング (Hero / Section / TopNav / Footer で共有) */
 	--ykz-pad: clamp(20px, 4vw, 56px);
-
-	--radius: 0.625rem;
-	--background: var(--bg);
-	--foreground: var(--text);
-	--card: var(--bg-raised);
-	--card-foreground: var(--text);
-	--popover: var(--bg-raised);
-	--popover-foreground: var(--text);
-	--primary: var(--accent);
-	--primary-foreground: var(--text-on-ember);
-	--secondary: var(--bg-overlay);
-	--secondary-foreground: var(--text);
-	--muted: var(--bg-overlay);
-	--muted-foreground: var(--text-muted);
-	--accent-foreground: var(--text-on-ember);
-	--destructive: var(--danger);
-	--input: var(--border);
-	--ring: var(--accent);
 }
 
 @theme inline {
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
-
-	--color-background: var(--background);
-	--color-foreground: var(--foreground);
-	--color-card: var(--card);
-	--color-card-foreground: var(--card-foreground);
-	--color-popover: var(--popover);
-	--color-popover-foreground: var(--popover-foreground);
-	--color-primary: var(--primary);
-	--color-primary-foreground: var(--primary-foreground);
-	--color-secondary: var(--secondary);
-	--color-secondary-foreground: var(--secondary-foreground);
-	--color-muted: var(--muted);
-	--color-muted-foreground: var(--muted-foreground);
-	--color-accent: var(--accent);
-	--color-accent-foreground: var(--accent-foreground);
-	--color-destructive: var(--destructive);
-	--color-border: var(--border);
-	--color-input: var(--input);
-	--color-ring: var(--ring);
-
 	/* design-system 固有のサブレベル — Tailwind ユーティリティで触れるように */
 	--color-text-strong: var(--text-strong);
 	--color-text-faint: var(--text-faint);

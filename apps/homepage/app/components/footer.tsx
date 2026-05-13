@@ -1,7 +1,7 @@
 import { ArrowUpRightIcon, XIcon } from "lucide-react";
 
+import { Button } from "ui";
 import { HidokoMark } from "~/components/hidoko-mark";
-import { Button } from "~/components/shadcn-ui/button";
 import { PROFILE, X_HANDLE, X_PROFILE_URL } from "~/data/profile";
 
 export function Footer() {

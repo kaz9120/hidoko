@@ -1,9 +1,8 @@
 import { SendIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { Button, cn } from "ui";
 import { HidokoMark } from "~/components/hidoko-mark";
-import { Button } from "~/components/shadcn-ui/button";
-import { cn } from "~/components/shadcn-ui/utils";
 import { X_PROFILE_URL } from "~/data/profile";
 
 const NAV_ITEMS = [

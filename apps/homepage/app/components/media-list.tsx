@@ -6,8 +6,8 @@ import {
 	PlayIcon,
 } from "lucide-react";
 
+import { cn } from "ui";
 import { EmptyState } from "~/components/empty-state";
-import { cn } from "~/components/shadcn-ui/utils";
 import { MEDIA, type MediaItem, type MediaType } from "~/data/media";
 
 const TYPE_META: Record<MediaType, { icon: LucideIcon; classes: string }> = {

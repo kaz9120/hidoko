@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { Button } from "~/components/shadcn-ui/button";
+import { Button } from "./button";
 
 const meta = {
 	title: "shadcn-ui/Button",

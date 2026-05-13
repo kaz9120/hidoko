@@ -1,7 +1,7 @@
 import { ArrowUpRightIcon } from "lucide-react";
 
+import { cn } from "ui";
 import { EmptyState } from "~/components/empty-state";
-import { cn } from "~/components/shadcn-ui/utils";
 import { DECKS, type Deck } from "~/data/decks";
 
 export function Decks() {

@@ -1,6 +1,6 @@
 import { ArrowUpRightIcon } from "lucide-react";
 
-import { cn } from "~/components/shadcn-ui/utils";
+import { cn } from "ui";
 import { TOOLS } from "~/data/tools";
 
 export function Tools() {

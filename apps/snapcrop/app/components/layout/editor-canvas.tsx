@@ -2,11 +2,7 @@ import Cropper from "cropperjs";
 import { CopyIcon, DownloadIcon, ImageIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "~/components/shadcn-ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "ui";
 import { type LoadedImage, useSnapcrop } from "~/contexts/snapcrop-context";
 import { useClipboardPaste } from "~/hooks/use-clipboard-paste";
 import { useCopyShortcut } from "~/hooks/use-copy-shortcut";

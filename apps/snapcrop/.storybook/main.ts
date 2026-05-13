@@ -9,7 +9,10 @@ const config: StorybookConfig = {
 			},
 		},
 	},
-	stories: ["../app/**/*.stories.@(ts|tsx)"],
+	stories: [
+		"../app/**/*.stories.@(ts|tsx)",
+		"../../../packages/ui/src/**/*.stories.@(ts|tsx)",
+	],
 };
 
 export default config;
