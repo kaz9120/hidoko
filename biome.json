@@ -10,7 +10,9 @@
 		"includes": [
 			"**",
 			"!packages/design-system",
-			"!apps/*/app/components/shadcn-ui",
+			"!packages/ui/src/components",
+			"packages/ui/src/components/*.stories.tsx",
+			"!packages/ui/src/hooks",
 			"!**/*.css"
 		]
 	},

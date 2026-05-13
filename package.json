@@ -12,6 +12,8 @@
 		"check": "biome check --write .",
 		"check:ci": "biome check .",
 		"typecheck": "bun run --filter '*' typecheck",
+		"ui:sync": "bun --filter ui sync",
+		"ui:diff": "bun --filter ui diff",
 		"vrt:run": "reg-suit run",
 		"precommit": "lint-staged",
 		"prepare": "husky"
