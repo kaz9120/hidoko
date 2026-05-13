@@ -21,13 +21,17 @@ bun workspaces で構成されたモノレポ。
 ```
 hidoko/
 ├── apps/
+│   ├── homepage/          # y-kaz.com — 自己紹介とアウトプットのハブ
 │   └── snapcrop/          # ブラウザで動く画像エディタ
 └── packages/
-    └── design-system/     # Hidoko ブランドのデザインシステム
+    ├── design-system/     # ブランド層 (色 / タイポ / ロゴ / 火の粉)
+    └── ui/                # コンポーネント層 (shadcn/ui を一元管理)
 ```
 
-- [apps/snapcrop](apps/snapcrop) — React Router 7 + Vite + Cloudflare Workers の SPA。
-- [packages/design-system](packages/design-system) — トークン・フォント・UI キット・ロゴをまとめたデザイン言語。
+- [apps/homepage](apps/homepage) — React Router 7 (SPA, prerender) + Cloudflare Workers。
+- [apps/snapcrop](apps/snapcrop) — React Router 7 + Cloudflare Workers。Storybook + reg-suit で VRT。
+- [packages/design-system](packages/design-system) — トークン CSS / Web フォント / 火床マーク / `<hi-embers>`。
+- [packages/ui](packages/ui) — shadcn/ui を写経・集約する React コンポーネント群。
 
 ## 開発
 
