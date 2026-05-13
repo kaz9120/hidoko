@@ -1,16 +1,53 @@
-# 火床（Hidoko）デザインシステム
+# design-system
 
-> 焚き火を愛するエンジニアの、個人開発プロジェクト群のための統一デザイン言語。
+Hidoko の **ブランド層**。色・タイポ・余白・影などの CSS 変数、Web フォント、火床マーク、火の粉アニメーションを束ねる。
 
-「火床（ひどこ）」とは、焚き火の中心にある熾火（おきび）が静かに燃え続ける場所。
-派手な炎ではなく、長く、深く、静かに熱を保ち続けるもの。
-個人開発プロジェクトもまた、そういうものでありたい。
+「火床（ひどこ）」は焚き火の中心で熾火（おきび）が静かに燃え続ける場所。派手な炎ではなく、長く・深く・静かに熱を保つもの。このパッケージは、その温度感を CSS とアセットに落とし込んだもの。
 
-このデザインシステムは、ダークモードを基調に、深い夜のような落ち着きと、
-焚き火のオレンジ・赤の暖かさを共存させる。
-過剰な装飾はせず、コードのように引き算で整える。
+実 React コンポーネントは [packages/ui](../ui) に分けてある。ここはトークンとアセット**だけ**。
 
----
+## このパッケージに入っているもの
+
+| ファイル | 役割 |
+|---|---|
+| [`tokens.css`](tokens.css) | 全ての CSS 変数。色 / タイポ / 余白 / 角丸 / 影 / chart 系列 / レイアウト / トランジション。`:root` がダーク基準、`.light` で反転。`fonts.css` を内部で `@import` する。 |
+| [`fonts.css`](fonts.css) | Inter / LINE Seed JP / JetBrains Mono の `@font-face` 宣言。`tokens.css` 経由で読み込まれるので、利用側で個別に import する必要はない。 |
+| [`components.css`](components.css) | 素の HTML 用のスタイルキット (`.hi-btn` / `.hi-card` / `.hi-input` 等の BEM クラス)。React + shadcn を使うアプリでは不要。Web Component やプレーン HTML を組むときだけ使う。 |
+| [`components/embers.js`](components/embers.js) | `<hi-embers>` Web Component。火の粉が舞うキャンバスアニメーション。`import "design-system/embers"` の副作用で `customElements` に登録される。 |
+| [`assets/logo/mark-cream.svg`](assets/logo/mark-cream.svg) | 紙 / クリーム背景用のフルカラーマーク。favicon / ライト UI 用。 |
+| [`assets/logo/mark-dark.svg`](assets/logo/mark-dark.svg) | 夜 / ダーク背景用のフルカラーマーク。 |
+
+## 使い方
+
+`workspace:*` で依存に入れる:
+
+```json
+{ "dependencies": { "design-system": "workspace:*" } }
+```
+
+CSS から:
+
+```css
+@import "design-system/tokens.css";
+/* 必要なら */
+@import "design-system/components.css";
+```
+
+ロゴ / 火の粉:
+
+```ts
+import markCreamUrl from "design-system/assets/logo/mark-cream.svg?url";
+import markDarkUrl  from "design-system/assets/logo/mark-dark.svg?url";
+import "design-system/embers"; // <hi-embers> を登録
+```
+
+`<hi-embers>` は `density` (粒数) / `wind` (横流れ) / `hue` (色相シフト) / `glow` (背景グロー on/off) を属性で受ける:
+
+```html
+<hi-embers density="36" wind="0.04"></hi-embers>
+```
+
+親は `position: relative` 必須。装飾なので 1 画面 1 つまで。
 
 ## ブランドの根っこ
 
@@ -19,268 +56,66 @@
 | **名前** | 火床（Hidoko / ひどこ） |
 | **由来** | 焚き火の燃料が積まれ、熾火が眠る土台。静かに熱を保ち続ける場所。 |
 | **役割** | 個人プロジェクトの傘ブランド。複数のプロダクトを束ねる。 |
-| **対象** | 開発者本人、および同じ温度感を共有するユーザー。 |
 | **核となる感情** | 静かな熱量、夜の安心感、手仕事の精度、長く続く灯。 |
 
-### キーワード
-焚き火 / 熾火 / 夜 / 暖 / 静けさ / 精度 / コード / 引き算 / 長く灯る
+### Hidoko らしくないもの
 
-### Hidokoらしくないもの
 - 過剰な笑顔の絵文字、「ワクワク」を煽るマーケコピー
-- 鮮やかすぎるネオン、純粋なホワイト背景の眩しいUI
-- 太く重いdisplayフォント、装飾だけのイラスト
-- AIっぽい多色グラデーション、丸いカードに左ボーダー、モヤッとしたガラス効果
+- 鮮やかすぎるネオン、純粋なホワイト背景の眩しい UI
+- 太く重い display フォント、装飾だけのイラスト
+- AI っぽい多色グラデーション、丸いカードに左ボーダー、モヤッとしたガラス効果
 
----
+## 守るべき原則
 
-## index
+このトークン群を呼び出して何かを作るときは、以下を守る。
 
-このフォルダの中身：
+1. **ダークが基準** — 何もなければ `tokens.css` のダーク設定をそのまま使う。ライトは依頼時のみ。
+2. **`--ember-400` (#f47d3a) はブランドの指紋** — 主要 CTA、リンク、フォーカス、ロゴで使う。「強調っぽいから」とむやみに広げない。
+3. **純白・純黒は使わない** — `--ink-900` / `--ink-0` を使う。焚き火の光はわずかに黄色い。
+4. **影より光** — `box-shadow` の黒で立体を作らない。`--shadow-rim` のリム光と `--glow-ember-soft` のグローを使う。
+5. **角丸は控えめ** — 標準は `--radius-md` (6px)。大きなパネルでも `--radius-xl` (16px) まで。ボタンを `--radius-full` で丸めない。
+6. **絵文字は禁則** — 火モチーフでも 🔥 は使わない。アイコンは [Lucide](https://lucide.dev) の `flame` をアクセント色で。意味のあるところに 1 つだけ。
+7. **コピーは体言止め・短文** — 「〜です！」「最高」「革命的」「あなたの〜」は禁句。
+8. **彩度の高い緑・青を使わない** — 緑は `--moss`、青は `--moon` だけ。鮮やかな原色は焚き火の温度感に合わない。
 
-### 基礎
-- [`tokens.css`](tokens.css) — カラー、タイポグラフィ、間隔、影などのCSS変数
-- [`fonts.css`](fonts.css) — LINE Seed JP / Inter / JetBrains Mono のWebフォント読み込み
+## トークンの構造
 
-### プレビュー（Design Systemタブで確認）
-- [`previews/colors.html`](previews/colors.html) — カラーパレット
-- [`previews/type.html`](previews/type.html) — タイポグラフィスケール
-- [`previews/spacing.html`](previews/spacing.html) — 間隔・角丸・影
-- [`previews/components.html`](previews/components.html) — ボタン・フォーム・カード・バッジ
-- [`previews/brand.html`](previews/brand.html) — ロゴバリエーション・炎モチーフ
+### 色
 
-### UIキット（実用例）
-- [`kits/landing.html`](kits/landing.html) — Hidoko 自身のランディングページ
-- [`kits/dashboard.html`](kits/dashboard.html) — 個人プロジェクト一覧ダッシュボード
-- [`kits/slides.html`](kits/slides.html) — スライドテンプレート（社内LT用想定）
+`--ink-{0..900}` (中性 / 炭・夜) と `--ember-{50..900}` (焚き火) の 2 系統が原始トークン。`--smoke` / `--moss` / `--moon` / `--rust` が補助色。
 
-### 部品
-- [`components/embers.js`](components/embers.js) — 炎・火の粉のCanvasアニメーション
+これらをセマンティックトークンに束ねる:
 
-### ドキュメント
-- [`SKILL.md`](SKILL.md) — このシステムを使うときに守るべき原則
+- 背景: `--bg-0` / `--bg` / `--bg-raised` / `--bg-overlay` / `--bg-sunken`
+- ボーダー: `--border` / `--border-strong` / `--border-subtle`
+- テキスト: `--text` / `--text-strong` / `--text-muted` / `--text-faint` / `--text-on-ember`
+- アクセント: `--accent` / `--accent-hover` / `--accent-active` / `--accent-soft`
+- 状態: `--success` / `--info` / `--warning` / `--danger`
+- chart: `--chart-{1..5}` (recharts categorical 用、`--ember-400` を chart-1 に固定)
 
----
+UI は基本セマンティック側を参照し、原始トークンは「セマンティックを定義する側」だけが触る。
 
-## CONTENT FUNDAMENTALS
+### タイポ
 
-文章は、火床の温度感を決める。
-派手さより、置き場のよい言葉を選ぶ。
+- `--font-sans` (Inter + LINE Seed JP) / `--font-mono` (JetBrains Mono)
+- スケール `--text-xs` (12) → `--text-6xl` (88)、1.250 (Major Third)
+- `font-feature-settings: "palt", "cv11", "ss01"` を `body` で適用済み (約物詰め + Inter 代替字形)
 
-### 声と文体
+### 余白 / 角丸 / 影
 
-- **基本トーンはミニマル**：短文、体言止めを多用。装飾語を削る。
-- **一人称は不要**：「私たちは…」と語らない。プロダクトに語らせる。
-- **二人称も控えめ**：「あなた」より、状況や対象を主語に置く。
-- **断言する**：「〜できます」より「〜する」「〜できる」。語尾はやわらかく短く。
-- **句点は半分くらい省く**：体言止めの方がリズムが出る。
-- **誇張を避ける**：「最高」「革命的」「魔法のような」は使わない。事実で語る。
+- 余白は 4px ベース `--space-{0..10}`
+- 角丸は `--radius-{xs|sm|md|lg|xl|2xl|full}`
+- 影は黒の落ち影ではなく、リム光 (`--shadow-rim`) と炎のグロー (`--glow-ember-soft` / `--glow-ember` / `--glow-ember-strong`) で立体を作る
 
-### 例：見出し
+具体値は [`tokens.css`](tokens.css) が単一の真実源。ここでは複製しない。
 
-| ❌ Hidokoらしくない | ✅ Hidokoらしい |
-|---|---|
-| 革命的なタスク管理ツールが登場！ | 静かに燃える、タスク管理 |
-| AIがあなたの作業を効率化します | 手の動きを、邪魔しない |
-| シンプルで使いやすい | 余白、ある |
-| 圧倒的に高速！ | 待たない |
+## ライト / ダーク切り替え
 
-### 例：本文
+`:root` がダーク。ライトモードは `<html class="light">` または `<html data-theme="light">` で有効化される。`.light` 側では:
 
-> ❌ 私たちは、開発者の皆様のために、最高の体験を提供することを目指しています。
->
-> ✅ 開発者の手元に置く道具。長く使える、薄い体験を作る。
+- 背景 / ボーダー / テキストを紙の温度感 (`#fbf8f0` 系) に差し替え
+- アクセントを `--ember-500` (やや深め) にシフト
+- chart-1 を `--ember-500`、chart-2 を `--moon` と `--ink-900` の color-mix に置換 (`--moon` がライト背景に埋没するため)
+- 影を黒の薄い落ち影と白のリム光に置換
 
-### 数字と単位
-
-- 半角数字、単位は半角スペースなしで詰める：`12 件` ではなく `12件`
-- 時間表記は `12:34` 形式（24時間制）
-- 通貨は `¥1,200` か `1,200 円`
-
-### コマンド・コード片
-
-- 文中のコードは `バッククオート` で。和文に英字が混じるときは前後に半角スペースを入れない（詰める）
-- ターミナル例は等幅フォントで、行頭の `$` は省略しない
-
-### 禁則
-
-- 過剰な絵文字（🔥 を1ページに2個以上はNG。火モチーフでも控えめに）
-- ビックリマーク（!）は1画面に1つまで
-- 「〜です！」のテンションは使わない。「〜です。」で止める
-
----
-
-## VISUAL FOUNDATIONS
-
-### カラーシステム
-
-ダークモードがメイン。「夜の焚き火」が基準。
-ライトモードも提供するが、**Hidokoらしさはダークで最も強く出る**。
-
-#### 中性色（炭・夜）
-
-| トークン | 値 | 用途 |
-|---|---|---|
-| `--ink-0`   | `#0a0907` | 最も深い背景（夜の闇） |
-| `--ink-50`  | `#13110e` | アプリ背景 |
-| `--ink-100` | `#1a1814` | カード背景 |
-| `--ink-200` | `#26221c` | 一段持ち上げた面 |
-| `--ink-300` | `#3a342b` | 区切り線（強） |
-| `--ink-400` | `#5a5247` | ボーダー（弱） |
-| `--ink-500` | `#7d7468` | 補助テキスト |
-| `--ink-600` | `#a8a094` | 二次テキスト |
-| `--ink-700` | `#d4cdc1` | 一次テキスト |
-| `--ink-800` | `#ebe5d8` | 強調テキスト |
-| `--ink-900` | `#f5f1e6` | 最も明るい前景（紙の白ではなく、オフホワイト） |
-
-純粋な白（`#ffffff`）は使わない。
-焚き火の光は、わずかに黄色みを帯びるから。
-
-#### 焚き火色（炎）
-
-| トークン | 値 | 用途 |
-|---|---|---|
-| `--ember-50`  | `#fef4e8` | 最薄（淡い光のにじみ） |
-| `--ember-100` | `#fde0c1` | 朝焼けに近い橙 |
-| `--ember-200` | `#fbc189` | 揺らぎの外側 |
-| `--ember-300` | `#f8a05c` | 炎の縁 |
-| `--ember-400` | `#f47d3a` | **メインのオレンジ（CTA等）** |
-| `--ember-500` | `#e85d20` | 燃えている炎 |
-| `--ember-600` | `#c64414` | 深い熾火 |
-| `--ember-700` | `#9a3210` | 燃え残り |
-| `--ember-800` | `#6b220c` | 焦げ |
-| `--ember-900` | `#3d1407` | 灰の下 |
-
-`--ember-400` がブランドの基準色。
-リンク、主要ボタン、フォーカスリング、ロゴで使う。
-
-#### 補助色
-
-| トークン | 値 | 用途 |
-|---|---|---|
-| `--smoke`   | `#7c8590` | 煙のグレー。`--ink` だけだと寒くなる場面で。 |
-| `--moss`    | `#7a8c5e` | 苔・成功状態。鮮やかな緑は使わない。 |
-| `--moon`    | `#c8d4e0` | 月の青白。情報メッセージ。 |
-| `--rust`    | `#b8503a` | 鉄錆色。エラー・破壊操作。 |
-
-すべての補助色は彩度を抑え、ダーク背景に乗せても刺さらないよう調整。
-
-### タイポグラフィ
-
-- **和文**：LINE Seed JP（400 / 700）
-- **欧文**：Inter（400 / 500 / 600 / 700）
-- **等幅**：JetBrains Mono（400 / 500）— コード・数値・キーボードショートカット用
-
-`font-family` は和欧両対応のスタックを `--font-sans` として一つにまとめる。
-タイトル等の太字は `font-weight: 700`、本文は `400`、補助は `400` でフォントサイズを下げる。
-
-#### スケール（1.250 / Major Third）
-
-| トークン | サイズ | 行間 | 用途 |
-|---|---|---|---|
-| `--text-xs`   | 12px | 1.5  | キャプション、タグ |
-| `--text-sm`   | 14px | 1.55 | 補助テキスト、フォームラベル |
-| `--text-base` | 16px | 1.7  | 本文（和文の標準） |
-| `--text-lg`   | 18px | 1.6  | リード文 |
-| `--text-xl`   | 22px | 1.4  | 小見出し |
-| `--text-2xl`  | 28px | 1.3  | 中見出し |
-| `--text-3xl`  | 36px | 1.2  | 大見出し |
-| `--text-4xl`  | 48px | 1.1  | ページタイトル |
-| `--text-5xl`  | 64px | 1.05 | ヒーローコピー |
-| `--text-6xl`  | 88px | 1.0  | ディスプレイ（特別な場面のみ） |
-
-**和文の `font-feature-settings`**：`"palt"` で約物詰めを有効化。括弧や句読点が間延びしない。
-**欧文の `font-feature-settings`**：`"cv11", "ss01"` で Inter の代替字形を有効化（`a` `g` のかたちが手書きに近づく）。
-
-### スペーシング
-
-4px ベースのスケール。
-
-```
---space-0:  0
---space-1:  4px
---space-2:  8px
---space-3:  12px
---space-4:  16px
---space-5:  24px
---space-6:  32px
---space-7:  48px
---space-8:  64px
---space-9:  96px
---space-10: 128px
-```
-
-セクション間は `--space-9` 以上、要素間は `--space-4`〜`--space-6`。
-
-### 角丸
-
-派手にしない。焚き火台のように、少しだけ角を落とす。
-
-```
---radius-xs:  2px
---radius-sm:  4px
---radius-md:  6px   ← 標準（ボタン、入力、バッジ）
---radius-lg:  10px  ← カード
---radius-xl:  16px  ← モーダル、大きなパネル
---radius-full: 9999px ← 円形バッジ、アバター
-```
-
-### 影と光
-
-ダークUIで `box-shadow` の黒は効かない。
-代わりに**「わずかに上から差す光」**と**「炎のグロー」**で立体感を出す。
-
-```css
---shadow-rim:    inset 0 1px 0 rgba(255, 240, 220, 0.04);
---shadow-card:   0 1px 0 rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,240,220,0.03);
---shadow-pop:    0 12px 40px rgba(0,0,0,0.6), 0 2px 0 rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,240,220,0.05);
---glow-ember:    0 0 0 1px rgba(244, 125, 58, 0.3), 0 4px 24px rgba(244, 125, 58, 0.25);
---glow-ember-soft: 0 0 32px rgba(244, 125, 58, 0.15);
-```
-
-### グリッドと幅
-
-- 最大コンテンツ幅：`1240px`（マーケサイト）/ `1440px`（アプリ）
-- 段組ガター：`24px` / `32px`（広いとき）
-- 本文の最大行幅：`68ch`（和文では約 32 文字）
-
----
-
-## ICONOGRAPHY
-
-[Lucide](https://lucide.dev) を採用。線画・細め・モダン。
-和の温度感に合うのは、太い塗りつぶしより、燃えさしのような細い線。
-
-### 使い方
-
-CDN で読み込み、`data-lucide="icon-name"` を `<i>` に付与する：
-
-```html
-<i data-lucide="flame" class="hi-icon"></i>
-
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-<script>lucide.createIcons();</script>
-```
-
-### サイズ
-
-| クラス | サイズ | 用途 |
-|---|---|---|
-| `.hi-icon-sm` | 14px | フォーム内、小さなボタン |
-| `.hi-icon`    | 18px | 標準 |
-| `.hi-icon-lg` | 24px | ナビゲーション、見出し横 |
-| `.hi-icon-xl` | 32px | ヒーロー、特集 |
-
-### 線の太さ
-
-`stroke-width: 1.75` を標準に。Lucide のデフォルト 2 だと、和文と並べたとき少し太い。
-
-### Hidoko で頻出するアイコン
-
-`flame` `sparkles` `hexagon` `terminal` `code` `git-branch`
-`folder` `book-open` `compass` `moon` `sun-dim` `clock`
-`arrow-up-right` `arrow-right` `chevron-right` `plus` `check` `x`
-
-絵文字の代わりにアイコンを使う。
-ただし、アイコンも装飾としては乱用しない。意味のあるところに、一つだけ。
-
----
+[packages/ui](../ui) の `Button` / `Card` 等は、shadcn の `--background` / `--foreground` 等をこのセマンティック層に紐付けて解決している。

@@ -84,11 +84,10 @@ ci: PR ベースで lint / typecheck / build / commitlint を回す
 
 [packages/design-system](packages/design-system) は Hidoko のブランド言語そのもの。UI を作るときは:
 
-- まず [packages/design-system/README.md](packages/design-system/README.md) のトーン・カラー・タイポを確認する。
-- 守るべき原則は [packages/design-system/SKILL.md](packages/design-system/SKILL.md) にまとめてある。
+- まず [packages/design-system/README.md](packages/design-system/README.md) でトーン・カラー・タイポ・守るべき原則を確認する。
 - ロゴ・マークは [packages/design-system/assets/logo/](packages/design-system/assets/logo) にある。`mark-cream` がライト背景用、`mark-dark` がダーク背景用。
 
-純粋な白（`#ffffff`）は使わない、彩度の高い緑・青は避ける、絵文字は控えめに、といったブランドの「らしくないもの」も SKILL.md / README.md に書いてある。新しい画面を作る前に必ず一読する。
+純粋な白（`#ffffff`）は使わない、彩度の高い緑・青は避ける、絵文字は控えめに、といったブランドの「らしくないもの」も README に書いてある。新しい画面を作る前に必ず一読する。
 
 ## UI コンポーネント
 
