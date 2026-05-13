@@ -1,12 +1,7 @@
 import { MoonIcon, SunIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { Button } from "~/components/shadcn-ui/button";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "~/components/shadcn-ui/tooltip";
+import { Button, Tooltip, TooltipContent, TooltipTrigger } from "ui";
 
 export function ThemeToggle() {
 	const { resolvedTheme, setTheme } = useTheme();

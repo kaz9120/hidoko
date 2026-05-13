@@ -9,8 +9,7 @@ import {
 	ScrollRestoration,
 } from "react-router";
 
-import { Toaster } from "~/components/shadcn-ui/sonner";
-import { TooltipProvider } from "~/components/shadcn-ui/tooltip";
+import { Toaster, TooltipProvider } from "ui";
 import type { Route } from "./+types/root";
 import "./globals.css";
 

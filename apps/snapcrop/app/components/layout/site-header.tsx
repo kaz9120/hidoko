@@ -18,17 +18,15 @@ import {
 	useState,
 } from "react";
 import { toast } from "sonner";
-import { Button } from "~/components/shadcn-ui/button";
-import { Toggle } from "~/components/shadcn-ui/toggle";
 import {
+	Button,
+	Toggle,
 	ToggleGroup,
 	ToggleGroupItem,
-} from "~/components/shadcn-ui/toggle-group";
-import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
-} from "~/components/shadcn-ui/tooltip";
+} from "ui";
 import { ThemeToggle } from "~/components/theme-toggle";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 import { readImageFromClipboard } from "~/lib/clipboard";
