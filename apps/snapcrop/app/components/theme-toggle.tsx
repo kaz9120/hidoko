@@ -11,7 +11,7 @@ export function ThemeToggle() {
 		setMounted(true);
 	}, []);
 
-	// hydration 前は dark 想定で描画してチラつきを抑える。design-system は
+	// hydration 前は dark 想定で描画してチラつきを抑える。tokens.css は
 	// dark が初期状態 (`:root` がダーク基準) なので整合する。
 	const isDark = !mounted || resolvedTheme === "dark";
 	const nextLabel = isDark

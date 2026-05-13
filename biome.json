@@ -9,10 +9,11 @@
 		"ignoreUnknown": true,
 		"includes": [
 			"**",
-			"!packages/design-system",
 			"!packages/ui/src/components",
 			"packages/ui/src/components/*.stories.tsx",
 			"!packages/ui/src/hooks",
+			"!packages/ui/src/embers.js",
+			"!packages/ui/src/embers.d.ts",
 			"!**/*.css"
 		]
 	},

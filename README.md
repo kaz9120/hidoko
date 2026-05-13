@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="packages/design-system/assets/logo/mark-cream.svg" alt="Hidoko" width="120" />
+  <img src="packages/ui/assets/logo/mark-cream.svg" alt="Hidoko" width="120" />
 </p>
 
 <h1 align="center">Hidoko</h1>
@@ -24,15 +24,14 @@ hidoko/
 │   ├── homepage/          # y-kaz.com — 自己紹介とアウトプットのハブ
 │   └── snapcrop/          # ブラウザで動く画像エディタ
 └── packages/
-    ├── design-system/     # ブランド層 (色 / タイポ / ロゴ / 火の粉)
-    └── ui/                # コンポーネント層 (shadcn/ui を一元管理)
+    └── ui/                # トークン・shadcn/ui・ロゴ・火の粉を束ねた共通基盤
 ```
 
 - [apps/homepage](apps/homepage) — React Router 7 (SPA, prerender) + Cloudflare Workers。
 - [apps/snapcrop](apps/snapcrop) — React Router 7 + Cloudflare Workers。Storybook + reg-suit で VRT。
-- [packages/design-system](packages/design-system) — トークン CSS / Web フォント / 火床マーク / `<hi-embers>`。
-- [packages/ui](packages/ui) — shadcn/ui を写経・集約する React コンポーネント群。
+- [packages/ui](packages/ui) — design tokens / shadcn/ui コンポーネント / ロゴ / `<hi-embers>` をひとつの workspace パッケージで提供。
 
-## 開発
+## ドキュメント
 
-開発時のルール・コマンド・規約は [AGENTS.md](AGENTS.md) を参照。
+- [AGENTS.md](AGENTS.md) — 開発時のルール・コマンド・コミット規約
+- [DESIGN.md](DESIGN.md) — ブランドと視覚言語の単一仕様（色・タイポ・レイアウト・原則）

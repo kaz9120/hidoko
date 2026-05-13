@@ -1,18 +1,18 @@
 /*
- * 火床デザインシステム → shadcn/ui CSS 変数の橋渡し
+ * 火床トークン → shadcn/ui CSS 変数の橋渡し
  *
- * design-system/tokens.css のセマンティックトークン (--bg / --text / --accent
- * など) を経由して shadcn の CSS 変数を解決する。design-system 側が `:root`
- * (ダーク) と `.light` (ライト) で値を切り替えるため、html の class 切替だけで
- * 配色全体が追従する。
+ * tokens.css のセマンティックトークン (--bg / --text / --accent など) を
+ * 経由して shadcn の CSS 変数を解決する。tokens.css 側が `:root` (ダーク) と
+ * `.light` (ライト) で値を切り替えるため、html の class 切替だけで配色全体が
+ * 追従する。
  *
- * `--accent` `--border` は design-system が既に定義しているため再宣言せず
+ * `--accent` `--border` は tokens.css が既に定義しているため再宣言せず
  * そのまま参照する (shadcn の bg-accent / border-border はブランド色 /
  * セマンティックボーダー色として解決される)。
  *
  * `--sidebar-*` / `--chart-*` は shadcn の Sidebar / Chart コンポーネント用。
- * design-system のセマンティックトークン経由で解決しているので、ダーク / ライト
- * の切替は html クラスだけで自動追従する (`.dark` ブロックは不要)。
+ * セマンティックトークン経由で解決しているので、ダーク / ライトの切替は html
+ * クラスだけで自動追従する (`.dark` ブロックは不要)。
  */
 :root {
 	--radius: 0.625rem;

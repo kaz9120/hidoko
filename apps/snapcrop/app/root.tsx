@@ -1,4 +1,3 @@
-import faviconUrl from "design-system/assets/logo/mark-cream.svg?url";
 import { ThemeProvider } from "next-themes";
 import {
 	isRouteErrorResponse,
@@ -8,8 +7,8 @@ import {
 	Scripts,
 	ScrollRestoration,
 } from "react-router";
-
 import { Toaster, TooltipProvider } from "ui";
+import faviconUrl from "ui/assets/logo/mark-cream.svg?url";
 import type { Route } from "./+types/root";
 import "./globals.css";
 
