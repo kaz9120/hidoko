@@ -66,6 +66,19 @@
   --warning: var(--ember-300);
   --danger:  var(--rust);
 
+  /* ─── Chart 系列パレット（recharts categorical） ───
+   * 5 シリーズ。chart-1 はブランド指紋 (--ember-400) を主役に固定。
+   * 隣接シリーズ同士の色相距離を保ち、暖色 (1 / 4) が並ばないよう
+   * 寒色 (2 / 3) を間に挟む順序。ライトでは .light 側で chart-1 を
+   * --ember-500 に、chart-2 を color-mix で 1 段沈めた変種に上書きする
+   * (--moon がライト背景に埋没する問題を回避)。
+   */
+  --chart-1: var(--ember-400);
+  --chart-2: var(--moon);
+  --chart-3: var(--moss);
+  --chart-4: var(--rust);
+  --chart-5: var(--smoke);
+
   /* ─── タイポグラフィ ─── */
   --font-sans:
     "Inter", "LINE Seed JP",
@@ -170,6 +183,13 @@
   --accent-hover:  var(--ember-600);
   --accent-active: var(--ember-700);
   --accent-soft:   color-mix(in oklab, var(--ember-500) 12%, transparent);
+
+  /* chart-1 はアクセントと同じ ember-500 に揃え、chart-2 は --moon が
+   * ライト背景 (#fbf8f0) に埋没するため ink-900 と 45/55 で混ぜて沈める。
+   * chart-3 / 4 / 5 はそのまま (moss / rust / smoke は :root と共通)。
+   */
+  --chart-1: var(--ember-500);
+  --chart-2: color-mix(in oklab, var(--moon) 45%, var(--ink-900));
 
   --shadow-rim:  inset 0 1px 0 rgba(255, 255, 255, 0.6);
   --shadow-card:
