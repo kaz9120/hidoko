@@ -47,7 +47,7 @@ bun --filter snapcrop build    # apps/snapcrop のビルド
 1. `main` から feature ブランチを切る。
 2. 実装する。`bun run check` と `bun run typecheck` をローカルで通す。
 3. コミットする（Conventional Commits 準拠。後述）。
-4. PR を出す。CI（lint / typecheck / build / commitlint）と Cloudflare Workers Builds の preview を確認する。
+4. PR を出す。CI（lint / design-lint / typecheck / build / commitlint）と Cloudflare Workers Builds の preview を確認する。
 5. preview URL は Cloudflare Workers Builds が自動で sticky コメントしてくれるので、GitHub Actions 側で自前実装しない。
 
 ## コミット規約
