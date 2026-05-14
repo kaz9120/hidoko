@@ -86,6 +86,8 @@ ci: PR ベースで lint / typecheck / build / commitlint を回す
 
 ブランドの「らしくないもの」(純白 `#ffffff` を使わない、彩度の高い緑・青は避ける、絵文字を装飾で使わない 等) も DESIGN.md に書いてある。
 
+DESIGN.md は [Stitch DESIGN.md spec (alpha)](https://stitch.withgoogle.com/docs/design-md/specification/) に準拠する。YAML frontmatter にトークン (colors / typography / rounded / spacing / components) を、本文に人間向けの理屈を書く。`bun run design:lint` で構造的妥当性 (token reference 解決 / WCAG コントラスト / セクション順序 等) を検証でき、CI でも自動チェックされる。新しいトークンを足すときは必ず lint を通すこと。
+
 ## UI 実装
 
 実装は全て [packages/ui](packages/ui) に集約されている: design tokens (`tokens.css`)、shadcn/ui コンポーネント、ロゴアセット、火の粉アニメーション (`<hi-embers>`)。`apps/*` からは workspace dep `ui` 経由で取る。詳細な使い方・更新方法は [packages/ui/README.md](packages/ui/README.md) を参照。
