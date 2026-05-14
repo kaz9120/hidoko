@@ -106,7 +106,12 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
       - name: Install Playwright (Chromium)
-        run: bunx playwright install --with-deps chromium
+        # @storybook/test-runner は内部で playwright を bundle しており、
+        # `bunx playwright` だと registry の最新版を取りに行ってバージョンが
+        # ずれる。apps/snapcrop の cwd から呼ぶことで lockfile で固定された
+        # 1.59.x を使う。
+        working-directory: apps/snapcrop
+        run: bun x playwright install --with-deps chromium
       - name: Build Storybook
         run: bun --filter snapcrop build-storybook
       - name: Serve Storybook
