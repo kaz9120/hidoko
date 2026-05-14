@@ -21,7 +21,7 @@
 			"clientId": "$REG_NOTIFY_CLIENT_ID",
 			"prComment": true,
 			"prCommentBehavior": "default",
-			"setCommitStatus": true
+			"setCommitStatus": false
 		}
 	}
 }
