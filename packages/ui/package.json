@@ -8,6 +8,13 @@
 	"exports": {
 		".": "./src/index.ts",
 		"./styles.css": "./src/styles.css",
+		"./tokens.css": "./src/tokens.css",
+		"./fonts.css": "./src/fonts.css",
+		"./embers": {
+			"types": "./src/embers.d.ts",
+			"default": "./src/embers.js"
+		},
+		"./assets/*": "./assets/*",
 		"./components/*": "./src/components/*.tsx",
 		"./hooks/*": "./src/hooks/*.ts",
 		"./lib/utils": "./src/lib/utils.ts"
@@ -19,7 +26,6 @@
 		"clsx": "^2.1.1",
 		"cmdk": "^1.1.1",
 		"date-fns": "^4.1.0",
-		"design-system": "workspace:*",
 		"embla-carousel-react": "^8.6.0",
 		"input-otp": "^1.4.2",
 		"lucide-react": "^1.14.0",

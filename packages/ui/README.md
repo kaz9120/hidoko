@@ -1,14 +1,28 @@
 # packages/ui
 
-Hidoko の `apps/*` で共有する shadcn/ui コンポーネント群。
+Hidoko の `apps/*` で共有する UI 基盤。design tokens、shadcn/ui コンポーネント、ロゴアセット、火の粉アニメーションを 1 つの workspace パッケージに束ねている。
 
-> shadcn/ui は「インストールするライブラリ」ではなく「自分のリポジトリにコピーして自由に編集できるソース」が思想。だが Hidoko では複数アプリでブレを出したくないため、shadcn 由来のコードは **このパッケージに一元化** している。`apps/*` 側に shadcn 由来のコンポーネントを書かないこと。
+ブランドの「どう見えるべきか」を仕様化したのは [DESIGN.md](../../DESIGN.md)。このパッケージはその実装。
 
-## 位置づけ
+## 中身
 
-- [packages/design-system](../design-system) は **ブランド層** (色・タイポ・ロゴ・トーン)
-- このパッケージは **コンポーネント層** (React 実装、shadcn の写経)
-- 橋渡し: [`src/styles.css`](src/styles.css) が design-system のセマンティックトークン (`--bg` / `--text` / `--accent` 等) を shadcn の CSS 変数 (`--background` / `--foreground` / `--primary` 等) にマッピングする
+```
+packages/ui/
+├── assets/logo/
+│   ├── mark-cream.svg     # 紙 / クリーム背景用 (favicon / ライト UI)
+│   └── mark-dark.svg      # 夜 / ダーク背景用
+└── src/
+    ├── tokens.css         # 全 CSS 変数 (色 / タイポ / 余白 / 角丸 / 影 / chart)
+    ├── fonts.css          # Inter / LINE Seed JP / JetBrains Mono の @font-face
+    ├── styles.css         # tokens.css → shadcn CSS 変数のブリッジ
+    ├── embers.js          # <hi-embers> Web Component (火の粉アニメ)
+    ├── embers.d.ts
+    ├── components/        # shadcn/ui の React コンポーネント
+    ├── hooks/             # shadcn 付属の hooks
+    └── lib/utils.ts       # cn() ユーティリティ
+```
+
+`tokens.css` が単一の真実源。`:root` がダーク基準、`.light` がライト。shadcn の `--background` / `--foreground` / `--primary` / `--sidebar-*` / `--chart-*` は `styles.css` 経由でこのトークンに紐付く。
 
 ## 使い方
 
@@ -17,13 +31,15 @@ Hidoko の `apps/*` で共有する shadcn/ui コンポーネント群。
 ```css
 @import "tailwindcss" source(".");
 @source "../../../packages/ui/src";
-@import "design-system/tokens.css";
+@import "ui/tokens.css";
 @import "ui/styles.css";
 ```
 
 `@source` で Tailwind のスキャン範囲を packages/ui まで広げるのを忘れない。
 
-コンポーネントは subpath で import するのが基本:
+### コンポーネント
+
+subpath で import するのが基本:
 
 ```tsx
 import { Button } from "ui/components/button";
@@ -36,6 +52,27 @@ import { cn } from "ui/lib/utils";
 ```tsx
 import { Button, TooltipProvider } from "ui";
 ```
+
+### ロゴ
+
+```tsx
+import markCreamUrl from "ui/assets/logo/mark-cream.svg?url";
+import markDarkUrl from "ui/assets/logo/mark-dark.svg?url";
+```
+
+### 火の粉アニメーション
+
+`import "ui/embers"` の副作用で `<hi-embers>` が `customElements` に登録される:
+
+```tsx
+import "ui/embers";
+
+<hi-embers density={36} wind="0.04" />;
+```
+
+属性: `density` (粒数, デフォルト 50) / `wind` (横流れ, デフォルト 0) / `hue` (色相シフト, デフォルト 0) / `glow` (背景グロー on/off)。
+
+親に `position: relative` 必須。1 画面 1 つまで。詳細運用は [DESIGN.md](../../DESIGN.md) の Depth & Elevation 節。
 
 ## コンポーネント追加
 
@@ -65,7 +102,7 @@ bun run ui:sync   # 全コンポーネントを最新版で上書き
 
 - shadcn registry にあるコンポーネントは必ずこのパッケージから取る (自前で書かない)
 - `packages/ui/src/components/**` と `packages/ui/src/hooks/**` は **Biome 対象外**。shadcn 公式の lint 違反を毎回直したくないため
-- design-system のトークンに対応しない shadcn 変数 (例: `--sidebar-*`) は shadcn デフォルトのまま仮置きしている。本格的に使うときは design-system 側にトークンを足して [src/styles.css](src/styles.css) で紐付け直す
+- shadcn 変数で tokens.css 側に対応するセマンティックトークンが無いもの (例: 新たに登場した `--sidebar-*` の派生) は shadcn デフォルトのまま仮置きしてよい。本格的に使うときは tokens.css にトークンを足して [src/styles.css](src/styles.css) で紐付け直す
 
 ## 既知の制約
 

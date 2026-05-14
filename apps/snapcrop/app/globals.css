@@ -1,7 +1,6 @@
 @import "tailwindcss" source(".");
 @source "../../../packages/ui/src";
-@import "design-system/tokens.css";
-@import "design-system/fonts.css";
+@import "ui/tokens.css";
 @import "cropperjs/dist/cropper.css";
 @import "ui/styles.css";
 

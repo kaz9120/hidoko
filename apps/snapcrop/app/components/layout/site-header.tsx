@@ -1,5 +1,3 @@
-import logoCreamUrl from "design-system/assets/logo/mark-cream.svg?url";
-import logoDarkUrl from "design-system/assets/logo/mark-dark.svg?url";
 import {
 	ClipboardPasteIcon,
 	FolderOpenIcon,
@@ -27,6 +25,8 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "ui";
+import logoCreamUrl from "ui/assets/logo/mark-cream.svg?url";
+import logoDarkUrl from "ui/assets/logo/mark-dark.svg?url";
 import { ThemeToggle } from "~/components/theme-toggle";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 import { readImageFromClipboard } from "~/lib/clipboard";
@@ -88,7 +88,7 @@ export function SiteHeader() {
 		setMounted(true);
 	}, []);
 
-	// hydration 前は dark 想定で描画。design-system は dark が初期状態。
+	// hydration 前は dark 想定で描画。tokens.css は dark が初期状態。
 	const logoUrl =
 		mounted && resolvedTheme === "light" ? logoCreamUrl : logoDarkUrl;
 

@@ -1,0 +1,273 @@
+/* ============================================================
+   Hidoko — Design Tokens
+   ------------------------------------------------------------
+   ダークモード基調。「夜の焚き火」が初期状態。
+   .light クラスで反転（ライトモードはサブ）。
+   ============================================================ */
+
+@import url("./fonts.css");
+
+:root {
+  /* ─── 中性色：炭・夜（ダーク基準） ─── */
+  --ink-0:   #0a0907;
+  --ink-50:  #13110e;
+  --ink-100: #1a1814;
+  --ink-200: #26221c;
+  --ink-300: #3a342b;
+  --ink-400: #5a5247;
+  --ink-500: #7d7468;
+  --ink-600: #a8a094;
+  --ink-700: #d4cdc1;
+  --ink-800: #ebe5d8;
+  --ink-900: #f5f1e6;
+
+  /* ─── 焚き火色：炎・熾火 ─── */
+  --ember-50:  #fef4e8;
+  --ember-100: #fde0c1;
+  --ember-200: #fbc189;
+  --ember-300: #f8a05c;
+  --ember-400: #f47d3a;  /* ブランド基準色 */
+  --ember-500: #e85d20;
+  --ember-600: #c64414;
+  --ember-700: #9a3210;
+  --ember-800: #6b220c;
+  --ember-900: #3d1407;
+
+  /* ─── 補助色（彩度を抑えめに） ─── */
+  --smoke: #7c8590;  /* 煙 */
+  --moss:  #7a8c5e;  /* 苔・成功 */
+  --moon:  #c8d4e0;  /* 月・情報 */
+  --rust:  #b8503a;  /* 鉄錆・エラー */
+
+  /* ─── セマンティック（ダーク基準で割り当て） ─── */
+  --bg-0:        var(--ink-0);
+  --bg:          var(--ink-50);   /* ページ背景 */
+  --bg-raised:   var(--ink-100);  /* カード */
+  --bg-overlay:  var(--ink-200);  /* メニュー、ホバー、上に重なる面 */
+  --bg-sunken:   var(--ink-0);    /* コードブロック、入力 */
+
+  --border:        var(--ink-300);
+  --border-strong: var(--ink-400);
+  --border-subtle: var(--ink-200);
+
+  --text:         var(--ink-800);
+  --text-strong:  var(--ink-900);
+  --text-muted:   var(--ink-600);
+  --text-faint:   var(--ink-500);
+  --text-on-ember: var(--ink-0);
+
+  --accent:        var(--ember-400);
+  --accent-hover:  var(--ember-300);
+  --accent-active: var(--ember-500);
+  --accent-soft:   color-mix(in oklab, var(--ember-400) 14%, transparent);
+
+  --success: var(--moss);
+  --info:    var(--moon);
+  --warning: var(--ember-300);
+  --danger:  var(--rust);
+
+  /* ─── Chart 系列パレット（recharts categorical） ───
+   * 5 シリーズ。chart-1 はブランド指紋 (--ember-400) を主役に固定。
+   * 隣接シリーズ同士の色相距離を保ち、暖色 (1 / 4) が並ばないよう
+   * 寒色 (2 / 3) を間に挟む順序。ライトでは .light 側で chart-1 を
+   * --ember-500 に、chart-2 を color-mix で 1 段沈めた変種に上書きする
+   * (--moon がライト背景に埋没する問題を回避)。
+   */
+  --chart-1: var(--ember-400);
+  --chart-2: var(--moon);
+  --chart-3: var(--moss);
+  --chart-4: var(--rust);
+  --chart-5: var(--smoke);
+
+  /* ─── タイポグラフィ ─── */
+  --font-sans:
+    "Inter", "LINE Seed JP",
+    system-ui, -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN",
+    "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
+  --font-mono:
+    "JetBrains Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  --text-xs:   12px;
+  --text-sm:   14px;
+  --text-base: 16px;
+  --text-lg:   18px;
+  --text-xl:   22px;
+  --text-2xl:  28px;
+  --text-3xl:  36px;
+  --text-4xl:  48px;
+  --text-5xl:  64px;
+  --text-6xl:  88px;
+
+  --leading-tight:  1.2;
+  --leading-snug:   1.4;
+  --leading-normal: 1.6;
+  --leading-relax:  1.75;
+
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide:  0.04em;
+  --tracking-mark:  0.18em; /* 大文字・記号の見出し用 */
+
+  /* ─── 間隔（4px ベース） ─── */
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  24px;
+  --space-6:  32px;
+  --space-7:  48px;
+  --space-8:  64px;
+  --space-9:  96px;
+  --space-10: 128px;
+
+  /* ─── 角丸 ─── */
+  --radius-xs:   2px;
+  --radius-sm:   4px;
+  --radius-md:   6px;
+  --radius-lg:   10px;
+  --radius-xl:   16px;
+  --radius-2xl:  24px;
+  --radius-full: 9999px;
+
+  /* ─── 影と光 ─── */
+  --shadow-rim:      inset 0 1px 0 rgba(255, 240, 220, 0.04);
+  --shadow-card:
+    0 1px 0 rgba(0, 0, 0, 0.4),
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 240, 220, 0.03);
+  --shadow-pop:
+    0 12px 40px rgba(0, 0, 0, 0.6),
+    0 2px 0 rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 240, 220, 0.05);
+  --glow-ember:
+    0 0 0 1px rgba(244, 125, 58, 0.32),
+    0 4px 24px rgba(244, 125, 58, 0.28);
+  --glow-ember-soft: 0 0 32px rgba(244, 125, 58, 0.15);
+  --glow-ember-strong:
+    0 0 0 1px rgba(244, 125, 58, 0.5),
+    0 8px 36px rgba(244, 125, 58, 0.45);
+
+  /* ─── レイアウト ─── */
+  --width-prose: 68ch;
+  --width-narrow: 720px;
+  --width-content: 1080px;
+  --width-wide:    1240px;
+  --width-app:     1440px;
+
+  --duration-fast: 120ms;
+  --duration:      200ms;
+  --duration-slow: 360ms;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ─── ライトモード（サブ） ─── */
+.light, [data-theme="light"] {
+  --bg-0:        #f7f3ea;
+  --bg:          #fbf8f0;
+  --bg-raised:   #ffffff;
+  --bg-overlay:  #f3eee2;
+  --bg-sunken:   #ede7d6;
+
+  --border:        #d9d1bf;
+  --border-strong: #b9ad94;
+  --border-subtle: #ebe5d3;
+
+  --text:         #2a241b;
+  --text-strong:  #18130d;
+  --text-muted:   #6a6051;
+  --text-faint:   #8c8273;
+  --text-on-ember: #fff8ee;
+
+  --accent:        var(--ember-500);
+  --accent-hover:  var(--ember-600);
+  --accent-active: var(--ember-700);
+  --accent-soft:   color-mix(in oklab, var(--ember-500) 12%, transparent);
+
+  /* chart-1 はアクセントと同じ ember-500 に揃え、chart-2 は --moon が
+   * ライト背景 (#fbf8f0) に埋没するため ink-900 と 45/55 で混ぜて沈める。
+   * chart-3 / 4 / 5 はそのまま (moss / rust / smoke は :root と共通)。
+   */
+  --chart-1: var(--ember-500);
+  --chart-2: color-mix(in oklab, var(--moon) 45%, var(--ink-900));
+
+  --shadow-rim:  inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --shadow-card:
+    0 1px 0 rgba(38, 28, 16, 0.04),
+    0 6px 18px rgba(38, 28, 16, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --shadow-pop:
+    0 16px 36px rgba(38, 28, 16, 0.12),
+    0 2px 0 rgba(38, 28, 16, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* ─── ベーススタイル ─── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  font-feature-settings: "palt", "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--text-strong);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color var(--duration) var(--ease);
+}
+a:hover { color: var(--accent-hover); }
+
+code, kbd, pre, samp {
+  font-family: var(--font-mono);
+  font-size: 0.95em;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+  margin: var(--space-6) 0;
+}
+
+/* ─── ユーティリティ ─── */
+.hi-mono { font-family: var(--font-mono); }
+.hi-mark {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-mark);
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.hi-mark--ember { color: var(--accent); }
+
+.hi-stack { display: flex; flex-direction: column; }
+.hi-row   { display: flex; align-items: center; }
+.hi-grid  { display: grid; }
+
+/* 火床マーク（左に細い炎の縦線） */
+.hi-rule {
+  border-left: 2px solid var(--accent);
+  padding-left: var(--space-4);
+}
+
+/* スクロールバー */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--ink-300);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--ink-400); }

@@ -1,4 +1,4 @@
-import markDarkUrl from "design-system/assets/logo/mark-dark.svg?url";
+import markDarkUrl from "ui/assets/logo/mark-dark.svg?url";
 
 type Props = {
 	size?: number;

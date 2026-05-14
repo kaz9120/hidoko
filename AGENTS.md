@@ -47,7 +47,7 @@ bun --filter snapcrop build    # apps/snapcrop のビルド
 1. `main` から feature ブランチを切る。
 2. 実装する。`bun run check` と `bun run typecheck` をローカルで通す。
 3. コミットする（Conventional Commits 準拠。後述）。
-4. PR を出す。CI（lint / typecheck / build / commitlint）と Cloudflare Workers Builds の preview を確認する。
+4. PR を出す。CI（lint / design-lint / typecheck / build / commitlint）と Cloudflare Workers Builds の preview を確認する。
 5. preview URL は Cloudflare Workers Builds が自動で sticky コメントしてくれるので、GitHub Actions 側で自前実装しない。
 
 ## コミット規約
@@ -61,7 +61,7 @@ bun --filter snapcrop build    # apps/snapcrop のビルド
 ```
 
 - `type`: `feat` / `fix` / `chore` / `docs` / `refactor` / `test` / `ci` / `build` / `perf` / `style` / `revert`。
-- `scope`: 影響範囲（例: `snapcrop`、`design-system`）。リポジトリ全体に及ぶときは省略可。
+- `scope`: 影響範囲（例: `snapcrop`、`homepage`、`ui`）。リポジトリ全体に及ぶときは省略可。
 - `subject`: 何をしたかを 1 行で。**先頭は lowercase Latin か日本語**にする（`Capital` 始まりの英文は reject される）。
 
 例:
@@ -80,19 +80,17 @@ ci: PR ベースで lint / typecheck / build / commitlint を回す
 - `pre-commit` フックで lint-staged が変更ファイルにだけ Biome をかける。
 - TypeScript は各 workspace の `tsconfig.json` が [tsconfig.base.json](tsconfig.base.json) を継承する。strict は base 側で有効化。
 
-## デザインシステム
+## デザイン
 
-[packages/design-system](packages/design-system) は Hidoko のブランド言語そのもの。UI を作るときは:
+ブランドと視覚言語の単一仕様は [DESIGN.md](DESIGN.md)。新しい画面を作る前に必ず一読する。色・タイポ・レイアウト・コンポーネント方針・Do/Don't・エージェント向け指示プロンプトまで、ここに集約している。
 
-- まず [packages/design-system/README.md](packages/design-system/README.md) のトーン・カラー・タイポを確認する。
-- 守るべき原則は [packages/design-system/SKILL.md](packages/design-system/SKILL.md) にまとめてある。
-- ロゴ・マークは [packages/design-system/assets/logo/](packages/design-system/assets/logo) にある。`mark-cream` がライト背景用、`mark-dark` がダーク背景用。
+ブランドの「らしくないもの」(純白 `#ffffff` を使わない、彩度の高い緑・青は避ける、絵文字を装飾で使わない 等) も DESIGN.md に書いてある。
 
-純粋な白（`#ffffff`）は使わない、彩度の高い緑・青は避ける、絵文字は控えめに、といったブランドの「らしくないもの」も SKILL.md / README.md に書いてある。新しい画面を作る前に必ず一読する。
+DESIGN.md は [Stitch DESIGN.md spec (alpha)](https://stitch.withgoogle.com/docs/design-md/specification/) に準拠する。YAML frontmatter にトークン (colors / typography / rounded / spacing / components) を、本文に人間向けの理屈を書く。`bun run design:lint` で構造的妥当性 (token reference 解決 / WCAG コントラスト / セクション順序 等) を検証でき、CI でも自動チェックされる。新しいトークンを足すときは必ず lint を通すこと。
 
-## UI コンポーネント
+## UI 実装
 
-shadcn/ui のコンポーネントは [packages/ui](packages/ui) に一元化されている。`apps/*` が shadcn 系コンポーネントを使うときは、必ずこのパッケージから import する。詳細な使い方・更新方法は [packages/ui/README.md](packages/ui/README.md) を参照。
+実装は全て [packages/ui](packages/ui) に集約されている: design tokens (`tokens.css`)、shadcn/ui コンポーネント、ロゴアセット、火の粉アニメーション (`<hi-embers>`)。`apps/*` からは workspace dep `ui` 経由で取る。詳細な使い方・更新方法は [packages/ui/README.md](packages/ui/README.md) を参照。
 
 - **shadcn の写経を app 側に置かない** — `bunx shadcn add` は必ず `--cwd packages/ui` で実行する。`apps/*/app/components/` 配下に shadcn 由来のコードを置かない。
 - **packages/ui のコンポーネントを手で編集しない** — shadcn の最新化フロー (`bun run ui:sync`) で上書きされる前提のコード。直したくなったら、まず「shadcn 本家を直してもらう」か「app 側で wrap する」を検討する。

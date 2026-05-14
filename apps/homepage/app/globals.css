@@ -1,7 +1,6 @@
 @import "tailwindcss" source(".");
 @source "../../../packages/ui/src";
-@import "design-system/tokens.css";
-@import "design-system/components.css";
+@import "ui/tokens.css";
 @import "ui/styles.css";
 
 @custom-variant dark (&:is(.dark *));
@@ -12,7 +11,7 @@
 }
 
 @theme inline {
-	/* design-system 固有のサブレベル — Tailwind ユーティリティで触れるように */
+	/* tokens.css のサブレベル — Tailwind ユーティリティで触れるように */
 	--color-text-strong: var(--text-strong);
 	--color-text-faint: var(--text-faint);
 	--color-bg-0: var(--bg-0);
