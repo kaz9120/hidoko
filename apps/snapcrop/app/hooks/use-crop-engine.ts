@@ -176,7 +176,25 @@ export function useCropEngine(args: UseCropEngineArgs): UseCropEngineResult {
 			selectAll: () => {
 				const img = imageRef.current;
 				if (!img) return;
-				commit(selectAllRect(img));
+				const ar = aspectRatioRef.current;
+				if (ar === null) {
+					commit(selectAllRect(img));
+					return;
+				}
+				// aspectRatio が設定されているときは、画像内に収まる最大の矩形を中央に配置する
+				const imgAr = img.naturalWidth / img.naturalHeight;
+				let width: number;
+				let height: number;
+				if (ar > imgAr) {
+					width = img.naturalWidth;
+					height = width / ar;
+				} else {
+					height = img.naturalHeight;
+					width = height * ar;
+				}
+				const x = (img.naturalWidth - width) / 2;
+				const y = (img.naturalHeight - height) / 2;
+				commit(clampRect({ x, y, width, height }, img, MIN_CROP_SIZE));
 			},
 			toCanvas: (opts) => {
 				const rect = cropRectRef.current;
