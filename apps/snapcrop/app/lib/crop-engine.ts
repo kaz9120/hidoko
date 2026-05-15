@@ -133,6 +133,65 @@ export function resizeRect(
 		height = nextH;
 	}
 
+	// 画像境界に当たったらアンカー側を維持して打ち止めにする。clampRect は
+	// アンカー情報を持たないので、ここで先に処理しないと「左辺をドラッグして
+	// 左へはみ出した時に右辺まで動いてしまう」挙動になる。
+	const ar =
+		aspectRatio !== null && Number.isFinite(aspectRatio) && aspectRatio > 0
+			? aspectRatio
+			: null;
+
+	const reconcileVerticalForHorizontalHandle = () => {
+		if (ar === null) return;
+		const newH = width / ar;
+		if (hasN) {
+			y = rect.y + rect.height - newH;
+		} else if (hasS) {
+			y = rect.y;
+		} else {
+			y = rect.y + rect.height / 2 - newH / 2;
+		}
+		height = newH;
+	};
+
+	const reconcileHorizontalForVerticalHandle = () => {
+		if (ar === null) return;
+		const newW = height * ar;
+		if (hasW) {
+			x = rect.x + rect.width - newW;
+		} else if (hasE) {
+			x = rect.x;
+		} else {
+			x = rect.x + rect.width / 2 - newW / 2;
+		}
+		width = newW;
+	};
+
+	if (hasW && x < 0) {
+		// 右辺 (rect.x + rect.width) を固定して左辺を 0 に
+		width = rect.x + rect.width;
+		x = 0;
+		reconcileVerticalForHorizontalHandle();
+	}
+	if (hasE && x + width > img.naturalWidth) {
+		// 左辺 (rect.x) を固定して右辺を画像端に
+		width = img.naturalWidth - rect.x;
+		x = rect.x;
+		reconcileVerticalForHorizontalHandle();
+	}
+	if (hasN && y < 0) {
+		// 下辺 (rect.y + rect.height) を固定して上辺を 0 に
+		height = rect.y + rect.height;
+		y = 0;
+		reconcileHorizontalForVerticalHandle();
+	}
+	if (hasS && y + height > img.naturalHeight) {
+		// 上辺 (rect.y) を固定して下辺を画像端に
+		height = img.naturalHeight - rect.y;
+		y = rect.y;
+		reconcileHorizontalForVerticalHandle();
+	}
+
 	// 最小サイズに到達したらアンカー側を維持する
 	if (width < minSize) {
 		if (hasW) {
@@ -147,5 +206,6 @@ export function resizeRect(
 		height = minSize;
 	}
 
+	// セーフティネット (上記で取りこぼした境界はみ出しや minSize 制約)
 	return clampRect({ x, y, width, height }, img, minSize);
 }
