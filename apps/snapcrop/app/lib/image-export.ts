@@ -1,14 +1,14 @@
-import type Cropper from "cropperjs";
+import type { CropEngineHandle } from "~/hooks/use-crop-engine";
 
 /**
- * Cropper の現在のクロップ範囲を Blob に変換する。
+ * 現在のクロップ範囲を Blob に変換する。
  * MIME タイプを指定しない場合は image/png にフォールバックする。
  */
 export async function getCroppedBlob(
-	cropper: Cropper,
+	engine: CropEngineHandle,
 	type = "image/png",
 ): Promise<Blob> {
-	const canvas = cropper.getCroppedCanvas({ imageSmoothingQuality: "high" });
+	const canvas = engine.toCanvas({ imageSmoothingQuality: "high" });
 	return await new Promise<Blob>((resolve, reject) => {
 		canvas.toBlob((blob) => {
 			if (blob) {

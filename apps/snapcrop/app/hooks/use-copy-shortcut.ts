@@ -1,10 +1,10 @@
-import type Cropper from "cropperjs";
 import { useEffect, useRef } from "react";
+import type { CropEngineHandle } from "~/hooks/use-crop-engine";
 import { writeImageToClipboard } from "~/lib/clipboard";
 import { getCroppedBlob } from "~/lib/image-export";
 
 type Options = {
-	cropperRef: React.RefObject<Cropper | null>;
+	cropperRef: React.RefObject<CropEngineHandle | null>;
 	hasImage: boolean;
 	onSuccess: () => void;
 	onFailure: () => void;
