@@ -138,15 +138,28 @@ export function useCropEngine(args: UseCropEngineArgs): UseCropEngineResult {
 				const cur = cropRectRef.current;
 				const img = imageRef.current;
 				if (!cur || !img || next === null) return;
-				// 高さを基準に幅を再計算し、クロップ中心を維持する
-				const newWidth = cur.height * next;
+				// クロップの中心を維持しつつ、画像内に収まり width/height が ratio を満たす
+				// 最大矩形を作る。高さ基準で幅を出してはみ出したら幅基準に切り替え、両者を
+				// 同じ scale で縮めることで「設定後に比率が合っていない」状態を避ける。
+				const cx = cur.x + cur.width / 2;
+				const cy = cur.y + cur.height / 2;
+				let width = cur.height * next;
+				let height = cur.height;
+				if (width > img.naturalWidth) {
+					width = img.naturalWidth;
+					height = width / next;
+				}
+				if (height > img.naturalHeight) {
+					height = img.naturalHeight;
+					width = height * next;
+				}
 				commit(
 					clampRect(
 						{
-							x: cur.x + cur.width / 2 - newWidth / 2,
-							y: cur.y,
-							width: newWidth,
-							height: cur.height,
+							x: cx - width / 2,
+							y: cy - height / 2,
+							width,
+							height,
 						},
 						img,
 						MIN_CROP_SIZE,
