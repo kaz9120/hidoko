@@ -78,6 +78,9 @@ export const Viewport = forwardRef<ViewportHandle, ViewportProps>(
 				const minZoom = Math.max(MIN_ZOOM_FLOOR, fit);
 				const next = Math.max(minZoom, Math.min(nextZoomRaw, MAX_ZOOM));
 				const prev = zoomRef.current;
+				// no-op の場合も含めて、clamp 後の最終 zoom で wasFitted を更新する。
+				// (これを呼び出し側でやると、no-op を early-return した時に古い値が残る)
+				wasFittedRef.current = Math.abs(next - fit) < 0.0005;
 				if (next === prev) return;
 
 				const rect = scroller.getBoundingClientRect();
@@ -90,7 +93,6 @@ export const Viewport = forwardRef<ViewportHandle, ViewportProps>(
 				const imgX = (scroller.scrollLeft + ax - offsetX) / prev;
 				const imgY = (scroller.scrollTop + ay - offsetY) / prev;
 
-				wasFittedRef.current = Math.abs(next - fit) < 0.0005;
 				onZoomChangeRef.current(next);
 
 				requestAnimationFrame(() => {
@@ -113,6 +115,16 @@ export const Viewport = forwardRef<ViewportHandle, ViewportProps>(
 			wasFittedRef.current = true;
 			onZoomChangeRef.current(fit);
 		}, []);
+
+		// 画像サイズが変わったら fit を再計算する。ImageCanvas は key=src で
+		// 再 mount されるため通常は走らないが、防御として置く (ズーム下限が古い
+		// fit のままになると ⌘+wheel ズームの clamp が崩れるため)。
+		useEffect(() => {
+			const fit = recomputeFitZoom();
+			if (wasFittedRef.current) {
+				onZoomChangeRef.current(fit);
+			}
+		}, [recomputeFitZoom]);
 
 		// コンテナサイズ変化に追従。ユーザーがズーム操作した後は zoom を保つ
 		useEffect(() => {
@@ -214,17 +226,16 @@ export const Viewport = forwardRef<ViewportHandle, ViewportProps>(
 		useImperativeHandle(
 			ref,
 			() => ({
+				// wasFitted の更新は applyZoomAt 内で最終 zoom 基準に行うので、
+				// ここで先行設定はしない (no-op で古い値が残るのを防ぐため)。
 				fitToContainer: () => {
 					const fit = recomputeFitZoom();
-					wasFittedRef.current = true;
 					applyZoomAt(fit, null);
 				},
 				setActualSize: () => {
-					wasFittedRef.current = false;
 					applyZoomAt(1, null);
 				},
 				setZoom: (z, anchor) => {
-					wasFittedRef.current = false;
 					applyZoomAt(z, anchor ?? null);
 				},
 				getZoom: () => zoomRef.current,
