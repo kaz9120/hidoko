@@ -25,15 +25,17 @@ const HANDLE_CURSORS: Record<ResizeHandle, string> = {
 	se: "nwse-resize",
 };
 
+// 14px のハンドルを枠線をまたぐように配置。視認性のため見た目は 14px、
+// pointer の hit area は touchAction:none と相まってちょうど良いサイズになる。
 const HANDLE_POS: Record<ResizeHandle, React.CSSProperties> = {
-	n: { top: -5, left: "50%", marginLeft: -5 },
-	s: { bottom: -5, left: "50%", marginLeft: -5 },
-	e: { right: -5, top: "50%", marginTop: -5 },
-	w: { left: -5, top: "50%", marginTop: -5 },
-	ne: { top: -5, right: -5 },
-	nw: { top: -5, left: -5 },
-	se: { bottom: -5, right: -5 },
-	sw: { bottom: -5, left: -5 },
+	n: { top: -7, left: "50%", marginLeft: -7 },
+	s: { bottom: -7, left: "50%", marginLeft: -7 },
+	e: { right: -7, top: "50%", marginTop: -7 },
+	w: { left: -7, top: "50%", marginTop: -7 },
+	ne: { top: -7, right: -7 },
+	nw: { top: -7, left: -7 },
+	se: { bottom: -7, right: -7 },
+	sw: { bottom: -7, left: -7 },
 };
 
 export type CropFrameProps = {
@@ -43,7 +45,8 @@ export type CropFrameProps = {
 
 /**
  * クロップ枠 UI。8 ハンドル + 内側ドラッグで rect を編集し、外側を 4 分割 div
- * で dim、bottom-left に現在サイズの HUD を表示する。
+ * で dim する。サイズ表示は header / status-bar に出ているのでここには置かない
+ * (枠下に置くと画像端の rect で stage がはみ出してスクロールがチラつくため)。
  *
  * 画像座標 → stage 座標は `× zoom`、pointer delta (CSS px) は `/ zoom` で
  * 画像座標に戻して engine に渡す。
@@ -133,7 +136,7 @@ export function CropFrame({ engine, zoom }: CropFrameProps) {
 				{HANDLES.map((h) => (
 					<div
 						aria-hidden="true"
-						className="absolute size-2.5 rounded-[2px] border border-foreground bg-background"
+						className="absolute size-3.5 rounded-full border-2 border-background bg-primary shadow-sm"
 						key={h}
 						onPointerCancel={endDrag}
 						onPointerDown={(e) => startDrag(e, { resize: h })}
@@ -146,7 +149,6 @@ export function CropFrame({ engine, zoom }: CropFrameProps) {
 						}}
 					/>
 				))}
-				<SizeHud width={cropRect.width} height={cropRect.height} />
 			</div>
 		</>
 	);
@@ -182,16 +184,5 @@ function Dim({
 				style={{ left: 0, top: view.y + view.h, right: 0, bottom: 0 }}
 			/>
 		</>
-	);
-}
-
-function SizeHud({ width, height }: { width: number; height: number }) {
-	return (
-		<div
-			aria-hidden="true"
-			className="pointer-events-none absolute top-full left-0 mt-2 whitespace-nowrap rounded-sm border border-border bg-card px-2 py-1 font-mono text-foreground text-xs shadow-md"
-		>
-			{Math.round(width)} × {Math.round(height)}
-		</div>
 	);
 }
