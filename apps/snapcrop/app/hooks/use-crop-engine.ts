@@ -22,6 +22,32 @@ export type { CropRect, ImageMetrics, ResizeHandle };
 const MIN_CROP_SIZE = 50;
 
 /**
+ * 画像内に収まり指定比率を満たす最大の矩形を中央配置する。比率制約なしのときは
+ * 画像全体を返す。初期化と ⌘A の両方から呼ぶ。
+ */
+function buildInitialRect(img: ImageMetrics, ar: number | null): CropRect {
+	if (ar === null) {
+		return selectAllRect(img);
+	}
+	const imgAr = img.naturalWidth / img.naturalHeight;
+	let width: number;
+	let height: number;
+	if (ar > imgAr) {
+		width = img.naturalWidth;
+		height = width / ar;
+	} else {
+		height = img.naturalHeight;
+		width = height * ar;
+	}
+	return {
+		x: (img.naturalWidth - width) / 2,
+		y: (img.naturalHeight - height) / 2,
+		width,
+		height,
+	};
+}
+
+/**
  * Cropper.js が公開していた imperative API の互換 subset。site-header / hooks /
  * image-export はこのハンドル経由でクロップ状態を読み書きする。
  */
@@ -76,10 +102,17 @@ export function useCropEngine(args: UseCropEngineArgs): UseCropEngineResult {
 		onChangeRef.current?.(next);
 	}, []);
 
-	// image が決まったら全選択で初期化する。差し替え時にも走る。
+	// image が決まったら、現在の aspectRatio ロックを尊重して初期化する。
+	// 比率がロック中なら「画像内に収まる最大の比率矩形」、なければ全選択。
 	useEffect(() => {
 		if (image) {
-			commit(selectAllRect(image));
+			commit(
+				clampRect(
+					buildInitialRect(image, aspectRatioRef.current),
+					image,
+					MIN_CROP_SIZE,
+				),
+			);
 		} else {
 			setCropRect(null);
 			cropRectRef.current = null;
@@ -189,25 +222,13 @@ export function useCropEngine(args: UseCropEngineArgs): UseCropEngineResult {
 			selectAll: () => {
 				const img = imageRef.current;
 				if (!img) return;
-				const ar = aspectRatioRef.current;
-				if (ar === null) {
-					commit(selectAllRect(img));
-					return;
-				}
-				// aspectRatio が設定されているときは、画像内に収まる最大の矩形を中央に配置する
-				const imgAr = img.naturalWidth / img.naturalHeight;
-				let width: number;
-				let height: number;
-				if (ar > imgAr) {
-					width = img.naturalWidth;
-					height = width / ar;
-				} else {
-					height = img.naturalHeight;
-					width = height * ar;
-				}
-				const x = (img.naturalWidth - width) / 2;
-				const y = (img.naturalHeight - height) / 2;
-				commit(clampRect({ x, y, width, height }, img, MIN_CROP_SIZE));
+				commit(
+					clampRect(
+						buildInitialRect(img, aspectRatioRef.current),
+						img,
+						MIN_CROP_SIZE,
+					),
+				);
 			},
 			toCanvas: (opts) => {
 				const rect = cropRectRef.current;
