@@ -1,8 +1,8 @@
-import type Cropper from "cropperjs";
 import { useEffect, useRef } from "react";
+import type { CropEngineHandle } from "~/hooks/use-crop-engine";
 
 type Options = {
-	cropperRef: React.RefObject<Cropper | null>;
+	cropperRef: React.RefObject<CropEngineHandle | null>;
 	hasImage: boolean;
 };
 
@@ -50,13 +50,7 @@ export function useSelectAllShortcut({ cropperRef, hasImage }: Options) {
 			}
 
 			event.preventDefault();
-			const { naturalWidth, naturalHeight } = cropper.getImageData();
-			cropper.setData({
-				x: 0,
-				y: 0,
-				width: naturalWidth,
-				height: naturalHeight,
-			});
+			cropper.selectAll();
 		};
 
 		document.addEventListener("keydown", handler);

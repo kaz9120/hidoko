@@ -1,4 +1,3 @@
-import type Cropper from "cropperjs";
 import {
 	createContext,
 	type ReactNode,
@@ -10,6 +9,9 @@ import {
 	useRef,
 	useState,
 } from "react";
+import type { CropData, CropEngineHandle } from "~/hooks/use-crop-engine";
+
+export type { CropData } from "~/hooks/use-crop-engine";
 
 export type LoadedImage = {
 	src: string;
@@ -24,13 +26,13 @@ type SnapcropContextValue = {
 	image: LoadedImage | null;
 	loadImageFromBlob: (blob: Blob) => Promise<void>;
 	clearImage: () => void;
-	cropperRef: RefObject<Cropper | null>;
+	cropperRef: RefObject<CropEngineHandle | null>;
 	/**
-	 * 現在のクロップ範囲（画像座標系）。Cropper の `crop` イベントに合わせて
-	 * 更新される。ヘッダーの数値表示・ステータスバー両方が購読する。
+	 * 現在のクロップ範囲（画像座標系）。CropEngine から通知された rect を保持し、
+	 * ヘッダーの数値表示・ステータスバー両方が購読する。
 	 */
-	cropData: Cropper.Data | null;
-	setCropData: (data: Cropper.Data | null) => void;
+	cropData: CropData | null;
+	setCropData: (data: CropData | null) => void;
 	historyIndex: number;
 	historyLength: number;
 	canUndo: boolean;
@@ -92,14 +94,14 @@ function reducer(state: State, action: Action): State {
 
 export function SnapcropProvider({ children }: { children: ReactNode }) {
 	const [state, dispatch] = useReducer(reducer, initialState);
-	const cropperRef = useRef<Cropper | null>(null);
-	const [cropData, setCropData] = useState<Cropper.Data | null>(null);
+	const cropperRef = useRef<CropEngineHandle | null>(null);
+	const [cropData, setCropData] = useState<CropData | null>(null);
 
 	// `image` の参照差し替え時に setCropData を呼びたい場面が複数ある
 	// (新画像ロード / undo / redo)。シグネチャを安定させて子の useEffect 依存を
 	// 増やさないために useCallback で固定する。
 	const stableSetCropData = useCallback(
-		(data: Cropper.Data | null) => setCropData(data),
+		(data: CropData | null) => setCropData(data),
 		[],
 	);
 

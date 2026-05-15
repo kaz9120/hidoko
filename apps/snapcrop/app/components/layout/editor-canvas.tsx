@@ -1,11 +1,14 @@
-import Cropper from "cropperjs";
 import { CopyIcon, DownloadIcon, ImageIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "ui";
+import { ImageStage } from "~/components/canvas/image-stage";
+import { Viewport, type ViewportHandle } from "~/components/canvas/viewport";
 import { type LoadedImage, useSnapcrop } from "~/contexts/snapcrop-context";
+import { useCanvasShortcuts } from "~/hooks/use-canvas-shortcuts";
 import { useClipboardPaste } from "~/hooks/use-clipboard-paste";
 import { useCopyShortcut } from "~/hooks/use-copy-shortcut";
+import { useCropEngine } from "~/hooks/use-crop-engine";
 import { useFileDrop } from "~/hooks/use-file-drop";
 import { useSelectAllShortcut } from "~/hooks/use-select-all-shortcut";
 import { writeImageToClipboard } from "~/lib/clipboard";
@@ -28,8 +31,7 @@ export function EditorCanvas() {
 	useSelectAllShortcut({ cropperRef, hasImage: image !== null });
 
 	if (image) {
-		// 画像 src が変わったら Cropper を作り直すために key を付ける。再 mount で
-		// useEffect の cleanup → init が走り、ref とイベントが整合する。
+		// 画像 src が変わったら engine を作り直すために key を付ける。
 		return (
 			<ImageCanvas image={image} isDragging={isDragging} key={image.src} />
 		);
@@ -46,97 +48,50 @@ function ImageCanvas({
 	isDragging: boolean;
 }) {
 	const { cropperRef, setCropData } = useSnapcrop();
-	const imgRef = useRef<HTMLImageElement>(null);
-	const [hudPos, setHudPos] = useState<{
-		left: number;
-		top: number;
-	} | null>(null);
+	const viewportRef = useRef<ViewportHandle>(null);
+	const imgRef = useRef<HTMLImageElement | null>(null);
+	const [zoom, setZoom] = useState(1);
 
+	const imageMetrics = useMemo(
+		() => ({ naturalWidth: image.width, naturalHeight: image.height }),
+		[image.width, image.height],
+	);
+
+	const engine = useCropEngine({
+		image: imageMetrics,
+		imgElementRef: imgRef,
+		onChange: setCropData,
+	});
+
+	// engine の imperative ハンドルを context に張る。site-header / hooks は
+	// cropperRef 経由で setAspectRatio / setData / selectAll などを呼ぶ。
 	useEffect(() => {
-		const imgElement = imgRef.current;
-		if (!imgElement) {
-			return;
-		}
-
-		let cropper: Cropper | null = null;
-
-		const sync = () => {
-			if (!cropper) {
-				return;
-			}
-			const box = cropper.getCropBoxData();
-			setHudPos({ left: box.left, top: box.top + box.height + 8 });
-			setCropData(cropper.getData());
-		};
-
-		const initialize = () => {
-			cropper = new Cropper(imgElement, {
-				aspectRatio: Number.NaN,
-				viewMode: 1,
-				minCropBoxWidth: 50,
-				minCropBoxHeight: 50,
-				responsive: true,
-				restore: true,
-				center: true,
-				highlight: true,
-				cropBoxMovable: true,
-				cropBoxResizable: true,
-				toggleDragModeOnDblclick: false,
-				ready: sync,
-			});
-			cropperRef.current = cropper;
-			imgElement.addEventListener("crop", sync);
-		};
-
-		// 画像のロードが完了してから Cropper を初期化する。React が <img> を mount
-		// した時点で src は設定済みなので、complete を確認してから分岐する。
-		if (imgElement.complete) {
-			initialize();
-		} else {
-			imgElement.addEventListener("load", initialize, { once: true });
-		}
-
+		cropperRef.current = engine.handle;
 		return () => {
-			imgElement.removeEventListener("load", initialize);
-			imgElement.removeEventListener("crop", sync);
-			cropper?.destroy();
 			cropperRef.current = null;
-			setCropData(null);
 		};
-	}, [cropperRef, setCropData]);
+	}, [cropperRef, engine.handle]);
+
+	// この ImageCanvas が unmount される時 (画像クリア時) は cropData も落とす。
+	useEffect(() => {
+		return () => setCropData(null);
+	}, [setCropData]);
+
+	useCanvasShortcuts(viewportRef);
 
 	return (
 		<section className="relative flex flex-1 overflow-hidden bg-[var(--ink-0)]">
-			<div className="relative size-full overflow-hidden">
-				<img
-					alt="編集中の画像"
-					className="block max-w-full"
-					ref={imgRef}
-					src={image.src}
-				/>
-				<SizeHud hudPos={hudPos} />
-			</div>
+			<Viewport
+				image={{ width: image.width, height: image.height }}
+				onZoomChange={setZoom}
+				ref={viewportRef}
+				zoom={zoom}
+			>
+				<ImageStage engine={engine} image={image} imgRef={imgRef} zoom={zoom} />
+			</Viewport>
 			{isDragging && <DropOverlay />}
 			<CanvasActions />
 		</section>
-	);
-}
-
-function SizeHud({ hudPos }: { hudPos: { left: number; top: number } | null }) {
-	const { cropData } = useSnapcrop();
-
-	if (!hudPos || !cropData) {
-		return null;
-	}
-
-	return (
-		<div
-			aria-hidden="true"
-			className="pointer-events-none absolute z-10 whitespace-nowrap rounded-sm border border-border bg-card px-2 py-1 font-mono text-foreground text-xs shadow-md"
-			style={{ left: hudPos.left, top: hudPos.top }}
-		>
-			{Math.round(cropData.width)} × {Math.round(cropData.height)}
-		</div>
 	);
 }
 
