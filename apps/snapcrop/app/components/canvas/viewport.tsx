@@ -233,11 +233,23 @@ export const Viewport = forwardRef<ViewportHandle, ViewportProps>(
 		);
 
 		return (
-			<div ref={scrollerRef} className="relative size-full overflow-auto">
-				<div className="flex min-h-full min-w-full items-center justify-center">
+			<div
+				className="snapcrop-viewport-scroll relative size-full overflow-auto"
+				ref={scrollerRef}
+			>
+				<div
+					className="flex min-h-full min-w-full"
+					style={{
+						// `safe center` で、stage が viewport より大きい時は flex-start に
+						// フォールバックする。これがないと中央寄せ起点で overflow した時に
+						// scrollLeft = 0 から右にしか動けず、画像左端 / 上端まで届かない。
+						alignItems: "safe center",
+						justifyContent: "safe center",
+					}}
+				>
 					<div
-						ref={stageRef}
 						className="relative shrink-0"
+						ref={stageRef}
 						style={{
 							width: image.width * zoom,
 							height: image.height * zoom,
