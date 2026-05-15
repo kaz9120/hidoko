@@ -1,0 +1,224 @@
+import {
+	type RefObject,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
+import {
+	type CropRect,
+	clampRect,
+	type ImageMetrics,
+	moveRect,
+	type ResizeHandle,
+	resizeRect,
+	selectAllRect,
+} from "~/lib/crop-engine";
+
+export type CropData = CropRect;
+export type { CropRect, ImageMetrics, ResizeHandle };
+
+const MIN_CROP_SIZE = 50;
+
+/**
+ * Cropper.js が公開していた imperative API の互換 subset。site-header / hooks /
+ * image-export はこのハンドル経由でクロップ状態を読み書きする。
+ */
+export type CropEngineHandle = {
+	setAspectRatio: (ratio: number) => void;
+	setData: (partial: Partial<CropRect>) => void;
+	getData: () => CropData;
+	getImageData: () => ImageMetrics;
+	selectAll: () => void;
+	toCanvas: (opts?: {
+		imageSmoothingQuality?: "low" | "medium" | "high";
+	}) => HTMLCanvasElement;
+};
+
+export type UseCropEngineArgs = {
+	image: ImageMetrics | null;
+	imgElementRef: RefObject<HTMLImageElement | null>;
+	onChange?: (rect: CropRect) => void;
+};
+
+export type UseCropEngineResult = {
+	handle: CropEngineHandle;
+	cropRect: CropRect | null;
+	aspectRatio: number | null;
+	beginMove: () => void;
+	beginResize: (h: ResizeHandle) => void;
+	updateInteraction: (delta: { dx: number; dy: number }) => void;
+	endInteraction: () => void;
+};
+
+/**
+ * クロップ状態を管理し、Cropper.js 互換の imperative ハンドルを公開するフック。
+ * image が差し替わったら自動で全選択にリセットする。
+ */
+export function useCropEngine(args: UseCropEngineArgs): UseCropEngineResult {
+	const { image, imgElementRef, onChange } = args;
+	const [cropRect, setCropRect] = useState<CropRect | null>(null);
+	const [aspectRatio, setAspectRatio] = useState<number | null>(null);
+
+	const cropRectRef = useRef<CropRect | null>(null);
+	cropRectRef.current = cropRect;
+	const aspectRatioRef = useRef<number | null>(null);
+	aspectRatioRef.current = aspectRatio;
+	const imageRef = useRef<ImageMetrics | null>(null);
+	imageRef.current = image;
+	const onChangeRef = useRef(onChange);
+	onChangeRef.current = onChange;
+
+	const commit = useCallback((next: CropRect) => {
+		setCropRect(next);
+		cropRectRef.current = next;
+		onChangeRef.current?.(next);
+	}, []);
+
+	// image が決まったら全選択で初期化する。差し替え時にも走る。
+	useEffect(() => {
+		if (image) {
+			commit(selectAllRect(image));
+		} else {
+			setCropRect(null);
+			cropRectRef.current = null;
+		}
+	}, [image, commit]);
+
+	const interactionRef = useRef<{
+		startRect: CropRect;
+		kind: "move" | { resize: ResizeHandle };
+	} | null>(null);
+
+	const beginMove = useCallback(() => {
+		if (!cropRectRef.current) return;
+		interactionRef.current = {
+			startRect: cropRectRef.current,
+			kind: "move",
+		};
+	}, []);
+
+	const beginResize = useCallback((h: ResizeHandle) => {
+		if (!cropRectRef.current) return;
+		interactionRef.current = {
+			startRect: cropRectRef.current,
+			kind: { resize: h },
+		};
+	}, []);
+
+	const updateInteraction = useCallback(
+		(delta: { dx: number; dy: number }) => {
+			const it = interactionRef.current;
+			const img = imageRef.current;
+			if (!it || !img) return;
+			const next =
+				it.kind === "move"
+					? moveRect(it.startRect, delta, img)
+					: resizeRect(it.startRect, it.kind.resize, delta, {
+							aspectRatio: aspectRatioRef.current,
+							img,
+							minSize: MIN_CROP_SIZE,
+						});
+			commit(next);
+		},
+		[commit],
+	);
+
+	const endInteraction = useCallback(() => {
+		interactionRef.current = null;
+	}, []);
+
+	const handle = useMemo<CropEngineHandle>(
+		() => ({
+			setAspectRatio: (ratio: number) => {
+				const next = Number.isFinite(ratio) && ratio > 0 ? ratio : null;
+				setAspectRatio(next);
+				aspectRatioRef.current = next;
+				const cur = cropRectRef.current;
+				const img = imageRef.current;
+				if (!cur || !img || next === null) return;
+				// 高さを基準に幅を再計算し、クロップ中心を維持する
+				const newWidth = cur.height * next;
+				commit(
+					clampRect(
+						{
+							x: cur.x + cur.width / 2 - newWidth / 2,
+							y: cur.y,
+							width: newWidth,
+							height: cur.height,
+						},
+						img,
+						MIN_CROP_SIZE,
+					),
+				);
+			},
+			setData: (partial: Partial<CropRect>) => {
+				const cur = cropRectRef.current;
+				const img = imageRef.current;
+				if (!cur || !img) return;
+				commit(
+					clampRect(
+						{
+							x: partial.x ?? cur.x,
+							y: partial.y ?? cur.y,
+							width: partial.width ?? cur.width,
+							height: partial.height ?? cur.height,
+						},
+						img,
+						MIN_CROP_SIZE,
+					),
+				);
+			},
+			getData: () => cropRectRef.current ?? { x: 0, y: 0, width: 0, height: 0 },
+			getImageData: () =>
+				imageRef.current ?? { naturalWidth: 0, naturalHeight: 0 },
+			selectAll: () => {
+				const img = imageRef.current;
+				if (!img) return;
+				commit(selectAllRect(img));
+			},
+			toCanvas: (opts) => {
+				const rect = cropRectRef.current;
+				const source = imgElementRef.current;
+				if (!rect || !source) {
+					throw new Error("crop engine: image is not ready");
+				}
+				const canvas = document.createElement("canvas");
+				canvas.width = Math.round(rect.width);
+				canvas.height = Math.round(rect.height);
+				const ctx = canvas.getContext("2d");
+				if (!ctx) {
+					throw new Error("crop engine: 2D context unavailable");
+				}
+				if (opts?.imageSmoothingQuality) {
+					ctx.imageSmoothingEnabled = true;
+					ctx.imageSmoothingQuality = opts.imageSmoothingQuality;
+				}
+				ctx.drawImage(
+					source,
+					rect.x,
+					rect.y,
+					rect.width,
+					rect.height,
+					0,
+					0,
+					canvas.width,
+					canvas.height,
+				);
+				return canvas;
+			},
+		}),
+		[commit, imgElementRef],
+	);
+
+	return {
+		handle,
+		cropRect,
+		aspectRatio,
+		beginMove,
+		beginResize,
+		updateInteraction,
+		endInteraction,
+	};
+}
