@@ -192,18 +192,45 @@ export function resizeRect(
 		reconcileHorizontalForVerticalHandle();
 	}
 
-	// 最小サイズに到達したらアンカー側を維持する
-	if (width < minSize) {
-		if (hasW) {
-			x = rect.x + rect.width - minSize;
+	// 最小サイズに到達したらアンカー側を維持する。aspectRatio が固定なら両辺を
+	// 独立にクランプすると比率が崩れるので、両辺を同じ scale で同時に拡張する。
+	if (ar !== null) {
+		let scale = 1;
+		if (width < minSize) {
+			scale = Math.max(scale, minSize / Math.max(width, 1));
 		}
-		width = minSize;
-	}
-	if (height < minSize) {
-		if (hasN) {
-			y = rect.y + rect.height - minSize;
+		if (height < minSize) {
+			scale = Math.max(scale, minSize / Math.max(height, 1));
 		}
-		height = minSize;
+		if (scale > 1) {
+			const newW = width * scale;
+			const newH = height * scale;
+			if (hasW) {
+				x = rect.x + rect.width - newW;
+			} else if (!hasE) {
+				x = rect.x + rect.width / 2 - newW / 2;
+			}
+			if (hasN) {
+				y = rect.y + rect.height - newH;
+			} else if (!hasS) {
+				y = rect.y + rect.height / 2 - newH / 2;
+			}
+			width = newW;
+			height = newH;
+		}
+	} else {
+		if (width < minSize) {
+			if (hasW) {
+				x = rect.x + rect.width - minSize;
+			}
+			width = minSize;
+		}
+		if (height < minSize) {
+			if (hasN) {
+				y = rect.y + rect.height - minSize;
+			}
+			height = minSize;
+		}
 	}
 
 	// セーフティネット (上記で取りこぼした境界はみ出しや minSize 制約)
