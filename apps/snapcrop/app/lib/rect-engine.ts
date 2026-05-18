@@ -32,9 +32,9 @@ export type RectDefaults = {
 };
 
 export const OUTLINE_PX: Record<RectThickness, number> = {
-	sm: 1,
-	md: 2,
-	lg: 4,
+	sm: 2,
+	md: 4,
+	lg: 8,
 };
 
 export const MOSAIC_PX: Record<RectThickness, number> = {
