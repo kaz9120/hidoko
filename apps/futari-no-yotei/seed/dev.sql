@@ -1,5 +1,13 @@
 -- dev / preview 用のシードデータ。本番 D1 で実行しないこと。
 -- `X-Dev-User: u_me` ヘッダで認証バイパスしたときに引かれる pair / users / status_items。
+--
+-- pairs の `user_low_id < user_high_id` CHECK 制約に合わせて 'u_me' < 'u_partner'
+-- (辞書順) の並びで投入する。
+--
+-- NOTE: D1 / Workers 環境では SQL の `BEGIN`/`COMMIT` が使えない
+-- (Durable Objects は state.storage.transaction() API を要求する)。
+-- そのため本ファイルはトランザクション無しの逐次実行。途中失敗時は
+-- `bun run db:reset:local` で .wrangler/state を丸ごと消して再投入する。
 
 -- 既存をクリア (再実行可能にする)
 DELETE FROM day_statuses;
