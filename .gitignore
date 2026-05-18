@@ -64,3 +64,6 @@ __screenshots__/
 # Test results
 test-results/
 coverage/
+
+# playwright-cli skill のローカルキャッシュ・スクリーンショット
+.playwright-cli/
