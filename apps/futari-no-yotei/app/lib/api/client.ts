@@ -58,6 +58,12 @@ async function request<T>(
 		}
 	}
 	if (!res.ok) throw new ApiError(res.status, parsed);
+	// API は常に JSON を返す契約 (204 No Content は使わない)。空 body は
+	// サーバの想定外応答とみなして ApiError で落とし、呼び出し側で `null` を
+	// `T` として扱って `.map()` などが落ちるのを防ぐ。
+	if (parsed === null) {
+		throw new ApiError(res.status, "empty response body");
+	}
 	return parsed as T;
 }
 
