@@ -72,6 +72,18 @@ export async function clientAction({
 				await api.statusItems.remove(body.id);
 				return { ok: true, intent: "delete", id: body.id };
 			}
+			default: {
+				// `as ActionBody` キャストは TS に信頼を強制するだけで実行時保証が
+				// 無いので、未知の intent を受けても戻り型 `ActionOk | ActionErr` を
+				// 守れるよう default で塞ぐ。`never` への代入で、将来 intent が
+				// 増えたときの case 漏れもコンパイル時に検出する。
+				const _exhaustive: never = body;
+				return {
+					ok: false,
+					intent: "create",
+					error: "不明な操作です",
+				};
+			}
 		}
 	} catch (e) {
 		const baseMessage =
