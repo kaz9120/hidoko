@@ -133,8 +133,139 @@ statusItemsRoute.post("/", async (c) => {
 	return c.json(rowToApi(row as DbRow), 201);
 });
 
+type UpdateBody = Partial<{
+	name: string;
+	emoji: string;
+	color: string;
+	assignee: "me" | "partner" | "both";
+	options: Array<{ id: string; label: string; emoji: string }>;
+	weekdayDefaults: Record<string, string> | null;
+}>;
+
+statusItemsRoute.patch("/:id", async (c) => {
+	const { pairId } = c.get("auth");
+	const id = c.req.param("id");
+	let raw: unknown;
+	try {
+		raw = await c.req.json();
+	} catch {
+		return c.json({ error: "invalid json body" }, 400);
+	}
+
+	const errors = validateUpdate(raw);
+	if (errors) {
+		return c.json({ error: "validation failed", details: errors }, 400);
+	}
+	const body = raw as UpdateBody;
+
+	const existing = await c.env.DB.prepare(
+		"SELECT id FROM status_items WHERE id = ?1 AND pair_id = ?2",
+	)
+		.bind(id, pairId)
+		.first<{ id: string }>();
+	if (!existing) return c.json({ error: "not found" }, 404);
+
+	// 与えられたフィールドだけを UPDATE する。`pair_id` は変更不可。
+	const sets: string[] = [];
+	const binds: unknown[] = [];
+	let pos = 1;
+	if (body.name !== undefined) {
+		sets.push(`name = ?${pos++}`);
+		binds.push(body.name.trim());
+	}
+	if (body.emoji !== undefined) {
+		sets.push(`emoji = ?${pos++}`);
+		binds.push(body.emoji.trim());
+	}
+	if (body.color !== undefined) {
+		sets.push(`color = ?${pos++}`);
+		binds.push(body.color);
+	}
+	if (body.assignee !== undefined) {
+		sets.push(`assignee = ?${pos++}`);
+		binds.push(body.assignee);
+	}
+	if (body.options !== undefined) {
+		sets.push(`options = ?${pos++}`);
+		binds.push(JSON.stringify(body.options));
+	}
+	if (body.weekdayDefaults !== undefined) {
+		sets.push(`weekday_defaults = ?${pos++}`);
+		binds.push(
+			body.weekdayDefaults ? JSON.stringify(body.weekdayDefaults) : null,
+		);
+	}
+
+	if (sets.length > 0) {
+		sets.push(`updated_at = datetime('now')`);
+		await c.env.DB.prepare(
+			`UPDATE status_items SET ${sets.join(", ")} WHERE id = ?${pos++} AND pair_id = ?${pos}`,
+		)
+			.bind(...binds, id, pairId)
+			.run();
+	}
+
+	const row = await c.env.DB.prepare("SELECT * FROM status_items WHERE id = ?1")
+		.bind(id)
+		.first<DbRow>();
+	// UPDATE と再取得の間に並行リクエストで削除される可能性があるので、
+	// `as DbRow` で握り潰さず null を 404 として返す。
+	if (!row) return c.json({ error: "not found" }, 404);
+	return c.json(rowToApi(row));
+});
+
+statusItemsRoute.delete("/:id", async (c) => {
+	const { pairId } = c.get("auth");
+	const id = c.req.param("id");
+
+	const existing = await c.env.DB.prepare(
+		"SELECT id FROM status_items WHERE id = ?1 AND pair_id = ?2",
+	)
+		.bind(id, pairId)
+		.first<{ id: string }>();
+	if (!existing) return c.json({ error: "not found" }, 404);
+
+	// 要件 4.1.4 に従い、関連する day_statuses も同時に実削除する。FK 制約に
+	// よる依存順を守るために day_statuses → status_items の順で。`batch` は
+	// 単一トランザクションで両方を流す。
+	await c.env.DB.batch([
+		c.env.DB.prepare(
+			"DELETE FROM day_statuses WHERE pair_id = ?1 AND status_item_id = ?2",
+		).bind(pairId, id),
+		c.env.DB.prepare(
+			"DELETE FROM status_items WHERE id = ?1 AND pair_id = ?2",
+		).bind(id, pairId),
+	]);
+
+	return c.json({ ok: true });
+});
+
 function isObject(v: unknown): v is Record<string, unknown> {
 	return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+function isValidOptionsArray(value: unknown): boolean {
+	if (!Array.isArray(value) || value.length === 0) return false;
+	for (const o of value) {
+		if (
+			!isObject(o) ||
+			typeof o.id !== "string" ||
+			typeof o.label !== "string" ||
+			typeof o.emoji !== "string"
+		) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function isValidWeekdayDefaults(value: unknown): boolean {
+	if (value === null) return true;
+	if (!isObject(value)) return false;
+	for (const v of Object.values(value)) {
+		if (typeof v !== "string") return false;
+	}
+	return true;
 }
 
 /**
@@ -152,20 +283,47 @@ function validateCreate(body: unknown): string[] | null {
 	if (assignee !== "me" && assignee !== "partner" && assignee !== "both") {
 		errs.push("assignee は me / partner / both のいずれか");
 	}
-	if (!Array.isArray(options) || options.length === 0) {
-		errs.push("options は 1 つ以上必要です");
-	} else {
-		for (const o of options) {
-			if (
-				!isObject(o) ||
-				typeof o.id !== "string" ||
-				typeof o.label !== "string" ||
-				typeof o.emoji !== "string"
-			) {
-				errs.push("options の各要素には id / label / emoji が必要");
-				break;
-			}
-		}
+	if (!isValidOptionsArray(options)) {
+		errs.push("options は id / label / emoji を持つ要素を 1 つ以上必要です");
+	}
+	return errs.length ? errs : null;
+}
+
+/**
+ * PATCH 用の検査。全フィールド optional だが、与えられた場合は型と空文字
+ * チェックを行う。create と違って「未提供」と「無効値」を区別する。
+ */
+function validateUpdate(body: unknown): string[] | null {
+	if (!isObject(body)) {
+		return ["request body は object である必要があります"];
+	}
+	const errs: string[] = [];
+	const { name, emoji, color, assignee, options, weekdayDefaults } = body;
+	if (name !== undefined && (typeof name !== "string" || !name.trim())) {
+		errs.push("name を更新するなら空文字不可");
+	}
+	if (emoji !== undefined && (typeof emoji !== "string" || !emoji.trim())) {
+		errs.push("emoji を更新するなら空文字不可");
+	}
+	if (color !== undefined && typeof color !== "string") {
+		errs.push("color は string");
+	}
+	if (
+		assignee !== undefined &&
+		assignee !== "me" &&
+		assignee !== "partner" &&
+		assignee !== "both"
+	) {
+		errs.push("assignee は me / partner / both");
+	}
+	if (options !== undefined && !isValidOptionsArray(options)) {
+		errs.push("options は id / label / emoji を持つ要素を 1 つ以上必要です");
+	}
+	if (
+		weekdayDefaults !== undefined &&
+		!isValidWeekdayDefaults(weekdayDefaults)
+	) {
+		errs.push("weekdayDefaults は string 値の object または null");
 	}
 	return errs.length ? errs : null;
 }
