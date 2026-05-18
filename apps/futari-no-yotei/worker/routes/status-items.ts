@@ -80,17 +80,19 @@ type CreateBody = {
 
 statusItemsRoute.post("/", async (c) => {
 	const { pairId } = c.get("auth");
-	let body: CreateBody;
+	let raw: unknown;
 	try {
-		body = await c.req.json<CreateBody>();
+		raw = await c.req.json();
 	} catch {
 		return c.json({ error: "invalid json body" }, 400);
 	}
 
-	const errors = validateCreate(body);
+	const errors = validateCreate(raw);
 	if (errors) {
 		return c.json({ error: "validation failed", details: errors }, 400);
 	}
+	// validateCreate を通った時点で raw は CreateBody の形を満たす
+	const body = raw as CreateBody;
 
 	const id = newId();
 	// 末尾に追加
@@ -131,18 +133,38 @@ statusItemsRoute.post("/", async (c) => {
 	return c.json(rowToApi(row as DbRow), 201);
 });
 
-function validateCreate(body: CreateBody): string[] | null {
+function isObject(v: unknown): v is Record<string, unknown> {
+	return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+/**
+ * 入力 body の形を runtime で検査する。validate 通過後の `as CreateBody` を
+ * 安全にするために、型保証を文字列・配列の各要素まで降りて確認する。
+ */
+function validateCreate(body: unknown): string[] | null {
+	if (!isObject(body)) {
+		return ["request body は object である必要があります"];
+	}
 	const errs: string[] = [];
-	if (!body.name?.trim()) errs.push("name は必須です");
-	if (!body.emoji?.trim()) errs.push("emoji は必須です");
-	if (!["me", "partner", "both"].includes(body.assignee))
+	const { name, emoji, assignee, options } = body;
+	if (typeof name !== "string" || !name.trim()) errs.push("name は必須です");
+	if (typeof emoji !== "string" || !emoji.trim()) errs.push("emoji は必須です");
+	if (assignee !== "me" && assignee !== "partner" && assignee !== "both") {
 		errs.push("assignee は me / partner / both のいずれか");
-	if (!Array.isArray(body.options) || body.options.length === 0)
+	}
+	if (!Array.isArray(options) || options.length === 0) {
 		errs.push("options は 1 つ以上必要です");
-	for (const o of body.options ?? []) {
-		if (!o.id || !o.label || !o.emoji) {
-			errs.push("options の各要素には id / label / emoji が必要");
-			break;
+	} else {
+		for (const o of options) {
+			if (
+				!isObject(o) ||
+				typeof o.id !== "string" ||
+				typeof o.label !== "string" ||
+				typeof o.emoji !== "string"
+			) {
+				errs.push("options の各要素には id / label / emoji が必要");
+				break;
+			}
 		}
 	}
 	return errs.length ? errs : null;

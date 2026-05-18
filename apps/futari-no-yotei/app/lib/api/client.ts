@@ -50,17 +50,26 @@ async function request<T>(
 	// JSON で返らないケース (Worker のエラー応答が HTML / プレーンテキスト等)
 	// に備え、parse 失敗時は生テキストを ApiError のボディに載せる。
 	let parsed: unknown = null;
+	let parseFailed = false;
 	if (text) {
 		try {
 			parsed = JSON.parse(text);
 		} catch {
 			parsed = text;
+			parseFailed = true;
 		}
 	}
+	// 4xx / 5xx は body 形式によらず ApiError へ正規化
 	if (!res.ok) throw new ApiError(res.status, parsed);
-	// API は常に JSON を返す契約 (204 No Content は使わない)。空 body は
-	// サーバの想定外応答とみなして ApiError で落とし、呼び出し側で `null` を
-	// `T` として扱って `.map()` などが落ちるのを防ぐ。
+	// 2xx でも「JSON が返る契約」を満たさなければサーバ側の想定外応答として
+	// 弾く。呼び出し側で生テキストや null を `T` として扱って実行時エラーに
+	// 落ちるのを防ぐ。
+	if (parseFailed) {
+		throw new ApiError(res.status, {
+			error: "invalid json response",
+			raw: parsed,
+		});
+	}
 	if (parsed === null) {
 		throw new ApiError(res.status, "empty response body");
 	}
