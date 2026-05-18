@@ -6,7 +6,14 @@ import {
 	Trash2Icon,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import { Button, Tooltip, TooltipContent, TooltipTrigger } from "ui";
+import {
+	Button,
+	ToggleGroup,
+	ToggleGroupItem,
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "ui";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 import {
 	PRESET_COLORS,
@@ -42,6 +49,10 @@ const THICKNESS_OPTIONS: ReadonlyArray<{
  * style によって他コントロールの enable / disable が変わる:
  *   - fill   : thickness は disabled (ラベルは「太さ」のまま)
  *   - mosaic : color は disabled、thickness ラベルは「ブロック」
+ *
+ * style / thickness のセグメント表示はクロップ側のアスペクト比と同じ ui の
+ * ToggleGroup を使う (見た目を統一)。色スウォッチだけは円形 + ブランドカラー
+ * の都合で自前。
  */
 export function RectToolbar() {
 	const {
@@ -99,10 +110,30 @@ export function RectToolbar() {
 			</span>
 			<Divider />
 
-			<StyleControl
-				onChange={(style) => commit({ style })}
+			<ToggleGroup
+				aria-label="矩形スタイル"
+				onValueChange={(next) => {
+					if (next) commit({ style: next as RectStyle });
+				}}
+				type="single"
 				value={current.style}
-			/>
+				variant="outline"
+			>
+				{STYLE_OPTIONS.map((opt) => {
+					const Icon = opt.icon;
+					return (
+						<ToggleGroupItem
+							key={opt.id}
+							size="sm"
+							title={opt.label}
+							value={opt.id}
+						>
+							<Icon strokeWidth={1.75} />
+							<span>{opt.label}</span>
+						</ToggleGroupItem>
+					);
+				})}
+			</ToggleGroup>
 
 			<Divider />
 
@@ -116,11 +147,30 @@ export function RectToolbar() {
 			<Divider />
 
 			<Label>{thicknessLabel}</Label>
-			<ThicknessControl
+			<ToggleGroup
+				aria-label="太さ"
 				disabled={thicknessDisabled}
-				onChange={(thickness) => commit({ thickness })}
+				onValueChange={(next) => {
+					if (next) commit({ thickness: next as RectThickness });
+				}}
+				type="single"
 				value={current.thickness}
-			/>
+				variant="outline"
+			>
+				{THICKNESS_OPTIONS.map((opt) => (
+					<ToggleGroupItem
+						key={opt.id}
+						size="sm"
+						title={`太さ ${opt.id}`}
+						value={opt.id}
+					>
+						<span
+							className="block w-3.5 rounded-[1px] bg-current"
+							style={{ height: opt.barHeight }}
+						/>
+					</ToggleGroupItem>
+				))}
+			</ToggleGroup>
 
 			<div className="flex-1" />
 
@@ -158,40 +208,6 @@ function Label({ children }: { children: ReactNode }) {
 		<span className="font-mono text-[11px] text-muted-foreground">
 			{children}
 		</span>
-	);
-}
-
-function StyleControl({
-	value,
-	onChange,
-}: {
-	value: RectStyle;
-	onChange: (next: RectStyle) => void;
-}) {
-	return (
-		<div className="inline-flex h-7 items-center gap-px rounded-sm border border-border bg-[var(--bg-sunken)] p-0.5">
-			{STYLE_OPTIONS.map((opt) => {
-				const Icon = opt.icon;
-				const active = value === opt.id;
-				return (
-					<button
-						aria-pressed={active}
-						aria-label={opt.label}
-						className={`inline-flex h-[22px] min-w-7 cursor-pointer items-center justify-center gap-1 rounded-[3px] border-0 px-2 font-sans text-[11px] transition-colors ${
-							active
-								? "bg-[var(--accent-soft)] text-[var(--accent)] shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--accent)_45%,transparent)]"
-								: "bg-transparent text-muted-foreground hover:text-foreground"
-						}`}
-						key={opt.id}
-						onClick={() => onChange(opt.id)}
-						type="button"
-					>
-						<Icon className="size-3.5" strokeWidth={1.75} />
-						<span>{opt.label}</span>
-					</button>
-				);
-			})}
-		</div>
 	);
 }
 
@@ -245,47 +261,6 @@ function ColorSwatches({
 				</TooltipTrigger>
 				<TooltipContent>近日対応</TooltipContent>
 			</Tooltip>
-		</div>
-	);
-}
-
-function ThicknessControl({
-	value,
-	onChange,
-	disabled,
-}: {
-	value: RectThickness;
-	onChange: (next: RectThickness) => void;
-	disabled: boolean;
-}) {
-	return (
-		<div
-			className="inline-flex h-7 items-center gap-px rounded-sm border border-border bg-[var(--bg-sunken)] p-0.5"
-			style={{ opacity: disabled ? 0.35 : 1 }}
-		>
-			{THICKNESS_OPTIONS.map((opt) => {
-				const active = value === opt.id;
-				return (
-					<button
-						aria-pressed={active}
-						aria-label={`太さ ${opt.id}`}
-						className={`inline-flex h-[22px] min-w-7 cursor-pointer items-center justify-center rounded-[3px] border-0 transition-colors disabled:cursor-not-allowed ${
-							active
-								? "bg-[var(--accent-soft)] text-[var(--accent)] shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--accent)_45%,transparent)]"
-								: "bg-transparent text-muted-foreground hover:text-foreground"
-						}`}
-						disabled={disabled}
-						key={opt.id}
-						onClick={() => onChange(opt.id)}
-						type="button"
-					>
-						<span
-							className="block w-3.5 rounded-[1px] bg-current"
-							style={{ height: opt.barHeight }}
-						/>
-					</button>
-				);
-			})}
 		</div>
 	);
 }
