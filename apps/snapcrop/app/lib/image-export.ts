@@ -1,5 +1,5 @@
 import type { CropEngineHandle } from "~/hooks/use-crop-engine";
-import { paintMosaicRect, readImagePixels } from "~/lib/mosaic";
+import { paintMosaicRect } from "~/lib/mosaic";
 import {
 	FILL_OPACITY,
 	MOSAIC_PX,
@@ -12,9 +12,9 @@ import {
  * MIME タイプを指定しない場合は image/png にフォールバックする。
  *
  * annotations が指定されていれば、画像座標系で各 annotation を baked-in する。
- * 元画像 → annotation 描き込み → クロップ範囲だけ切り出し、の順で 1 枚に焼く。
- * mosaic は元画像のピクセル平均で焼くので、見た目通り (= キャンバス上で見えて
- * いる粒度) になる。
+ * クロップ領域に重なる annotation だけを対象に、出力サイズの canvas へ直接
+ * 重ね描く (元画像全面を一度焼くアプローチだと、大きな画像で常に
+ * 元解像度の中間 canvas を作ってしまい重かった)。
  */
 export async function getCroppedBlob(
 	engine: CropEngineHandle,
@@ -37,9 +37,12 @@ export async function getCroppedBlob(
 }
 
 /**
- * 元画像サイズの canvas に画像 + annotation を焼き、クロップ範囲を出力 canvas に
- * 写す。元画像座標を 1 つの基準にすることで、annotation の位置 / 太さ / mosaic
- * セルが見た目と一致する。
+ * クロップ済み出力 canvas に annotation を baked-in して返す。中間で
+ * フル解像度 canvas を作らず、出力サイズに直接描く。
+ *
+ * mosaic は annotation を 1 つでも重ね描く前の cropped 画像ピクセルを
+ * 1 度だけサンプル元に取り、createdAt 順に重ね描き中の上書きを受けない
+ * ようにする。
  */
 function renderAnnotatedCroppedCanvas(
 	engine: CropEngineHandle,
@@ -47,32 +50,21 @@ function renderAnnotatedCroppedCanvas(
 ): HTMLCanvasElement {
 	const cropRect = engine.getData();
 	const source = engine.getSourceImage();
-	const metrics = engine.getImageData();
 	if (!source) {
 		throw new Error("crop engine: image is not ready");
 	}
 
-	const full = document.createElement("canvas");
-	full.width = Math.max(1, Math.round(metrics.naturalWidth));
-	full.height = Math.max(1, Math.round(metrics.naturalHeight));
-	const fullCtx = full.getContext("2d", { willReadFrequently: true });
-	if (!fullCtx) {
-		throw new Error("crop engine: 2D context unavailable");
-	}
-	fullCtx.drawImage(source, 0, 0, full.width, full.height);
-	drawAnnotations(fullCtx, source, full.width, full.height, annotations);
-
 	const out = document.createElement("canvas");
 	out.width = Math.max(1, Math.round(cropRect.width));
 	out.height = Math.max(1, Math.round(cropRect.height));
-	const outCtx = out.getContext("2d");
+	const outCtx = out.getContext("2d", { willReadFrequently: true });
 	if (!outCtx) {
 		throw new Error("crop engine: 2D context unavailable");
 	}
 	outCtx.imageSmoothingEnabled = true;
 	outCtx.imageSmoothingQuality = "high";
 	outCtx.drawImage(
-		full,
+		source,
 		cropRect.x,
 		cropRect.y,
 		cropRect.width,
@@ -82,35 +74,59 @@ function renderAnnotatedCroppedCanvas(
 		out.width,
 		out.height,
 	);
+
+	const visible = annotations.filter((a) => intersectsCrop(a, cropRect));
+	if (visible.length > 0) {
+		drawAnnotations(outCtx, out.width, out.height, visible, cropRect);
+	}
 	return out;
+}
+
+function intersectsCrop(
+	a: RectAnnotation,
+	crop: { x: number; y: number; width: number; height: number },
+): boolean {
+	return !(
+		a.x + a.width <= crop.x ||
+		a.y + a.height <= crop.y ||
+		a.x >= crop.x + crop.width ||
+		a.y >= crop.y + crop.height
+	);
 }
 
 function drawAnnotations(
 	ctx: CanvasRenderingContext2D,
-	source: HTMLImageElement,
-	imageWidth: number,
-	imageHeight: number,
+	outWidth: number,
+	outHeight: number,
 	annotations: readonly RectAnnotation[],
+	cropRect: { x: number; y: number },
 ): void {
 	const sorted = [...annotations].sort((a, b) => a.createdAt - b.createdAt);
 	const needsMosaic = sorted.some((a) => a.style === "mosaic");
-	// mosaic は「元画像のピクセル」を平均する。canvas に annotation を重ね描き
-	// する前のピクセルを使いたいので、source <img> を直接サンプル元にする。
-	const pixels = needsMosaic
-		? readImagePixels(source, imageWidth, imageHeight)
-		: null;
+	// mosaic 用に「annotation を 1 つも乗せていない cropped 画像のピクセル」を
+	// 1 度だけ取る。createdAt 順に上書きされていく途中の状態をサンプルしない。
+	let pixels: ImageData | null = null;
+	if (needsMosaic) {
+		try {
+			pixels = ctx.getImageData(0, 0, outWidth, outHeight);
+		} catch {
+			pixels = null;
+		}
+	}
 
 	const prevAlpha = ctx.globalAlpha;
 	for (const ann of sorted) {
+		const x = ann.x - cropRect.x;
+		const y = ann.y - cropRect.y;
 		if (ann.style === "outline") {
 			ctx.strokeStyle = ann.color;
 			ctx.lineWidth = OUTLINE_PX[ann.thickness];
-			pathRoundRect(ctx, ann.x, ann.y, ann.width, ann.height, 1);
+			pathRoundRect(ctx, x, y, ann.width, ann.height, 1);
 			ctx.stroke();
 		} else if (ann.style === "fill") {
 			ctx.fillStyle = ann.color;
 			ctx.globalAlpha = FILL_OPACITY;
-			pathRoundRect(ctx, ann.x, ann.y, ann.width, ann.height, 2);
+			pathRoundRect(ctx, x, y, ann.width, ann.height, 2);
 			ctx.fill();
 			ctx.globalAlpha = prevAlpha;
 		} else if (ann.style === "mosaic" && pixels) {
@@ -118,14 +134,14 @@ function drawAnnotations(
 				ctx,
 				pixels,
 				{
-					x: ann.x,
-					y: ann.y,
+					x,
+					y,
 					width: ann.width,
 					height: ann.height,
 					cellSize: MOSAIC_PX[ann.thickness],
 				},
-				imageWidth,
-				imageHeight,
+				outWidth,
+				outHeight,
 			);
 		}
 	}
