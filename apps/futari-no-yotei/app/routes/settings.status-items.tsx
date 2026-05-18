@@ -1,5 +1,5 @@
 import { GripVertical, Pencil, Plus } from "lucide-react";
-import { MiniApp } from "~/components/miniapp/MiniApp";
+import { AppShell } from "~/components/layout/AppShell";
 import { ME, PARTNER, STATUS_ITEMS } from "~/lib/data/sample";
 import type { StatusItem, WeekdayKey } from "~/lib/types";
 
@@ -146,13 +146,18 @@ function ItemCard({ item }: { item: StatusItem }) {
 
 export default function SettingsStatusItems() {
 	return (
-		<MiniApp title="ステータス項目">
-			<div className="px-3.5 pt-3.5 pb-20">
-				<p className="mb-3.5 text-text-muted text-xs leading-relaxed">
-					家の暮らしに合わせて、項目を作ります。
-					<br />
-					誰の項目かは、選択肢のラベルで表します。
-				</p>
+		<AppShell>
+			<main className="px-3.5 pt-6 pb-20">
+				<header className="mb-4">
+					<h1 className="font-semibold text-text-strong text-xl tracking-tight">
+						ステータス項目
+					</h1>
+					<p className="mt-1.5 text-text-muted text-xs leading-relaxed">
+						家の暮らしに合わせて、項目を作ります。
+						<br />
+						誰の項目かは、選択肢のラベルで表します。
+					</p>
+				</header>
 
 				<ul className="list-none p-0">
 					{STATUS_ITEMS.map((item) => (
@@ -178,7 +183,7 @@ export default function SettingsStatusItems() {
 						子育て / ペット / シフト勤務 / 家事分担 — タップで雛形を読み込み
 					</div>
 				</aside>
-			</div>
-		</MiniApp>
+			</main>
+		</AppShell>
 	);
 }

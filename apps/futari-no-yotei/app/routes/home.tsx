@@ -1,5 +1,5 @@
 import { PairMoon } from "~/components/couple/PairMoon";
-import { MiniApp } from "~/components/miniapp/MiniApp";
+import { AppShell } from "~/components/layout/AppShell";
 
 export function meta() {
 	return [
@@ -13,13 +13,12 @@ export function meta() {
 }
 
 /**
- * ホームは PR 4 で本実装する。本ファイルは下タブの「ホーム」遷移先として
- * MiniApp の外枠 (ヘッダー + タブ) を生かしつつブランド表示だけ載せている。
+ * ホームは PR 4 で本実装する。本ファイルはブランド表示だけの placeholder。
  */
 export default function Home() {
 	return (
-		<MiniApp showHeader={false}>
-			<div className="flex min-h-[78dvh] flex-col items-center justify-center px-5 py-16 text-center">
+		<AppShell>
+			<main className="flex min-h-[78dvh] flex-col items-center justify-center px-5 py-16 text-center">
 				{/* wordmark の隣の装飾。読み上げは見出しが担う */}
 				<span aria-hidden>
 					<PairMoon size={64} />
@@ -40,7 +39,7 @@ export default function Home() {
 				<p className="mt-10 font-mono text-[10px] text-text-faint uppercase tracking-[0.18em]">
 					PREPARING · 準備中
 				</p>
-			</div>
-		</MiniApp>
+			</main>
+		</AppShell>
 	);
 }

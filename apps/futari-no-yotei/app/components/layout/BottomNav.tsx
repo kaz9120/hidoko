@@ -31,7 +31,7 @@ const TABS: Tab[] = [
  * 現状クリックすると 404 にフォールバックするので、画面追加と同時にここを
  * 拡張せずとも自然につながる。
  */
-export function BottomTabs() {
+export function BottomNav() {
 	return (
 		<nav
 			aria-label="アプリ内ナビゲーション"
