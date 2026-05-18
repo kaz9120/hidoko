@@ -246,10 +246,13 @@ function ColorSwatches({
 			})}
 			<Tooltip>
 				<TooltipTrigger asChild>
+					{/* aria-disabled で「無効だが Tooltip / focus は機能する」状態に。
+					    native disabled だと pointer event を受けないので Tooltip が出ない。 */}
 					<button
+						aria-disabled="true"
 						aria-label="カスタム色 (近日対応)"
-						className="inline-flex size-[18px] cursor-not-allowed items-center justify-center rounded-full border-[1.5px] border-transparent p-0 disabled:opacity-100"
-						disabled
+						className="inline-flex size-[18px] cursor-not-allowed items-center justify-center rounded-full border-[1.5px] border-transparent p-0"
+						onClick={(e) => e.preventDefault()}
 						style={{
 							background:
 								"conic-gradient(from 0deg, #f44, #fa3, #fd0, #4d4, #4af, #94f, #f4a, #f44)",
