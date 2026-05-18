@@ -1,27 +1,30 @@
 -- 「ふたりのよてい」初期スキーマ。詳細は apps/futari-no-yotei/ARCHITECTURE.md 参照。
 
--- ペア (2 名の組)
--- `user_low_id < user_high_id` を強制することで `(A, B)` と `(B, A)` が
--- 別レコードとして並ぶのを防ぐ。pair 解決ロジックが「user_id がどちらに
--- 入っているか不明」になることもなくなる。
-CREATE TABLE pairs (
-  id TEXT PRIMARY KEY,
-  user_low_id TEXT NOT NULL,
-  user_high_id TEXT NOT NULL,
-  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'dissolved')),
-  created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-  CHECK (user_low_id < user_high_id),
-  UNIQUE (user_low_id, user_high_id)
-);
-
 -- LINE ユーザー (ペア解消後も users 行は残す)
+-- pairs から FK で参照するため、こちらを先に作る。
 CREATE TABLE users (
   id TEXT PRIMARY KEY,
   display_name TEXT NOT NULL,
   picture_url TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ペア (2 名の組)
+-- `user_low_id < user_high_id` を強制することで `(A, B)` と `(B, A)` が
+-- 別レコードとして並ぶのを防ぐ。pair 解決ロジックが「user_id がどちらに
+-- 入っているか不明」になることもなくなる。
+-- メンバー列を users(id) で参照することで、存在しないユーザー ID のペアが
+-- 作られて孤児データになるのを防ぐ。
+CREATE TABLE pairs (
+  id TEXT PRIMARY KEY,
+  user_low_id TEXT NOT NULL REFERENCES users(id),
+  user_high_id TEXT NOT NULL REFERENCES users(id),
+  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'dissolved')),
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  CHECK (user_low_id < user_high_id),
+  UNIQUE (user_low_id, user_high_id)
 );
 
 -- ステータス項目 (家庭ごとに完全可変)
