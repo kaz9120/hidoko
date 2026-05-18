@@ -42,7 +42,10 @@ export function dayStatus(dateKey: string, itemId: string): DayStatus | null {
 	const items = DAY_STATUSES[dateKey] ?? {};
 	const explicit = items[itemId];
 	if (explicit) {
-		return { option: explicit.option, confirmed: true };
+		// 保存値の `confirmed` をそのまま信頼する。サンプルデータでは現状すべて
+		// true だが、将来 D1 から取ったとき「ユーザーが明示的に未確定として
+		// 記録した」状態 (例: 「あとで決める」ボタン) を扱えるように残す。
+		return { option: explicit.option, confirmed: explicit.confirmed };
 	}
 	const item = STATUS_ITEMS.find((i) => i.id === itemId);
 	if (!item?.weekdayDefaults) return null;
