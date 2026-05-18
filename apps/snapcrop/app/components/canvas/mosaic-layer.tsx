@@ -51,6 +51,14 @@ export function MosaicLayer({
 		[annotations],
 	);
 
+	// 画像差し替え時にピクセルキャッシュを明示的に捨てる。
+	// 現状 ImageCanvas が key=image.src で remount するためキャッシュは
+	// 自動でクリアされるが、その前提に依存しないよう effect 側でも保険を掛ける。
+	// biome-ignore lint/correctness/useExhaustiveDependencies: imageSrc を retrigger key にしている
+	useEffect(() => {
+		pixelsRef.current = null;
+	}, [imageSrc]);
+
 	// imageSrc は effect 本体内で参照しないが、画像差し替え時に再描画させる
 	// ための dep として明示しておく。
 	// biome-ignore lint/correctness/useExhaustiveDependencies: imageSrc is a deliberate retrigger
