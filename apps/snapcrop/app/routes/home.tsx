@@ -1,4 +1,6 @@
+import { CropToolbar } from "~/components/layout/crop-toolbar";
 import { EditorCanvas } from "~/components/layout/editor-canvas";
+import { RectToolbar } from "~/components/layout/rect-toolbar";
 import { SiteHeader } from "~/components/layout/site-header";
 import { StatusBar } from "~/components/layout/status-bar";
 import { SnapcropProvider } from "~/contexts/snapcrop-context";
@@ -19,6 +21,8 @@ export default function Home() {
 		<SnapcropProvider>
 			<div className="flex h-screen flex-col">
 				<SiteHeader />
+				<CropToolbar />
+				<RectToolbar />
 				<EditorCanvas />
 				<StatusBar />
 			</div>
