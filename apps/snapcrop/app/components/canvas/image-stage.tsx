@@ -1,4 +1,4 @@
-import { type RefObject, useCallback, useMemo } from "react";
+import { type RefObject, useCallback, useEffect, useMemo } from "react";
 import { AnnotationLayer } from "~/components/canvas/annotation-layer";
 import { CropFrame } from "~/components/canvas/crop-frame";
 import { MosaicLayer } from "~/components/canvas/mosaic-layer";
@@ -36,8 +36,13 @@ export function ImageStage({
 	cropEngine,
 	imgRef,
 }: ImageStageProps) {
-	const { activeTool, annotations, selectedAnnotationId, rectDefaults } =
-		useSnapcrop();
+	const {
+		activeTool,
+		annotations,
+		selectedAnnotationId,
+		rectDefaults,
+		rectEngineHandleRef,
+	} = useSnapcrop();
 
 	const imageMetrics = useMemo(
 		() => ({ naturalWidth: image.width, naturalHeight: image.height }),
@@ -45,6 +50,15 @@ export function ImageStage({
 	);
 
 	const rectEngine = useRectEngine(imageMetrics);
+
+	// engine の安定ハンドルを context の ref に差し込む。useRectShortcuts と
+	// RectInteractionLayer が Esc キャンセル / Space pan 抑制で使う。
+	useEffect(() => {
+		rectEngineHandleRef.current = rectEngine.handle;
+		return () => {
+			rectEngineHandleRef.current = null;
+		};
+	}, [rectEngineHandleRef, rectEngine.handle]);
 
 	// stage 内の座標変換。<img> 要素を基準にして clientX/Y → 画像 px へ。
 	// interaction layer と selection overlay 双方で使う。

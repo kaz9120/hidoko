@@ -36,6 +36,16 @@ export type LoadedImage = {
 
 export type ActiveTool = "crop" | "rect";
 
+/**
+ * 矩形ツールのキーボード操作 (Esc キャンセル, Space pan 抑制) が、
+ * RectInteractionLayer や useRectShortcuts から engine の状態に触れるための
+ * 共有ハンドル。ImageStage 内で engine が組み立てた値を ref に書き込む。
+ */
+export type RectEngineHandle = {
+	isInteracting: () => boolean;
+	cancelInteraction: () => void;
+};
+
 type SnapcropContextValue = {
 	image: LoadedImage | null;
 	loadImageFromBlob: (blob: Blob) => Promise<void>;
@@ -67,6 +77,9 @@ type SnapcropContextValue = {
 		opts?: { batchKey?: string },
 	) => void;
 	deleteAnnotation: (id: string) => void;
+
+	rectEngineHandleRef: RefObject<RectEngineHandle | null>;
+	spacePressedRef: RefObject<boolean>;
 };
 
 const SnapcropContext = createContext<SnapcropContextValue | null>(null);
@@ -424,6 +437,8 @@ function reducer(state: State, action: Action): State {
 export function SnapcropProvider({ children }: { children: ReactNode }) {
 	const [state, dispatch] = useReducer(reducer, initialState);
 	const cropperRef = useRef<CropEngineHandle | null>(null);
+	const rectEngineHandleRef = useRef<RectEngineHandle | null>(null);
+	const spacePressedRef = useRef<boolean>(false);
 	const [cropData, setCropData] = useState<CropData | null>(null);
 
 	const stableSetCropData = useCallback(
@@ -497,6 +512,9 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 				}),
 			deleteAnnotation: (id) =>
 				dispatch({ type: "RECT_DELETE", id, timestamp: Date.now() }),
+
+			rectEngineHandleRef,
+			spacePressedRef,
 		};
 	}, [state, cropData, stableSetCropData]);
 

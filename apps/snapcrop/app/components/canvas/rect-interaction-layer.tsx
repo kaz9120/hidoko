@@ -22,7 +22,7 @@ export function RectInteractionLayer({
 	annotations,
 	getImagePoint,
 }: Props) {
-	const { selectAnnotation } = useSnapcrop();
+	const { selectAnnotation, spacePressedRef } = useSnapcrop();
 	const dragRef = useRef<{ pointerId: number } | null>(null);
 
 	const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -30,15 +30,19 @@ export function RectInteractionLayer({
 		e.preventDefault();
 		const pt = getImagePoint(e.clientX, e.clientY);
 		const hit = hitTest(annotations, pt.x, pt.y);
-		dragRef.current = { pointerId: e.pointerId };
-		e.currentTarget.setPointerCapture(e.pointerId);
 		if (hit) {
+			dragRef.current = { pointerId: e.pointerId };
+			e.currentTarget.setPointerCapture(e.pointerId);
 			selectAnnotation(hit.id);
 			engine.beginMove(hit.id, pt);
-		} else {
-			selectAnnotation(null);
-			engine.beginDraw(pt);
+			return;
 		}
+		// 空クリック: 選択解除 + 描画開始 (ただし Space 押下中は描画しない)
+		selectAnnotation(null);
+		if (spacePressedRef.current) return;
+		dragRef.current = { pointerId: e.pointerId };
+		e.currentTarget.setPointerCapture(e.pointerId);
+		engine.beginDraw(pt);
 	};
 
 	const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {

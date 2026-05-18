@@ -1,5 +1,8 @@
 import { useCallback, useMemo, useRef, useState } from "react";
-import { useSnapcrop } from "~/contexts/snapcrop-context";
+import {
+	type RectEngineHandle,
+	useSnapcrop,
+} from "~/contexts/snapcrop-context";
 import {
 	createRectAnnotation,
 	type ImageMetrics,
@@ -48,6 +51,8 @@ export type UseRectEngineResult = {
 	updateInteraction: (currentImg: ImagePoint) => void;
 	endInteraction: () => void;
 	cancelInteraction: () => void;
+	/** context にぶら下げる用の安定ハンドル。useEffect で ref へ差し込む */
+	handle: RectEngineHandle;
 };
 
 /**
@@ -187,6 +192,18 @@ export function useRectEngine(image: ImageMetrics): UseRectEngineResult {
 		return rect.width > 0 && rect.height > 0 ? rect : null;
 	}, [interaction]);
 
+	// interaction の有無を ref で常に最新参照できるようにしておき、handle 側に
+	// 詰める isInteracting() を `() => boolean` の安定関数として提供する。
+	const interactionRef = useRef<Interaction | null>(null);
+	interactionRef.current = interaction;
+	const handle = useMemo<RectEngineHandle>(
+		() => ({
+			isInteracting: () => interactionRef.current !== null,
+			cancelInteraction,
+		}),
+		[cancelInteraction],
+	);
+
 	return {
 		renderedAnnotations,
 		previewRect,
@@ -197,5 +214,6 @@ export function useRectEngine(image: ImageMetrics): UseRectEngineResult {
 		updateInteraction,
 		endInteraction,
 		cancelInteraction,
+		handle,
 	};
 }
