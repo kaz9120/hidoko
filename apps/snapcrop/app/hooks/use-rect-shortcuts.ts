@@ -55,6 +55,8 @@ export function useRectShortcuts() {
 		const onDown = (event: KeyboardEvent) => {
 			if (event.code !== "Space") return;
 			if (isInputTarget(event.target)) return;
+			// ページスクロールを止める (将来 Space+drag pan の前提)
+			event.preventDefault();
 			spaceRef.current = true;
 		};
 		const onUp = (event: KeyboardEvent) => {

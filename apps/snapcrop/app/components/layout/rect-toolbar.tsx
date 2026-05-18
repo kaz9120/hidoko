@@ -5,6 +5,7 @@ import {
 	SquareStackIcon,
 	Trash2Icon,
 } from "lucide-react";
+import type { ReactNode } from "react";
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "ui";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 import {
@@ -152,7 +153,7 @@ function Divider() {
 	);
 }
 
-function Label({ children }: { children: React.ReactNode }) {
+function Label({ children }: { children: ReactNode }) {
 	return (
 		<span className="font-mono text-[11px] text-muted-foreground">
 			{children}

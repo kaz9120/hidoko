@@ -40,7 +40,10 @@ type Props = {
 	annotation: RectAnnotation;
 	zoom: number;
 	engine: UseRectEngineResult;
-	getImagePoint: (clientX: number, clientY: number) => { x: number; y: number };
+	getImagePoint: (
+		clientX: number,
+		clientY: number,
+	) => { x: number; y: number } | null;
 };
 
 /**
@@ -63,9 +66,10 @@ export function RectSelectionOverlay({
 		h: ResizeHandle,
 	) => {
 		if (e.button !== 0) return;
+		const pt = getImagePoint(e.clientX, e.clientY);
+		if (!pt) return;
 		e.preventDefault();
 		e.stopPropagation();
-		const pt = getImagePoint(e.clientX, e.clientY);
 		dragRef.current = { pointerId: e.pointerId, handle: h };
 		e.currentTarget.setPointerCapture(e.pointerId);
 		engine.beginResize(annotation.id, h, pt);
@@ -75,6 +79,7 @@ export function RectSelectionOverlay({
 		const d = dragRef.current;
 		if (!d || d.pointerId !== e.pointerId) return;
 		const pt = getImagePoint(e.clientX, e.clientY);
+		if (!pt) return;
 		engine.updateInteraction(pt);
 	};
 

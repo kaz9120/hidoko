@@ -7,7 +7,10 @@ import { hitTest, type RectAnnotation } from "~/lib/rect-engine";
 type Props = {
 	engine: UseRectEngineResult;
 	annotations: readonly RectAnnotation[];
-	getImagePoint: (clientX: number, clientY: number) => { x: number; y: number };
+	getImagePoint: (
+		clientX: number,
+		clientY: number,
+	) => { x: number; y: number } | null;
 };
 
 /**
@@ -27,8 +30,9 @@ export function RectInteractionLayer({
 
 	const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
 		if (e.button !== 0) return;
-		e.preventDefault();
 		const pt = getImagePoint(e.clientX, e.clientY);
+		if (!pt) return;
+		e.preventDefault();
 		const hit = hitTest(annotations, pt.x, pt.y);
 		if (hit) {
 			dragRef.current = { pointerId: e.pointerId };
@@ -48,7 +52,9 @@ export function RectInteractionLayer({
 	const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
 		const d = dragRef.current;
 		if (!d || d.pointerId !== e.pointerId) return;
-		engine.updateInteraction(getImagePoint(e.clientX, e.clientY));
+		const pt = getImagePoint(e.clientX, e.clientY);
+		if (!pt) return;
+		engine.updateInteraction(pt);
 	};
 
 	const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {

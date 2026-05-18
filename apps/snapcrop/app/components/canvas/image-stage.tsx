@@ -63,12 +63,15 @@ export function ImageStage({
 	}, [rectEngineHandleRef, rectEngine.handle]);
 
 	// stage 内の座標変換。<img> 要素を基準にして clientX/Y → 画像 px へ。
-	// interaction layer と selection overlay 双方で使う。
+	// interaction layer と selection overlay 双方で使う。画像ロード前や rect が
+	// 取れない状態では null を返し、呼び側で early-return させる
+	// (誤って 0,0 を画像座標として扱わないように)。
 	const getImagePoint = useCallback(
-		(clientX: number, clientY: number) => {
+		(clientX: number, clientY: number): { x: number; y: number } | null => {
 			const img = imgRef.current;
-			if (!img) return { x: 0, y: 0 };
+			if (!img?.complete || img.naturalWidth === 0) return null;
 			const rect = img.getBoundingClientRect();
+			if (rect.width <= 0 || rect.height <= 0) return null;
 			return {
 				x: (clientX - rect.left) / zoom,
 				y: (clientY - rect.top) / zoom,

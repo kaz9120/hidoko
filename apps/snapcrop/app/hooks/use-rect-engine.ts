@@ -64,8 +64,13 @@ export function useRectEngine(image: ImageMetrics): UseRectEngineResult {
 	const { annotations, rectDefaults, createAnnotation, updateAnnotation } =
 		useSnapcrop();
 
-	// interaction は表示にも使うので state で持つ (毎回 re-render する)
+	// interaction は表示にも使うので state で持つ (毎回 re-render する)。
+	// ただし副作用 (createAnnotation / updateAnnotation) を setState updater 内で
+	// 走らせると StrictMode で二重実行されうるため、最新値は interactionRef で
+	// 別途追っておき、endInteraction では ref を読んでから setInteraction(null) する。
 	const [interaction, setInteraction] = useState<Interaction | null>(null);
+	const interactionRef = useRef<Interaction | null>(null);
+	interactionRef.current = interaction;
 
 	const imageRef = useRef(image);
 	imageRef.current = image;
@@ -120,46 +125,47 @@ export function useRectEngine(image: ImageMetrics): UseRectEngineResult {
 	}, []);
 
 	const endInteraction = useCallback(() => {
-		setInteraction((prev) => {
-			if (!prev) return null;
-			const img = imageRef.current;
-			if (prev.kind === "drawing") {
-				const rect = normalizeDrawingRect(prev.startImg, prev.currentImg, img);
-				if (rect.width >= MIN_RECT_SIZE && rect.height >= MIN_RECT_SIZE) {
-					const annotation = createRectAnnotation({
-						...rect,
-						defaults: rectDefaultsRef.current,
-					});
-					createAnnotation(annotation);
-				}
-			} else if (prev.kind === "moving") {
-				const dx = prev.currentImg.x - prev.startImg.x;
-				const dy = prev.currentImg.y - prev.startImg.y;
-				const next = moveAnnotation(prev.startRect, { dx, dy }, img);
-				updateAnnotation(prev.id, {
-					x: next.x,
-					y: next.y,
-					width: next.width,
-					height: next.height,
+		const prev = interactionRef.current;
+		if (!prev) return;
+		const img = imageRef.current;
+		// 副作用を setState の外で先に処理してから state クリア
+		if (prev.kind === "drawing") {
+			const rect = normalizeDrawingRect(prev.startImg, prev.currentImg, img);
+			if (rect.width >= MIN_RECT_SIZE && rect.height >= MIN_RECT_SIZE) {
+				const annotation = createRectAnnotation({
+					...rect,
+					defaults: rectDefaultsRef.current,
 				});
-			} else {
-				const dx = prev.currentImg.x - prev.startImg.x;
-				const dy = prev.currentImg.y - prev.startImg.y;
-				const next = resizeAnnotation(
-					prev.startRect,
-					prev.handle,
-					{ dx, dy },
-					img,
-				);
-				updateAnnotation(prev.id, {
-					x: next.x,
-					y: next.y,
-					width: next.width,
-					height: next.height,
-				});
+				createAnnotation(annotation);
 			}
-			return null;
-		});
+		} else if (prev.kind === "moving") {
+			const dx = prev.currentImg.x - prev.startImg.x;
+			const dy = prev.currentImg.y - prev.startImg.y;
+			const next = moveAnnotation(prev.startRect, { dx, dy }, img);
+			updateAnnotation(prev.id, {
+				x: next.x,
+				y: next.y,
+				width: next.width,
+				height: next.height,
+			});
+		} else {
+			const dx = prev.currentImg.x - prev.startImg.x;
+			const dy = prev.currentImg.y - prev.startImg.y;
+			const next = resizeAnnotation(
+				prev.startRect,
+				prev.handle,
+				{ dx, dy },
+				img,
+			);
+			updateAnnotation(prev.id, {
+				x: next.x,
+				y: next.y,
+				width: next.width,
+				height: next.height,
+			});
+		}
+		interactionRef.current = null;
+		setInteraction(null);
 	}, [createAnnotation, updateAnnotation]);
 
 	// rendered = annotation list + interaction の delta を視覚的に反映
@@ -192,10 +198,7 @@ export function useRectEngine(image: ImageMetrics): UseRectEngineResult {
 		return rect.width > 0 && rect.height > 0 ? rect : null;
 	}, [interaction]);
 
-	// interaction の有無を ref で常に最新参照できるようにしておき、handle 側に
-	// 詰める isInteracting() を `() => boolean` の安定関数として提供する。
-	const interactionRef = useRef<Interaction | null>(null);
-	interactionRef.current = interaction;
+	// handle: 上で持っている interactionRef を参照するだけの安定関数を返す
 	const handle = useMemo<RectEngineHandle>(
 		() => ({
 			isInteracting: () => interactionRef.current !== null,
