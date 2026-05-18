@@ -30,14 +30,14 @@ export const ME: User = {
 	id: "u_me",
 	name: "はる",
 	initial: "は",
-	tone: "#f47d3a",
+	tone: "var(--ember-400)",
 };
 
 export const PARTNER: User = {
 	id: "u_partner",
 	name: "けい",
 	initial: "け",
-	tone: "#c8d4e0",
+	tone: "var(--moon)",
 };
 
 export const STATUS_ITEMS: StatusItem[] = [
@@ -45,7 +45,7 @@ export const STATUS_ITEMS: StatusItem[] = [
 		id: "work-h",
 		name: "夫の勤務",
 		emoji: "👔",
-		color: "#f47d3a",
+		color: "var(--ember-400)",
 		assignee: "partner",
 		options: [
 			{ id: "office", label: "出社", emoji: "🏢" },
@@ -66,7 +66,7 @@ export const STATUS_ITEMS: StatusItem[] = [
 		id: "work-w",
 		name: "妻の勤務",
 		emoji: "💻",
-		color: "#c8d4e0",
+		color: "var(--moon)",
 		assignee: "me",
 		options: [
 			{ id: "office", label: "出社", emoji: "🏢" },
@@ -87,7 +87,7 @@ export const STATUS_ITEMS: StatusItem[] = [
 		id: "bento",
 		name: "弁当",
 		emoji: "🍱",
-		color: "#7a8c5e",
+		color: "var(--moss)",
 		assignee: "me",
 		options: [
 			{ id: "yes", label: "必要", emoji: "🍱" },
@@ -107,7 +107,7 @@ export const STATUS_ITEMS: StatusItem[] = [
 		id: "dinner",
 		name: "晩御飯",
 		emoji: "🍚",
-		color: "#e85d20",
+		color: "var(--ember-500)",
 		assignee: "both",
 		options: [
 			{ id: "home", label: "ふたり家", emoji: "🍚" },
