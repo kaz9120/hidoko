@@ -68,6 +68,15 @@ type SnapcropContextValue = {
 	activeTool: ActiveTool;
 	setActiveTool: (tool: ActiveTool) => void;
 
+	/**
+	 * クロップツールの UI 状態。CropToolbar が読み書きする。画像差し替えで
+	 * 自動的に "free" / 横向き にリセットされる (画像ごとに比率を選び直す前提)。
+	 */
+	cropAspectRatioId: string;
+	setCropAspectRatioId: (id: string) => void;
+	cropIsPortrait: boolean;
+	setCropIsPortrait: (portrait: boolean) => void;
+
 	annotations: readonly RectAnnotation[];
 	selectedAnnotationId: string | null;
 	selectAnnotation: (id: string | null) => void;
@@ -448,12 +457,22 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 	const rectEngineHandleRef = useRef<RectEngineHandle | null>(null);
 	const spacePressedRef = useRef<boolean>(false);
 	const [cropData, setCropData] = useState<CropData | null>(null);
+	const [cropAspectRatioId, setCropAspectRatioIdState] = useState("free");
+	const [cropIsPortrait, setCropIsPortraitState] = useState(false);
 
 	// rectDefaults の変化を localStorage に書き出す。swatch クリック頻度なら
 	// 直接書きで十分 (debounce 不要)。
 	useEffect(() => {
 		saveRectDefaults(state.rectDefaults);
 	}, [state.rectDefaults]);
+
+	// 画像が差し替わったら crop UI 状態をリセット (画像ごとに比率を選び直す)。
+	// 既存 site-header の useEffect ロジックを Provider 側に引き上げ。
+	// biome-ignore lint/correctness/useExhaustiveDependencies: intentional change-detection on image identity
+	useEffect(() => {
+		setCropAspectRatioIdState("free");
+		setCropIsPortraitState(false);
+	}, [state.image.index]);
 
 	const stableSetCropData = useCallback(
 		(data: CropData | null) => setCropData(data),
@@ -529,8 +548,13 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 
 			rectEngineHandleRef,
 			spacePressedRef,
+
+			cropAspectRatioId,
+			setCropAspectRatioId: setCropAspectRatioIdState,
+			cropIsPortrait,
+			setCropIsPortrait: setCropIsPortraitState,
 		};
-	}, [state, cropData, stableSetCropData]);
+	}, [state, cropData, stableSetCropData, cropAspectRatioId, cropIsPortrait]);
 
 	return (
 		<SnapcropContext.Provider value={value}>
