@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useId, useState } from "react";
+import { type FormEvent, useEffect, useId, useMemo, useState } from "react";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -12,7 +12,6 @@ import {
 import { Button } from "ui/components/button";
 import {
 	Dialog,
-	DialogClose,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
@@ -23,6 +22,7 @@ import { Input } from "ui/components/input";
 import { Label } from "ui/components/label";
 import { ME, PARTNER } from "~/lib/data/sample";
 import type { Assignee } from "~/lib/types";
+import { EmojiPicker } from "./EmojiPicker";
 
 export type StatusItemFormValues = {
 	name: string;
@@ -65,6 +65,13 @@ const DEFAULT_VALUES: StatusItemFormValues = {
  * `mode="edit"` のときは `initial` を初期値として埋め、フッターに削除ボタン
  * (AlertDialog 経由で確認 → 削除実行) も出す。
  *
+ * UX 上の守り:
+ *   - 外タップ / ESC は `preventDefault()` で抑止し、明示的な「キャンセル」
+ *     ボタンか「保存 / 追加」完了時だけ閉じる。これにより削除確認 AlertDialog
+ *     のキャンセルで外側 Dialog が連鎖クローズするバグも同時に防ぐ。
+ *   - フォームが dirty な状態で閉じようとしたら「変更を破棄しますか?」を
+ *     AlertDialog で確認。dirty でなければ即座に閉じる。
+ *
  * 本 PR では選択肢 (`options`) と曜日デフォルト (`weekdayDefaults`) の編集 UI
  * は持たない。`name` / `emoji` / `assignee` だけを部分更新する。
  */
@@ -78,6 +85,7 @@ export function StatusItemDialog(props: Props) {
 	const [emoji, setEmoji] = useState(initial.emoji);
 	const [assignee, setAssignee] = useState<Assignee>(initial.assignee);
 	const [confirmDelete, setConfirmDelete] = useState(false);
+	const [confirmDiscard, setConfirmDiscard] = useState(false);
 
 	// 開閉や編集対象切替の度にフォームを初期化する。create → edit、
 	// edit 中に別項目に切替、edit → create の各遷移を吸収する。
@@ -87,8 +95,30 @@ export function StatusItemDialog(props: Props) {
 			setEmoji(initial.emoji);
 			setAssignee(initial.assignee);
 			setConfirmDelete(false);
+			setConfirmDiscard(false);
 		}
 	}, [open, initial.name, initial.emoji, initial.assignee]);
+
+	const dirty = useMemo(
+		() =>
+			name !== initial.name ||
+			emoji !== initial.emoji ||
+			assignee !== initial.assignee,
+		[name, emoji, assignee, initial.name, initial.emoji, initial.assignee],
+	);
+
+	function attemptClose() {
+		if (dirty) {
+			setConfirmDiscard(true);
+		} else {
+			onOpenChange(false);
+		}
+	}
+
+	function discardAndClose() {
+		setConfirmDiscard(false);
+		onOpenChange(false);
+	}
 
 	function handleSubmit(e: FormEvent<HTMLFormElement>) {
 		e.preventDefault();
@@ -108,8 +138,29 @@ export function StatusItemDialog(props: Props) {
 
 	return (
 		<>
-			<Dialog open={open} onOpenChange={onOpenChange}>
-				<DialogContent className="max-w-[360px]">
+			<Dialog
+				open={open}
+				onOpenChange={(v) => {
+					// 開く方向は素通し。閉じる方向は dirty チェック経由。
+					if (v) onOpenChange(true);
+					else attemptClose();
+				}}
+			>
+				<DialogContent
+					className="max-w-[360px]"
+					// 外タップを抑止し、明示的なボタン操作 (キャンセル / 保存) からだけ
+					// 閉じるようにする。これにより:
+					//   - 編集中の内容が誤って消えない
+					//   - 内側で開いた AlertDialog 操作で外側 Dialog が連鎖クローズしない
+					onPointerDownOutside={(e) => {
+						e.preventDefault();
+						attemptClose();
+					}}
+					onEscapeKeyDown={(e) => {
+						e.preventDefault();
+						attemptClose();
+					}}
+				>
 					<DialogHeader>
 						<DialogTitle>{title}</DialogTitle>
 						<DialogDescription>{description}</DialogDescription>
@@ -130,15 +181,11 @@ export function StatusItemDialog(props: Props) {
 						</div>
 						<div className="flex flex-col gap-1.5">
 							<Label htmlFor={emojiId}>絵文字</Label>
-							<Input
+							<EmojiPicker
 								id={emojiId}
 								value={emoji}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-									setEmoji(e.target.value)
-								}
-								placeholder="例: 🗑"
-								required
-								maxLength={4}
+								onChange={setEmoji}
+								ariaLabel="絵文字を選ぶ"
 							/>
 						</div>
 						<fieldset className="flex flex-col gap-1.5 border-0 p-0">
@@ -185,11 +232,9 @@ export function StatusItemDialog(props: Props) {
 									{deleting ? "削除中…" : "削除"}
 								</Button>
 							) : null}
-							<DialogClose asChild>
-								<Button type="button" variant="ghost">
-									キャンセル
-								</Button>
-							</DialogClose>
+							<Button type="button" variant="ghost" onClick={attemptClose}>
+								キャンセル
+							</Button>
 							<Button
 								type="submit"
 								disabled={submitting || !name.trim() || !emoji.trim()}
@@ -227,6 +272,26 @@ export function StatusItemDialog(props: Props) {
 					</AlertDialogContent>
 				</AlertDialog>
 			) : null}
+
+			<AlertDialog open={confirmDiscard} onOpenChange={setConfirmDiscard}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>変更を破棄しますか?</AlertDialogTitle>
+						<AlertDialogDescription>
+							編集中の内容は保存されません。続けて編集する場合はキャンセルしてください。
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>編集を続ける</AlertDialogCancel>
+						<AlertDialogAction
+							onClick={discardAndClose}
+							className="bg-rust text-text-on-ember hover:bg-rust"
+						>
+							破棄する
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 		</>
 	);
 }
