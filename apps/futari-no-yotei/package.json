@@ -6,15 +6,22 @@
 	"scripts": {
 		"build": "react-router build",
 		"dev": "react-router dev",
+		"dev:worker": "wrangler dev",
 		"preview": "bun run build && vite preview",
 		"deploy": "bun run build && wrangler deploy",
 		"deploy:dry": "bun run build && wrangler deploy --dry-run",
 		"typegen": "react-router typegen",
-		"typecheck": "bun run typegen && tsc -b"
+		"typegen:worker": "wrangler types",
+		"typecheck": "bun run typegen && tsc -b",
+		"db:migrate:local": "wrangler d1 migrations apply hidoko-futari-no-yotei --local",
+		"db:migrate:remote": "wrangler d1 migrations apply hidoko-futari-no-yotei --remote",
+		"db:seed:local": "wrangler d1 execute hidoko-futari-no-yotei --local --file=seed/dev.sql",
+		"db:reset:local": "rm -rf .wrangler/state/v3/d1 && bun run db:migrate:local && bun run db:seed:local"
 	},
 	"dependencies": {
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
+		"hono": "^4.12.19",
 		"lucide-react": "^1.14.0",
 		"next-themes": "^0.4.6",
 		"radix-ui": "^1.4.3",

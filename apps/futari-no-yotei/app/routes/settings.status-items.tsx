@@ -1,7 +1,13 @@
 import { GripVertical, Pencil, Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useFetcher, useLoaderData } from "react-router";
+import { toast } from "sonner";
 import { AppShell } from "~/components/layout/AppShell";
-import { ME, PARTNER, STATUS_ITEMS } from "~/lib/data/sample";
-import type { StatusItem, WeekdayKey } from "~/lib/types";
+import { AddStatusItemDialog } from "~/components/settings/AddStatusItemDialog";
+import { ApiError, api } from "~/lib/api/client";
+import type { ApiStatusItem, CreateStatusItemPayload } from "~/lib/api/types";
+import { ME, PARTNER } from "~/lib/data/sample";
+import type { Assignee, StatusOption, WeekdayKey } from "~/lib/types";
 
 export function meta() {
 	return [
@@ -12,6 +18,38 @@ export function meta() {
 		},
 	];
 }
+
+export async function clientLoader() {
+	const items = await api.statusItems.list();
+	return { items };
+}
+
+type ActionOk = { ok: true; item: ApiStatusItem };
+type ActionErr = { ok: false; error: string };
+
+export async function clientAction({
+	request,
+}: {
+	request: Request;
+}): Promise<ActionOk | ActionErr> {
+	const payload = (await request.json()) as CreateStatusItemPayload;
+	try {
+		const item = await api.statusItems.create(payload);
+		return { ok: true, item };
+	} catch (e) {
+		const message =
+			e instanceof ApiError
+				? `保存できませんでした (HTTP ${e.status})`
+				: "保存できませんでした";
+		return { ok: false, error: message };
+	}
+}
+
+/** 新規項目の選択肢の初期値。本 PR では「はい / いいえ」の 2 値で固定。 */
+const DEFAULT_OPTIONS: StatusOption[] = [
+	{ id: "yes", label: "はい", emoji: "✓" },
+	{ id: "no", label: "いいえ", emoji: "✕" },
+];
 
 /** 月→日の並びで weekdayDefaults を表示するためのキー順。 */
 const WEEKDAY_DISPLAY: WeekdayKey[] = [
@@ -34,7 +72,7 @@ const WEEKDAY_DISPLAY_LABEL: Record<WeekdayKey, string> = {
 	sun: "日",
 };
 
-function assigneeMeta(item: StatusItem): { label: string; tone: string } {
+function assigneeMeta(item: ApiStatusItem): { label: string; tone: string } {
 	if (item.assignee === "me")
 		return { label: `${ME.name}が決める`, tone: ME.tone };
 	if (item.assignee === "partner")
@@ -42,7 +80,7 @@ function assigneeMeta(item: StatusItem): { label: string; tone: string } {
 	return { label: "ふたりで", tone: "var(--ink-500)" };
 }
 
-function AssigneeBadge({ item }: { item: StatusItem }) {
+function AssigneeBadge({ item }: { item: ApiStatusItem }) {
 	const { label, tone } = assigneeMeta(item);
 	return (
 		<span
@@ -67,10 +105,11 @@ function OptionChip({ emoji, label }: { emoji: string; label: string }) {
 	);
 }
 
-function WeekdayDefaultsRow({ item }: { item: StatusItem }) {
+function WeekdayDefaultsRow({ item }: { item: ApiStatusItem }) {
 	if (!item.weekdayDefaults) return null;
+	const wd = item.weekdayDefaults;
 	const summary = WEEKDAY_DISPLAY.map((wk) => {
-		const opt = item.options.find((o) => o.id === item.weekdayDefaults?.[wk]);
+		const opt = item.options.find((o) => o.id === wd[wk]);
 		return `${WEEKDAY_DISPLAY_LABEL[wk]}は${opt?.label ?? "未設定"}。`;
 	}).join(" ");
 	return (
@@ -80,9 +119,7 @@ function WeekdayDefaultsRow({ item }: { item: StatusItem }) {
 			</span>
 			<div className="flex flex-1 gap-px" aria-hidden>
 				{WEEKDAY_DISPLAY.map((wk, i) => {
-					const opt = item.options.find(
-						(o) => o.id === item.weekdayDefaults?.[wk],
-					);
+					const opt = item.options.find((o) => o.id === wd[wk]);
 					return (
 						<div
 							key={wk}
@@ -107,7 +144,7 @@ function WeekdayDefaultsRow({ item }: { item: StatusItem }) {
 	);
 }
 
-function ItemCard({ item }: { item: StatusItem }) {
+function ItemCard({ item }: { item: ApiStatusItem }) {
 	return (
 		<div className="mb-2 rounded-md border border-border-subtle bg-bg-raised p-3">
 			<div className="flex items-center gap-2.5">
@@ -128,7 +165,9 @@ function ItemCard({ item }: { item: StatusItem }) {
 				<button
 					type="button"
 					aria-label={`${item.name} を編集`}
-					className="inline-flex items-center gap-1 rounded-sm border border-border-subtle bg-bg-overlay px-2 py-0.5 font-mono text-[10px] text-text-muted transition-colors hover:text-text-strong"
+					aria-disabled="true"
+					className="inline-flex cursor-not-allowed items-center gap-1 rounded-sm border border-border-subtle bg-bg-overlay px-2 py-0.5 font-mono text-[10px] text-text-muted opacity-50"
+					title="編集 (後続 PR で実装)"
 				>
 					<Pencil size={10} strokeWidth={1.75} aria-hidden />
 					編集
@@ -145,6 +184,38 @@ function ItemCard({ item }: { item: StatusItem }) {
 }
 
 export default function SettingsStatusItems() {
+	const { items } = useLoaderData<typeof clientLoader>();
+	const fetcher = useFetcher<typeof clientAction>();
+	const [dialogOpen, setDialogOpen] = useState(false);
+
+	const submitting = fetcher.state !== "idle";
+
+	useEffect(() => {
+		if (fetcher.state === "idle" && fetcher.data) {
+			if (fetcher.data.ok) {
+				toast.success(`「${fetcher.data.item.name}」を追加しました`);
+				setDialogOpen(false);
+			} else {
+				toast.error(fetcher.data.error);
+			}
+		}
+	}, [fetcher.state, fetcher.data]);
+
+	function handleSubmit(payload: {
+		name: string;
+		emoji: string;
+		assignee: Assignee;
+	}) {
+		const body: CreateStatusItemPayload = {
+			...payload,
+			options: DEFAULT_OPTIONS,
+		};
+		fetcher.submit(body, {
+			method: "post",
+			encType: "application/json",
+		});
+	}
+
 	return (
 		<AppShell>
 			<main className="px-3.5 pt-6 pb-20">
@@ -160,7 +231,7 @@ export default function SettingsStatusItems() {
 				</header>
 
 				<ul className="list-none p-0">
-					{STATUS_ITEMS.map((item) => (
+					{items.map((item) => (
 						<li key={item.id}>
 							<ItemCard item={item} />
 						</li>
@@ -169,6 +240,7 @@ export default function SettingsStatusItems() {
 
 				<button
 					type="button"
+					onClick={() => setDialogOpen(true)}
 					className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-md border border-border-strong border-dashed bg-transparent p-3.5 text-sm text-text-muted transition-colors hover:text-text-strong"
 				>
 					<Plus size={14} strokeWidth={1.75} aria-hidden />
@@ -180,10 +252,17 @@ export default function SettingsStatusItems() {
 						テンプレ
 					</div>
 					<div>
-						子育て / ペット / シフト勤務 / 家事分担 — タップで雛形を読み込み
+						子育て / ペット / シフト勤務 / 家事分担 — 後続 PR
+						で雛形を選択できるようにします
 					</div>
 				</aside>
 			</main>
+			<AddStatusItemDialog
+				open={dialogOpen}
+				onOpenChange={setDialogOpen}
+				onSubmit={handleSubmit}
+				submitting={submitting}
+			/>
 		</AppShell>
 	);
 }
