@@ -208,7 +208,10 @@ statusItemsRoute.patch("/:id", async (c) => {
 	const row = await c.env.DB.prepare("SELECT * FROM status_items WHERE id = ?1")
 		.bind(id)
 		.first<DbRow>();
-	return c.json(rowToApi(row as DbRow));
+	// UPDATE と再取得の間に並行リクエストで削除される可能性があるので、
+	// `as DbRow` で握り潰さず null を 404 として返す。
+	if (!row) return c.json({ error: "not found" }, 404);
+	return c.json(rowToApi(row));
 });
 
 statusItemsRoute.delete("/:id", async (c) => {

@@ -85,8 +85,11 @@ export function StatusItemDialog(props: Props) {
 	const [confirmDelete, setConfirmDelete] = useState(false);
 	const [confirmDiscard, setConfirmDiscard] = useState(false);
 
-	// 開閉や編集対象切替の度にフォームを初期化する。create → edit、
-	// edit 中に別項目に切替、edit → create の各遷移を吸収する。
+	// 開く / 表示中の項目データが変わったらフォームを初期化する。
+	// 同一アイテムの「外から再 open」(将来あり得る) も吸収できるように deps を
+	// 細かく取る。別アイテムへの切替は呼び出し側で `key={item.id}` を付けて
+	// remount させる方針 (React の慣用的な state リセット)。これにより、たまたま
+	// name/emoji/assignee が同じ別項目に切り替わっても確実に state がクリアされる。
 	useEffect(() => {
 		if (open) {
 			setName(initial.name);
@@ -182,9 +185,7 @@ export function StatusItemDialog(props: Props) {
 									id={nameId}
 									type="text"
 									value={name}
-									onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-										setName(e.target.value)
-									}
+									onChange={(e) => setName(e.target.value)}
 									placeholder="例: ゴミ出し / 送り迎え"
 									required
 									maxLength={20}
@@ -264,13 +265,17 @@ export function StatusItemDialog(props: Props) {
 						<AlertDialogFooter>
 							<AlertDialogCancel>キャンセル</AlertDialogCancel>
 							<AlertDialogAction
+								// 連打 / Enter 連打で DELETE が二重に飛ばないようガード。
+								// `submitting` (保存中) が立っているケースも、整合性のため弾く。
+								disabled={submitting || deleting}
 								onClick={() => {
+									if (submitting || deleting) return;
 									setConfirmDelete(false);
 									props.onDelete();
 								}}
 								className="bg-rust text-text-on-ember hover:bg-rust"
 							>
-								削除する
+								{deleting ? "削除中…" : "削除する"}
 							</AlertDialogAction>
 						</AlertDialogFooter>
 					</AlertDialogContent>

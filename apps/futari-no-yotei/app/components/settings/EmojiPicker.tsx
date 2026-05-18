@@ -48,11 +48,9 @@ export function EmojiPicker({ value, onChange, contextLabel }: Props) {
 				</button>
 			</PopoverTrigger>
 			<PopoverContent align="start" sideOffset={6} className="w-[320px] p-2">
-				<div
-					role="tablist"
-					aria-label="絵文字のカテゴリ"
-					className="mb-2 flex gap-0.5 overflow-x-auto"
-				>
+				{/* カテゴリ切替は roving tabindex / 矢印キーまで実装していないので
+				    `tablist` ロールは付けない。クリックで切り替わる単純なボタン群 */}
+				<div className="mb-2 flex gap-0.5 overflow-x-auto">
 					{(
 						Object.keys(EMOJI_CATEGORIES) as Array<
 							keyof typeof EMOJI_CATEGORIES
@@ -63,8 +61,7 @@ export function EmojiPicker({ value, onChange, contextLabel }: Props) {
 							<button
 								key={cat}
 								type="button"
-								role="tab"
-								aria-selected={active}
+								aria-pressed={active}
 								onClick={() => setCategory(cat)}
 								className="shrink-0 rounded-sm px-2 py-1 text-[11px] transition-colors"
 								style={{
@@ -88,7 +85,7 @@ export function EmojiPicker({ value, onChange, contextLabel }: Props) {
 								key={emoji}
 								type="button"
 								aria-label={`絵文字 ${emoji}`}
-								aria-current={selected ? "true" : undefined}
+								aria-pressed={selected}
 								onClick={() => pick(emoji)}
 								className="flex h-9 w-9 items-center justify-center rounded-sm text-lg transition-colors hover:bg-bg-overlay focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-1"
 								style={{

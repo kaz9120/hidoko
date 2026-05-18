@@ -74,10 +74,12 @@ export async function clientAction({
 			}
 		}
 	} catch (e) {
-		const message =
-			e instanceof ApiError
-				? `保存できませんでした (HTTP ${e.status})`
+		const baseMessage =
+			body.intent === "delete"
+				? "削除できませんでした"
 				: "保存できませんでした";
+		const message =
+			e instanceof ApiError ? `${baseMessage} (HTTP ${e.status})` : baseMessage;
 		return { ok: false, intent: body.intent, error: message };
 	}
 }
@@ -343,7 +345,13 @@ export default function SettingsStatusItems() {
 				/>
 			) : null}
 			{dialogState?.mode === "edit" ? (
+				// `key` に item.id を渡すことで、編集対象が別アイテムに切り替わったら
+				// React 側で確実に unmount → remount される。これにより、たまたま
+				// name/emoji/assignee が前と同じ別アイテムへ遷移しても、内部 state が
+				// 残らない。useEffect の deps で吸収するよりも確実で、deps の漏れに
+				// 強い。
 				<StatusItemDialog
+					key={dialogState.item.id}
 					mode="edit"
 					open
 					onOpenChange={(v) => {
