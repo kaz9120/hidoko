@@ -42,12 +42,15 @@ function rowToApi(row: DbRow): ApiDayStatus {
 
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
+/** 範囲取得が一度に許容する最大日数。過大な範囲で D1 を疲弊させない上限。 */
+const MAX_RANGE_DAYS = 31;
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
 export const dayStatusesRoute = new Hono<{ Bindings: Env }>();
 
 /**
  * 範囲取得。`from` / `to` は YYYY-MM-DD 形式の inclusive 範囲。
- * 範囲未指定なら直近 7 日 (今日含む). 範囲は最大 31 日に制限し、過大なクエリで
- * D1 を疲弊させないようにする。
+ * 範囲未指定なら全件 (ペア内) を返す。範囲指定時は最大 31 日に制限する。
  */
 dayStatusesRoute.get("/", async (c) => {
 	const { pairId } = c.get("auth");
@@ -59,6 +62,18 @@ dayStatusesRoute.get("/", async (c) => {
 	}
 	if (from && to && from > to) {
 		return c.json({ error: "from must be <= to" }, 400);
+	}
+	if (from && to) {
+		// 文字列比較は `>` までしか担保できないので、日数差は `Date` 換算で見る。
+		// ISO_DATE_RE を通っているので `Date.parse` は安全。
+		const days =
+			Math.floor((Date.parse(to) - Date.parse(from)) / MS_PER_DAY) + 1;
+		if (days > MAX_RANGE_DAYS) {
+			return c.json(
+				{ error: `date range must be at most ${MAX_RANGE_DAYS} days` },
+				400,
+			);
+		}
 	}
 
 	const rows = await (from && to
@@ -128,13 +143,18 @@ dayStatusesRoute.put("/", async (c) => {
 		return c.json({ error: "validation failed", details: errors }, 400);
 	}
 	const body = raw as UpsertBody;
+	// 検証時 `trim()` で空白のみを弾いたが、前後の空白付き値はそのまま通る。
+	// "abc " と "abc" が別行として認識されて重複したり、検索で漏れたりするのを
+	// 防ぐため、保存も trim 済み値で揃える (status-items.ts と同じ方針)。
+	const statusItemId = body.statusItemId.trim();
+	const optionId = body.optionId.trim();
 
 	// status_item_id がこの pair に属することを確認 (他ペアの id を指定して
 	// 横断的に書き込めないようにする最終ガード)
 	const owned = await c.env.DB.prepare(
 		"SELECT id FROM status_items WHERE id = ?1 AND pair_id = ?2",
 	)
-		.bind(body.statusItemId, pairId)
+		.bind(statusItemId, pairId)
 		.first<{ id: string }>();
 	if (!owned) return c.json({ error: "status item not found" }, 404);
 
@@ -147,13 +167,13 @@ dayStatusesRoute.put("/", async (c) => {
 		   updated_by = excluded.updated_by,
 		   updated_at = excluded.updated_at`,
 	)
-		.bind(pairId, body.date, body.statusItemId, body.optionId, userId)
+		.bind(pairId, body.date, statusItemId, optionId, userId)
 		.run();
 
 	const row = await c.env.DB.prepare(
 		"SELECT * FROM day_statuses WHERE pair_id = ?1 AND date = ?2 AND status_item_id = ?3",
 	)
-		.bind(pairId, body.date, body.statusItemId)
+		.bind(pairId, body.date, statusItemId)
 		.first<DbRow>();
 	if (!row)
 		return c.json({ error: "internal: upsert did not produce row" }, 500);

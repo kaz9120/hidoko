@@ -65,8 +65,10 @@ export async function clientAction({
 }: {
 	request: Request;
 }): Promise<ActionOk | ActionErr> {
-	const body = (await request.json()) as PutDayStatusPayload;
 	try {
+		// `request.json()` の失敗 (送信側がボディを壊す稀ケース) も
+		// `ActionErr` に包んで UI 側のエラー表示経路に乗せる。
+		const body = (await request.json()) as PutDayStatusPayload;
 		const item = await api.dayStatuses.put(body);
 		return { ok: true, item };
 	} catch (e) {

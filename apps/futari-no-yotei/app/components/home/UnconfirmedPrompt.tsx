@@ -75,7 +75,10 @@ export function UnconfirmedPrompt({
 								if (submitting) return;
 								onPick(o.id);
 							}}
-							disabled={submitting && !pending}
+							// 送信中は全ボタンを `disabled` にし、進行中の対象は `aria-busy` で
+							// 示す。見た目と実際の操作可否を一致させる (押せそうに見えるが
+							// onClick が無視される、を防ぐ)。
+							disabled={submitting}
 							aria-pressed={selected}
 							aria-busy={pending}
 							className="flex flex-1 flex-col items-center gap-0.5 rounded-sm border bg-bg-overlay px-0.5 py-2 text-[10px] transition-colors focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
