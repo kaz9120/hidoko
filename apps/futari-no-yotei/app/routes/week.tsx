@@ -55,11 +55,14 @@ export default function Week() {
 					</p>
 				</header>
 
+				{/* 週送りは本実装が後続 PR のため aria-disabled で SR に伝え、視覚的にも
+				    弱める。実装後に aria-disabled とスタイルを外して active 化する。 */}
 				<nav aria-label="週ナビゲーション" className="mb-3.5 flex items-center">
 					<button
 						type="button"
 						aria-label="先週へ"
-						className="flex h-7 w-7 items-center justify-center rounded-md border-0 bg-transparent text-text-muted transition-colors hover:text-text-strong focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
+						aria-disabled="true"
+						className="flex h-7 w-7 cursor-not-allowed items-center justify-center rounded-md border-0 bg-transparent text-text-faint opacity-50 focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
 					>
 						<ChevronLeft size={16} strokeWidth={1.75} aria-hidden />
 					</button>
@@ -74,7 +77,8 @@ export default function Week() {
 					<button
 						type="button"
 						aria-label="来週へ"
-						className="flex h-7 w-7 items-center justify-center rounded-md border-0 bg-transparent text-text-muted transition-colors hover:text-text-strong focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
+						aria-disabled="true"
+						className="flex h-7 w-7 cursor-not-allowed items-center justify-center rounded-md border-0 bg-transparent text-text-faint opacity-50 focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
 					>
 						<ChevronRight size={16} strokeWidth={1.75} aria-hidden />
 					</button>
