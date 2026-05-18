@@ -25,10 +25,12 @@ export type ImageStageProps = {
  *   1. <img>                          画像本体 (pointer-events:none)
  *   2. <MosaicLayer>                  mosaic スタイルだけを canvas で焼く
  *   3. <AnnotationLayer>              SVG outline / fill
- *   4. <RectSelectionOverlay>         1px ring + 8 handle (handle のみ events:auto)
- *   5. <RectPreviewOverlay>           drawing 中の破線プレビュー
- *   6. <CropFrame>                    activeTool==='crop' のとき
- *   7. <RectInteractionLayer>         activeTool==='rect' のとき、stage 全体の hit
+ *   4. <RectInteractionLayer>         activeTool==='rect' のとき、stage 全体の hit
+ *                                     (SelectionOverlay の下に置くことで handle
+ *                                     クリックを奪わない)
+ *   5. <RectSelectionOverlay>         1px ring + 8 handle (handle のみ events:auto)
+ *   6. <RectPreviewOverlay>           drawing 中の破線プレビュー
+ *   7. <CropFrame>                    activeTool==='crop' のとき
  */
 export function ImageStage({
 	image,
@@ -103,6 +105,19 @@ export function ImageStage({
 				imageHeight={image.height}
 				imageWidth={image.width}
 			/>
+			{/*
+			 * RectInteractionLayer は SelectionOverlay の手前に置くと選択ハンドル
+			 * へのクリックが奪われるため、先に配置 (= 視覚的に下) する。本体クリック
+			 * は SelectionOverlay の body 側を pointer-events:none にして
+			 * InteractionLayer に流す。
+			 */}
+			{activeTool === "rect" && (
+				<RectInteractionLayer
+					annotations={annotations}
+					engine={rectEngine}
+					getImagePoint={getImagePoint}
+				/>
+			)}
 			{selectedRendered && (
 				<RectSelectionOverlay
 					annotation={selectedRendered}
@@ -121,13 +136,6 @@ export function ImageStage({
 				/>
 			)}
 			{activeTool === "crop" && <CropFrame engine={cropEngine} zoom={zoom} />}
-			{activeTool === "rect" && (
-				<RectInteractionLayer
-					annotations={annotations}
-					engine={rectEngine}
-					getImagePoint={getImagePoint}
-				/>
-			)}
 		</>
 	);
 }
