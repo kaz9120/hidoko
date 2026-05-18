@@ -28,7 +28,7 @@ export function ToolRail() {
 	return (
 		<aside
 			aria-label="編集ツール"
-			className="flex w-11 shrink-0 flex-col items-center gap-1 border-border border-r bg-[var(--ink-50)] py-2"
+			className="flex w-11 shrink-0 flex-col items-center gap-1 border-border border-r bg-[var(--bg-overlay)] py-2"
 		>
 			{TOOLS.map((tool) => {
 				const Icon = tool.icon;

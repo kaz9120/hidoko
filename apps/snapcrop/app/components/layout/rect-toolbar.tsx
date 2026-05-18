@@ -87,7 +87,7 @@ export function RectToolbar() {
 	return (
 		<div
 			aria-label="矩形ツールのプロパティ"
-			className="flex h-[38px] shrink-0 items-center gap-2.5 border-border border-b bg-[var(--ink-50)] px-3.5"
+			className="flex h-[38px] shrink-0 items-center gap-2.5 border-border border-b bg-[var(--bg-overlay)] px-3.5"
 			role="toolbar"
 		>
 			<span
