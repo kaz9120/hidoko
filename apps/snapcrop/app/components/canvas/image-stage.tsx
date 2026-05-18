@@ -1,6 +1,7 @@
 import { type RefObject, useCallback, useMemo } from "react";
 import { AnnotationLayer } from "~/components/canvas/annotation-layer";
 import { CropFrame } from "~/components/canvas/crop-frame";
+import { MosaicLayer } from "~/components/canvas/mosaic-layer";
 import { RectInteractionLayer } from "~/components/canvas/rect-interaction-layer";
 import { RectPreviewOverlay } from "~/components/canvas/rect-preview-overlay";
 import { RectSelectionOverlay } from "~/components/canvas/rect-selection-overlay";
@@ -22,11 +23,12 @@ export type ImageStageProps = {
  *
  * z-order (上に行くほど前):
  *   1. <img>                          画像本体 (pointer-events:none)
- *   2. <AnnotationLayer>              SVG outline / fill (mosaic は Step 5)
- *   3. <RectSelectionOverlay>         1px ring + 8 handle (handle のみ events:auto)
- *   4. <RectPreviewOverlay>           drawing 中の破線プレビュー
- *   5. <CropFrame>                    activeTool==='crop' のとき
- *   6. <RectInteractionLayer>         activeTool==='rect' のとき、stage 全体の hit
+ *   2. <MosaicLayer>                  mosaic スタイルだけを canvas で焼く
+ *   3. <AnnotationLayer>              SVG outline / fill
+ *   4. <RectSelectionOverlay>         1px ring + 8 handle (handle のみ events:auto)
+ *   5. <RectPreviewOverlay>           drawing 中の破線プレビュー
+ *   6. <CropFrame>                    activeTool==='crop' のとき
+ *   7. <RectInteractionLayer>         activeTool==='rect' のとき、stage 全体の hit
  */
 export function ImageStage({
 	image,
@@ -74,6 +76,13 @@ export function ImageStage({
 				draggable={false}
 				ref={imgRef}
 				src={image.src}
+			/>
+			<MosaicLayer
+				annotations={rectEngine.renderedAnnotations}
+				imageHeight={image.height}
+				imageSrc={image.src}
+				imageWidth={image.width}
+				imgRef={imgRef}
 			/>
 			<AnnotationLayer
 				annotations={rectEngine.renderedAnnotations}
