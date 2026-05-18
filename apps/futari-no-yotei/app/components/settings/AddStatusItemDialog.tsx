@@ -51,6 +51,8 @@ export function AddStatusItemDialog({
 
 	function handleSubmit(e: FormEvent<HTMLFormElement>) {
 		e.preventDefault();
+		// 連打 / Enter 連打で同一項目を重複作成しないよう、送信中は弾く
+		if (submitting) return;
 		if (!name.trim() || !emoji.trim()) return;
 		onSubmit({ name: name.trim(), emoji: emoji.trim(), assignee });
 	}

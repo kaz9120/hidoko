@@ -47,9 +47,18 @@ async function request<T>(
 		body: body === undefined ? undefined : JSON.stringify(body),
 	});
 	const text = await res.text();
-	const json: unknown = text ? JSON.parse(text) : null;
-	if (!res.ok) throw new ApiError(res.status, json);
-	return json as T;
+	// JSON で返らないケース (Worker のエラー応答が HTML / プレーンテキスト等)
+	// に備え、parse 失敗時は生テキストを ApiError のボディに載せる。
+	let parsed: unknown = null;
+	if (text) {
+		try {
+			parsed = JSON.parse(text);
+		} catch {
+			parsed = text;
+		}
+	}
+	if (!res.ok) throw new ApiError(res.status, parsed);
+	return parsed as T;
 }
 
 export const api = {

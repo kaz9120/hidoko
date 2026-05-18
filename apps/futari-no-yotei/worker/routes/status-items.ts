@@ -80,7 +80,12 @@ type CreateBody = {
 
 statusItemsRoute.post("/", async (c) => {
 	const { pairId } = c.get("auth");
-	const body = await c.req.json<CreateBody>();
+	let body: CreateBody;
+	try {
+		body = await c.req.json<CreateBody>();
+	} catch {
+		return c.json({ error: "invalid json body" }, 400);
+	}
 
 	const errors = validateCreate(body);
 	if (errors) {
