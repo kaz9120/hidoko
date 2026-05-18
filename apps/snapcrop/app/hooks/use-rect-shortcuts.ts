@@ -2,15 +2,25 @@ import { useEffect, useRef } from "react";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 
 /**
- * 矩形ツール用のキーボードショートカット。Step2 では R/V/Esc のみ。
- * Step3 以降で Backspace/Delete (削除) と矢印 (nudge) を追加する。
+ * 矩形ツール用のキーボードショートカット。Step3 時点では:
+ *   R                 → 矩形ツール
+ *   V                 → クロップツール (= 既存ツール)
+ *   Esc               → 選択解除
+ *   Backspace/Delete  → 選択中の矩形を削除
+ *
+ * Esc 中の描画キャンセル / 矢印 nudge / Space pan 抑制は Step 6 で追加する。
  *
  * 入力欄 (input / textarea / contenteditable) と IME 入力中は無効化する。
- * Cmd/Ctrl 等の修飾キー単独の組合せは既存ハンドラ (⌘Z 等) と衝突しないよう
- * 修飾なしの単独キーだけを判定する。
+ * Cmd/Ctrl/Alt 修飾は既存ハンドラ (⌘Z 等) と衝突しないよう修飾なしの単独キーだけを判定する。
  */
 export function useRectShortcuts() {
-	const { image, setActiveTool, selectAnnotation } = useSnapcrop();
+	const {
+		image,
+		setActiveTool,
+		selectAnnotation,
+		selectedAnnotationId,
+		deleteAnnotation,
+	} = useSnapcrop();
 
 	const imageRef = useRef(image);
 	imageRef.current = image;
@@ -18,6 +28,10 @@ export function useRectShortcuts() {
 	setActiveToolRef.current = setActiveTool;
 	const selectAnnotationRef = useRef(selectAnnotation);
 	selectAnnotationRef.current = selectAnnotation;
+	const selectedIdRef = useRef(selectedAnnotationId);
+	selectedIdRef.current = selectedAnnotationId;
+	const deleteAnnotationRef = useRef(deleteAnnotation);
+	deleteAnnotationRef.current = deleteAnnotation;
 
 	useEffect(() => {
 		const handler = (event: KeyboardEvent) => {
@@ -43,6 +57,12 @@ export function useRectShortcuts() {
 				setActiveToolRef.current("crop");
 			} else if (event.key === "Escape") {
 				selectAnnotationRef.current(null);
+			} else if (event.key === "Backspace" || event.key === "Delete") {
+				const id = selectedIdRef.current;
+				if (id) {
+					event.preventDefault();
+					deleteAnnotationRef.current(id);
+				}
 			}
 		};
 		document.addEventListener("keydown", handler);

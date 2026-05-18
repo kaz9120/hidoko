@@ -93,7 +93,7 @@ function ImageCanvas({
 					zoom={zoom}
 				>
 					<ImageStage
-						engine={engine}
+						cropEngine={engine}
 						image={image}
 						imgRef={imgRef}
 						zoom={zoom}
