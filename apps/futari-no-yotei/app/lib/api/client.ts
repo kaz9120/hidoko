@@ -11,8 +11,10 @@
  */
 
 import type {
+	ApiDayStatus,
 	ApiStatusItem,
 	CreateStatusItemPayload,
+	PutDayStatusPayload,
 	UpdateStatusItemPayload,
 } from "./types";
 
@@ -89,6 +91,15 @@ export const api = {
 			request<ApiStatusItem>("PATCH", `/api/status-items/${id}`, payload),
 		remove: (id: string) =>
 			request<{ ok: true }>("DELETE", `/api/status-items/${id}`),
+	},
+	dayStatuses: {
+		list: (from: string, to: string) =>
+			request<ApiDayStatus[]>(
+				"GET",
+				`/api/day-statuses?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+			),
+		put: (payload: PutDayStatusPayload) =>
+			request<ApiDayStatus>("PUT", "/api/day-statuses", payload),
 	},
 };
 
