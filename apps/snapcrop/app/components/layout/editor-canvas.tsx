@@ -4,12 +4,14 @@ import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "ui";
 import { ImageStage } from "~/components/canvas/image-stage";
 import { Viewport, type ViewportHandle } from "~/components/canvas/viewport";
+import { ToolRail } from "~/components/layout/tool-rail";
 import { type LoadedImage, useSnapcrop } from "~/contexts/snapcrop-context";
 import { useCanvasShortcuts } from "~/hooks/use-canvas-shortcuts";
 import { useClipboardPaste } from "~/hooks/use-clipboard-paste";
 import { useCopyShortcut } from "~/hooks/use-copy-shortcut";
 import { useCropEngine } from "~/hooks/use-crop-engine";
 import { useFileDrop } from "~/hooks/use-file-drop";
+import { useRectShortcuts } from "~/hooks/use-rect-shortcuts";
 import { useSelectAllShortcut } from "~/hooks/use-select-all-shortcut";
 import { writeImageToClipboard } from "~/lib/clipboard";
 import {
@@ -29,6 +31,7 @@ export function EditorCanvas() {
 		onFailure: () => toast.error("クリップボードへのコピーに失敗しました"),
 	});
 	useSelectAllShortcut({ cropperRef, hasImage: image !== null });
+	useRectShortcuts();
 
 	if (image) {
 		// 画像 src が変わったら engine を作り直すために key を付ける。
@@ -81,16 +84,24 @@ function ImageCanvas({
 
 	return (
 		<section className="relative flex flex-1 overflow-hidden bg-[var(--ink-0)]">
-			<Viewport
-				image={{ width: image.width, height: image.height }}
-				onZoomChange={setZoom}
-				ref={viewportRef}
-				zoom={zoom}
-			>
-				<ImageStage engine={engine} image={image} imgRef={imgRef} zoom={zoom} />
-			</Viewport>
-			{isDragging && <DropOverlay />}
-			<CanvasActions />
+			<ToolRail />
+			<div className="relative min-w-0 flex-1">
+				<Viewport
+					image={{ width: image.width, height: image.height }}
+					onZoomChange={setZoom}
+					ref={viewportRef}
+					zoom={zoom}
+				>
+					<ImageStage
+						engine={engine}
+						image={image}
+						imgRef={imgRef}
+						zoom={zoom}
+					/>
+				</Viewport>
+				{isDragging && <DropOverlay />}
+				<CanvasActions />
+			</div>
 		</section>
 	);
 }
