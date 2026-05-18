@@ -25,3 +25,16 @@ export type CreateStatusItemPayload = {
 	options: StatusOption[];
 	weekdayDefaults?: Partial<Record<WeekdayKey, string>> | null;
 };
+
+/**
+ * PATCH /api/status-items/:id の payload。すべて optional で、与えられた
+ * フィールドだけが差分更新される。
+ */
+export type UpdateStatusItemPayload = Partial<{
+	name: string;
+	emoji: string;
+	color: string;
+	assignee: Assignee;
+	options: StatusOption[];
+	weekdayDefaults: Partial<Record<WeekdayKey, string>> | null;
+}>;

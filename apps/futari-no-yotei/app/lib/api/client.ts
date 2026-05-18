@@ -10,7 +10,11 @@
  * 撤去する。
  */
 
-import type { ApiStatusItem, CreateStatusItemPayload } from "./types";
+import type {
+	ApiStatusItem,
+	CreateStatusItemPayload,
+	UpdateStatusItemPayload,
+} from "./types";
 
 /**
  * 開発バイパス用のダミーユーザー ID。`X-Dev-User` ヘッダで Worker の
@@ -81,6 +85,10 @@ export const api = {
 		list: () => request<ApiStatusItem[]>("GET", "/api/status-items"),
 		create: (payload: CreateStatusItemPayload) =>
 			request<ApiStatusItem>("POST", "/api/status-items", payload),
+		update: (id: string, payload: UpdateStatusItemPayload) =>
+			request<ApiStatusItem>("PATCH", `/api/status-items/${id}`, payload),
+		remove: (id: string) =>
+			request<{ ok: true }>("DELETE", `/api/status-items/${id}`),
 	},
 };
 

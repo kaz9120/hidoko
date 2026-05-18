@@ -3,11 +3,18 @@ import { useEffect, useState } from "react";
 import { useFetcher, useLoaderData } from "react-router";
 import { toast } from "sonner";
 import { AppShell } from "~/components/layout/AppShell";
-import { AddStatusItemDialog } from "~/components/settings/AddStatusItemDialog";
+import {
+	StatusItemDialog,
+	type StatusItemFormValues,
+} from "~/components/settings/StatusItemDialog";
 import { ApiError, api } from "~/lib/api/client";
-import type { ApiStatusItem, CreateStatusItemPayload } from "~/lib/api/types";
+import type {
+	ApiStatusItem,
+	CreateStatusItemPayload,
+	UpdateStatusItemPayload,
+} from "~/lib/api/types";
 import { ME, PARTNER } from "~/lib/data/sample";
-import type { Assignee, StatusOption, WeekdayKey } from "~/lib/types";
+import type { StatusOption, WeekdayKey } from "~/lib/types";
 
 export function meta() {
 	return [
@@ -24,24 +31,54 @@ export async function clientLoader() {
 	return { items };
 }
 
-type ActionOk = { ok: true; item: ApiStatusItem };
-type ActionErr = { ok: false; error: string };
+type CreateIntent = {
+	intent: "create";
+	payload: CreateStatusItemPayload;
+};
+type UpdateIntent = {
+	intent: "update";
+	id: string;
+	payload: UpdateStatusItemPayload;
+};
+type DeleteIntent = {
+	intent: "delete";
+	id: string;
+};
+type ActionBody = CreateIntent | UpdateIntent | DeleteIntent;
+
+type ActionOk =
+	| { ok: true; intent: "create"; item: ApiStatusItem }
+	| { ok: true; intent: "update"; item: ApiStatusItem }
+	| { ok: true; intent: "delete"; id: string };
+type ActionErr = { ok: false; intent: ActionBody["intent"]; error: string };
 
 export async function clientAction({
 	request,
 }: {
 	request: Request;
 }): Promise<ActionOk | ActionErr> {
-	const payload = (await request.json()) as CreateStatusItemPayload;
+	const body = (await request.json()) as ActionBody;
 	try {
-		const item = await api.statusItems.create(payload);
-		return { ok: true, item };
+		switch (body.intent) {
+			case "create": {
+				const item = await api.statusItems.create(body.payload);
+				return { ok: true, intent: "create", item };
+			}
+			case "update": {
+				const item = await api.statusItems.update(body.id, body.payload);
+				return { ok: true, intent: "update", item };
+			}
+			case "delete": {
+				await api.statusItems.remove(body.id);
+				return { ok: true, intent: "delete", id: body.id };
+			}
+		}
 	} catch (e) {
 		const message =
 			e instanceof ApiError
 				? `保存できませんでした (HTTP ${e.status})`
 				: "保存できませんでした";
-		return { ok: false, error: message };
+		return { ok: false, intent: body.intent, error: message };
 	}
 }
 
@@ -144,14 +181,20 @@ function WeekdayDefaultsRow({ item }: { item: ApiStatusItem }) {
 	);
 }
 
-function ItemCard({ item }: { item: ApiStatusItem }) {
+function ItemCard({
+	item,
+	onEdit,
+}: {
+	item: ApiStatusItem;
+	onEdit: (item: ApiStatusItem) => void;
+}) {
 	return (
 		<div className="mb-2 rounded-md border border-border-subtle bg-bg-raised p-3">
 			<div className="flex items-center gap-2.5">
 				<span
 					aria-hidden
 					className="cursor-grab px-px text-text-faint"
-					title="ドラッグして並び替え（未実装）"
+					title="ドラッグして並び替え（後続 PR）"
 				>
 					<GripVertical size={14} strokeWidth={1.75} />
 				</span>
@@ -165,9 +208,8 @@ function ItemCard({ item }: { item: ApiStatusItem }) {
 				<button
 					type="button"
 					aria-label={`${item.name} を編集`}
-					aria-disabled="true"
-					className="inline-flex cursor-not-allowed items-center gap-1 rounded-sm border border-border-subtle bg-bg-overlay px-2 py-0.5 font-mono text-[10px] text-text-muted opacity-50"
-					title="編集 (後続 PR で実装)"
+					onClick={() => onEdit(item)}
+					className="inline-flex cursor-pointer items-center gap-1 rounded-sm border border-border-subtle bg-bg-overlay px-2 py-0.5 font-mono text-[10px] text-text-muted transition-colors hover:text-text-strong"
 				>
 					<Pencil size={10} strokeWidth={1.75} aria-hidden />
 					編集
@@ -183,37 +225,65 @@ function ItemCard({ item }: { item: ApiStatusItem }) {
 	);
 }
 
+type DialogState =
+	| { mode: "create" }
+	| { mode: "edit"; item: ApiStatusItem }
+	| null;
+
 export default function SettingsStatusItems() {
 	const { items } = useLoaderData<typeof clientLoader>();
 	const fetcher = useFetcher<typeof clientAction>();
-	const [dialogOpen, setDialogOpen] = useState(false);
+	const [dialogState, setDialogState] = useState<DialogState>(null);
 
 	const submitting = fetcher.state !== "idle";
+	// JSON encType の場合 `fetcher.formData` は埋まらないので `fetcher.json` 経由で
+	// 進行中の intent を読む。
+	const inflight = fetcher.json as ActionBody | undefined;
+	const submittingForm =
+		submitting &&
+		(inflight?.intent === "create" || inflight?.intent === "update");
+	const deleting = submitting && inflight?.intent === "delete";
 
 	useEffect(() => {
-		if (fetcher.state === "idle" && fetcher.data) {
-			if (fetcher.data.ok) {
-				toast.success(`「${fetcher.data.item.name}」を追加しました`);
-				setDialogOpen(false);
-			} else {
-				toast.error(fetcher.data.error);
+		if (fetcher.state !== "idle" || !fetcher.data) return;
+		const result = fetcher.data;
+		if (result.ok) {
+			if (result.intent === "create") {
+				toast.success(`「${result.item.name}」を追加しました`);
+				setDialogState(null);
+			} else if (result.intent === "update") {
+				toast.success(`「${result.item.name}」を保存しました`);
+				setDialogState(null);
+			} else if (result.intent === "delete") {
+				toast.success("項目を削除しました");
+				setDialogState(null);
 			}
+		} else {
+			toast.error(result.error);
 		}
 	}, [fetcher.state, fetcher.data]);
 
-	function handleSubmit(payload: {
-		name: string;
-		emoji: string;
-		assignee: Assignee;
-	}) {
-		const body: CreateStatusItemPayload = {
-			...payload,
-			options: DEFAULT_OPTIONS,
-		};
-		fetcher.submit(body, {
-			method: "post",
-			encType: "application/json",
+	function submitIntent(body: ActionBody) {
+		fetcher.submit(body, { method: "post", encType: "application/json" });
+	}
+
+	function handleCreate(values: StatusItemFormValues) {
+		submitIntent({
+			intent: "create",
+			payload: { ...values, options: DEFAULT_OPTIONS },
 		});
+	}
+
+	function handleUpdate(id: string, values: StatusItemFormValues) {
+		submitIntent({
+			intent: "update",
+			id,
+			payload: values,
+		});
+	}
+
+	function handleDelete(id: string) {
+		submitIntent({ intent: "delete", id });
 	}
 
 	return (
@@ -233,14 +303,17 @@ export default function SettingsStatusItems() {
 				<ul className="list-none p-0">
 					{items.map((item) => (
 						<li key={item.id}>
-							<ItemCard item={item} />
+							<ItemCard
+								item={item}
+								onEdit={(it) => setDialogState({ mode: "edit", item: it })}
+							/>
 						</li>
 					))}
 				</ul>
 
 				<button
 					type="button"
-					onClick={() => setDialogOpen(true)}
+					onClick={() => setDialogState({ mode: "create" })}
 					className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-md border border-border-strong border-dashed bg-transparent p-3.5 text-sm text-text-muted transition-colors hover:text-text-strong"
 				>
 					<Plus size={14} strokeWidth={1.75} aria-hidden />
@@ -257,12 +330,37 @@ export default function SettingsStatusItems() {
 					</div>
 				</aside>
 			</main>
-			<AddStatusItemDialog
-				open={dialogOpen}
-				onOpenChange={setDialogOpen}
-				onSubmit={handleSubmit}
-				submitting={submitting}
-			/>
+
+			{dialogState?.mode === "create" ? (
+				<StatusItemDialog
+					mode="create"
+					open
+					onOpenChange={(v) => {
+						if (!v) setDialogState(null);
+					}}
+					onSubmit={handleCreate}
+					submitting={submittingForm}
+				/>
+			) : null}
+			{dialogState?.mode === "edit" ? (
+				<StatusItemDialog
+					mode="edit"
+					open
+					onOpenChange={(v) => {
+						if (!v) setDialogState(null);
+					}}
+					initial={{
+						id: dialogState.item.id,
+						name: dialogState.item.name,
+						emoji: dialogState.item.emoji,
+						assignee: dialogState.item.assignee,
+					}}
+					onSubmit={(values) => handleUpdate(dialogState.item.id, values)}
+					onDelete={() => handleDelete(dialogState.item.id)}
+					submitting={submittingForm}
+					deleting={deleting}
+				/>
+			) : null}
 		</AppShell>
 	);
 }
