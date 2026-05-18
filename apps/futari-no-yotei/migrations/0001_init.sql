@@ -25,6 +25,9 @@ CREATE TABLE users (
 );
 
 -- ステータス項目 (家庭ごとに完全可変)
+-- options / weekday_defaults の `json_valid()` チェックは、API バリデーションを
+-- すり抜けた値 (手動 INSERT / 将来の admin RPC 等) が混入したときに JSON.parse 側で
+-- 500 を誘発するのを DB レイヤで防ぐ。
 CREATE TABLE status_items (
   id TEXT PRIMARY KEY,
   pair_id TEXT NOT NULL REFERENCES pairs(id),
@@ -33,8 +36,8 @@ CREATE TABLE status_items (
   color TEXT NOT NULL,
   assignee TEXT NOT NULL CHECK (assignee IN ('me', 'partner', 'both')),
   sort_order INTEGER NOT NULL DEFAULT 0,
-  options TEXT NOT NULL,            -- JSON: [{id, label, emoji}, ...]
-  weekday_defaults TEXT,            -- JSON: {mon, tue, ..., sun} | NULL
+  options TEXT NOT NULL CHECK (json_valid(options)),
+  weekday_defaults TEXT CHECK (weekday_defaults IS NULL OR json_valid(weekday_defaults)),
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
