@@ -92,7 +92,7 @@ export function RectToolbar() {
 		>
 			<span
 				className={`font-mono text-[10px] tracking-[0.08em] uppercase ${
-					selected ? "text-[var(--ember-300)]" : "text-muted-foreground"
+					selected ? "text-[var(--accent)]" : "text-muted-foreground"
 				}`}
 			>
 				{selected ? "選択中" : "矩形"}
@@ -179,7 +179,7 @@ function StyleControl({
 						aria-label={opt.label}
 						className={`inline-flex h-[22px] min-w-7 cursor-pointer items-center justify-center gap-1 rounded-[3px] border-0 px-2 font-sans text-[11px] transition-colors ${
 							active
-								? "bg-[color-mix(in_oklab,var(--ember-400)_14%,transparent)] text-[var(--ember-200)] shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--ember-400)_35%,transparent)]"
+								? "bg-[var(--accent-soft)] text-[var(--accent)] shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--accent)_45%,transparent)]"
 								: "bg-transparent text-muted-foreground hover:text-foreground"
 						}`}
 						key={opt.id}
@@ -271,7 +271,7 @@ function ThicknessControl({
 						aria-label={`太さ ${opt.id}`}
 						className={`inline-flex h-[22px] min-w-7 cursor-pointer items-center justify-center rounded-[3px] border-0 transition-colors disabled:cursor-not-allowed ${
 							active
-								? "bg-[color-mix(in_oklab,var(--ember-400)_14%,transparent)] text-[var(--ember-200)] shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--ember-400)_35%,transparent)]"
+								? "bg-[var(--accent-soft)] text-[var(--accent)] shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--accent)_45%,transparent)]"
 								: "bg-transparent text-muted-foreground hover:text-foreground"
 						}`}
 						disabled={disabled}
