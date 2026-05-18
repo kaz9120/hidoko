@@ -1,0 +1,60 @@
+@import "tailwindcss" source(".");
+@source "../../../packages/ui/src";
+@import "ui/tokens.css";
+@import "ui/styles.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+	/*
+	 * tokens.css のセマンティック層を Tailwind ユーティリティに露出する。
+	 * 「ふたりのよてい」の画面で多用する token を中心に並べている。新規 token を
+	 * 引きたくなったら、まずここに足してから bg-foo / text-foo として使う。
+	 */
+	--color-bg: var(--bg);
+	--color-bg-0: var(--bg-0);
+	--color-bg-raised: var(--bg-raised);
+	--color-bg-overlay: var(--bg-overlay);
+	--color-bg-sunken: var(--bg-sunken);
+
+	--color-text: var(--text);
+	--color-text-strong: var(--text-strong);
+	--color-text-muted: var(--text-muted);
+	--color-text-faint: var(--text-faint);
+
+	--color-border: var(--border);
+	--color-border-strong: var(--border-strong);
+	--color-border-subtle: var(--border-subtle);
+
+	--color-accent: var(--accent);
+	--color-accent-hover: var(--accent-hover);
+	--color-accent-active: var(--accent-active);
+	--color-accent-soft: var(--accent-soft);
+
+	--color-ember-200: var(--ember-200);
+	--color-ember-300: var(--ember-300);
+	--color-ember-400: var(--ember-400);
+	--color-ember-500: var(--ember-500);
+	--color-ember-600: var(--ember-600);
+
+	--color-moss: var(--moss);
+	--color-moon: var(--moon);
+	--color-rust: var(--rust);
+	--color-smoke: var(--smoke);
+
+	--font-sans: var(--font-sans);
+	--font-mono: var(--font-mono);
+}
+
+@layer base {
+	html,
+	body {
+		background: var(--bg);
+		color: var(--text);
+		font-family: var(--font-sans);
+	}
+	body {
+		min-height: 100dvh;
+		font-feature-settings: "palt", "cv11", "ss01";
+	}
+}
