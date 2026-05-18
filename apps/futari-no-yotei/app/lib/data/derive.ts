@@ -94,10 +94,14 @@ export function getOption(
 }
 
 /**
- * 月曜始まりの 7 日分の日付キー配列。`anchor` を含む週を返す。
- * (`anchor` 自身が月曜なら anchor から、土日なら次週ではなく現在の週の月曜から)
+ * `anchor` (= 今日) から始まる 7 日分の日付キー配列。
+ *
+ * 「カレンダー的な今週 (月曜始まり)」ではなく、**今日を左端にした直近 1 週間**
+ * を返す。ホームのマトリクスはユーザーが今日を起点に「向こう 1 週間で何が
+ * 決まっていて何が決まっていないか」を見るための装置なので、左端が常に
+ * 今日であることが要求される。月曜始まりの暦上の週は週ビュー (`/week`) が
+ * 持つ。
  */
-export function weekDateKeys(anchor: Date): string[] {
-	const start = startOfWeek(anchor);
-	return Array.from({ length: 7 }, (_, i) => isoKey(addDays(start, i)));
+export function rollingWeekDateKeys(anchor: Date): string[] {
+	return Array.from({ length: 7 }, (_, i) => isoKey(addDays(anchor, i)));
 }

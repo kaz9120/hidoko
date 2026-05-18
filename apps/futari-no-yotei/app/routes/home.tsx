@@ -12,7 +12,11 @@ import type {
 	ApiStatusItem,
 	PutDayStatusPayload,
 } from "~/lib/api/types";
-import { isoKey, resolveDayStatus, weekDateKeys } from "~/lib/data/derive";
+import {
+	isoKey,
+	resolveDayStatus,
+	rollingWeekDateKeys,
+} from "~/lib/data/derive";
 
 export function meta() {
 	return [
@@ -35,7 +39,9 @@ function getToday(): Date {
 
 export async function clientLoader() {
 	const today = getToday();
-	const weekKeys = weekDateKeys(today);
+	// 今日を左端にした直近 7 日。月曜始まりの暦上の「今週」ではない
+	// (週ビューがそちらを担う)。
+	const weekKeys = rollingWeekDateKeys(today);
 	const from = weekKeys[0];
 	const to = weekKeys[weekKeys.length - 1];
 	// items と statuses は独立に取れるので並列
@@ -199,7 +205,7 @@ function HomeMatrix({
 		<div className="px-3.5 pt-1">
 			<div className="mb-2 flex items-baseline justify-between">
 				<span className="font-mono text-[11px] text-text-muted tracking-[0.18em]">
-					こんしゅう
+					これから 1しゅうかん
 				</span>
 				<span className="font-mono text-[10px] text-text-faint">{range}</span>
 			</div>
