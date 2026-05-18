@@ -25,17 +25,17 @@ const HANDLE_CURSORS: Record<ResizeHandle, string> = {
 	se: "nwse-resize",
 };
 
-// 14px のハンドルを枠線をまたぐように配置。視認性のため見た目は 14px、
-// pointer の hit area は touchAction:none と相まってちょうど良いサイズになる。
+// 12px のハンドルを枠線をまたぐように配置。RectSelectionOverlay とサイズ・
+// オフセット・色を揃え、矩形ツールとクロップツールで操作感を統一する。
 const HANDLE_POS: Record<ResizeHandle, React.CSSProperties> = {
-	n: { top: -7, left: "50%", marginLeft: -7 },
-	s: { bottom: -7, left: "50%", marginLeft: -7 },
-	e: { right: -7, top: "50%", marginTop: -7 },
-	w: { left: -7, top: "50%", marginTop: -7 },
-	ne: { top: -7, right: -7 },
-	nw: { top: -7, left: -7 },
-	se: { bottom: -7, right: -7 },
-	sw: { bottom: -7, left: -7 },
+	n: { top: -6, left: "50%", marginLeft: -6 },
+	s: { bottom: -6, left: "50%", marginLeft: -6 },
+	e: { right: -6, top: "50%", marginTop: -6 },
+	w: { left: -6, top: "50%", marginTop: -6 },
+	ne: { top: -6, right: -6 },
+	nw: { top: -6, left: -6 },
+	se: { bottom: -6, right: -6 },
+	sw: { bottom: -6, left: -6 },
 };
 
 export type CropFrameProps = {
@@ -119,7 +119,7 @@ export function CropFrame({ engine, zoom }: CropFrameProps) {
 		<>
 			<Dim view={view} />
 			<div
-				className="absolute border border-white/90 shadow-[0_0_0_1px_rgba(0,0,0,0.55)]"
+				className="absolute border border-[var(--ember-400)] shadow-[0_0_0_1px_rgba(0,0,0,0.45)]"
 				onPointerCancel={endDrag}
 				onPointerDown={(e) => startDrag(e, "move")}
 				onPointerMove={continueDrag}
@@ -136,7 +136,7 @@ export function CropFrame({ engine, zoom }: CropFrameProps) {
 				{HANDLES.map((h) => (
 					<div
 						aria-hidden="true"
-						className="absolute size-3.5 rounded-full border-2 border-background bg-primary shadow-sm"
+						className="absolute size-3 rounded-[2px] border-[1.5px] border-[#1a0d05] bg-[var(--ember-400)] shadow-sm"
 						key={h}
 						onPointerCancel={endDrag}
 						onPointerDown={(e) => startDrag(e, { resize: h })}

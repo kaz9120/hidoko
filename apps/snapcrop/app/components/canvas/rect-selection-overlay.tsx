@@ -25,15 +25,16 @@ const HANDLE_CURSORS: Record<ResizeHandle, string> = {
 	se: "nwse-resize",
 };
 
+// 12px ハンドル + 中心オフセット -6。CropFrame と同サイズ・同色で揃える。
 const HANDLE_POS: Record<ResizeHandle, React.CSSProperties> = {
-	n: { top: -4, left: "50%", marginLeft: -4 },
-	s: { bottom: -4, left: "50%", marginLeft: -4 },
-	e: { right: -4, top: "50%", marginTop: -4 },
-	w: { left: -4, top: "50%", marginTop: -4 },
-	ne: { top: -4, right: -4 },
-	nw: { top: -4, left: -4 },
-	se: { bottom: -4, right: -4 },
-	sw: { bottom: -4, left: -4 },
+	n: { top: -6, left: "50%", marginLeft: -6 },
+	s: { bottom: -6, left: "50%", marginLeft: -6 },
+	e: { right: -6, top: "50%", marginTop: -6 },
+	w: { left: -6, top: "50%", marginTop: -6 },
+	ne: { top: -6, right: -6 },
+	nw: { top: -6, left: -6 },
+	se: { bottom: -6, right: -6 },
+	sw: { bottom: -6, left: -6 },
 };
 
 type Props = {
@@ -106,11 +107,11 @@ export function RectSelectionOverlay({
 				height: annotation.height * zoom,
 			}}
 		>
-			{/* selection ring — 1px ember-400 */}
-			<div className="pointer-events-none absolute inset-0 border border-[var(--ember-400)]" />
+			{/* selection ring — 1px ember-400 + dark shadow (写真上の視認性) */}
+			<div className="pointer-events-none absolute inset-0 border border-[var(--ember-400)] shadow-[0_0_0_1px_rgba(0,0,0,0.45)]" />
 			{HANDLES.map((h) => (
 				<div
-					className="pointer-events-auto absolute size-2 rounded-[1px] border-[1.5px] border-[#1a0d05] bg-[var(--ember-400)]"
+					className="pointer-events-auto absolute size-3 rounded-[2px] border-[1.5px] border-[#1a0d05] bg-[var(--ember-400)] shadow-sm"
 					key={h}
 					onPointerCancel={onHandleUp}
 					onPointerDown={(e) => onHandleDown(e, h)}
