@@ -4,12 +4,17 @@ import {
 	type RefObject,
 	use,
 	useCallback,
+	useEffect,
 	useMemo,
 	useReducer,
 	useRef,
 	useState,
 } from "react";
 import type { CropData, CropEngineHandle } from "~/hooks/use-crop-engine";
+import {
+	loadRectDefaults,
+	saveRectDefaults,
+} from "~/lib/rect-defaults-storage";
 import {
 	DEFAULT_RECT_DEFAULTS,
 	type RectAnnotation,
@@ -435,11 +440,20 @@ function reducer(state: State, action: Action): State {
 }
 
 export function SnapcropProvider({ children }: { children: ReactNode }) {
-	const [state, dispatch] = useReducer(reducer, initialState);
+	const [state, dispatch] = useReducer(reducer, initialState, (init) => ({
+		...init,
+		rectDefaults: loadRectDefaults(),
+	}));
 	const cropperRef = useRef<CropEngineHandle | null>(null);
 	const rectEngineHandleRef = useRef<RectEngineHandle | null>(null);
 	const spacePressedRef = useRef<boolean>(false);
 	const [cropData, setCropData] = useState<CropData | null>(null);
+
+	// rectDefaults の変化を localStorage に書き出す。swatch クリック頻度なら
+	// 直接書きで十分 (debounce 不要)。
+	useEffect(() => {
+		saveRectDefaults(state.rectDefaults);
+	}, [state.rectDefaults]);
 
 	const stableSetCropData = useCallback(
 		(data: CropData | null) => setCropData(data),
