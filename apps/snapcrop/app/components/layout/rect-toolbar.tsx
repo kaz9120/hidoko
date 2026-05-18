@@ -17,7 +17,7 @@ import {
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 import {
 	PRESET_COLORS,
-	type RectAnnotation,
+	type RectDefaults,
 	type RectStyle,
 	type RectThickness,
 } from "~/lib/rect-engine";
@@ -83,7 +83,7 @@ export function RectToolbar() {
 				}
 			: rectDefaults;
 
-	const commit = (patch: Partial<RectAnnotation>) => {
+	const commit = (patch: Partial<RectDefaults>) => {
 		if (selected) {
 			updateAnnotation(selected.id, patch);
 		} else {

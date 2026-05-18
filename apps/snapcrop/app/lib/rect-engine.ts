@@ -25,6 +25,18 @@ export type RectAnnotation = {
 
 export type Annotation = RectAnnotation;
 
+/**
+ * updateAnnotation で書き換えてよいフィールドだけを切り出した patch 型。
+ * id / kind / createdAt は不変なので含めない (履歴オペレーションの同一性が
+ * 崩れないようにする)。
+ */
+export type RectAnnotationPatch = Partial<
+	Pick<
+		RectAnnotation,
+		"x" | "y" | "width" | "height" | "style" | "color" | "thickness"
+	>
+>;
+
 export type RectDefaults = {
 	style: RectStyle;
 	color: string;

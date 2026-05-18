@@ -18,6 +18,7 @@ import {
 import {
 	DEFAULT_RECT_DEFAULTS,
 	type RectAnnotation,
+	type RectAnnotationPatch,
 	type RectDefaults,
 } from "~/lib/rect-engine";
 
@@ -25,6 +26,7 @@ export type { CropData } from "~/hooks/use-crop-engine";
 export type {
 	Annotation,
 	RectAnnotation,
+	RectAnnotationPatch,
 	RectDefaults,
 	RectStyle,
 	RectThickness,
@@ -87,7 +89,7 @@ type SnapcropContextValue = {
 	createAnnotation: (annotation: RectAnnotation) => void;
 	updateAnnotation: (
 		id: string,
-		patch: Partial<RectAnnotation>,
+		patch: RectAnnotationPatch,
 		opts?: { batchKey?: string },
 	) => void;
 	deleteAnnotation: (id: string) => void;
@@ -146,7 +148,7 @@ type Action =
 	| {
 			type: "RECT_UPDATE";
 			id: string;
-			patch: Partial<RectAnnotation>;
+			patch: RectAnnotationPatch;
 			batchKey: string | null;
 			timestamp: number;
 	  }
