@@ -60,6 +60,8 @@ export type CropEngineHandle = {
 	toCanvas: (opts?: {
 		imageSmoothingQuality?: "low" | "medium" | "high";
 	}) => HTMLCanvasElement;
+	/** annotation を export 時に flatten するため、ソース <img> を直接取りに行く */
+	getSourceImage: () => HTMLImageElement | null;
 };
 
 export type UseCropEngineArgs = {
@@ -260,6 +262,7 @@ export function useCropEngine(args: UseCropEngineArgs): UseCropEngineResult {
 				);
 				return canvas;
 			},
+			getSourceImage: () => imgElementRef.current,
 		}),
 		[commit, imgElementRef],
 	);

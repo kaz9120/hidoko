@@ -2,10 +2,12 @@ import { useEffect, useRef } from "react";
 import type { CropEngineHandle } from "~/hooks/use-crop-engine";
 import { writeImageToClipboard } from "~/lib/clipboard";
 import { getCroppedBlob } from "~/lib/image-export";
+import type { RectAnnotation } from "~/lib/rect-engine";
 
 type Options = {
 	cropperRef: React.RefObject<CropEngineHandle | null>;
 	hasImage: boolean;
+	annotations: readonly RectAnnotation[];
 	onSuccess: () => void;
 	onFailure: () => void;
 };
@@ -22,6 +24,7 @@ type Options = {
 export function useCopyShortcut({
 	cropperRef,
 	hasImage,
+	annotations,
 	onSuccess,
 	onFailure,
 }: Options) {
@@ -29,6 +32,8 @@ export function useCopyShortcut({
 	cropperRefRef.current = cropperRef;
 	const hasImageRef = useRef(hasImage);
 	hasImageRef.current = hasImage;
+	const annotationsRef = useRef(annotations);
+	annotationsRef.current = annotations;
 	const onSuccessRef = useRef(onSuccess);
 	onSuccessRef.current = onSuccess;
 	const onFailureRef = useRef(onFailure);
@@ -69,7 +74,11 @@ export function useCopyShortcut({
 			event.preventDefault();
 			void (async () => {
 				try {
-					const blob = await getCroppedBlob(cropper, "image/png");
+					const blob = await getCroppedBlob(
+						cropper,
+						"image/png",
+						annotationsRef.current,
+					);
 					const ok = await writeImageToClipboard(blob);
 					if (ok) {
 						onSuccessRef.current();

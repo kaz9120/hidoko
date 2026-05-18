@@ -63,7 +63,11 @@ export function computeMosaicCanvas(
 	return out;
 }
 
-function paintMosaicRect(
+/**
+ * 与えられた CanvasRenderingContext2D に対し 1 つの mosaic rect を塗る。
+ * computeMosaicCanvas からも、export 時の annotation flatten からも使う。
+ */
+export function paintMosaicRect(
 	outCtx: CanvasRenderingContext2D,
 	pixels: ImageData,
 	rect: MosaicCell,

@@ -21,12 +21,13 @@ import {
 } from "~/lib/image-export";
 
 export function EditorCanvas() {
-	const { image, loadImageFromBlob, cropperRef } = useSnapcrop();
+	const { image, loadImageFromBlob, cropperRef, annotations } = useSnapcrop();
 	const isDragging = useFileDrop(loadImageFromBlob);
 	useClipboardPaste(loadImageFromBlob);
 	useCopyShortcut({
 		cropperRef,
 		hasImage: image !== null,
+		annotations,
 		onSuccess: () => toast.success("クリップボードにコピーしました"),
 		onFailure: () => toast.error("クリップボードへのコピーに失敗しました"),
 	});
@@ -107,7 +108,7 @@ function ImageCanvas({
 }
 
 function CanvasActions() {
-	const { cropperRef, image } = useSnapcrop();
+	const { cropperRef, image, annotations } = useSnapcrop();
 	const [isCopying, setIsCopying] = useState(false);
 	const [isDownloading, setIsDownloading] = useState(false);
 
@@ -122,7 +123,7 @@ function CanvasActions() {
 		}
 		setIsCopying(true);
 		try {
-			const blob = await getCroppedBlob(cropper, "image/png");
+			const blob = await getCroppedBlob(cropper, "image/png", annotations);
 			const ok = await writeImageToClipboard(blob);
 			if (ok) {
 				toast.success("クリップボードにコピーしました");
@@ -143,7 +144,7 @@ function CanvasActions() {
 		}
 		setIsDownloading(true);
 		try {
-			const blob = await getCroppedBlob(cropper, "image/png");
+			const blob = await getCroppedBlob(cropper, "image/png", annotations);
 			downloadBlob(blob, makeDownloadFilename("png"));
 		} catch {
 			toast.error("画像の書き出しに失敗しました");
