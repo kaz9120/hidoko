@@ -2,10 +2,20 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "hidoko-futari-no-yotei",
 	"compatibility_date": "2026-05-18",
+	"compatibility_flags": ["nodejs_compat"],
+	"main": "worker/index.ts",
 	"assets": {
 		"directory": "./build/client",
-		"not_found_handling": "single-page-application"
+		"not_found_handling": "single-page-application",
+		"binding": "ASSETS"
 	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "hidoko-futari-no-yotei",
+			"database_id": "79e48ae5-c89b-4e71-a57c-0bafd4a5213b"
+		}
+	],
 	"observability": {
 		"enabled": true
 	}

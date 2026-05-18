@@ -1,0 +1,71 @@
+-- 「ふたりのよてい」初期スキーマ。詳細は apps/futari-no-yotei/ARCHITECTURE.md 参照。
+
+-- ペア (2 名の組)
+CREATE TABLE pairs (
+  id TEXT PRIMARY KEY,
+  user_low_id TEXT NOT NULL,
+  user_high_id TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'dissolved')),
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE (user_low_id, user_high_id)
+);
+
+-- LINE ユーザー (ペア解消後も users 行は残す)
+CREATE TABLE users (
+  id TEXT PRIMARY KEY,
+  display_name TEXT NOT NULL,
+  picture_url TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ステータス項目 (家庭ごとに完全可変)
+CREATE TABLE status_items (
+  id TEXT PRIMARY KEY,
+  pair_id TEXT NOT NULL REFERENCES pairs(id),
+  name TEXT NOT NULL,
+  emoji TEXT NOT NULL,
+  color TEXT NOT NULL,
+  assignee TEXT NOT NULL CHECK (assignee IN ('me', 'partner', 'both')),
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  options TEXT NOT NULL,            -- JSON: [{id, label, emoji}, ...]
+  weekday_defaults TEXT,            -- JSON: {mon, tue, ..., sun} | NULL
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX idx_status_items_pair ON status_items (pair_id, sort_order);
+
+-- 日次ステータス確定値。推定値は保存せず、weekday_defaults から導出する。
+CREATE TABLE day_statuses (
+  pair_id TEXT NOT NULL REFERENCES pairs(id),
+  date TEXT NOT NULL,               -- YYYY-MM-DD
+  status_item_id TEXT NOT NULL REFERENCES status_items(id),
+  option_id TEXT NOT NULL,
+  confirmed INTEGER NOT NULL DEFAULT 1 CHECK (confirmed IN (0, 1)),
+  updated_by TEXT NOT NULL REFERENCES users(id),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (pair_id, date, status_item_id)
+);
+CREATE INDEX idx_day_statuses_pair_date ON day_statuses (pair_id, date);
+
+-- 予定エントリ
+CREATE TABLE schedule_entries (
+  id TEXT PRIMARY KEY,
+  pair_id TEXT NOT NULL REFERENCES pairs(id),
+  title TEXT NOT NULL,
+  start_at TEXT NOT NULL,           -- ISO datetime (allDay=1 のときは YYYY-MM-DD)
+  end_at TEXT,
+  all_day INTEGER NOT NULL DEFAULT 0 CHECK (all_day IN (0, 1)),
+  whose TEXT NOT NULL,              -- 'both' / <user_id> / 自由ラベル
+  location TEXT,                    -- JSON: {name, address, lat, lng, map_url}
+  url TEXT,
+  notes TEXT,
+  rrule TEXT,                       -- iCal RRULE 形式
+  from_line INTEGER NOT NULL DEFAULT 0 CHECK (from_line IN (0, 1)),
+  anniversary INTEGER NOT NULL DEFAULT 0 CHECK (anniversary IN (0, 1)),
+  created_by TEXT NOT NULL REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX idx_schedule_entries_pair_start ON schedule_entries (pair_id, start_at);

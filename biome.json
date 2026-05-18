@@ -14,6 +14,7 @@
 			"!packages/ui/src/hooks",
 			"!packages/ui/src/embers.js",
 			"!packages/ui/src/embers.d.ts",
+			"!apps/*/worker-configuration.d.ts",
 			"!**/*.css"
 		]
 	},
