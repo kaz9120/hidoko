@@ -22,13 +22,15 @@ bun workspaces で構成されたモノレポ。
 hidoko/
 ├── apps/
 │   ├── homepage/          # y-kaz.com — 自己紹介とアウトプットのハブ
-│   └── snapcrop/          # ブラウザで動く画像エディタ
+│   ├── snapcrop/          # ブラウザで動く画像エディタ
+│   └── futari-no-yotei/   # 同居夫婦専用カレンダーの LINE ミニアプリ
 └── packages/
     └── ui/                # トークン・shadcn/ui・ロゴ・火の粉を束ねた共通基盤
 ```
 
 - [apps/homepage](apps/homepage) — React Router 7 (SPA, prerender) + Cloudflare Workers。
 - [apps/snapcrop](apps/snapcrop) — React Router 7 + Cloudflare Workers。Storybook + reg-suit で VRT。
+- [apps/futari-no-yotei](apps/futari-no-yotei) — React Router 7 + Cloudflare Workers。LIFF + D1 で動かす予定（現在は scaffold + 準備中ページ）。
 - [packages/ui](packages/ui) — design tokens / shadcn/ui コンポーネント / ロゴ / `<hi-embers>` をひとつの workspace パッケージで提供。
 
 ## ドキュメント
