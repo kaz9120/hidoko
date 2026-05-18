@@ -16,6 +16,11 @@
 			"database_id": "79e48ae5-c89b-4e71-a57c-0bafd4a5213b"
 		}
 	],
+	// LIFF 認証本実装が入るまで `X-Dev-User` ヘッダによる開発バイパスを許可する。
+	// LIFF 化時に "false" に切り替える / この行を削除する。`worker/auth.ts` 参照。
+	"vars": {
+		"ALLOW_DEV_AUTH": "true"
+	},
 	"observability": {
 		"enabled": true
 	}

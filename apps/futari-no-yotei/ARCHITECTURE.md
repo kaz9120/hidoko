@@ -43,7 +43,7 @@
   4. `users` テーブルで `id = sub` の行を解決し、`pairs` テーブルでアクティブなペアを引く
   5. 以降のクエリは **必ず `pair_id` でスコープ** される
 - **データ所有モデル**: 全データ (status_items / day_statuses / schedule_entries) は `pair_id` に紐付く。ペア解消後もデータは保持し、再ペア時に過去ペアを再活性化する (要件 3.3)
-- **dev での認証バイパス**: 本物の LIFF 連携が入るまで `X-Dev-User` ヘッダで `users.id` を直接指定できる。本番では LINE JWK 検証が通らなければ 401。dev ヘッダはローカル + preview でのみ有効
+- **dev での認証バイパス**: 本物の LIFF 連携が入るまで `X-Dev-User` ヘッダで `users.id` を直接指定できる。これは `wrangler.jsonc` の `vars.ALLOW_DEV_AUTH === "true"` のときのみ受理される。LIFF 化時に `"false"` に切り替え (or 削除) して経路を塞ぐ。本番では LIFF JWK 検証が通らなければ 401
 
 ## データモデル
 

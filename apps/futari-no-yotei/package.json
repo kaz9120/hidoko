@@ -16,7 +16,6 @@
 		"db:migrate:local": "wrangler d1 migrations apply hidoko-futari-no-yotei --local",
 		"db:migrate:remote": "wrangler d1 migrations apply hidoko-futari-no-yotei --remote",
 		"db:seed:local": "wrangler d1 execute hidoko-futari-no-yotei --local --file=seed/dev.sql",
-		"db:seed:remote": "wrangler d1 execute hidoko-futari-no-yotei --remote --file=seed/dev.sql",
 		"db:reset:local": "rm -rf .wrangler/state/v3/d1 && bun run db:migrate:local && bun run db:seed:local"
 	},
 	"dependencies": {

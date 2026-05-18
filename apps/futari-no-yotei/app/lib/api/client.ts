@@ -2,6 +2,12 @@
  * API クライアント。fetch ラッパで `X-Dev-User` を自動付与する (LIFF 接続前)。
  * 本番では LIFF SDK が返す ID トークンを `Authorization` ヘッダに載せる経路に
  * 差し替える (後続 PR)。
+ *
+ * セキュリティ境界: dev ヘッダはサーバ側 (`worker/auth.ts`) で
+ * `env.ALLOW_DEV_AUTH === "true"` のときのみ受理される。本番 LIFF 化時に
+ * `wrangler.jsonc` の `vars.ALLOW_DEV_AUTH` を `"false"` にすればクライアントが
+ * 何を送っても 401 で弾かれる。本ファイルからも dev ヘッダ送信は同時に
+ * 撤去する。
  */
 
 import type { ApiStatusItem, CreateStatusItemPayload } from "./types";
