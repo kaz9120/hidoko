@@ -101,6 +101,11 @@ statusItemsRoute.post("/", async (c) => {
 		.first<{ m: number }>();
 	const sortOrder = (max?.m ?? -1) + 1;
 
+	// 検証時は trim 済み値を見ているので、保存も trim 済みに揃える。
+	// 末尾空白付きデータが混入すると重複判定や表示整合性が崩れるため。
+	const name = body.name.trim();
+	const emoji = body.emoji.trim();
+
 	await c.env.DB.prepare(
 		`INSERT INTO status_items
 		   (id, pair_id, name, emoji, color, assignee, sort_order, options, weekday_defaults)
@@ -109,8 +114,8 @@ statusItemsRoute.post("/", async (c) => {
 		.bind(
 			id,
 			pairId,
-			body.name,
-			body.emoji,
+			name,
+			emoji,
 			body.color ?? "var(--ember-400)",
 			body.assignee,
 			sortOrder,
