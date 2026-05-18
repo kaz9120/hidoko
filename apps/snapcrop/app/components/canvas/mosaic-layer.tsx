@@ -1,5 +1,9 @@
 import { type RefObject, useEffect, useMemo, useRef } from "react";
-import { computeMosaicCanvas, type MosaicCell } from "~/lib/mosaic";
+import {
+	computeMosaicCanvas,
+	type MosaicCell,
+	readImagePixels,
+} from "~/lib/mosaic";
 import { MOSAIC_PX, type RectAnnotation } from "~/lib/rect-engine";
 
 type Props = {
@@ -12,9 +16,12 @@ type Props = {
 
 /**
  * mosaic スタイルの矩形を 1 枚の canvas に焼いて重ねるレイヤー。SVG では
- * 表現できない「ピクセル化」を担う。<img> の load が終わってからピクセル
- * データを取得する必要があるので、imgRef.complete を確認しつつ load イベントで
- * 再描画する。
+ * 表現できない「ピクセル化」を担う。
+ *
+ * パフォーマンス対策: 元画像の ImageData は ref に 1 度だけキャッシュし、矩形
+ * 群の毎フレーム計算 (ドラッグ中の rect 群更新) で getImageData を呼び直さない。
+ * 画像差し替え時は ImageCanvas が key=src で remount するので ref は自動で
+ * クリアされる。
  *
  * z-order としては SVG annotation-layer の下に置き、outline / fill が mosaic
  * 上に重なる形にする。fill→mosaic の作成順で mosaic が上に来るべきという
@@ -28,6 +35,7 @@ export function MosaicLayer({
 	imageHeight,
 }: Props) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const pixelsRef = useRef<ImageData | null>(null);
 
 	const cells = useMemo<MosaicCell[]>(
 		() =>
@@ -62,7 +70,17 @@ export function MosaicLayer({
 			if (!ctx) return;
 			ctx.clearRect(0, 0, c.width, c.height);
 			if (cells.length === 0) return;
-			const result = computeMosaicCanvas(img, cells, imageWidth, imageHeight);
+			if (!pixelsRef.current) {
+				pixelsRef.current = readImagePixels(img, imageWidth, imageHeight);
+			}
+			const pixels = pixelsRef.current;
+			if (!pixels) return;
+			const result = computeMosaicCanvas(
+				pixels,
+				cells,
+				imageWidth,
+				imageHeight,
+			);
 			ctx.drawImage(result, 0, 0);
 		};
 
