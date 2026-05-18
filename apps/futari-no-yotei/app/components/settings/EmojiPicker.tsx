@@ -1,23 +1,24 @@
+import { SmilePlus } from "lucide-react";
 import { useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "ui/components/popover";
 
 type Props = {
-	id?: string;
 	value: string;
 	onChange: (value: string) => void;
-	ariaLabel: string;
+	/** 絵文字ボタンのアクセシブル名 (空のとき / 選択済みのときに共通の文脈を渡す) */
+	contextLabel: string;
 };
 
 /**
- * 「ふたりのよてい」のステータス項目で頻出する絵文字を、家庭のリズムに沿った
- * 6 カテゴリにまとめたピッカー。ユーザーに絵文字を IME で打たせず、Popover の
- * グリッドから選ぶだけにする。
+ * Slack のステータス入力欄を参考にした絵文字ピッカー。テキスト入力欄の
+ * 左端に貼り付ける leading button として描画する想定で、自前の枠線や
+ * 背景を持たない (親 wrapper 側で border + focus ring を担う)。
  *
  * フル絵文字ピッカーではなく「家事 / 勤務 / 子育て / 予定 / ペット / 気持ち」
- * のドメイン絵文字に絞っているのは、夫婦の生活で実際に使う粒度に揃えるため。
- * 不足が出てきたら、ここに追加する形で広げる。
+ * のドメイン絵文字に絞り、家庭の状態管理に直接使うものだけを並べている。
+ * 不足を感じたら、対応するカテゴリへ追記する。
  */
-export function EmojiPicker({ id, value, onChange, ariaLabel }: Props) {
+export function EmojiPicker({ value, onChange, contextLabel }: Props) {
 	const [open, setOpen] = useState(false);
 	const [category, setCategory] =
 		useState<keyof typeof EMOJI_CATEGORIES>("家事");
@@ -27,34 +28,26 @@ export function EmojiPicker({ id, value, onChange, ariaLabel }: Props) {
 		setOpen(false);
 	}
 
+	const label = value
+		? `絵文字 ${value} を変更する (${contextLabel})`
+		: `絵文字を選ぶ (${contextLabel})`;
+
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild>
 				<button
-					id={id}
 					type="button"
-					aria-label={value ? `${ariaLabel}: ${value}` : ariaLabel}
-					className="flex h-10 w-full items-center justify-between rounded-md border border-border bg-bg-sunken px-3 text-sm text-text transition-colors hover:border-border-strong focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
+					aria-label={label}
+					className="flex h-full w-10 shrink-0 items-center justify-center rounded-l-md text-text-muted transition-colors hover:bg-bg-overlay hover:text-text-strong focus-visible:bg-bg-overlay focus-visible:text-text-strong focus-visible:outline-none"
 				>
 					{value ? (
-						<span className="flex items-center gap-2">
-							<span className="text-lg leading-none">{value}</span>
-							<span className="text-text-faint text-xs">変更</span>
-						</span>
+						<span className="text-lg leading-none">{value}</span>
 					) : (
-						<span className="text-text-faint">絵文字を選ぶ</span>
+						<SmilePlus size={18} strokeWidth={1.75} aria-hidden />
 					)}
-					<span aria-hidden className="text-text-faint text-xs">
-						▾
-					</span>
 				</button>
 			</PopoverTrigger>
-			<PopoverContent
-				align="start"
-				className="w-[320px] p-2"
-				// 編集 dialog の中で開かれるが、Popover 自身の外タップで閉じることは
-				// 自然な挙動 (内容の破棄ではなく選択キャンセル) なので素通し。
-			>
+			<PopoverContent align="start" sideOffset={6} className="w-[320px] p-2">
 				<div
 					role="tablist"
 					aria-label="絵文字のカテゴリ"
@@ -118,9 +111,7 @@ export function EmojiPicker({ id, value, onChange, ariaLabel }: Props) {
 }
 
 /**
- * 「ふたりのよてい」で実際に出てきそうな絵文字に絞ったカテゴリ。フル絵文字
- * ピッカーは情報過多なので、家庭の状態管理に直接使うものだけを並べている。
- * 不足を感じたら、対応するカテゴリへ追記する。
+ * 「ふたりのよてい」で実際に出てきそうな絵文字に絞ったカテゴリ。
  */
 const EMOJI_CATEGORIES = {
 	家事: [

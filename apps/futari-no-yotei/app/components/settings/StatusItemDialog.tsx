@@ -18,7 +18,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "ui/components/dialog";
-import { Input } from "ui/components/input";
 import { Label } from "ui/components/label";
 import { ME, PARTNER } from "~/lib/data/sample";
 import type { Assignee } from "~/lib/types";
@@ -80,7 +79,6 @@ export function StatusItemDialog(props: Props) {
 	const isEdit = props.mode === "edit";
 	const initial = isEdit ? props.initial : DEFAULT_VALUES;
 	const nameId = useId();
-	const emojiId = useId();
 	const [name, setName] = useState(initial.name);
 	const [emoji, setEmoji] = useState(initial.emoji);
 	const [assignee, setAssignee] = useState<Assignee>(initial.assignee);
@@ -148,14 +146,14 @@ export function StatusItemDialog(props: Props) {
 			>
 				<DialogContent
 					className="max-w-[360px]"
-					// 外タップを抑止し、明示的なボタン操作 (キャンセル / 保存) からだけ
-					// 閉じるようにする。これにより:
-					//   - 編集中の内容が誤って消えない
-					//   - 内側で開いた AlertDialog 操作で外側 Dialog が連鎖クローズしない
-					onPointerDownOutside={(e) => {
-						e.preventDefault();
-						attemptClose();
-					}}
+					// 外タップは無視 (preventDefault のみ)。Radix の AlertDialog は
+					// Portal 越しに描画されるため、内側 AlertDialog のボタンクリックも
+					// 「外側 Dialog の content 外」と判定されてここに来る。ここで
+					// attemptClose を呼ぶと、内側 AlertDialog の Cancel が
+					// 「外側 Dialog を閉じようとする」副作用に化け、AlertDialog の
+					// 連鎖クローズ / 重複オープンが発生する。閉じる経路は X ボタン /
+					// 「キャンセル」ボタン / ESC に限定する。
+					onPointerDownOutside={(e) => e.preventDefault()}
 					onEscapeKeyDown={(e) => {
 						e.preventDefault();
 						attemptClose();
@@ -168,25 +166,31 @@ export function StatusItemDialog(props: Props) {
 					<form onSubmit={handleSubmit} className="mt-1 flex flex-col gap-3">
 						<div className="flex flex-col gap-1.5">
 							<Label htmlFor={nameId}>項目名</Label>
-							<Input
-								id={nameId}
-								value={name}
-								onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-									setName(e.target.value)
-								}
-								placeholder="例: ゴミ出し / 送り迎え"
-								required
-								maxLength={20}
-							/>
-						</div>
-						<div className="flex flex-col gap-1.5">
-							<Label htmlFor={emojiId}>絵文字</Label>
-							<EmojiPicker
-								id={emojiId}
-								value={emoji}
-								onChange={setEmoji}
-								ariaLabel="絵文字を選ぶ"
-							/>
+							{/* Slack のステータス入力欄を参考に、絵文字ボタンを leading に
+							    置いた一体型の入力にする。focus は wrapper が一括で吸う。 */}
+							<div className="flex h-10 items-stretch rounded-md border border-border bg-bg-raised transition-shadow focus-within:border-accent focus-within:ring-[3px] focus-within:ring-accent/30">
+								<EmojiPicker
+									value={emoji}
+									onChange={setEmoji}
+									contextLabel={name || "新しい項目"}
+								/>
+								<div
+									aria-hidden
+									className="my-1.5 w-px self-stretch bg-border-subtle"
+								/>
+								<input
+									id={nameId}
+									type="text"
+									value={name}
+									onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+										setName(e.target.value)
+									}
+									placeholder="例: ゴミ出し / 送り迎え"
+									required
+									maxLength={20}
+									className="flex-1 bg-transparent px-3 text-sm text-text-strong placeholder:text-text-faint focus:outline-none"
+								/>
+							</div>
 						</div>
 						<fieldset className="flex flex-col gap-1.5 border-0 p-0">
 							<legend className="mb-1.5 font-medium text-sm">誰が決める</legend>
