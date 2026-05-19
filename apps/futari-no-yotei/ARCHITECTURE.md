@@ -91,10 +91,10 @@ schedule_entries            予定エントリ
 
 ### 時刻と日付
 
-- **`created_at` / `updated_at` は UTC で保存する**。SQLite の `datetime('now')` を全テーブルで一貫して使い、タイムゾーン依存の `'localtime'` 修飾は使わない
-- **`day_statuses.date` / `schedule_entries.start_at` (allDay 時) は `YYYY-MM-DD` ローカル日付**。これらは「ユーザーの生活上の日付」であり、UTC で扱うと日付境界がずれる (例: JST の 5/19 朝が UTC では 5/18 後半に見える) ため、文字列として保存
-- 表示時、UTC タイムスタンプはクライアントが JST に変換する責任を持つ (Worker は変換しない)
-- 「今日」を取る箇所はルート毎の `getToday()` (現状 `new Date()` を返すだけ) 経由に集約し、テスト / 開発で固定したいときの差し替え点を 1 箇所に閉じる
+- **`created_at` / `updated_at` は UTC で保存します**。SQLite の `datetime('now')` を全テーブルで一貫して使い、タイムゾーン依存の `'localtime'` 修飾は使いません
+- **`day_statuses.date` / `schedule_entries.start_at` (allDay 時) は `YYYY-MM-DD` ローカル日付として扱います**。これらは「ユーザーの生活上の日付」であり、UTC で扱うと日付境界がずれる (例: JST の 5/19 朝が UTC では 5/18 後半に見える) ため、文字列として保存します
+- 表示時、UTC タイムスタンプはクライアントが JST に変換する責任を持ちます (Worker は変換しません)
+- 「今日」を取る箇所はルート毎の `getToday()` (現状 `new Date()` を返すだけ) 経由に集約し、テスト / 開発で固定したいときの差し替え点を 1 箇所に閉じてください
 
 ## 状態の境界
 
@@ -128,15 +128,15 @@ schedule_entries            予定エントリ
 
 ### 型の境界 (Worker / Client の分離方針)
 
-Worker (`worker/routes/*.ts`) と Client (`app/lib/api/types.ts`) は **同じ API 契約を別ファイルで二重に持つ**。共有しない。
+Worker (`worker/routes/*.ts`) と Client (`app/lib/api/types.ts`) は **同じ API 契約を別ファイルで二重に持ちます**。共有しません。
 
 理由:
 
-- Worker は **`DbRow` (snake_case) → API レスポンス (camelCase) への正規化** を API 契約として明示的に持つ層。クライアント型を直接 import すると、DB スキーマ変更時に「クライアントが欲しい形が変わったから DB ↔ クライアントの間を勝手に詰める」方向に流れやすく、契約の境界が曖昧になる
-- 将来 Worker を別 package 化する / 別言語に置き換える余地を残す
-- Client 側はサーバの内部実装 (DB スキーマ) を知らずに済む
+- Worker は **`DbRow` (snake_case) → API レスポンス (camelCase) への正規化** を API 契約として明示的に持つ層です。クライアント型を直接 import すると、DB スキーマ変更時に「クライアントが欲しい形が変わったから DB ↔ クライアントの間を勝手に詰める」方向に流れやすく、契約の境界が曖昧になります
+- 将来 Worker を別 package 化する / 別言語に置き換える余地を残しておきます
+- Client 側はサーバの内部実装 (DB スキーマ) を知らずに済む形を保ちます
 
-二重化のずれは**コードでなくテストで吸収する**。後続 PR で、worker のレスポンスをパースして client 型として通す対比テストを `bun test` に組み込む予定。
+二重化のずれは**コードではなくテストで吸収します**。後続 PR で、worker のレスポンスをパースして client 型として通す対比テストを `bun test` に組み込む予定です。
 
 ## 残りの組み立て計画
 
