@@ -89,6 +89,13 @@ schedule_entries            予定エントリ
 
 「未確定 / 推定」は **保存しない**。曜日デフォルトから client / server のロジックで導出する (`dayStatus()` helper 担当)。これで「決まった瞬間に更新する」哲学を支える。
 
+### 時刻と日付
+
+- **`created_at` / `updated_at` は UTC で保存する**。SQLite の `datetime('now')` を全テーブルで一貫して使い、タイムゾーン依存の `'localtime'` 修飾は使わない
+- **`day_statuses.date` / `schedule_entries.start_at` (allDay 時) は `YYYY-MM-DD` ローカル日付**。これらは「ユーザーの生活上の日付」であり、UTC で扱うと日付境界がずれる (例: JST の 5/19 朝が UTC では 5/18 後半に見える) ため、文字列として保存
+- 表示時、UTC タイムスタンプはクライアントが JST に変換する責任を持つ (Worker は変換しない)
+- 「今日」を取る箇所はルート毎の `getToday()` (現状 `new Date()` を返すだけ) 経由に集約し、テスト / 開発で固定したいときの差し替え点を 1 箇所に閉じる
+
 ## 状態の境界
 
 3 層に分かれる:
@@ -118,6 +125,18 @@ schedule_entries            予定エントリ
 | DELETE | `/api/schedules/:id` | 予定削除 |
 
 すべて `pair_id` で自動スコープ。クエリ・ボディに `pair_id` を含めない。
+
+### 型の境界 (Worker / Client の分離方針)
+
+Worker (`worker/routes/*.ts`) と Client (`app/lib/api/types.ts`) は **同じ API 契約を別ファイルで二重に持つ**。共有しない。
+
+理由:
+
+- Worker は **`DbRow` (snake_case) → API レスポンス (camelCase) への正規化** を API 契約として明示的に持つ層。クライアント型を直接 import すると、DB スキーマ変更時に「クライアントが欲しい形が変わったから DB ↔ クライアントの間を勝手に詰める」方向に流れやすく、契約の境界が曖昧になる
+- 将来 Worker を別 package 化する / 別言語に置き換える余地を残す
+- Client 側はサーバの内部実装 (DB スキーマ) を知らずに済む
+
+二重化のずれは**コードでなくテストで吸収する**。後続 PR で、worker のレスポンスをパースして client 型として通す対比テストを `bun test` に組み込む予定。
 
 ## 残りの組み立て計画
 
