@@ -84,7 +84,10 @@ export default function Home() {
 	const { items, statuses, todayKey, weekKeys } =
 		useLoaderData<typeof clientLoader>();
 	const fetcher = useFetcher<typeof clientAction>();
-	const revalidator = useRevalidator();
+	// `useRevalidator()` の戻り値オブジェクト自体はレンダーごとに新しい参照に
+	// なり得るが、`revalidate` 関数は安定しているので分割代入してそれだけを
+	// effect の deps に入れる。
+	const { revalidate } = useRevalidator();
 
 	// 「自分が決める」項目だけを今日ぶん絞り込む。assignee = "partner" は
 	// 後続 PR で「相手に聞く」セクションに振り分ける。
@@ -104,11 +107,11 @@ export default function Home() {
 	useEffect(() => {
 		if (fetcher.state !== "idle" || !fetcher.data) return;
 		if (fetcher.data.ok) {
-			revalidator.revalidate();
+			revalidate();
 		} else {
 			toast.error(fetcher.data.error);
 		}
-	}, [fetcher.state, fetcher.data, revalidator]);
+	}, [fetcher.state, fetcher.data, revalidate]);
 
 	function handlePick(itemId: string, optionId: string) {
 		const payload: PutDayStatusPayload = {
