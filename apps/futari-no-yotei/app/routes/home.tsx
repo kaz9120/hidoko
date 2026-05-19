@@ -114,6 +114,11 @@ export default function Home() {
 	}, [fetcher.state, fetcher.data, revalidate]);
 
 	function handlePick(itemId: string, optionId: string) {
+		// React Router の fetcher は同一インスタンスへの連続 submit で先行する
+		// リクエストを自動キャンセルする。連打 / 画面外で programmatic に呼ばれた
+		// ケースでも「押したのに保存されない」を作らないよう、idle のときだけ
+		// submit する。UnconfirmedPrompt 側でも disabled しているが、二重防御。
+		if (fetcher.state !== "idle") return;
 		const payload: PutDayStatusPayload = {
 			date: todayKey,
 			statusItemId: itemId,
