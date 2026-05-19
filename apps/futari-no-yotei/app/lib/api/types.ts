@@ -38,3 +38,26 @@ export type UpdateStatusItemPayload = Partial<{
 	options: StatusOption[];
 	weekdayDefaults: Partial<Record<WeekdayKey, string>> | null;
 }>;
+
+/**
+ * 日次ステータス確定値。サーバ側に保存されるのは確定値のみで、推定値
+ * (weekdayDefaults から導出) はクライアントで計算する (`lib/data/derive.ts`)。
+ */
+export type ApiDayStatus = {
+	date: string;
+	statusItemId: string;
+	optionId: string;
+	confirmed: boolean;
+	updatedBy: string;
+	updatedAt: string;
+};
+
+/**
+ * PUT /api/day-statuses の payload。`(date, statusItemId)` で upsert する。
+ * `confirmed` はサーバ側で常に true。「未確定に戻す」は将来 DELETE で扱う。
+ */
+export type PutDayStatusPayload = {
+	date: string;
+	statusItemId: string;
+	optionId: string;
+};

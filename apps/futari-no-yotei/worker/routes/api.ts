@@ -5,6 +5,7 @@
 
 import { Hono } from "hono";
 import { requireAuth } from "../auth";
+import { dayStatusesRoute } from "./day-statuses";
 import { statusItemsRoute } from "./status-items";
 
 export const apiRouter = new Hono<{ Bindings: Env }>();
@@ -17,3 +18,4 @@ apiRouter.get("/me", (c) => {
 });
 
 apiRouter.route("/status-items", statusItemsRoute);
+apiRouter.route("/day-statuses", dayStatusesRoute);
