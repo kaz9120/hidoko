@@ -1,0 +1,12 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "hidoko-storybook",
+	"compatibility_date": "2026-05-21",
+	"assets": {
+		"directory": "./storybook-static",
+		"not_found_handling": "single-page-application"
+	},
+	"observability": {
+		"enabled": true
+	}
+}
