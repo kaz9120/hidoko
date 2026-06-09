@@ -269,6 +269,9 @@ export function AutoFitTitle({
 }) {
 	const ref = useRef<HTMLDivElement | null>(null);
 	const [size, setSize] = useState(max);
+	// lines は effect 内のコードからは読まないが、children として描画される
+	// 結果を scrollWidth/Height で測るため、lines が変われば再フィットさせたい。
+	// biome-ignore lint/correctness/useExhaustiveDependencies: lines 変更時に DOM 再測定が必要
 	useLayoutEffect(() => {
 		const el = ref.current;
 		if (!el) return;
@@ -285,7 +288,7 @@ export function AutoFitTitle({
 			el.style.fontSize = `${s}px`;
 		}
 		setSize(s);
-	});
+	}, [lines, width, maxH, max, min, step]);
 	return (
 		<div ref={ref} style={{ ...style, width, fontSize: size, ...TITLE_NOWRAP }}>
 			{lines}
