@@ -189,7 +189,7 @@ export function useRectEngine(image: ImageMetrics): UseRectEngineResult {
 	}, [annotations, interaction]);
 
 	const previewRect = useMemo(() => {
-		if (!interaction || interaction.kind !== "drawing") return null;
+		if (interaction?.kind !== "drawing") return null;
 		const rect = normalizeDrawingRect(
 			interaction.startImg,
 			interaction.currentImg,
