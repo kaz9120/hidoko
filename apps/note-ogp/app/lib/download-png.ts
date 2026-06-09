@@ -8,7 +8,10 @@ export function buildFileName(title: string, issue: string): string {
 		.replace(/\n/g, " ")
 		.replace(/[\\/:*?"<>|\s]+/g, "_")
 		.slice(0, 32);
-	const padded = String(issue || "001").padStart(3, "0");
+	// localStorage 直編集など input フォームを経由しないルートで `/` 等が
+	// 入っても、ファイル名が壊れないように数字以外は捨ててからゼロ埋めする。
+	const digits = (issue ?? "").replace(/\D+/g, "");
+	const padded = (digits || "1").padStart(3, "0").slice(-3);
 	return `note-ogp_${safeTitle}_vol${padded}.png`;
 }
 
