@@ -5,8 +5,8 @@ import {
 	waitForPageReady,
 } from "@storybook/test-runner";
 
-// `bun --filter snapcrop test-storybook` は apps/snapcrop を cwd として実行される。
-// reg-suit が actualDir として参照する場所と合わせる。
+// `bun --filter hidoko-storybook test-storybook` は apps/storybook を cwd として実行される。
+// reg-suit が actualDir として参照する場所 (regconfig.json) と合わせる。
 const SCREENSHOT_DIR = path.resolve("__screenshots__");
 
 const config: TestRunnerConfig = {

@@ -10,8 +10,11 @@ const config: StorybookConfig = {
 		},
 	},
 	stories: [
-		"../app/**/*.stories.@(ts|tsx)",
 		"../../../packages/ui/src/**/*.stories.@(ts|tsx)",
+		"../../snapcrop/app/**/*.stories.@(ts|tsx)",
+		"../../futari-no-yotei/app/**/*.stories.@(ts|tsx)",
+		"../../homepage/app/**/*.stories.@(ts|tsx)",
+		"../stories/**/*.stories.@(ts|tsx)",
 	],
 };
 
