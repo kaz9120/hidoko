@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ThemeProvider } from "next-themes";
+import { TooltipProvider } from "ui/components/tooltip";
 
 import { SnapcropProvider } from "~/contexts/snapcrop-context";
 
@@ -23,7 +24,9 @@ const meta = {
 		(Story) => (
 			<ThemeProvider attribute="class" defaultTheme="dark">
 				<SnapcropProvider>
-					<Story />
+					<TooltipProvider>
+						<Story />
+					</TooltipProvider>
 				</SnapcropProvider>
 			</ThemeProvider>
 		),

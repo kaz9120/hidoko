@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { TooltipProvider } from "ui/components/tooltip";
 
 import { SnapcropProvider } from "~/contexts/snapcrop-context";
 
@@ -24,9 +25,11 @@ const meta = {
 	decorators: [
 		(Story) => (
 			<SnapcropProvider>
-				<div className="flex h-[480px] flex-col bg-[var(--ink-0)]">
-					<Story />
-				</div>
+				<TooltipProvider>
+					<div className="flex h-[480px] flex-col bg-[var(--ink-0)]">
+						<Story />
+					</div>
+				</TooltipProvider>
 			</SnapcropProvider>
 		),
 	],

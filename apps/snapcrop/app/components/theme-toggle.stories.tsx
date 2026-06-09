@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ThemeProvider } from "next-themes";
+import { TooltipProvider } from "ui/components/tooltip";
 
 import { ThemeToggle } from "./theme-toggle";
 
@@ -19,7 +20,9 @@ const meta = {
 	decorators: [
 		(Story) => (
 			<ThemeProvider attribute="class" defaultTheme="dark">
-				<Story />
+				<TooltipProvider>
+					<Story />
+				</TooltipProvider>
 			</ThemeProvider>
 		),
 	],
