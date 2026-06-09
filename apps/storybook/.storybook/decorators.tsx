@@ -1,6 +1,10 @@
 import type { Decorator } from "@storybook/react-vite";
 import { MemoryRouter } from "react-router";
 
+interface RouterParameters {
+	initialPath?: string;
+}
+
 /**
  * react-router の MemoryRouter で wrap する decorator。
  * `<NavLink>` / `<Link>` / `useNavigate` 等を使う component の story で必須。
@@ -15,7 +19,7 @@ import { MemoryRouter } from "react-router";
  */
 export const withRouter: Decorator = (Story, context) => {
 	const routerParams = context.parameters?.router as
-		| { initialPath?: string }
+		| RouterParameters
 		| undefined;
 	const initialPath = routerParams?.initialPath ?? "/";
 	return (

@@ -34,8 +34,7 @@ type Story = StoryObj<typeof ResizablePanelGroup>;
 export const Default: Story = {
 	render: () => (
 		<ResizablePanelGroup
-			// @ts-expect-error react-resizable-panels v4 の GroupProps から direction が読めない既知の型推論問題
-			direction="horizontal"
+			orientation="horizontal"
 			className="h-64 w-[560px] rounded-md border"
 		>
 			<ResizablePanel defaultSize={40}>
@@ -61,8 +60,7 @@ export const Default: Story = {
 export const Vertical: Story = {
 	render: () => (
 		<ResizablePanelGroup
-			// @ts-expect-error react-resizable-panels v4 の GroupProps から direction が読めない既知の型推論問題
-			direction="vertical"
+			orientation="vertical"
 			className="h-80 w-[420px] rounded-md border"
 		>
 			<ResizablePanel defaultSize={50}>

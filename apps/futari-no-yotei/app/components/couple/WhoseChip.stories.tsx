@@ -15,6 +15,9 @@ import { WhoseChip } from "./WhoseChip";
 const meta = {
 	title: "futari-no-yotei/Couple/WhoseChip",
 	component: WhoseChip,
+	parameters: {
+		layout: "centered",
+	},
 } satisfies Meta<typeof WhoseChip>;
 
 export default meta;

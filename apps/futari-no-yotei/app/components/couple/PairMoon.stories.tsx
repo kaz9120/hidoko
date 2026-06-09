@@ -12,6 +12,9 @@ import { PairMoon } from "./PairMoon";
 const meta = {
 	title: "futari-no-yotei/Couple/PairMoon",
 	component: PairMoon,
+	parameters: {
+		layout: "centered",
+	},
 } satisfies Meta<typeof PairMoon>;
 
 export default meta;

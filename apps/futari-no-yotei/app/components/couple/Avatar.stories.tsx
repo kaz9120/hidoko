@@ -15,6 +15,9 @@ import { Avatar } from "./Avatar";
 const meta: Meta<typeof Avatar> = {
 	title: "futari-no-yotei/Couple/Avatar",
 	component: Avatar,
+	parameters: {
+		layout: "centered",
+	},
 };
 
 export default meta;
