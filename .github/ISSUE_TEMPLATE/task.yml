@@ -1,5 +1,6 @@
 name: 整備タスク
 description: リファクタ・依存更新・ドキュメント・CI など、火床そのものを整える作業
+labels: ["maintenance"]
 body:
   - type: textarea
     id: why
