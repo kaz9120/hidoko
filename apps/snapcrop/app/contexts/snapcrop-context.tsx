@@ -12,6 +12,16 @@ import {
 } from "react";
 import type { CropData, CropEngineHandle } from "~/hooks/use-crop-engine";
 import {
+	loadArrowDefaults,
+	saveArrowDefaults,
+} from "~/lib/arrow-defaults-storage";
+import {
+	type ArrowAnnotation,
+	type ArrowAnnotationPatch,
+	type ArrowDefaults,
+	DEFAULT_ARROW_DEFAULTS,
+} from "~/lib/arrow-engine";
+import {
 	loadRectDefaults,
 	saveRectDefaults,
 } from "~/lib/rect-defaults-storage";
@@ -23,6 +33,14 @@ import {
 } from "~/lib/rect-engine";
 
 export type { CropData } from "~/hooks/use-crop-engine";
+export type {
+	ArrowAnnotation,
+	ArrowAnnotationPatch,
+	ArrowCapStyle,
+	ArrowDefaults,
+	ArrowLineStyle,
+	ArrowThickness,
+} from "~/lib/arrow-engine";
 export type {
 	Annotation,
 	RectAnnotation,
@@ -41,7 +59,7 @@ export type LoadedImage = {
 	fileSize: number;
 };
 
-export type ActiveTool = "crop" | "rect";
+export type ActiveTool = "crop" | "rect" | "arrow";
 
 /**
  * 矩形ツールのキーボード操作 (Esc キャンセル, Space pan 抑制) が、
@@ -52,6 +70,12 @@ export type RectEngineHandle = {
 	isInteracting: () => boolean;
 	cancelInteraction: () => void;
 };
+
+/**
+ * 矢印ツール用の共有ハンドル。形は RectEngineHandle と同じ
+ * (isInteracting / cancelInteraction)。useArrowShortcuts の Esc キャンセルが使う。
+ */
+export type ArrowEngineHandle = RectEngineHandle;
 
 type SnapcropContextValue = {
 	image: LoadedImage | null;
@@ -94,7 +118,21 @@ type SnapcropContextValue = {
 	) => void;
 	deleteAnnotation: (id: string) => void;
 
+	arrows: readonly ArrowAnnotation[];
+
+	arrowDefaults: ArrowDefaults;
+	setArrowDefaults: (next: ArrowDefaults) => void;
+
+	createArrow: (arrow: ArrowAnnotation) => void;
+	updateArrow: (
+		id: string,
+		patch: ArrowAnnotationPatch,
+		opts?: { batchKey?: string },
+	) => void;
+	deleteArrow: (id: string) => void;
+
 	rectEngineHandleRef: RefObject<RectEngineHandle | null>;
+	arrowEngineHandleRef: RefObject<ArrowEngineHandle | null>;
 	spacePressedRef: RefObject<boolean>;
 };
 
@@ -117,10 +155,36 @@ type AnnotationOp =
 			prev: RectAnnotation;
 			next: RectAnnotation;
 	  }
-	| { type: "rect.delete"; annotation: RectAnnotation };
+	| { type: "rect.delete"; annotation: RectAnnotation }
+	| { type: "arrow.create"; annotation: ArrowAnnotation }
+	| {
+			type: "arrow.update";
+			id: string;
+			prev: ArrowAnnotation;
+			next: ArrowAnnotation;
+	  }
+	| { type: "arrow.delete"; annotation: ArrowAnnotation };
+
+/** rect 系 op だけを抜き出した補助型。applyForward / applyReverse が受け取る。 */
+type RectOp = Extract<
+	AnnotationOp,
+	{ type: "rect.create" | "rect.update" | "rect.delete" }
+>;
+
+/** arrow 系 op だけを抜き出した補助型。applyArrowForward / applyArrowReverse が受け取る。 */
+type ArrowOp = Extract<
+	AnnotationOp,
+	{ type: "arrow.create" | "arrow.update" | "arrow.delete" }
+>;
+
+/** op の種別ルーター。else 側は RectOp に narrowing される。 */
+function isArrowOp(op: AnnotationOp): op is ArrowOp {
+	return op.type.startsWith("arrow.");
+}
 
 type AnnotationHistoryState = {
 	annotations: readonly RectAnnotation[];
+	arrows: readonly ArrowAnnotation[];
 	ops: AnnotationOp[];
 	/** -1 = まだ何も適用されていない、N = ops[N] を直前に適用済。 */
 	cursor: number;
@@ -134,6 +198,7 @@ type State = {
 	activeTool: ActiveTool;
 	selectedAnnotationId: string | null;
 	rectDefaults: RectDefaults;
+	arrowDefaults: ArrowDefaults;
 };
 
 type Action =
@@ -153,11 +218,22 @@ type Action =
 			timestamp: number;
 	  }
 	| { type: "RECT_DELETE"; id: string; timestamp: number }
+	| { type: "SET_ARROW_DEFAULTS"; defaults: ArrowDefaults }
+	| { type: "ARROW_CREATE"; annotation: ArrowAnnotation; timestamp: number }
+	| {
+			type: "ARROW_UPDATE";
+			id: string;
+			patch: ArrowAnnotationPatch;
+			batchKey: string | null;
+			timestamp: number;
+	  }
+	| { type: "ARROW_DELETE"; id: string; timestamp: number }
 	| { type: "ANNOT_UNDO" }
 	| { type: "ANNOT_REDO" };
 
 const EMPTY_ANNOTATION: AnnotationHistoryState = {
 	annotations: [],
+	arrows: [],
 	ops: [],
 	cursor: -1,
 	lastOpTimestamp: 0,
@@ -170,6 +246,7 @@ const initialState: State = {
 	activeTool: "crop",
 	selectedAnnotationId: null,
 	rectDefaults: DEFAULT_RECT_DEFAULTS,
+	arrowDefaults: DEFAULT_ARROW_DEFAULTS,
 };
 
 /** annotations を createdAt 昇順 (古い順 = z-order 下) に保つユーティリティ。 */
@@ -181,7 +258,7 @@ function sortAnnotations(
 
 function applyForward(
 	annotations: readonly RectAnnotation[],
-	op: AnnotationOp,
+	op: RectOp,
 ): readonly RectAnnotation[] {
 	switch (op.type) {
 		case "rect.create":
@@ -195,7 +272,7 @@ function applyForward(
 
 function applyReverse(
 	annotations: readonly RectAnnotation[],
-	op: AnnotationOp,
+	op: RectOp,
 ): readonly RectAnnotation[] {
 	switch (op.type) {
 		case "rect.create":
@@ -207,12 +284,50 @@ function applyReverse(
 	}
 }
 
+/** arrows を createdAt 昇順 (古い順 = z-order 下) に保つユーティリティ。 */
+function sortArrows(
+	list: readonly ArrowAnnotation[],
+): readonly ArrowAnnotation[] {
+	return [...list].sort((a, b) => a.createdAt - b.createdAt);
+}
+
+function applyArrowForward(
+	arrows: readonly ArrowAnnotation[],
+	op: ArrowOp,
+): readonly ArrowAnnotation[] {
+	switch (op.type) {
+		case "arrow.create":
+			return sortArrows([...arrows, op.annotation]);
+		case "arrow.update":
+			return arrows.map((a) => (a.id === op.id ? op.next : a));
+		case "arrow.delete":
+			return arrows.filter((a) => a.id !== op.annotation.id);
+	}
+}
+
+function applyArrowReverse(
+	arrows: readonly ArrowAnnotation[],
+	op: ArrowOp,
+): readonly ArrowAnnotation[] {
+	switch (op.type) {
+		case "arrow.create":
+			return arrows.filter((a) => a.id !== op.annotation.id);
+		case "arrow.update":
+			return arrows.map((a) => (a.id === op.id ? op.prev : a));
+		case "arrow.delete":
+			return sortArrows([...arrows, op.annotation]);
+	}
+}
+
 function pruneSelection(
 	id: string | null,
 	annotations: readonly RectAnnotation[],
+	arrows: readonly ArrowAnnotation[],
 ): string | null {
 	if (id === null) return null;
-	return annotations.some((a) => a.id === id) ? id : null;
+	return annotations.some((a) => a.id === id) || arrows.some((a) => a.id === id)
+		? id
+		: null;
 }
 
 function rectShallowEqual(a: RectAnnotation, b: RectAnnotation): boolean {
@@ -227,34 +342,66 @@ function rectShallowEqual(a: RectAnnotation, b: RectAnnotation): boolean {
 	);
 }
 
+function arrowShallowEqual(a: ArrowAnnotation, b: ArrowAnnotation): boolean {
+	return (
+		a.x1 === b.x1 &&
+		a.y1 === b.y1 &&
+		a.x2 === b.x2 &&
+		a.y2 === b.y2 &&
+		a.line === b.line &&
+		a.startCap === b.startCap &&
+		a.endCap === b.endCap &&
+		a.color === b.color &&
+		a.thickness === b.thickness
+	);
+}
+
+/**
+ * 直前の op (last) と新しい op が「同種の update・同 id」のとき、last の prev を
+ * 保ったまま next を上書きした merge 済み op を返す。違うときは null。
+ * batchKey / タイムスタンプの条件は呼び側 (pushOp) で判定する。
+ */
+function mergeUpdateOps(
+	last: AnnotationOp,
+	op: AnnotationOp,
+): AnnotationOp | null {
+	if (
+		last.type === "rect.update" &&
+		op.type === "rect.update" &&
+		last.id === op.id
+	) {
+		return { ...last, next: op.next };
+	}
+	if (
+		last.type === "arrow.update" &&
+		op.type === "arrow.update" &&
+		last.id === op.id
+	) {
+		return { ...last, next: op.next };
+	}
+	return null;
+}
+
 function pushOp(
 	state: AnnotationHistoryState,
 	op: AnnotationOp,
 	batchKey: string | null,
 	timestamp: number,
 ): AnnotationHistoryState {
-	// merge 判定: 直前の op が rect.update で同 id・同 batchKey、かつ 250ms 以内
+	// merge 判定: 直前の op が同種の update で同 id・同 batchKey、かつ 250ms 以内
 	const last = state.cursor >= 0 ? state.ops[state.cursor] : null;
-	const canMerge =
-		op.type === "rect.update" &&
+	const merged =
 		last !== null &&
-		last.type === "rect.update" &&
 		batchKey !== null &&
 		state.lastOpBatchKey === batchKey &&
-		last.id === op.id &&
-		timestamp - state.lastOpTimestamp < NUDGE_MERGE_WINDOW_MS;
+		timestamp - state.lastOpTimestamp < NUDGE_MERGE_WINDOW_MS
+			? mergeUpdateOps(last, op)
+			: null;
 
 	let nextOps: AnnotationOp[];
 	let nextCursor: number;
-	if (canMerge) {
+	if (merged) {
 		nextOps = [...state.ops];
-		// last は rect.update 確定なので、prev を保ったまま next を上書き
-		const merged: AnnotationOp = {
-			type: "rect.update",
-			id: (last as { type: "rect.update"; id: string }).id,
-			prev: (last as { type: "rect.update"; prev: RectAnnotation }).prev,
-			next: (op as { type: "rect.update"; next: RectAnnotation }).next,
-		};
 		nextOps[state.cursor] = merged;
 		nextCursor = state.cursor;
 	} else {
@@ -269,10 +416,17 @@ function pushOp(
 		nextCursor -= 1;
 	}
 
-	const nextAnnotations = applyForward(state.annotations, op);
+	// op の種別に応じて rect / arrow どちらかの配列にだけ適用する
+	const nextAnnotations = isArrowOp(op)
+		? state.annotations
+		: applyForward(state.annotations, op);
+	const nextArrows = isArrowOp(op)
+		? applyArrowForward(state.arrows, op)
+		: state.arrows;
 
 	return {
 		annotations: nextAnnotations,
+		arrows: nextArrows,
 		ops: nextOps,
 		cursor: nextCursor,
 		lastOpTimestamp: timestamp,
@@ -331,20 +485,33 @@ function reducer(state: State, action: Action): State {
 			return {
 				...initialState,
 				rectDefaults: state.rectDefaults, // ユーザ設定は維持
+				arrowDefaults: state.arrowDefaults,
 			};
 		}
 		case "SET_ACTIVE_TOOL":
-			// 画像がない時に rect は無意味なので強制 crop fallback
-			if (state.image.index < 0 && action.tool === "rect") {
+			// 画像がない時に annotation 系ツールは無意味なので強制 crop fallback
+			if (state.image.index < 0 && action.tool !== "crop") {
 				return { ...state, activeTool: "crop" };
 			}
 			if (state.activeTool === action.tool) return state;
 			return {
 				...state,
 				activeTool: action.tool,
-				// ツール切替時に selection を残しても表示上の意味がないのでクリア
+				// ツール切替時、新しいツールが扱う種類の annotation だけ選択を維持する
 				selectedAnnotationId:
-					action.tool === "rect" ? state.selectedAnnotationId : null,
+					action.tool === "rect"
+						? pruneSelection(
+								state.selectedAnnotationId,
+								state.annotation.annotations,
+								[],
+							)
+						: action.tool === "arrow"
+							? pruneSelection(
+									state.selectedAnnotationId,
+									[],
+									state.annotation.arrows,
+								)
+							: null,
 			};
 		case "SET_RECT_DEFAULTS":
 			return { ...state, rectDefaults: action.defaults };
@@ -409,15 +576,79 @@ function reducer(state: State, action: Action): State {
 				selectedAnnotationId: nextSelected,
 			};
 		}
+		case "SET_ARROW_DEFAULTS":
+			return { ...state, arrowDefaults: action.defaults };
+		case "ARROW_CREATE": {
+			const op: AnnotationOp = {
+				type: "arrow.create",
+				annotation: action.annotation,
+			};
+			const nextAnnotation = pushOp(
+				state.annotation,
+				op,
+				null,
+				action.timestamp,
+			);
+			return {
+				...state,
+				annotation: nextAnnotation,
+				selectedAnnotationId: action.annotation.id,
+			};
+		}
+		case "ARROW_UPDATE": {
+			const prev = state.annotation.arrows.find((a) => a.id === action.id);
+			if (!prev) return state;
+			const next: ArrowAnnotation = { ...prev, ...action.patch };
+			if (arrowShallowEqual(prev, next)) return state;
+			const op: AnnotationOp = {
+				type: "arrow.update",
+				id: action.id,
+				prev,
+				next,
+			};
+			const nextAnnotation = pushOp(
+				state.annotation,
+				op,
+				action.batchKey,
+				action.timestamp,
+			);
+			return { ...state, annotation: nextAnnotation };
+		}
+		case "ARROW_DELETE": {
+			const target = state.annotation.arrows.find((a) => a.id === action.id);
+			if (!target) return state;
+			const op: AnnotationOp = { type: "arrow.delete", annotation: target };
+			const nextAnnotation = pushOp(
+				state.annotation,
+				op,
+				null,
+				action.timestamp,
+			);
+			const nextSelected =
+				state.selectedAnnotationId === action.id
+					? null
+					: state.selectedAnnotationId;
+			return {
+				...state,
+				annotation: nextAnnotation,
+				selectedAnnotationId: nextSelected,
+			};
+		}
 		case "ANNOT_UNDO": {
 			if (state.annotation.cursor < 0) return state;
 			const op = state.annotation.ops[state.annotation.cursor];
-			const nextAnnotations = applyReverse(state.annotation.annotations, op);
+			const nextAnnotations = isArrowOp(op)
+				? state.annotation.annotations
+				: applyReverse(state.annotation.annotations, op);
+			const nextArrows = isArrowOp(op)
+				? applyArrowReverse(state.annotation.arrows, op)
+				: state.annotation.arrows;
 			return {
 				...state,
 				annotation: {
 					...state.annotation,
 					annotations: nextAnnotations,
+					arrows: nextArrows,
 					cursor: state.annotation.cursor - 1,
 					// 直後の連続操作と batch merge されないように batchKey をリセット
 					lastOpBatchKey: null,
@@ -425,6 +656,7 @@ function reducer(state: State, action: Action): State {
 				selectedAnnotationId: pruneSelection(
 					state.selectedAnnotationId,
 					nextAnnotations,
+					nextArrows,
 				),
 			};
 		}
@@ -432,18 +664,25 @@ function reducer(state: State, action: Action): State {
 			if (state.annotation.cursor >= state.annotation.ops.length - 1)
 				return state;
 			const op = state.annotation.ops[state.annotation.cursor + 1];
-			const nextAnnotations = applyForward(state.annotation.annotations, op);
+			const nextAnnotations = isArrowOp(op)
+				? state.annotation.annotations
+				: applyForward(state.annotation.annotations, op);
+			const nextArrows = isArrowOp(op)
+				? applyArrowForward(state.annotation.arrows, op)
+				: state.annotation.arrows;
 			return {
 				...state,
 				annotation: {
 					...state.annotation,
 					annotations: nextAnnotations,
+					arrows: nextArrows,
 					cursor: state.annotation.cursor + 1,
 					lastOpBatchKey: null,
 				},
 				selectedAnnotationId: pruneSelection(
 					state.selectedAnnotationId,
 					nextAnnotations,
+					nextArrows,
 				),
 			};
 		}
@@ -454,9 +693,11 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 	const [state, dispatch] = useReducer(reducer, initialState, (init) => ({
 		...init,
 		rectDefaults: loadRectDefaults(),
+		arrowDefaults: loadArrowDefaults(),
 	}));
 	const cropperRef = useRef<CropEngineHandle | null>(null);
 	const rectEngineHandleRef = useRef<RectEngineHandle | null>(null);
+	const arrowEngineHandleRef = useRef<ArrowEngineHandle | null>(null);
 	const spacePressedRef = useRef<boolean>(false);
 	const [cropData, setCropData] = useState<CropData | null>(null);
 	const [cropAspectRatioId, setCropAspectRatioIdState] = useState("free");
@@ -467,6 +708,10 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		saveRectDefaults(state.rectDefaults);
 	}, [state.rectDefaults]);
+
+	useEffect(() => {
+		saveArrowDefaults(state.arrowDefaults);
+	}, [state.arrowDefaults]);
 
 	// 画像が差し替わったら crop UI 状態をリセット (画像ごとに比率を選び直す)。
 	// 既存 site-header の useEffect ロジックを Provider 側に引き上げ。
@@ -548,7 +793,31 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 			deleteAnnotation: (id) =>
 				dispatch({ type: "RECT_DELETE", id, timestamp: Date.now() }),
 
+			arrows: state.annotation.arrows,
+
+			arrowDefaults: state.arrowDefaults,
+			setArrowDefaults: (defaults) =>
+				dispatch({ type: "SET_ARROW_DEFAULTS", defaults }),
+
+			createArrow: (arrow) =>
+				dispatch({
+					type: "ARROW_CREATE",
+					annotation: arrow,
+					timestamp: Date.now(),
+				}),
+			updateArrow: (id, patch, opts) =>
+				dispatch({
+					type: "ARROW_UPDATE",
+					id,
+					patch,
+					batchKey: opts?.batchKey ?? null,
+					timestamp: Date.now(),
+				}),
+			deleteArrow: (id) =>
+				dispatch({ type: "ARROW_DELETE", id, timestamp: Date.now() }),
+
 			rectEngineHandleRef,
+			arrowEngineHandleRef,
 			spacePressedRef,
 
 			cropAspectRatioId,

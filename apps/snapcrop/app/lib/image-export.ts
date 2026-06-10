@@ -1,4 +1,5 @@
 import type { CropEngineHandle } from "~/hooks/use-crop-engine";
+import { type ArrowAnnotation, getArrowRenderModel } from "~/lib/arrow-engine";
 import { paintMosaicRect } from "~/lib/mosaic";
 import {
 	FILL_OPACITY,
@@ -15,15 +16,19 @@ import {
  * クロップ領域に重なる annotation だけを対象に、出力サイズの canvas へ直接
  * 重ね描く (元画像全面を一度焼くアプローチだと、大きな画像で常に
  * 元解像度の中間 canvas を作ってしまい重かった)。
+ *
+ * arrows (矢印アノテーション) も同様に baked-in する。表示レイヤーの z-order
+ * (矢印は常に矩形より前) に合わせ、矩形 → 矢印の順に描く。
  */
 export async function getCroppedBlob(
 	engine: CropEngineHandle,
 	type = "image/png",
 	annotations: readonly RectAnnotation[] = [],
+	arrows: readonly ArrowAnnotation[] = [],
 ): Promise<Blob> {
 	const canvas =
-		annotations.length > 0
-			? renderAnnotatedCroppedCanvas(engine, annotations)
+		annotations.length > 0 || arrows.length > 0
+			? renderAnnotatedCroppedCanvas(engine, annotations, arrows)
 			: engine.toCanvas({ imageSmoothingQuality: "high" });
 	return await new Promise<Blob>((resolve, reject) => {
 		canvas.toBlob((blob) => {
@@ -47,6 +52,7 @@ export async function getCroppedBlob(
 function renderAnnotatedCroppedCanvas(
 	engine: CropEngineHandle,
 	annotations: readonly RectAnnotation[],
+	arrows: readonly ArrowAnnotation[],
 ): HTMLCanvasElement {
 	const cropRect = engine.getData();
 	const source = engine.getSourceImage();
@@ -78,6 +84,9 @@ function renderAnnotatedCroppedCanvas(
 	const visible = annotations.filter((a) => intersectsCrop(a, cropRect));
 	if (visible.length > 0) {
 		drawAnnotations(outCtx, out.width, out.height, visible, cropRect);
+	}
+	if (arrows.length > 0) {
+		drawArrows(outCtx, arrows, cropRect);
 	}
 	return out;
 }
@@ -145,6 +154,62 @@ function drawAnnotations(
 			);
 		}
 	}
+}
+
+/**
+ * 矢印を canvas に baked-in する。形状計算は arrow-engine の
+ * getArrowRenderModel に集約していて、SVG レイヤー (arrow-layer) と同じ
+ * 見た目になる。クロップ範囲外は canvas 側で自動的に切れるので、
+ * intersect 判定はしない (矢印のパス描画は十分軽い)。
+ */
+function drawArrows(
+	ctx: CanvasRenderingContext2D,
+	arrows: readonly ArrowAnnotation[],
+	cropRect: { x: number; y: number },
+): void {
+	const sorted = [...arrows].sort((a, b) => a.createdAt - b.createdAt);
+	const prevLineCap = ctx.lineCap;
+	for (const arrow of sorted) {
+		const m = getArrowRenderModel(arrow);
+		ctx.strokeStyle = arrow.color;
+		ctx.fillStyle = arrow.color;
+		ctx.lineWidth = m.strokeWidth;
+		ctx.lineCap = "round";
+		ctx.beginPath();
+		ctx.moveTo(m.from.x - cropRect.x, m.from.y - cropRect.y);
+		if (m.control) {
+			ctx.quadraticCurveTo(
+				m.control.x - cropRect.x,
+				m.control.y - cropRect.y,
+				m.to.x - cropRect.x,
+				m.to.y - cropRect.y,
+			);
+		} else {
+			ctx.lineTo(m.to.x - cropRect.x, m.to.y - cropRect.y);
+		}
+		ctx.stroke();
+		for (const cap of m.caps) {
+			if (cap.type === "arrowhead") {
+				ctx.beginPath();
+				ctx.moveTo(cap.points[0].x - cropRect.x, cap.points[0].y - cropRect.y);
+				ctx.lineTo(cap.points[1].x - cropRect.x, cap.points[1].y - cropRect.y);
+				ctx.lineTo(cap.points[2].x - cropRect.x, cap.points[2].y - cropRect.y);
+				ctx.closePath();
+				ctx.fill();
+			} else {
+				ctx.beginPath();
+				ctx.arc(
+					cap.center.x - cropRect.x,
+					cap.center.y - cropRect.y,
+					cap.radius,
+					0,
+					Math.PI * 2,
+				);
+				ctx.fill();
+			}
+		}
+	}
+	ctx.lineCap = prevLineCap;
 }
 
 function pathRoundRect(

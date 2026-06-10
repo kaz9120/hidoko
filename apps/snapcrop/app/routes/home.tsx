@@ -1,3 +1,4 @@
+import { ArrowToolbar } from "~/components/layout/arrow-toolbar";
 import { CropToolbar } from "~/components/layout/crop-toolbar";
 import { EditorCanvas } from "~/components/layout/editor-canvas";
 import { RectToolbar } from "~/components/layout/rect-toolbar";
@@ -23,6 +24,7 @@ export default function Home() {
 				<SiteHeader />
 				<CropToolbar />
 				<RectToolbar />
+				<ArrowToolbar />
 				<EditorCanvas />
 				<StatusBar />
 			</div>
