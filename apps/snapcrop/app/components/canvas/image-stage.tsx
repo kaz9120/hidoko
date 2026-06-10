@@ -3,11 +3,13 @@ import { AnnotationLayer } from "~/components/canvas/annotation-layer";
 import { CropFrame } from "~/components/canvas/crop-frame";
 import { MosaicLayer } from "~/components/canvas/mosaic-layer";
 import { RectInteractionLayer } from "~/components/canvas/rect-interaction-layer";
+import { RectMiniActions } from "~/components/canvas/rect-mini-actions";
 import { RectPreviewOverlay } from "~/components/canvas/rect-preview-overlay";
 import { RectSelectionOverlay } from "~/components/canvas/rect-selection-overlay";
 import { type LoadedImage, useSnapcrop } from "~/contexts/snapcrop-context";
 import type { UseCropEngineResult } from "~/hooks/use-crop-engine";
 import { useRectEngine } from "~/hooks/use-rect-engine";
+import { duplicateRectAnnotation } from "~/lib/rect-engine";
 
 export type ImageStageProps = {
 	image: LoadedImage;
@@ -29,8 +31,9 @@ export type ImageStageProps = {
  *                                     (SelectionOverlay の下に置くことで handle
  *                                     クリックを奪わない)
  *   5. <RectSelectionOverlay>         1px ring + 8 handle (handle のみ events:auto)
- *   6. <RectPreviewOverlay>           drawing 中の破線プレビュー
- *   7. <CropFrame>                    activeTool==='crop' のとき
+ *   6. <RectMiniActions>              選択矩形近傍の複製 / 削除バー (interaction 中は非表示)
+ *   7. <RectPreviewOverlay>           drawing 中の破線プレビュー
+ *   8. <CropFrame>                    activeTool==='crop' のとき
  */
 export function ImageStage({
 	image,
@@ -44,6 +47,8 @@ export function ImageStage({
 		selectedAnnotationId,
 		rectDefaults,
 		rectEngineHandleRef,
+		createAnnotation,
+		deleteAnnotation,
 	} = useSnapcrop();
 
 	const imageMetrics = useMemo(
@@ -126,6 +131,21 @@ export function ImageStage({
 					annotation={selectedRendered}
 					engine={rectEngine}
 					getImagePoint={getImagePoint}
+					zoom={zoom}
+				/>
+			)}
+			{/* ドラッグ・リサイズ中は操作の邪魔になるので隠す */}
+			{selectedRendered && !rectEngine.isInteracting && (
+				<RectMiniActions
+					annotation={selectedRendered}
+					imageHeight={image.height}
+					imageWidth={image.width}
+					onDelete={() => deleteAnnotation(selectedRendered.id)}
+					onDuplicate={() =>
+						createAnnotation(
+							duplicateRectAnnotation(selectedRendered, imageMetrics),
+						)
+					}
 					zoom={zoom}
 				/>
 			)}
