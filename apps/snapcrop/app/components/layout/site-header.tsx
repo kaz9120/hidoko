@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "ui";
 import logoCreamUrl from "ui/assets/logo/mark-cream.svg?url";
 import logoDarkUrl from "ui/assets/logo/mark-dark.svg?url";
+import { HelpDialog } from "~/components/help-dialog";
+import { SettingsDialog } from "~/components/settings-dialog";
 import { ThemeToggle } from "~/components/theme-toggle";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 import { readImageFromClipboard } from "~/lib/clipboard";
@@ -148,7 +150,9 @@ export function SiteHeader() {
 					label="やり直す (⌘⇧Z)"
 					onClick={redo}
 				/>
+				<HelpDialog />
 				<ThemeToggle />
+				<SettingsDialog />
 			</div>
 		</header>
 	);
