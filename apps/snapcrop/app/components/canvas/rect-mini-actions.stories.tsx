@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { TooltipProvider } from "ui/components/tooltip";
 
 import type { RectAnnotation } from "~/lib/rect-engine";
 
@@ -23,22 +24,24 @@ const meta = {
 		(Story, ctx) => {
 			const { annotation, zoom, imageWidth, imageHeight } = ctx.args;
 			return (
-				<div
-					className="relative overflow-hidden rounded-md border border-border bg-bg-raised"
-					style={{ width: imageWidth * zoom, height: imageHeight * zoom }}
-				>
-					{/* 選択中の矩形のダミー (実 UI では RectSelectionOverlay が重なる) */}
+				<TooltipProvider>
 					<div
-						className="absolute border border-[var(--ember-400)] border-dashed"
-						style={{
-							left: annotation.x * zoom,
-							top: annotation.y * zoom,
-							width: annotation.width * zoom,
-							height: annotation.height * zoom,
-						}}
-					/>
-					<Story />
-				</div>
+						className="relative overflow-hidden rounded-md border border-border bg-bg-raised"
+						style={{ width: imageWidth * zoom, height: imageHeight * zoom }}
+					>
+						{/* 選択中の矩形のダミー (実 UI では RectSelectionOverlay が重なる) */}
+						<div
+							className="absolute border border-[var(--ember-400)] border-dashed"
+							style={{
+								left: annotation.x * zoom,
+								top: annotation.y * zoom,
+								width: annotation.width * zoom,
+								height: annotation.height * zoom,
+							}}
+						/>
+						<Story />
+					</div>
+				</TooltipProvider>
 			);
 		},
 	],
