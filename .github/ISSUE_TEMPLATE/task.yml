@@ -1,0 +1,23 @@
+name: 整備タスク
+description: リファクタ・依存更新・ドキュメント・CI など、火床そのものを整える作業
+body:
+  - type: textarea
+    id: why
+    attributes:
+      label: Why — なぜやるのか
+      description: 放置すると何に困るか、整えると何が良くなるか
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What — 何をするのか
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: 完了条件
+      description: 何がどうなっていれば終わりか
+    validations:
+      required: false
