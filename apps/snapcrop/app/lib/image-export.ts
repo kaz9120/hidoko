@@ -7,6 +7,11 @@ import {
 	OUTLINE_PX,
 	type RectAnnotation,
 } from "~/lib/rect-engine";
+import {
+	getTextRenderModel,
+	type TextAnnotation,
+	textBackgroundColor,
+} from "~/lib/text-engine";
 
 /**
  * 現在のクロップ範囲を Blob に変換する。
@@ -17,18 +22,20 @@ import {
  * 重ね描く (元画像全面を一度焼くアプローチだと、大きな画像で常に
  * 元解像度の中間 canvas を作ってしまい重かった)。
  *
- * arrows (矢印アノテーション) も同様に baked-in する。表示レイヤーの z-order
- * (矢印は常に矩形より前) に合わせ、矩形 → 矢印の順に描く。
+ * arrows (矢印アノテーション) / texts (テキストアノテーション) も同様に
+ * baked-in する。表示レイヤーの z-order (矢印は矩形より前、テキストは矢印
+ * より前) に合わせ、矩形 → 矢印 → テキストの順に描く。
  */
 export async function getCroppedBlob(
 	engine: CropEngineHandle,
 	type = "image/png",
 	annotations: readonly RectAnnotation[] = [],
 	arrows: readonly ArrowAnnotation[] = [],
+	texts: readonly TextAnnotation[] = [],
 ): Promise<Blob> {
 	const canvas =
-		annotations.length > 0 || arrows.length > 0
-			? renderAnnotatedCroppedCanvas(engine, annotations, arrows)
+		annotations.length > 0 || arrows.length > 0 || texts.length > 0
+			? renderAnnotatedCroppedCanvas(engine, annotations, arrows, texts)
 			: engine.toCanvas({ imageSmoothingQuality: "high" });
 	return await new Promise<Blob>((resolve, reject) => {
 		canvas.toBlob((blob) => {
@@ -53,6 +60,7 @@ function renderAnnotatedCroppedCanvas(
 	engine: CropEngineHandle,
 	annotations: readonly RectAnnotation[],
 	arrows: readonly ArrowAnnotation[],
+	texts: readonly TextAnnotation[],
 ): HTMLCanvasElement {
 	const cropRect = engine.getData();
 	const source = engine.getSourceImage();
@@ -87,6 +95,9 @@ function renderAnnotatedCroppedCanvas(
 	}
 	if (arrows.length > 0) {
 		drawArrows(outCtx, arrows, cropRect);
+	}
+	if (texts.length > 0) {
+		drawTexts(outCtx, texts, cropRect);
 	}
 	return out;
 }
@@ -210,6 +221,47 @@ function drawArrows(
 		}
 	}
 	ctx.lineCap = prevLineCap;
+}
+
+/**
+ * テキストを canvas に baked-in する。baseline・行送り・アンカーの計算は
+ * text-engine の getTextRenderModel に集約していて、SVG レイヤー
+ * (text-layer) と同じ見た目になる。クロップ範囲外は canvas 側で自動的に
+ * 切れるので、intersect 判定はしない (テキスト描画は十分軽い)。
+ */
+function drawTexts(
+	ctx: CanvasRenderingContext2D,
+	texts: readonly TextAnnotation[],
+	cropRect: { x: number; y: number },
+): void {
+	const sorted = [...texts].sort((a, b) => a.createdAt - b.createdAt);
+	const prevAlign = ctx.textAlign;
+	const prevBaseline = ctx.textBaseline;
+	for (const t of sorted) {
+		const m = getTextRenderModel(t);
+		const bg = textBackgroundColor(t.background);
+		if (m.bgRect && bg) {
+			ctx.fillStyle = bg;
+			pathRoundRect(
+				ctx,
+				m.bgRect.x - cropRect.x,
+				m.bgRect.y - cropRect.y,
+				m.bgRect.width,
+				m.bgRect.height,
+				m.bgRect.radius,
+			);
+			ctx.fill();
+		}
+		ctx.font = m.font;
+		ctx.textAlign = t.align;
+		ctx.textBaseline = "alphabetic";
+		ctx.fillStyle = t.color;
+		for (const line of m.lines) {
+			ctx.fillText(line.text, line.x - cropRect.x, line.baselineY - cropRect.y);
+		}
+	}
+	ctx.textAlign = prevAlign;
+	ctx.textBaseline = prevBaseline;
 }
 
 function pathRoundRect(

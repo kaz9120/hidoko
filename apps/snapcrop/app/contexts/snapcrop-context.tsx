@@ -31,6 +31,16 @@ import {
 	type RectAnnotationPatch,
 	type RectDefaults,
 } from "~/lib/rect-engine";
+import {
+	loadTextDefaults,
+	saveTextDefaults,
+} from "~/lib/text-defaults-storage";
+import {
+	DEFAULT_TEXT_DEFAULTS,
+	type TextAnnotation,
+	type TextAnnotationPatch,
+	type TextDefaults,
+} from "~/lib/text-engine";
 
 export type { CropData } from "~/hooks/use-crop-engine";
 export type {
@@ -49,6 +59,14 @@ export type {
 	RectStyle,
 	RectThickness,
 } from "~/lib/rect-engine";
+export type {
+	TextAlign,
+	TextAnnotation,
+	TextAnnotationPatch,
+	TextBackground,
+	TextDefaults,
+	TextFontFamily,
+} from "~/lib/text-engine";
 
 export type LoadedImage = {
 	src: string;
@@ -59,7 +77,7 @@ export type LoadedImage = {
 	fileSize: number;
 };
 
-export type ActiveTool = "crop" | "rect" | "arrow";
+export type ActiveTool = "crop" | "rect" | "arrow" | "text";
 
 /**
  * 矩形ツールのキーボード操作 (Esc キャンセル, Space pan 抑制) が、
@@ -76,6 +94,15 @@ export type RectEngineHandle = {
  * (isInteracting / cancelInteraction)。useArrowShortcuts の Esc キャンセルが使う。
  */
 export type ArrowEngineHandle = RectEngineHandle;
+
+/**
+ * テキストツール用の共有ハンドル。形は RectEngineHandle と同じ
+ * (isInteracting / cancelInteraction)。isInteracting は移動中だけでなく
+ * インライン編集中も true を返す。useTextShortcuts の Esc キャンセルと、
+ * use-rect-shortcuts の「どの engine も interacting でないとき選択解除」
+ * 判定が使う。
+ */
+export type TextEngineHandle = RectEngineHandle;
 
 type SnapcropContextValue = {
 	image: LoadedImage | null;
@@ -131,8 +158,22 @@ type SnapcropContextValue = {
 	) => void;
 	deleteArrow: (id: string) => void;
 
+	texts: readonly TextAnnotation[];
+
+	textDefaults: TextDefaults;
+	setTextDefaults: (next: TextDefaults) => void;
+
+	createText: (text: TextAnnotation) => void;
+	updateText: (
+		id: string,
+		patch: TextAnnotationPatch,
+		opts?: { batchKey?: string },
+	) => void;
+	deleteText: (id: string) => void;
+
 	rectEngineHandleRef: RefObject<RectEngineHandle | null>;
 	arrowEngineHandleRef: RefObject<ArrowEngineHandle | null>;
+	textEngineHandleRef: RefObject<TextEngineHandle | null>;
 	spacePressedRef: RefObject<boolean>;
 };
 
@@ -163,7 +204,15 @@ type AnnotationOp =
 			prev: ArrowAnnotation;
 			next: ArrowAnnotation;
 	  }
-	| { type: "arrow.delete"; annotation: ArrowAnnotation };
+	| { type: "arrow.delete"; annotation: ArrowAnnotation }
+	| { type: "text.create"; annotation: TextAnnotation }
+	| {
+			type: "text.update";
+			id: string;
+			prev: TextAnnotation;
+			next: TextAnnotation;
+	  }
+	| { type: "text.delete"; annotation: TextAnnotation };
 
 /** rect 系 op だけを抜き出した補助型。applyForward / applyReverse が受け取る。 */
 type RectOp = Extract<
@@ -182,9 +231,21 @@ function isArrowOp(op: AnnotationOp): op is ArrowOp {
 	return op.type.startsWith("arrow.");
 }
 
+/** text 系 op だけを抜き出した補助型。applyTextForward / applyTextReverse が受け取る。 */
+type TextOp = Extract<
+	AnnotationOp,
+	{ type: "text.create" | "text.update" | "text.delete" }
+>;
+
+/** isArrowOp と同形の型ガード (text 版)。 */
+function isTextOp(op: AnnotationOp): op is TextOp {
+	return op.type.startsWith("text.");
+}
+
 type AnnotationHistoryState = {
 	annotations: readonly RectAnnotation[];
 	arrows: readonly ArrowAnnotation[];
+	texts: readonly TextAnnotation[];
 	ops: AnnotationOp[];
 	/** -1 = まだ何も適用されていない、N = ops[N] を直前に適用済。 */
 	cursor: number;
@@ -199,6 +260,7 @@ type State = {
 	selectedAnnotationId: string | null;
 	rectDefaults: RectDefaults;
 	arrowDefaults: ArrowDefaults;
+	textDefaults: TextDefaults;
 };
 
 type Action =
@@ -228,12 +290,23 @@ type Action =
 			timestamp: number;
 	  }
 	| { type: "ARROW_DELETE"; id: string; timestamp: number }
+	| { type: "SET_TEXT_DEFAULTS"; defaults: TextDefaults }
+	| { type: "TEXT_CREATE"; annotation: TextAnnotation; timestamp: number }
+	| {
+			type: "TEXT_UPDATE";
+			id: string;
+			patch: TextAnnotationPatch;
+			batchKey: string | null;
+			timestamp: number;
+	  }
+	| { type: "TEXT_DELETE"; id: string; timestamp: number }
 	| { type: "ANNOT_UNDO" }
 	| { type: "ANNOT_REDO" };
 
 const EMPTY_ANNOTATION: AnnotationHistoryState = {
 	annotations: [],
 	arrows: [],
+	texts: [],
 	ops: [],
 	cursor: -1,
 	lastOpTimestamp: 0,
@@ -247,6 +320,7 @@ const initialState: State = {
 	selectedAnnotationId: null,
 	rectDefaults: DEFAULT_RECT_DEFAULTS,
 	arrowDefaults: DEFAULT_ARROW_DEFAULTS,
+	textDefaults: DEFAULT_TEXT_DEFAULTS,
 };
 
 /** annotations を createdAt 昇順 (古い順 = z-order 下) に保つユーティリティ。 */
@@ -319,13 +393,49 @@ function applyArrowReverse(
 	}
 }
 
+/** texts を createdAt 昇順 (古い順 = z-order 下) に保つユーティリティ。 */
+function sortTexts(list: readonly TextAnnotation[]): readonly TextAnnotation[] {
+	return [...list].sort((a, b) => a.createdAt - b.createdAt);
+}
+
+function applyTextForward(
+	texts: readonly TextAnnotation[],
+	op: TextOp,
+): readonly TextAnnotation[] {
+	switch (op.type) {
+		case "text.create":
+			return sortTexts([...texts, op.annotation]);
+		case "text.update":
+			return texts.map((t) => (t.id === op.id ? op.next : t));
+		case "text.delete":
+			return texts.filter((t) => t.id !== op.annotation.id);
+	}
+}
+
+function applyTextReverse(
+	texts: readonly TextAnnotation[],
+	op: TextOp,
+): readonly TextAnnotation[] {
+	switch (op.type) {
+		case "text.create":
+			return texts.filter((t) => t.id !== op.annotation.id);
+		case "text.update":
+			return texts.map((t) => (t.id === op.id ? op.prev : t));
+		case "text.delete":
+			return sortTexts([...texts, op.annotation]);
+	}
+}
+
 function pruneSelection(
 	id: string | null,
 	annotations: readonly RectAnnotation[],
 	arrows: readonly ArrowAnnotation[],
+	texts: readonly TextAnnotation[],
 ): string | null {
 	if (id === null) return null;
-	return annotations.some((a) => a.id === id) || arrows.some((a) => a.id === id)
+	return annotations.some((a) => a.id === id) ||
+		arrows.some((a) => a.id === id) ||
+		texts.some((t) => t.id === id)
 		? id
 		: null;
 }
@@ -356,6 +466,21 @@ function arrowShallowEqual(a: ArrowAnnotation, b: ArrowAnnotation): boolean {
 	);
 }
 
+function textShallowEqual(a: TextAnnotation, b: TextAnnotation): boolean {
+	return (
+		a.x === b.x &&
+		a.y === b.y &&
+		a.text === b.text &&
+		a.fontFamily === b.fontFamily &&
+		a.fontSize === b.fontSize &&
+		a.align === b.align &&
+		a.bold === b.bold &&
+		a.italic === b.italic &&
+		a.color === b.color &&
+		a.background === b.background
+	);
+}
+
 /**
  * 直前の op (last) と新しい op が「同種の update・同 id」のとき、last の prev を
  * 保ったまま next を上書きした merge 済み op を返す。違うときは null。
@@ -375,6 +500,13 @@ function mergeUpdateOps(
 	if (
 		last.type === "arrow.update" &&
 		op.type === "arrow.update" &&
+		last.id === op.id
+	) {
+		return { ...last, next: op.next };
+	}
+	if (
+		last.type === "text.update" &&
+		op.type === "text.update" &&
 		last.id === op.id
 	) {
 		return { ...last, next: op.next };
@@ -416,17 +548,22 @@ function pushOp(
 		nextCursor -= 1;
 	}
 
-	// op の種別に応じて rect / arrow どちらかの配列にだけ適用する
-	const nextAnnotations = isArrowOp(op)
-		? state.annotations
-		: applyForward(state.annotations, op);
+	// op の種別に応じて rect / arrow / text いずれかの配列にだけ適用する
+	const nextAnnotations =
+		isArrowOp(op) || isTextOp(op)
+			? state.annotations
+			: applyForward(state.annotations, op);
 	const nextArrows = isArrowOp(op)
 		? applyArrowForward(state.arrows, op)
 		: state.arrows;
+	const nextTexts = isTextOp(op)
+		? applyTextForward(state.texts, op)
+		: state.texts;
 
 	return {
 		annotations: nextAnnotations,
 		arrows: nextArrows,
+		texts: nextTexts,
 		ops: nextOps,
 		cursor: nextCursor,
 		lastOpTimestamp: timestamp,
@@ -486,6 +623,7 @@ function reducer(state: State, action: Action): State {
 				...initialState,
 				rectDefaults: state.rectDefaults, // ユーザ設定は維持
 				arrowDefaults: state.arrowDefaults,
+				textDefaults: state.textDefaults,
 			};
 		}
 		case "SET_ACTIVE_TOOL":
@@ -504,14 +642,23 @@ function reducer(state: State, action: Action): State {
 								state.selectedAnnotationId,
 								state.annotation.annotations,
 								[],
+								[],
 							)
 						: action.tool === "arrow"
 							? pruneSelection(
 									state.selectedAnnotationId,
 									[],
 									state.annotation.arrows,
+									[],
 								)
-							: null,
+							: action.tool === "text"
+								? pruneSelection(
+										state.selectedAnnotationId,
+										[],
+										[],
+										state.annotation.texts,
+									)
+								: null,
 			};
 		case "SET_RECT_DEFAULTS":
 			return { ...state, rectDefaults: action.defaults };
@@ -634,21 +781,84 @@ function reducer(state: State, action: Action): State {
 				selectedAnnotationId: nextSelected,
 			};
 		}
+		case "SET_TEXT_DEFAULTS":
+			return { ...state, textDefaults: action.defaults };
+		case "TEXT_CREATE": {
+			const op: AnnotationOp = {
+				type: "text.create",
+				annotation: action.annotation,
+			};
+			const nextAnnotation = pushOp(
+				state.annotation,
+				op,
+				null,
+				action.timestamp,
+			);
+			return {
+				...state,
+				annotation: nextAnnotation,
+				selectedAnnotationId: action.annotation.id,
+			};
+		}
+		case "TEXT_UPDATE": {
+			const prev = state.annotation.texts.find((t) => t.id === action.id);
+			if (!prev) return state;
+			const next: TextAnnotation = { ...prev, ...action.patch };
+			if (textShallowEqual(prev, next)) return state;
+			const op: AnnotationOp = {
+				type: "text.update",
+				id: action.id,
+				prev,
+				next,
+			};
+			const nextAnnotation = pushOp(
+				state.annotation,
+				op,
+				action.batchKey,
+				action.timestamp,
+			);
+			return { ...state, annotation: nextAnnotation };
+		}
+		case "TEXT_DELETE": {
+			const target = state.annotation.texts.find((t) => t.id === action.id);
+			if (!target) return state;
+			const op: AnnotationOp = { type: "text.delete", annotation: target };
+			const nextAnnotation = pushOp(
+				state.annotation,
+				op,
+				null,
+				action.timestamp,
+			);
+			const nextSelected =
+				state.selectedAnnotationId === action.id
+					? null
+					: state.selectedAnnotationId;
+			return {
+				...state,
+				annotation: nextAnnotation,
+				selectedAnnotationId: nextSelected,
+			};
+		}
 		case "ANNOT_UNDO": {
 			if (state.annotation.cursor < 0) return state;
 			const op = state.annotation.ops[state.annotation.cursor];
-			const nextAnnotations = isArrowOp(op)
-				? state.annotation.annotations
-				: applyReverse(state.annotation.annotations, op);
+			const nextAnnotations =
+				isArrowOp(op) || isTextOp(op)
+					? state.annotation.annotations
+					: applyReverse(state.annotation.annotations, op);
 			const nextArrows = isArrowOp(op)
 				? applyArrowReverse(state.annotation.arrows, op)
 				: state.annotation.arrows;
+			const nextTexts = isTextOp(op)
+				? applyTextReverse(state.annotation.texts, op)
+				: state.annotation.texts;
 			return {
 				...state,
 				annotation: {
 					...state.annotation,
 					annotations: nextAnnotations,
 					arrows: nextArrows,
+					texts: nextTexts,
 					cursor: state.annotation.cursor - 1,
 					// 直後の連続操作と batch merge されないように batchKey をリセット
 					lastOpBatchKey: null,
@@ -657,6 +867,7 @@ function reducer(state: State, action: Action): State {
 					state.selectedAnnotationId,
 					nextAnnotations,
 					nextArrows,
+					nextTexts,
 				),
 			};
 		}
@@ -664,18 +875,23 @@ function reducer(state: State, action: Action): State {
 			if (state.annotation.cursor >= state.annotation.ops.length - 1)
 				return state;
 			const op = state.annotation.ops[state.annotation.cursor + 1];
-			const nextAnnotations = isArrowOp(op)
-				? state.annotation.annotations
-				: applyForward(state.annotation.annotations, op);
+			const nextAnnotations =
+				isArrowOp(op) || isTextOp(op)
+					? state.annotation.annotations
+					: applyForward(state.annotation.annotations, op);
 			const nextArrows = isArrowOp(op)
 				? applyArrowForward(state.annotation.arrows, op)
 				: state.annotation.arrows;
+			const nextTexts = isTextOp(op)
+				? applyTextForward(state.annotation.texts, op)
+				: state.annotation.texts;
 			return {
 				...state,
 				annotation: {
 					...state.annotation,
 					annotations: nextAnnotations,
 					arrows: nextArrows,
+					texts: nextTexts,
 					cursor: state.annotation.cursor + 1,
 					lastOpBatchKey: null,
 				},
@@ -683,6 +899,7 @@ function reducer(state: State, action: Action): State {
 					state.selectedAnnotationId,
 					nextAnnotations,
 					nextArrows,
+					nextTexts,
 				),
 			};
 		}
@@ -694,10 +911,12 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 		...init,
 		rectDefaults: loadRectDefaults(),
 		arrowDefaults: loadArrowDefaults(),
+		textDefaults: loadTextDefaults(),
 	}));
 	const cropperRef = useRef<CropEngineHandle | null>(null);
 	const rectEngineHandleRef = useRef<RectEngineHandle | null>(null);
 	const arrowEngineHandleRef = useRef<ArrowEngineHandle | null>(null);
+	const textEngineHandleRef = useRef<TextEngineHandle | null>(null);
 	const spacePressedRef = useRef<boolean>(false);
 	const [cropData, setCropData] = useState<CropData | null>(null);
 	const [cropAspectRatioId, setCropAspectRatioIdState] = useState("free");
@@ -712,6 +931,10 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		saveArrowDefaults(state.arrowDefaults);
 	}, [state.arrowDefaults]);
+
+	useEffect(() => {
+		saveTextDefaults(state.textDefaults);
+	}, [state.textDefaults]);
 
 	// 画像が差し替わったら crop UI 状態をリセット (画像ごとに比率を選び直す)。
 	// 既存 site-header の useEffect ロジックを Provider 側に引き上げ。
@@ -816,8 +1039,32 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 			deleteArrow: (id) =>
 				dispatch({ type: "ARROW_DELETE", id, timestamp: Date.now() }),
 
+			texts: state.annotation.texts,
+
+			textDefaults: state.textDefaults,
+			setTextDefaults: (defaults) =>
+				dispatch({ type: "SET_TEXT_DEFAULTS", defaults }),
+
+			createText: (text) =>
+				dispatch({
+					type: "TEXT_CREATE",
+					annotation: text,
+					timestamp: Date.now(),
+				}),
+			updateText: (id, patch, opts) =>
+				dispatch({
+					type: "TEXT_UPDATE",
+					id,
+					patch,
+					batchKey: opts?.batchKey ?? null,
+					timestamp: Date.now(),
+				}),
+			deleteText: (id) =>
+				dispatch({ type: "TEXT_DELETE", id, timestamp: Date.now() }),
+
 			rectEngineHandleRef,
 			arrowEngineHandleRef,
+			textEngineHandleRef,
 			spacePressedRef,
 
 			cropAspectRatioId,

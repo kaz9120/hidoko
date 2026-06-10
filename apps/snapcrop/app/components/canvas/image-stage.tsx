@@ -9,10 +9,15 @@ import { MosaicLayer } from "~/components/canvas/mosaic-layer";
 import { RectInteractionLayer } from "~/components/canvas/rect-interaction-layer";
 import { RectPreviewOverlay } from "~/components/canvas/rect-preview-overlay";
 import { RectSelectionOverlay } from "~/components/canvas/rect-selection-overlay";
+import { TextEditorOverlay } from "~/components/canvas/text-editor-overlay";
+import { TextInteractionLayer } from "~/components/canvas/text-interaction-layer";
+import { TextLayer } from "~/components/canvas/text-layer";
+import { TextSelectionOverlay } from "~/components/canvas/text-selection-overlay";
 import { type LoadedImage, useSnapcrop } from "~/contexts/snapcrop-context";
 import { useArrowEngine } from "~/hooks/use-arrow-engine";
 import type { UseCropEngineResult } from "~/hooks/use-crop-engine";
 import { useRectEngine } from "~/hooks/use-rect-engine";
+import { useTextEngine } from "~/hooks/use-text-engine";
 
 export type ImageStageProps = {
 	image: LoadedImage;
@@ -40,6 +45,12 @@ export type ImageStageProps = {
  * 矢印ツールのレイヤーも同じ構造で重ねる: <ArrowLayer> は 3 の直上 (矢印は
  * 常に矩形より前)、<ArrowInteractionLayer> / <ArrowSelectionOverlay> /
  * <ArrowPreviewOverlay> は 6 と 7 の間 (activeTool==='arrow' のときだけ)。
+ *
+ * テキストツールも同様: <TextLayer> は <ArrowLayer> の直上 (テキストは常に
+ * 矢印より前)、<TextInteractionLayer> / <TextSelectionOverlay> /
+ * <TextEditorOverlay> は activeTool==='text' のときだけ。preview overlay の
+ * 代わりに、インライン編集の <TextEditorOverlay> が「まだ commit されて
+ * いない状態」を担う。
  */
 export function ImageStage({
 	image,
@@ -56,6 +67,9 @@ export function ImageStage({
 		arrows,
 		arrowDefaults,
 		arrowEngineHandleRef,
+		texts,
+		textDefaults,
+		textEngineHandleRef,
 	} = useSnapcrop();
 
 	const imageMetrics = useMemo(
@@ -65,6 +79,7 @@ export function ImageStage({
 
 	const rectEngine = useRectEngine(imageMetrics);
 	const arrowEngine = useArrowEngine(imageMetrics);
+	const textEngine = useTextEngine(imageMetrics);
 
 	// engine の安定ハンドルを context の ref に差し込む。useRectShortcuts と
 	// RectInteractionLayer が Esc キャンセル / Space pan 抑制で使う。
@@ -82,6 +97,15 @@ export function ImageStage({
 			arrowEngineHandleRef.current = null;
 		};
 	}, [arrowEngineHandleRef, arrowEngine.handle]);
+
+	// テキスト engine も同様。useTextShortcuts の Esc キャンセルと、
+	// use-rect-shortcuts の「編集中は選択解除しない」判定が使う。
+	useEffect(() => {
+		textEngineHandleRef.current = textEngine.handle;
+		return () => {
+			textEngineHandleRef.current = null;
+		};
+	}, [textEngineHandleRef, textEngine.handle]);
 
 	// stage 内の座標変換。<img> 要素を基準にして clientX/Y → 画像 px へ。
 	// interaction layer と selection overlay 双方で使う。画像ロード前や rect が
@@ -115,6 +139,12 @@ export function ImageStage({
 				) ?? null)
 			: null;
 
+	const selectedTextRendered =
+		selectedAnnotationId && activeTool === "text"
+			? (textEngine.renderedTexts.find((t) => t.id === selectedAnnotationId) ??
+				null)
+			: null;
+
 	return (
 		<>
 			<img
@@ -140,6 +170,12 @@ export function ImageStage({
 				arrows={arrowEngine.renderedArrows}
 				imageHeight={image.height}
 				imageWidth={image.width}
+			/>
+			<TextLayer
+				editingId={textEngine.editing?.id ?? null}
+				imageHeight={image.height}
+				imageWidth={image.width}
+				texts={textEngine.renderedTexts}
 			/>
 			{/*
 			 * RectInteractionLayer は SelectionOverlay の手前に置くと選択ハンドル
@@ -195,6 +231,29 @@ export function ImageStage({
 					imageHeight={image.height}
 					imageWidth={image.width}
 					previewArrow={arrowEngine.previewArrow}
+				/>
+			)}
+			{activeTool === "text" && (
+				<TextInteractionLayer
+					engine={textEngine}
+					getImagePoint={getImagePoint}
+					texts={texts}
+					zoom={zoom}
+				/>
+			)}
+			{selectedTextRendered &&
+				textEngine.editing?.id !== selectedTextRendered.id && (
+					<TextSelectionOverlay text={selectedTextRendered} zoom={zoom} />
+				)}
+			{activeTool === "text" && textEngine.editing && (
+				<TextEditorOverlay
+					defaults={textDefaults}
+					editing={textEngine.editing}
+					key={textEngine.editing.id ?? "new"}
+					onCancel={textEngine.cancelEdit}
+					onCommit={textEngine.commitEdit}
+					texts={texts}
+					zoom={zoom}
 				/>
 			)}
 			{activeTool === "crop" && <CropFrame engine={cropEngine} zoom={zoom} />}

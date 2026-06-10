@@ -1,4 +1,4 @@
-import { CropIcon, MoveUpRightIcon, SquareIcon } from "lucide-react";
+import { CropIcon, MoveUpRightIcon, SquareIcon, TypeIcon } from "lucide-react";
 import { Toggle, Tooltip, TooltipContent, TooltipTrigger } from "ui";
 import { type ActiveTool, useSnapcrop } from "~/contexts/snapcrop-context";
 
@@ -13,6 +13,7 @@ const TOOLS: ToolDef[] = [
 	{ id: "crop", icon: CropIcon, label: "クロップ", shortcut: "V" },
 	{ id: "rect", icon: SquareIcon, label: "矩形", shortcut: "R" },
 	{ id: "arrow", icon: MoveUpRightIcon, label: "矢印", shortcut: "A" },
+	{ id: "text", icon: TypeIcon, label: "テキスト", shortcut: "T" },
 ];
 
 /**
