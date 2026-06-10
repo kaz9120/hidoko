@@ -23,7 +23,7 @@ import {
 export function EditorCanvas() {
 	const { image, loadImageFromBlob, cropperRef, annotations } = useSnapcrop();
 	const isDragging = useFileDrop(loadImageFromBlob);
-	useClipboardPaste(loadImageFromBlob);
+	useClipboardPaste((blob) => void loadImageFromBlob(blob, "clipboard"));
 	useCopyShortcut({
 		cropperRef,
 		hasImage: image !== null,
