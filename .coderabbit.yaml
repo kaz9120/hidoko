@@ -11,8 +11,8 @@ language: ja-JP
 tone_instructions: |
   あなたは Hidoko の CodeRabbit レビュアーです。日本語で、親しみやすくかつ
   簡潔にレビューしてください。指摘は「何が問題か」「なぜ問題か」「どう直すと
-  良いか」の3点をセットで示し、AGENTS.md と packages/design-system/SKILL.md
-  の方針を尊重してください。装飾的な絵文字や顔文字は控えめにしてください。
+  良いか」の3点をセットで示し、AGENTS.md・DESIGN.md・.claude/rules/ 配下の
+  方針を尊重してください。装飾的な絵文字や顔文字は控えめにしてください。
 early_access: false
 
 # ---------------------------------------------------------------------------
@@ -55,8 +55,7 @@ reviews:
     - "!**/build/**"
     - "!**/.wrangler/**"
     - "!**/.cache/**"
-    - "!packages/design-system/assets/**"
-    - "!apps/*/app/components/shadcn-ui/**"
+    - "!packages/ui/assets/**"
 
   # パスごとのレビュー指針（短く、判断の足がかりだけ書く）。
   path_instructions:
@@ -75,16 +74,19 @@ reviews:
         - 画像処理は Web 標準 API（Canvas / OffscreenCanvas / Web Worker）を
           優先し、重い処理がメインスレッドを止めていないか見てください。
 
-    - path: "apps/homepage/**"
+    - path: "apps/{homepage,futari-no-yotei,note-ogp}/**"
       instructions: |
         - Cloudflare Workers 上で動くアプリです。Workers ランタイム互換性を
           意識し、Node 専用 API より Web 標準 API を優先してください。
 
-    - path: "packages/design-system/**"
+    - path: "packages/ui/**"
       instructions: |
-        - Hidoko のブランド言語そのものです。
-          `packages/design-system/SKILL.md` と `README.md` のルールを必ず
-          参照したうえでレビューしてください。
+        - Hidoko のブランド言語そのものです。`DESIGN.md` と
+          `packages/ui/README.md` のルールを必ず参照したうえでレビューして
+          ください。
+        - `src/components/` の `*.tsx`（`*.stories.tsx` を除く）は shadcn/ui
+          からの同期で上書きされる前提のコードです。直接の手直しを提案する
+          より「app 側で wrap する」方向の提案を優先してください。
         - 守るべき原則: 純粋な白 (`#ffffff`) は使わない / 彩度の高い緑・青は
           避ける / 絵文字は控えめにする。
         - 生のカラーコードを直書きせず、`tokens.css` のトークン経由で参照
@@ -295,7 +297,8 @@ knowledge_base:
       - "CLAUDE.md"
       - "**/AGENTS.md"
       - "**/CLAUDE.md"
-      - "packages/design-system/SKILL.md"
+      - "DESIGN.md"
+      - ".claude/rules/**/*.md"
       - "packages/*/README.md"
       - "apps/*/README.md"
   learnings:
