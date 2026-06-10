@@ -29,6 +29,12 @@ const MAX_ZOOM = 8;
 const MIN_ZOOM_FLOOR = 0.05;
 const FIT_PADDING = 16;
 
+/**
+ * ⊕ / ⊖ ボタンと ⌘+ / ⌘− ショートカットの 1 段あたりの倍率。
+ * clamp (fit 下限 / MAX_ZOOM 上限) は applyZoomAt 側で面倒を見る。
+ */
+export const ZOOM_STEP = 1.25;
+
 function computeFitZoom(
 	container: { w: number; h: number },
 	img: { w: number; h: number },

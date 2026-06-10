@@ -1,8 +1,9 @@
 import { type RefObject, useEffect, useRef } from "react";
-import type { ViewportHandle } from "~/components/canvas/viewport";
+import { type ViewportHandle, ZOOM_STEP } from "~/components/canvas/viewport";
 
 /**
- * ⌘0 でフィット、⌘1 で 100% にズームするキャンバス用ショートカット。
+ * ⌘0 でフィット、⌘1 で 100%、⌘− / ⌘+ で段階ズームするキャンバス用
+ * ショートカット。⌘+ は US 配列の ⌘⇧= ("+") と ⌘= の両方を受ける。
  * 入力欄上では既定動作を優先する。
  */
 export function useCanvasShortcuts(
@@ -14,7 +15,16 @@ export function useCanvasShortcuts(
 	useEffect(() => {
 		const handler = (event: KeyboardEvent) => {
 			if (!(event.metaKey || event.ctrlKey)) return;
-			if (event.key !== "0" && event.key !== "1") return;
+			const key = event.key;
+			if (
+				key !== "0" &&
+				key !== "1" &&
+				key !== "-" &&
+				key !== "+" &&
+				key !== "="
+			) {
+				return;
+			}
 			const target = event.target;
 			if (
 				target instanceof HTMLElement &&
@@ -27,10 +37,14 @@ export function useCanvasShortcuts(
 			event.preventDefault();
 			const vp = viewportRefRef.current.current;
 			if (!vp) return;
-			if (event.key === "0") {
+			if (key === "0") {
 				vp.fitToContainer();
-			} else {
+			} else if (key === "1") {
 				vp.setActualSize();
+			} else if (key === "-") {
+				vp.setZoom(vp.getZoom() / ZOOM_STEP);
+			} else {
+				vp.setZoom(vp.getZoom() * ZOOM_STEP);
 			}
 		};
 		document.addEventListener("keydown", handler);
