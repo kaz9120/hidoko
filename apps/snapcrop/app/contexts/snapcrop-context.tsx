@@ -22,6 +22,16 @@ import {
 	DEFAULT_ARROW_DEFAULTS,
 } from "~/lib/arrow-engine";
 import {
+	loadHighlightDefaults,
+	saveHighlightDefaults,
+} from "~/lib/highlight-defaults-storage";
+import {
+	DEFAULT_HIGHLIGHT_DEFAULTS,
+	type HighlightAnnotation,
+	type HighlightAnnotationPatch,
+	type HighlightDefaults,
+} from "~/lib/highlight-engine";
+import {
 	loadRectDefaults,
 	saveRectDefaults,
 } from "~/lib/rect-defaults-storage";
@@ -42,6 +52,12 @@ export type {
 	ArrowThickness,
 } from "~/lib/arrow-engine";
 export type {
+	HighlightAnnotation,
+	HighlightAnnotationPatch,
+	HighlightDefaults,
+	HighlightThickness,
+} from "~/lib/highlight-engine";
+export type {
 	Annotation,
 	RectAnnotation,
 	RectAnnotationPatch,
@@ -59,7 +75,7 @@ export type LoadedImage = {
 	fileSize: number;
 };
 
-export type ActiveTool = "crop" | "rect" | "arrow";
+export type ActiveTool = "crop" | "rect" | "arrow" | "highlight";
 
 /**
  * 矩形ツールのキーボード操作 (Esc キャンセル, Space pan 抑制) が、
@@ -76,6 +92,12 @@ export type RectEngineHandle = {
  * (isInteracting / cancelInteraction)。useArrowShortcuts の Esc キャンセルが使う。
  */
 export type ArrowEngineHandle = RectEngineHandle;
+
+/**
+ * マーカーツール用の共有ハンドル。形は RectEngineHandle と同じ
+ * (isInteracting / cancelInteraction)。useHighlightShortcuts の Esc キャンセルが使う。
+ */
+export type HighlightEngineHandle = RectEngineHandle;
 
 type SnapcropContextValue = {
 	image: LoadedImage | null;
@@ -131,8 +153,22 @@ type SnapcropContextValue = {
 	) => void;
 	deleteArrow: (id: string) => void;
 
+	highlights: readonly HighlightAnnotation[];
+
+	highlightDefaults: HighlightDefaults;
+	setHighlightDefaults: (next: HighlightDefaults) => void;
+
+	createHighlight: (highlight: HighlightAnnotation) => void;
+	updateHighlight: (
+		id: string,
+		patch: HighlightAnnotationPatch,
+		opts?: { batchKey?: string },
+	) => void;
+	deleteHighlight: (id: string) => void;
+
 	rectEngineHandleRef: RefObject<RectEngineHandle | null>;
 	arrowEngineHandleRef: RefObject<ArrowEngineHandle | null>;
+	highlightEngineHandleRef: RefObject<HighlightEngineHandle | null>;
 	spacePressedRef: RefObject<boolean>;
 };
 
@@ -163,7 +199,15 @@ type AnnotationOp =
 			prev: ArrowAnnotation;
 			next: ArrowAnnotation;
 	  }
-	| { type: "arrow.delete"; annotation: ArrowAnnotation };
+	| { type: "arrow.delete"; annotation: ArrowAnnotation }
+	| { type: "highlight.create"; annotation: HighlightAnnotation }
+	| {
+			type: "highlight.update";
+			id: string;
+			prev: HighlightAnnotation;
+			next: HighlightAnnotation;
+	  }
+	| { type: "highlight.delete"; annotation: HighlightAnnotation };
 
 /** rect 系 op だけを抜き出した補助型。applyForward / applyReverse が受け取る。 */
 type RectOp = Extract<
@@ -182,9 +226,21 @@ function isArrowOp(op: AnnotationOp): op is ArrowOp {
 	return op.type.startsWith("arrow.");
 }
 
+/** highlight 系 op だけを抜き出した補助型。applyHighlightForward / applyHighlightReverse が受け取る。 */
+type HighlightOp = Extract<
+	AnnotationOp,
+	{ type: "highlight.create" | "highlight.update" | "highlight.delete" }
+>;
+
+/** op の種別ルーター (highlight 版)。isArrowOp と同形。 */
+function isHighlightOp(op: AnnotationOp): op is HighlightOp {
+	return op.type.startsWith("highlight.");
+}
+
 type AnnotationHistoryState = {
 	annotations: readonly RectAnnotation[];
 	arrows: readonly ArrowAnnotation[];
+	highlights: readonly HighlightAnnotation[];
 	ops: AnnotationOp[];
 	/** -1 = まだ何も適用されていない、N = ops[N] を直前に適用済。 */
 	cursor: number;
@@ -199,6 +255,7 @@ type State = {
 	selectedAnnotationId: string | null;
 	rectDefaults: RectDefaults;
 	arrowDefaults: ArrowDefaults;
+	highlightDefaults: HighlightDefaults;
 };
 
 type Action =
@@ -228,12 +285,27 @@ type Action =
 			timestamp: number;
 	  }
 	| { type: "ARROW_DELETE"; id: string; timestamp: number }
+	| { type: "SET_HIGHLIGHT_DEFAULTS"; defaults: HighlightDefaults }
+	| {
+			type: "HIGHLIGHT_CREATE";
+			annotation: HighlightAnnotation;
+			timestamp: number;
+	  }
+	| {
+			type: "HIGHLIGHT_UPDATE";
+			id: string;
+			patch: HighlightAnnotationPatch;
+			batchKey: string | null;
+			timestamp: number;
+	  }
+	| { type: "HIGHLIGHT_DELETE"; id: string; timestamp: number }
 	| { type: "ANNOT_UNDO" }
 	| { type: "ANNOT_REDO" };
 
 const EMPTY_ANNOTATION: AnnotationHistoryState = {
 	annotations: [],
 	arrows: [],
+	highlights: [],
 	ops: [],
 	cursor: -1,
 	lastOpTimestamp: 0,
@@ -247,6 +319,7 @@ const initialState: State = {
 	selectedAnnotationId: null,
 	rectDefaults: DEFAULT_RECT_DEFAULTS,
 	arrowDefaults: DEFAULT_ARROW_DEFAULTS,
+	highlightDefaults: DEFAULT_HIGHLIGHT_DEFAULTS,
 };
 
 /** annotations を createdAt 昇順 (古い順 = z-order 下) に保つユーティリティ。 */
@@ -319,13 +392,51 @@ function applyArrowReverse(
 	}
 }
 
+/** highlights を createdAt 昇順 (古い順 = z-order 下) に保つユーティリティ。 */
+function sortHighlights(
+	list: readonly HighlightAnnotation[],
+): readonly HighlightAnnotation[] {
+	return [...list].sort((a, b) => a.createdAt - b.createdAt);
+}
+
+function applyHighlightForward(
+	highlights: readonly HighlightAnnotation[],
+	op: HighlightOp,
+): readonly HighlightAnnotation[] {
+	switch (op.type) {
+		case "highlight.create":
+			return sortHighlights([...highlights, op.annotation]);
+		case "highlight.update":
+			return highlights.map((a) => (a.id === op.id ? op.next : a));
+		case "highlight.delete":
+			return highlights.filter((a) => a.id !== op.annotation.id);
+	}
+}
+
+function applyHighlightReverse(
+	highlights: readonly HighlightAnnotation[],
+	op: HighlightOp,
+): readonly HighlightAnnotation[] {
+	switch (op.type) {
+		case "highlight.create":
+			return highlights.filter((a) => a.id !== op.annotation.id);
+		case "highlight.update":
+			return highlights.map((a) => (a.id === op.id ? op.prev : a));
+		case "highlight.delete":
+			return sortHighlights([...highlights, op.annotation]);
+	}
+}
+
 function pruneSelection(
 	id: string | null,
 	annotations: readonly RectAnnotation[],
 	arrows: readonly ArrowAnnotation[],
+	highlights: readonly HighlightAnnotation[] = [],
 ): string | null {
 	if (id === null) return null;
-	return annotations.some((a) => a.id === id) || arrows.some((a) => a.id === id)
+	return annotations.some((a) => a.id === id) ||
+		arrows.some((a) => a.id === id) ||
+		highlights.some((a) => a.id === id)
 		? id
 		: null;
 }
@@ -356,6 +467,21 @@ function arrowShallowEqual(a: ArrowAnnotation, b: ArrowAnnotation): boolean {
 	);
 }
 
+function highlightShallowEqual(
+	a: HighlightAnnotation,
+	b: HighlightAnnotation,
+): boolean {
+	return (
+		a.x1 === b.x1 &&
+		a.y1 === b.y1 &&
+		a.x2 === b.x2 &&
+		a.y2 === b.y2 &&
+		a.color === b.color &&
+		a.opacity === b.opacity &&
+		a.thickness === b.thickness
+	);
+}
+
 /**
  * 直前の op (last) と新しい op が「同種の update・同 id」のとき、last の prev を
  * 保ったまま next を上書きした merge 済み op を返す。違うときは null。
@@ -375,6 +501,13 @@ function mergeUpdateOps(
 	if (
 		last.type === "arrow.update" &&
 		op.type === "arrow.update" &&
+		last.id === op.id
+	) {
+		return { ...last, next: op.next };
+	}
+	if (
+		last.type === "highlight.update" &&
+		op.type === "highlight.update" &&
 		last.id === op.id
 	) {
 		return { ...last, next: op.next };
@@ -416,17 +549,22 @@ function pushOp(
 		nextCursor -= 1;
 	}
 
-	// op の種別に応じて rect / arrow どちらかの配列にだけ適用する
-	const nextAnnotations = isArrowOp(op)
-		? state.annotations
-		: applyForward(state.annotations, op);
+	// op の種別に応じて rect / arrow / highlight いずれかの配列にだけ適用する
+	const nextAnnotations =
+		isArrowOp(op) || isHighlightOp(op)
+			? state.annotations
+			: applyForward(state.annotations, op);
 	const nextArrows = isArrowOp(op)
 		? applyArrowForward(state.arrows, op)
 		: state.arrows;
+	const nextHighlights = isHighlightOp(op)
+		? applyHighlightForward(state.highlights, op)
+		: state.highlights;
 
 	return {
 		annotations: nextAnnotations,
 		arrows: nextArrows,
+		highlights: nextHighlights,
 		ops: nextOps,
 		cursor: nextCursor,
 		lastOpTimestamp: timestamp,
@@ -486,6 +624,7 @@ function reducer(state: State, action: Action): State {
 				...initialState,
 				rectDefaults: state.rectDefaults, // ユーザ設定は維持
 				arrowDefaults: state.arrowDefaults,
+				highlightDefaults: state.highlightDefaults,
 			};
 		}
 		case "SET_ACTIVE_TOOL":
@@ -511,7 +650,14 @@ function reducer(state: State, action: Action): State {
 									[],
 									state.annotation.arrows,
 								)
-							: null,
+							: action.tool === "highlight"
+								? pruneSelection(
+										state.selectedAnnotationId,
+										[],
+										[],
+										state.annotation.highlights,
+									)
+								: null,
 			};
 		case "SET_RECT_DEFAULTS":
 			return { ...state, rectDefaults: action.defaults };
@@ -634,21 +780,86 @@ function reducer(state: State, action: Action): State {
 				selectedAnnotationId: nextSelected,
 			};
 		}
+		case "SET_HIGHLIGHT_DEFAULTS":
+			return { ...state, highlightDefaults: action.defaults };
+		case "HIGHLIGHT_CREATE": {
+			const op: AnnotationOp = {
+				type: "highlight.create",
+				annotation: action.annotation,
+			};
+			const nextAnnotation = pushOp(
+				state.annotation,
+				op,
+				null,
+				action.timestamp,
+			);
+			return {
+				...state,
+				annotation: nextAnnotation,
+				selectedAnnotationId: action.annotation.id,
+			};
+		}
+		case "HIGHLIGHT_UPDATE": {
+			const prev = state.annotation.highlights.find((a) => a.id === action.id);
+			if (!prev) return state;
+			const next: HighlightAnnotation = { ...prev, ...action.patch };
+			if (highlightShallowEqual(prev, next)) return state;
+			const op: AnnotationOp = {
+				type: "highlight.update",
+				id: action.id,
+				prev,
+				next,
+			};
+			const nextAnnotation = pushOp(
+				state.annotation,
+				op,
+				action.batchKey,
+				action.timestamp,
+			);
+			return { ...state, annotation: nextAnnotation };
+		}
+		case "HIGHLIGHT_DELETE": {
+			const target = state.annotation.highlights.find(
+				(a) => a.id === action.id,
+			);
+			if (!target) return state;
+			const op: AnnotationOp = { type: "highlight.delete", annotation: target };
+			const nextAnnotation = pushOp(
+				state.annotation,
+				op,
+				null,
+				action.timestamp,
+			);
+			const nextSelected =
+				state.selectedAnnotationId === action.id
+					? null
+					: state.selectedAnnotationId;
+			return {
+				...state,
+				annotation: nextAnnotation,
+				selectedAnnotationId: nextSelected,
+			};
+		}
 		case "ANNOT_UNDO": {
 			if (state.annotation.cursor < 0) return state;
 			const op = state.annotation.ops[state.annotation.cursor];
-			const nextAnnotations = isArrowOp(op)
-				? state.annotation.annotations
-				: applyReverse(state.annotation.annotations, op);
+			const nextAnnotations =
+				isArrowOp(op) || isHighlightOp(op)
+					? state.annotation.annotations
+					: applyReverse(state.annotation.annotations, op);
 			const nextArrows = isArrowOp(op)
 				? applyArrowReverse(state.annotation.arrows, op)
 				: state.annotation.arrows;
+			const nextHighlights = isHighlightOp(op)
+				? applyHighlightReverse(state.annotation.highlights, op)
+				: state.annotation.highlights;
 			return {
 				...state,
 				annotation: {
 					...state.annotation,
 					annotations: nextAnnotations,
 					arrows: nextArrows,
+					highlights: nextHighlights,
 					cursor: state.annotation.cursor - 1,
 					// 直後の連続操作と batch merge されないように batchKey をリセット
 					lastOpBatchKey: null,
@@ -657,6 +868,7 @@ function reducer(state: State, action: Action): State {
 					state.selectedAnnotationId,
 					nextAnnotations,
 					nextArrows,
+					nextHighlights,
 				),
 			};
 		}
@@ -664,18 +876,23 @@ function reducer(state: State, action: Action): State {
 			if (state.annotation.cursor >= state.annotation.ops.length - 1)
 				return state;
 			const op = state.annotation.ops[state.annotation.cursor + 1];
-			const nextAnnotations = isArrowOp(op)
-				? state.annotation.annotations
-				: applyForward(state.annotation.annotations, op);
+			const nextAnnotations =
+				isArrowOp(op) || isHighlightOp(op)
+					? state.annotation.annotations
+					: applyForward(state.annotation.annotations, op);
 			const nextArrows = isArrowOp(op)
 				? applyArrowForward(state.annotation.arrows, op)
 				: state.annotation.arrows;
+			const nextHighlights = isHighlightOp(op)
+				? applyHighlightForward(state.annotation.highlights, op)
+				: state.annotation.highlights;
 			return {
 				...state,
 				annotation: {
 					...state.annotation,
 					annotations: nextAnnotations,
 					arrows: nextArrows,
+					highlights: nextHighlights,
 					cursor: state.annotation.cursor + 1,
 					lastOpBatchKey: null,
 				},
@@ -683,6 +900,7 @@ function reducer(state: State, action: Action): State {
 					state.selectedAnnotationId,
 					nextAnnotations,
 					nextArrows,
+					nextHighlights,
 				),
 			};
 		}
@@ -694,10 +912,12 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 		...init,
 		rectDefaults: loadRectDefaults(),
 		arrowDefaults: loadArrowDefaults(),
+		highlightDefaults: loadHighlightDefaults(),
 	}));
 	const cropperRef = useRef<CropEngineHandle | null>(null);
 	const rectEngineHandleRef = useRef<RectEngineHandle | null>(null);
 	const arrowEngineHandleRef = useRef<ArrowEngineHandle | null>(null);
+	const highlightEngineHandleRef = useRef<HighlightEngineHandle | null>(null);
 	const spacePressedRef = useRef<boolean>(false);
 	const [cropData, setCropData] = useState<CropData | null>(null);
 	const [cropAspectRatioId, setCropAspectRatioIdState] = useState("free");
@@ -712,6 +932,10 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 	useEffect(() => {
 		saveArrowDefaults(state.arrowDefaults);
 	}, [state.arrowDefaults]);
+
+	useEffect(() => {
+		saveHighlightDefaults(state.highlightDefaults);
+	}, [state.highlightDefaults]);
 
 	// 画像が差し替わったら crop UI 状態をリセット (画像ごとに比率を選び直す)。
 	// 既存 site-header の useEffect ロジックを Provider 側に引き上げ。
@@ -816,8 +1040,32 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 			deleteArrow: (id) =>
 				dispatch({ type: "ARROW_DELETE", id, timestamp: Date.now() }),
 
+			highlights: state.annotation.highlights,
+
+			highlightDefaults: state.highlightDefaults,
+			setHighlightDefaults: (defaults) =>
+				dispatch({ type: "SET_HIGHLIGHT_DEFAULTS", defaults }),
+
+			createHighlight: (highlight) =>
+				dispatch({
+					type: "HIGHLIGHT_CREATE",
+					annotation: highlight,
+					timestamp: Date.now(),
+				}),
+			updateHighlight: (id, patch, opts) =>
+				dispatch({
+					type: "HIGHLIGHT_UPDATE",
+					id,
+					patch,
+					batchKey: opts?.batchKey ?? null,
+					timestamp: Date.now(),
+				}),
+			deleteHighlight: (id) =>
+				dispatch({ type: "HIGHLIGHT_DELETE", id, timestamp: Date.now() }),
+
 			rectEngineHandleRef,
 			arrowEngineHandleRef,
+			highlightEngineHandleRef,
 			spacePressedRef,
 
 			cropAspectRatioId,
