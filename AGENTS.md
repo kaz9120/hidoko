@@ -52,6 +52,20 @@ bun --filter snapcrop build    # apps/snapcrop のビルド
 4. PR を出す。CI（lint / design-lint / typecheck / build / commitlint / vrt）と Cloudflare Workers Builds の preview を確認する。
 5. preview URL は Cloudflare Workers Builds が自動で sticky コメントしてくれるので、GitHub Actions 側で自前実装しない。
 
+## Cloudflare Workers Builds の監視パス
+
+モノレポなので、各 Worker のビルドは関係するパスが変わったときだけ走らせたい。この「監視パス (build watch paths)」はダッシュボードで手入力せず、スクリプトで同期する。
+
+```sh
+bun run cf:watch-paths --dry-run   # 差分の確認だけ
+bun run cf:watch-paths             # Cloudflare に反映
+```
+
+- 監視パスは各 app の `package.json` の workspace 依存から自動導出する（app 自身 + 依存 package + `bun.lock` / `package.json` / `tsconfig.base.json`）。
+- 導出で足りない app は、その `package.json` に `workersBuilds.watchPaths` を書いて全置換する（例: `apps/storybook` は全 workspace の story を集約するので全体を監視する）。
+- 認証は `CLOUDFLARE_API_TOKEN`（user-scoped。権限は Workers Builds Configuration: Edit と Workers Scripts: Read）と `CLOUDFLARE_ACCOUNT_ID`。ルートの `.env`（gitignore 済み）に置けば Bun が自動で読む。
+- 新しい app を追加したら、初回デプロイと Git 連携のあとにこのスクリプトを 1 回実行する。
+
 ## コミット規約
 
 `@commitlint/config-conventional` を使う。
