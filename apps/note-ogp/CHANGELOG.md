@@ -1,0 +1,15 @@
+# Changelog
+
+## [0.2.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.1.0...note-ogp-v0.2.0) (2026-06-11)
+
+
+### Features
+
+* **note-ogp:** アプリ UI のテーマトグルをヘッダーに追加する ([#99](https://github.com/kaz9120/hidoko/issues/99)) ([85b88e4](https://github.com/kaz9120/hidoko/commit/85b88e47558b37854aefa42b9f861a622daf8b60)), closes [#73](https://github.com/kaz9120/hidoko/issues/73)
+* **note-ogp:** エディタを小画面でプレビューとパネルの縦積みに切り替える ([#109](https://github.com/kaz9120/hidoko/issues/109)) ([3927c0e](https://github.com/kaz9120/hidoko/commit/3927c0e4cfb20678070b5db312711fa9ab72045e)), closes [#74](https://github.com/kaz9120/hidoko/issues/74)
+* **note-ogp:** テーマを 3 色トークン化しイメージ別カラーパレットを追加する ([#106](https://github.com/kaz9120/hidoko/issues/106)) ([f6535b6](https://github.com/kaz9120/hidoko/commit/f6535b693673ee085ed41aaa9acce39bf42a5b61))
+* **note-ogp:** フッターを追加し作者リンクと法的ページを載せる ([#100](https://github.com/kaz9120/hidoko/issues/100)) ([d8adee1](https://github.com/kaz9120/hidoko/commit/d8adee1dca2e1b7df34217063e8871f51ea31280)), closes [#72](https://github.com/kaz9120/hidoko/issues/72)
+* **note-ogp:** ヘッダーのアプリ名を SVG ロゴ表記にする ([#108](https://github.com/kaz9120/hidoko/issues/108)) ([b5e15d0](https://github.com/kaz9120/hidoko/commit/b5e15d0a02a34a9b4566276e45d97391c99aff8d)), closes [#71](https://github.com/kaz9120/hidoko/issues/71)
+* **note-ogp:** 写真からの色抽出で台紙の配色を自動提案する ([#110](https://github.com/kaz9120/hidoko/issues/110)) ([de7c217](https://github.com/kaz9120/hidoko/commit/de7c2179261a7e8b5cb01d66d423e4e2959ac13b))
+* **note-ogp:** 背景の質感レイヤー（紙テクスチャ・微グラデ・図形）を追加する ([#112](https://github.com/kaz9120/hidoko/issues/112)) ([98b837f](https://github.com/kaz9120/hidoko/commit/98b837fb296135d4efe4f6a120ed117600b90f7c))
+* **note-ogp:** 自身の OGP メタタグと OGP 画像を設定する ([#101](https://github.com/kaz9120/hidoko/issues/101)) ([9a4237e](https://github.com/kaz9120/hidoko/commit/9a4237e2d6b6302123ec8f9e9165d865a64bbc87)), closes [#76](https://github.com/kaz9120/hidoko/issues/76)
