@@ -33,6 +33,7 @@ import { PalettePicker } from "./palette-picker";
 import { SectionTitle } from "./section-title";
 import { TemplateThumb } from "./template-thumb";
 import { TextureField } from "./texture-field";
+import { TitleDecorationField } from "./title-decoration-field";
 
 export function ControlPanel({
 	state,
@@ -176,6 +177,8 @@ export function ControlPanel({
 					</ToggleGroup>
 					<FieldDescription>切り替わるのはタイトルだけ</FieldDescription>
 				</Field>
+
+				<TitleDecorationField state={state} update={update} />
 
 				{tpl.id === "cover" && (
 					<Field className="mb-3.5">
