@@ -1,6 +1,6 @@
 import { NoteOgpEditor } from "~/components/editor/note-ogp-editor";
 
-const SITE_TITLE = "note OGP — 火床";
+const SITE_TITLE = "note OGP";
 const SITE_DESCRIPTION =
 	"note のアイキャッチ画像（1280×670 PNG）を、3 つのテンプレートと書体・テーマの切替だけで素早く作るブラウザ完結のエディタ。";
 const SITE_URL = "https://note-ogp.y-kaz.com/";

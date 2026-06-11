@@ -78,7 +78,7 @@ export function ControlPanel({
 				<div className="mb-1 flex items-center gap-2.5">
 					<img alt="" aria-hidden="true" className="size-5" src={logoUrl} />
 					<span className="font-mono text-[12px] uppercase tracking-[0.22em] text-primary">
-						HIDOKO ／ note OGP
+						note OGP
 					</span>
 					<div className="ml-auto">
 						<ThemeToggle />
