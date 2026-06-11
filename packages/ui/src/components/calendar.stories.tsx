@@ -23,18 +23,24 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
+// 実行日に依存すると VRT が日付のずれで毎回差分になるため、
+// story 内の「今日」は固定する (#65)。
+const FIXED_TODAY = new Date(2026, 5, 15);
+
 /**
- * 単日を選ぶ最小構成。今日の日付を default にして開く。
+ * 単日を選ぶ最小構成。「今日」を選択した状態で開く
+ * (VRT 安定化のため基準日は固定)。
  * @summary 単日選択
  */
 export const Default: Story = {
 	render: () => {
-		const [date, setDate] = useState<Date | undefined>(new Date());
+		const [date, setDate] = useState<Date | undefined>(FIXED_TODAY);
 		return (
 			<Calendar
 				mode="single"
 				selected={date}
 				onSelect={setDate}
+				today={FIXED_TODAY}
 				className="rounded-md border"
 			/>
 		);
@@ -47,10 +53,13 @@ export const Default: Story = {
  */
 export const RangeSelection: Story = {
 	render: () => {
-		const today = new Date();
 		const initial: DateRange = {
-			from: today,
-			to: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 4),
+			from: FIXED_TODAY,
+			to: new Date(
+				FIXED_TODAY.getFullYear(),
+				FIXED_TODAY.getMonth(),
+				FIXED_TODAY.getDate() + 4,
+			),
 		};
 		const [range, setRange] = useState<DateRange | undefined>(initial);
 		return (
@@ -58,6 +67,7 @@ export const RangeSelection: Story = {
 				mode="range"
 				selected={range}
 				onSelect={setRange}
+				today={FIXED_TODAY}
 				numberOfMonths={2}
 				className="rounded-md border"
 			/>
@@ -71,14 +81,14 @@ export const RangeSelection: Story = {
  */
 export const DisabledPast: Story = {
 	render: () => {
-		const today = new Date();
-		const [date, setDate] = useState<Date | undefined>(today);
+		const [date, setDate] = useState<Date | undefined>(FIXED_TODAY);
 		return (
 			<Calendar
 				mode="single"
 				selected={date}
 				onSelect={setDate}
-				disabled={{ before: today }}
+				disabled={{ before: FIXED_TODAY }}
+				today={FIXED_TODAY}
 				className="rounded-md border"
 			/>
 		);
