@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.2.0...note-ogp-v0.2.1) (2026-06-11)
+
+
+### Bug Fixes
+
+* **note-ogp:** ページタイトルとパネルヘッダーからひどこブランド表記を取り除く ([#116](https://github.com/kaz9120/hidoko/issues/116)) ([dff06e3](https://github.com/kaz9120/hidoko/commit/dff06e3898c653df6e90503c93ba2d63b88fc74b))
+
 ## [0.2.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.1.0...note-ogp-v0.2.0) (2026-06-11)
 
 
