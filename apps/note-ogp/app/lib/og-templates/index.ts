@@ -34,15 +34,22 @@ export {
 	paletteForSelection,
 	resolveOgTheme,
 } from "./palettes";
+export {
+	FOCAL_POINTS,
+	focalObjectPosition,
+	PHOTO_LAYOUTS,
+} from "./photo";
 export { TextureLayer } from "./texture";
 export type {
 	CoverText,
 	Fields,
+	FocalPoint,
 	FontMode,
 	OgRoles,
 	PaletteId,
 	PaletteSelection,
 	PaperStrength,
+	PhotoLayout,
 	PhotoPalette,
 	PhotoPaletteId,
 	TemplateDef,
