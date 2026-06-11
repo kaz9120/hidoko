@@ -1,0 +1,31 @@
+name: Release Please
+
+# main に積まれた Conventional Commits からバージョン bump を自動算出し、
+# リリース PR を作成・更新する。リリース PR をマージすると package.json の
+# version と CHANGELOG.md が更新され、タグと GitHub Release が作られる。
+# 設定は release-please-config.json / .release-please-manifest.json を参照。
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  # リリース PR ブランチの push・タグ・GitHub Release の作成
+  contents: write
+  # リリース PR の作成・更新
+  pull-requests: write
+  # リリース PR に付くラベル (autorelease: pending 等) の操作
+  issues: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      # NOTE: GITHUB_TOKEN が作成した PR には pull_request トリガーの CI が
+      # 自動では走らない (GitHub の再帰防止仕様)。リリース PR の差分は
+      # version と CHANGELOG だけなので許容する。CI を回したい場合は
+      # リリース PR を close/reopen する。
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json

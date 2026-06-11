@@ -121,6 +121,16 @@ ci: PR ベースで lint / typecheck / build / commitlint を回す
 
 `commit-msg` フックで commitlint が走る。CI でも PR 範囲のコミットを検証する。`--no-verify` でフックを飛ばさない。
 
+## バージョン運用ルール
+
+各 app と `packages/ui` のバージョンは [release-please](https://github.com/googleapis/release-please) の manifest モードで管理する。設定は [release-please-config.json](release-please-config.json)、現在のバージョンは [.release-please-manifest.json](.release-please-manifest.json) を見る。
+
+- semver に従い、bump は Conventional Commits から自動算出する。`feat` は minor、`fix` は patch、`BREAKING CHANGE` は major。PR 著者がバージョンのために行う追加作業はない。
+- 1.0 未満の間は `BREAKING CHANGE` も minor 扱いになる（`bump-minor-pre-major`）。`1.0.0` を切る判断は自動化せず、人間がコミット footer に `Release-As: 1.0.0` を書いて明示する。
+- `packages/ui` に release 対象の変更が入ると、`node-workspace` plugin が依存する app にも patch bump を波及させる。
+- main にコミットが積まれるたび、[release-please.yml](.github/workflows/release-please.yml) がリリース PR を作成・更新する。リリース PR をマージすると `package.json` の version と `CHANGELOG.md` が更新され、タグ（`<package>-v<version>`）と GitHub Release が作られる。マージするかどうかは人間が判断する。
+- npm への publish はしない。バージョンはフッター表示と変更履歴のためのもの。
+
 ## コードスタイル
 
 - フォーマット・lint は Biome に従う（設定は [biome.json](biome.json)）。手で整形しない。
