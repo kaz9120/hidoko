@@ -14,6 +14,7 @@
 		"typecheck": "bun run --filter '*' typecheck && tsc -p scripts",
 		"cf:watch-paths": "bun scripts/sync-build-watch-paths.ts",
 		"design:lint": "design.md lint DESIGN.md",
+		"preflight": "bun run check && bun run typecheck && bun run design:lint",
 		"ui:sync": "bun --filter ui sync",
 		"ui:diff": "bun --filter ui diff",
 		"vrt:run": "reg-suit run",
