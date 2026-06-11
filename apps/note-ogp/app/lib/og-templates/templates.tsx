@@ -10,6 +10,7 @@ import {
 	renderLines,
 	rgbaFromHex,
 	styleFrom,
+	TextureLayer,
 	titleFamily,
 	UI_JP,
 	UI_LATIN,
@@ -25,6 +26,7 @@ export function TplEdition({ f }: { f: Fields }) {
 	const markUrl = markUrlFor(f.theme);
 	return (
 		<div style={{ ...FRAME_BASE, background: t.bg, color: t.text }}>
+			<TextureLayer f={f} />
 			{/* マストヘッド：左ブランド／右カテゴリ */}
 			<div
 				style={{
@@ -359,6 +361,7 @@ export function TplQuiet({ f }: { f: Fields }) {
 	const markUrl = markUrlFor(f.theme);
 	return (
 		<div style={{ ...FRAME_BASE, background: t.bg, color: t.text }}>
+			<TextureLayer f={f} />
 			{/* マストヘッド（中央・ブランド） */}
 			<div
 				style={{

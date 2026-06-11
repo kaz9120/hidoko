@@ -1,7 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { PALETTES } from "./palettes";
 import { TplCover, TplEdition, TplQuiet } from "./templates";
-import type { Fields, FontMode, PaletteId, ThemeMode } from "./types";
+import type {
+	Fields,
+	FontMode,
+	PaletteId,
+	TextureId,
+	ThemeMode,
+} from "./types";
 
 const DEFAULT_FIELDS: Fields = {
 	templateId: "edition",
@@ -19,6 +25,8 @@ const DEFAULT_FIELDS: Fields = {
 	account: "@kyamamoto9120",
 	showMark: true,
 	image: null,
+	texture: "none",
+	paperStrength: "weak",
 	photoPalettes: null,
 };
 
@@ -64,6 +72,14 @@ const meta: Meta = {
 		fontMode: {
 			control: { type: "inline-radio" },
 			options: ["serif", "gothic", "hand"] satisfies FontMode[],
+		},
+		texture: {
+			control: { type: "inline-radio" },
+			options: ["none", "paper", "gradient", "shape"] satisfies TextureId[],
+		},
+		paperStrength: {
+			control: { type: "inline-radio" },
+			options: ["weak", "medium"],
 		},
 		title: { control: "text" },
 		lead: { control: "text" },
@@ -147,6 +163,48 @@ export const EditionManualBreak: Story = {
 	render: (args) => (
 		<div style={FRAME_STYLE}>
 			<TplEdition f={withDefaults(args)} />
+		</div>
+	),
+};
+
+/** 背景の質感 4 種（なし / 紙・中 / 微グラデ / 図形）の見比べ。 */
+export const TextureGallery: Story = {
+	render: (args) => (
+		<div
+			style={{
+				display: "grid",
+				gridTemplateColumns: "repeat(2, 1280px)",
+				gap: "16px 16px",
+				transform: "scale(0.25)",
+				transformOrigin: "top left",
+				marginBottom: -(670 * 2 + 16) * 0.75,
+				marginRight: -(1280 * 2 + 16) * 0.75,
+			}}
+		>
+			{(["none", "paper", "gradient", "shape"] satisfies TextureId[]).map(
+				(texture) => (
+					<div key={texture} style={{ width: 1280, height: 670 }}>
+						<TplEdition
+							f={withDefaults({ ...args, texture, paperStrength: "medium" })}
+						/>
+					</div>
+				),
+			)}
+		</div>
+	),
+};
+
+/** ダークテーマ × 紙テクスチャ（中）。Quiet で文字の可読性を見る。 */
+export const QuietPaperDark: Story = {
+	args: {
+		templateId: "quiet",
+		theme: "dark",
+		texture: "paper",
+		paperStrength: "medium",
+	},
+	render: (args) => (
+		<div style={FRAME_STYLE}>
+			<TplQuiet f={withDefaults(args)} />
 		</div>
 	),
 };

@@ -79,6 +79,7 @@ export {
 	resolveOgTheme,
 	rgbaFromHex,
 } from "./palettes";
+export { TextureLayer } from "./texture";
 
 // ─────────────────────────────────────────────────────────
 // ロゴ URL の選び方（snapcrop と同じ「背景色と同じ外縁色」規則）

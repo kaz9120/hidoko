@@ -5,9 +5,11 @@ import type {
 	OgRoles,
 	PaletteId,
 	PaletteSelection,
+	PaperStrength,
 	PhotoPalette,
 	PhotoPaletteId,
 	TemplateId,
+	TextureId,
 	ThemeMode,
 } from "./og-templates";
 import { DEFAULT_PALETTE_ID, PALETTES } from "./og-templates";
@@ -34,6 +36,8 @@ export const DEFAULTS: Fields = {
 	account: "@kyamamoto9120",
 	showMark: true,
 	image: null,
+	texture: "none",
+	paperStrength: "weak",
 	photoPalettes: null,
 };
 
@@ -42,6 +46,8 @@ const THEMES = new Set<ThemeMode>(["light", "dark"]);
 const PALETTE_IDS = new Set<PaletteId>(PALETTES.map((p) => p.id));
 const FONT_MODES = new Set<FontMode>(["serif", "gothic", "hand"]);
 const COVER_TEXTS = new Set<CoverText>(["light", "dark"]);
+const TEXTURE_IDS = new Set<TextureId>(["none", "paper", "gradient", "shape"]);
+const PAPER_STRENGTHS = new Set<PaperStrength>(["weak", "medium"]);
 
 function pickEnum<T extends string>(
 	value: unknown,
@@ -144,6 +150,13 @@ export function loadState(): Fields {
 			account: pickString(parsed.account, DEFAULTS.account),
 			showMark: pickBool(parsed.showMark, DEFAULTS.showMark),
 			image: pickImage(parsed.image),
+			// 質感キーを持たない既存データは「なし」（現行の単色ベタ）にフォールバック
+			texture: pickEnum(parsed.texture, TEXTURE_IDS, DEFAULTS.texture),
+			paperStrength: pickEnum(
+				parsed.paperStrength,
+				PAPER_STRENGTHS,
+				DEFAULTS.paperStrength,
+			),
 			photoPalettes,
 		};
 	} catch {

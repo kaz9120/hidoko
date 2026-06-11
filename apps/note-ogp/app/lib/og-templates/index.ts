@@ -34,6 +34,7 @@ export {
 	paletteForSelection,
 	resolveOgTheme,
 } from "./palettes";
+export { TextureLayer } from "./texture";
 export type {
 	CoverText,
 	Fields,
@@ -41,9 +42,11 @@ export type {
 	OgRoles,
 	PaletteId,
 	PaletteSelection,
+	PaperStrength,
 	PhotoPalette,
 	PhotoPaletteId,
 	TemplateDef,
 	TemplateId,
+	TextureId,
 	ThemeMode,
 } from "./types";
