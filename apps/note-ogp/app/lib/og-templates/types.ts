@@ -3,7 +3,13 @@ import type { ComponentType } from "react";
 export type ThemeMode = "light" | "dark";
 export type FontMode = "serif" | "gothic" | "hand";
 export type CoverText = "light" | "dark";
-export type TemplateId = "edition" | "cover" | "quiet";
+export type TemplateId =
+	| "edition"
+	| "cover"
+	| "quiet"
+	| "frame"
+	| "split"
+	| "tate";
 export type PaletteId =
 	| "takibi"
 	| "koke"

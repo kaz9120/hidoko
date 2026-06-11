@@ -32,7 +32,14 @@ export const DEFAULTS: Fields = {
 	image: null,
 };
 
-const TEMPLATE_IDS = new Set<TemplateId>(["edition", "cover", "quiet"]);
+const TEMPLATE_IDS = new Set<TemplateId>([
+	"edition",
+	"cover",
+	"quiet",
+	"frame",
+	"split",
+	"tate",
+]);
 const THEMES = new Set<ThemeMode>(["light", "dark"]);
 const PALETTE_IDS = new Set<PaletteId>(PALETTES.map((p) => p.id));
 const FONT_MODES = new Set<FontMode>(["serif", "gothic", "hand"]);

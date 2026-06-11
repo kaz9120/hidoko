@@ -14,6 +14,7 @@ import {
 	UI_JP,
 	UI_LATIN,
 } from "./helpers";
+import { mixHex, resolveOgTheme } from "./palettes";
 import type { Fields } from "./types";
 
 // ─────────────────────────────────────────────────────────
@@ -465,6 +466,447 @@ export function TplQuiet({ f }: { f: Fields }) {
 								fontFamily: UI_LATIN,
 								color: t.faint,
 								marginLeft: 10,
+							}}
+						>
+							{f.account}
+						</span>
+					)}
+				</span>
+				<Kicker color={t.faint} style={{ fontSize: 11 }}>
+					{f.date}
+				</Kicker>
+			</div>
+		</div>
+	);
+}
+
+// ─────────────────────────────────────────────────────────
+// 04 Frame — 全面写真の中央に枠ボックス。視線が枠内に集中する。
+//   写真がないときは反対面（光⇄闇）の色面にして、枠が浮く構図を保つ。
+// ─────────────────────────────────────────────────────────
+export function TplFrame({ f }: { f: Fields }) {
+	const { t, ft } = styleFrom(f);
+	const pal = paletteById(f.palette);
+	const issue = String(f.issue || "001").padStart(3, "0");
+	const hasImg = !!f.image;
+	const markUrl = markUrlFor(f.theme);
+	// 写真なしの色面はテーマと逆の面を使う（ライト→闇の面、ダーク→光の面）
+	const opp = f.theme === "light" ? pal.dark : pal.light;
+	return (
+		<div style={{ ...FRAME_BASE, background: t.bg, color: t.text }}>
+			{hasImg && f.image ? (
+				<img
+					src={f.image}
+					alt=""
+					crossOrigin="anonymous"
+					style={{
+						position: "absolute",
+						inset: 0,
+						width: "100%",
+						height: "100%",
+						objectFit: "cover",
+					}}
+				/>
+			) : (
+				<div
+					style={{
+						position: "absolute",
+						inset: 0,
+						background: `linear-gradient(160deg, ${mixHex(opp.sub, opp.base, 0.08)} 0%, ${opp.base} 72%)`,
+					}}
+				/>
+			)}
+
+			{/* 中央の枠ボックス（不透明・細罫） */}
+			<div
+				style={{
+					position: "absolute",
+					inset: 0,
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+				}}
+			>
+				<div
+					style={{
+						width: 880,
+						background: rgbaFromHex(t.bg, 0.96),
+						border: `1px solid ${t.ruleStrong}`,
+						boxShadow: hasImg
+							? `0 28px 80px ${rgbaFromHex(pal.dark.base, 0.4)}`
+							: "none",
+						padding: "44px 56px 36px",
+						display: "flex",
+						flexDirection: "column",
+						alignItems: "center",
+						textAlign: "center",
+					}}
+				>
+					<Brand
+						color={t.muted}
+						text={f.brand}
+						showMark={f.showMark !== false}
+						markUrl={markUrl}
+						size={14}
+						markSize={20}
+						center
+					/>
+					<Kicker color={t.accent} style={{ marginTop: 22 }}>
+						{f.category || "ESSAY"}&nbsp;&nbsp;·&nbsp;&nbsp;Vol.{issue}
+					</Kicker>
+					<AutoFitTitle
+						lines={renderLines(f.title)}
+						width={880 - 56 * 2}
+						maxH={156}
+						max={62}
+						min={24}
+						style={{
+							marginTop: 16,
+							fontFamily: titleFamily(ft),
+							fontWeight: ft.titleWeight,
+							lineHeight: ft.titleLeading,
+							letterSpacing: ft.titleTrack,
+							color: t.text,
+							textAlign: "center",
+						}}
+					/>
+					{f.lead && (
+						<div
+							style={{
+								marginTop: 14,
+								maxWidth: 620,
+								fontFamily: UI_JP,
+								fontSize: 19,
+								lineHeight: 1.7,
+								fontWeight: 400,
+								color: t.muted,
+								whiteSpace: "pre-wrap",
+							}}
+						>
+							{f.lead}
+						</div>
+					)}
+					{/* 枠内フッター：細罫で区切って著者と日付 */}
+					<div
+						style={{
+							marginTop: 26,
+							paddingTop: 18,
+							borderTop: `1px solid ${t.rule}`,
+							width: "100%",
+							display: "flex",
+							alignItems: "baseline",
+						}}
+					>
+						<span
+							style={{
+								fontFamily: UI_JP,
+								fontSize: 16,
+								fontWeight: 700,
+								color: t.text,
+							}}
+						>
+							{f.author}
+						</span>
+						{f.account && (
+							<span
+								style={{
+									fontFamily: UI_LATIN,
+									fontSize: 13,
+									color: t.faint,
+									marginLeft: 12,
+								}}
+							>
+								{f.account}
+							</span>
+						)}
+						<span style={{ flex: 1 }} />
+						<Kicker color={t.faint} style={{ fontSize: 11 }}>
+							{f.date}
+						</Kicker>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+// ─────────────────────────────────────────────────────────
+// 05 Split — 上 2/3 を写真または色面、下 1/3 を濃色の情報バンドに分割。
+//   バンドは常にパレットの闇面ベース。重要情報がコントラストで浮く。
+// ─────────────────────────────────────────────────────────
+const SPLIT_BAND_H = 224;
+
+export function TplSplit({ f }: { f: Fields }) {
+	const { t, ft } = styleFrom(f);
+	const pal = paletteById(f.palette);
+	const issue = String(f.issue || "001").padStart(3, "0");
+	const hasImg = !!f.image;
+	// バンドは闇面の 6 トークンで塗る。ダークテーマでは背景と見分くため少し持ち上げる
+	const band = resolveOgTheme(pal.dark, "dark");
+	const bandBg =
+		f.theme === "light"
+			? pal.dark.base
+			: mixHex(pal.dark.sub, pal.dark.base, 0.07);
+	// 上段のブランド表記：写真の上は明文字（上端スクリム併用）、色面の上はテーマ準拠
+	const topInk = hasImg ? pal.dark.sub : t.text;
+	const markUrl = hasImg ? markUrlFor("dark") : markUrlFor(f.theme);
+	return (
+		<div style={{ ...FRAME_BASE, background: t.bg, color: band.text }}>
+			{/* 上段：写真 or 色面 */}
+			<div
+				style={{
+					position: "absolute",
+					top: 0,
+					left: 0,
+					right: 0,
+					height: 670 - SPLIT_BAND_H,
+					overflow: "hidden",
+				}}
+			>
+				{hasImg && f.image ? (
+					<img
+						src={f.image}
+						alt=""
+						crossOrigin="anonymous"
+						style={{ width: "100%", height: "100%", objectFit: "cover" }}
+					/>
+				) : (
+					<div
+						style={{
+							position: "absolute",
+							inset: 0,
+							background: `linear-gradient(160deg, ${mixHex(t.text, t.bg, 0.07)} 0%, ${t.bg} 72%)`,
+						}}
+					/>
+				)}
+				{hasImg && (
+					<div
+						style={{
+							position: "absolute",
+							top: 0,
+							left: 0,
+							right: 0,
+							height: 150,
+							background: `linear-gradient(180deg, ${rgbaFromHex(pal.dark.base, 0.6)} 0%, ${rgbaFromHex(pal.dark.base, 0)} 100%)`,
+						}}
+					/>
+				)}
+				<div style={{ position: "absolute", top: 54, left: M }}>
+					<Brand
+						color={topInk}
+						text={f.brand}
+						showMark={f.showMark !== false}
+						markUrl={markUrl}
+						size={15}
+						markSize={21}
+					/>
+				</div>
+			</div>
+
+			{/* 下段：濃色の情報バンド */}
+			<div
+				style={{
+					position: "absolute",
+					left: 0,
+					right: 0,
+					bottom: 0,
+					height: SPLIT_BAND_H,
+					background: bandBg,
+					borderTop: `2px solid ${band.accent}`,
+					padding: `26px ${M}px 30px`,
+					display: "flex",
+					flexDirection: "column",
+					justifyContent: "space-between",
+					overflow: "hidden",
+				}}
+			>
+				<div
+					style={{
+						display: "flex",
+						alignItems: "baseline",
+						justifyContent: "space-between",
+					}}
+				>
+					<Kicker color={band.accent}>
+						{f.category || "ESSAY"}&nbsp;&nbsp;·&nbsp;&nbsp;Vol.{issue}
+					</Kicker>
+					<Kicker color={band.faint} style={{ fontSize: 12 }}>
+						{f.date}
+					</Kicker>
+				</div>
+				<div>
+					<AutoFitTitle
+						lines={renderLines(f.title)}
+						width={1280 - M * 2}
+						maxH={f.lead ? 60 : 92}
+						max={f.lead ? 48 : 58}
+						min={24}
+						style={{
+							fontFamily: titleFamily(ft),
+							fontWeight: ft.titleWeight,
+							lineHeight: ft.titleLeading - 0.1,
+							letterSpacing: ft.titleTrack,
+							color: band.text,
+						}}
+					/>
+					{f.lead && (
+						<div
+							style={{
+								marginTop: 10,
+								maxWidth: 900,
+								fontFamily: UI_JP,
+								fontSize: 17,
+								lineHeight: 1.55,
+								fontWeight: 400,
+								color: band.muted,
+								whiteSpace: "pre-wrap",
+							}}
+						>
+							{f.lead}
+						</div>
+					)}
+				</div>
+				<div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+					<span
+						style={{
+							fontFamily: UI_JP,
+							fontSize: 16,
+							fontWeight: 700,
+							color: band.text,
+						}}
+					>
+						{f.author}
+					</span>
+					{f.account && (
+						<span
+							style={{
+								fontFamily: UI_LATIN,
+								fontSize: 13,
+								color: band.faint,
+							}}
+						>
+							{f.account}
+						</span>
+					)}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+// ─────────────────────────────────────────────────────────
+// 06 Tate — タイトルを縦書き（vertical-rl）にした和モダン構図。
+//   右にタイトルの段、左下に情報ブロック。明朝と好相性。
+// ─────────────────────────────────────────────────────────
+export function TplTate({ f }: { f: Fields }) {
+	const { t, ft } = styleFrom(f);
+	const issue = String(f.issue || "001").padStart(3, "0");
+	const markUrl = markUrlFor(f.theme);
+	return (
+		<div style={{ ...FRAME_BASE, background: t.bg, color: t.text }}>
+			{/* 右端の界線（掛け軸の趣） */}
+			<div
+				style={{
+					position: "absolute",
+					top: 70,
+					bottom: 70,
+					right: 54,
+					width: 1,
+					background: t.ruleStrong,
+				}}
+			/>
+
+			{/* タイトル（縦書き・右から左へ段を組む。高さ基準でフィット） */}
+			<AutoFitTitle
+				vertical
+				lines={renderLines(f.title)}
+				width={560}
+				maxH={476}
+				max={84}
+				min={36}
+				style={{
+					position: "absolute",
+					top: 84,
+					right: 86,
+					fontFamily: titleFamily(ft),
+					fontWeight: ft.titleWeight,
+					lineHeight: ft.titleLeading,
+					letterSpacing: ft.titleTrack,
+					color: t.text,
+				}}
+			/>
+
+			{/* 落款風の差し色（タイトル段の下） */}
+			<div
+				style={{
+					position: "absolute",
+					right: 86,
+					bottom: 70,
+					width: 13,
+					height: 13,
+					background: t.accent,
+				}}
+			/>
+
+			{/* 左上：ブランド */}
+			<div style={{ position: "absolute", top: 62, left: M }}>
+				<Brand
+					color={t.muted}
+					text={f.brand}
+					showMark={f.showMark !== false}
+					markUrl={markUrl}
+					size={15}
+					markSize={21}
+				/>
+			</div>
+
+			{/* 左下：情報ブロック */}
+			<div
+				style={{
+					position: "absolute",
+					left: M,
+					bottom: 56,
+					display: "flex",
+					flexDirection: "column",
+					alignItems: "flex-start",
+					gap: 13,
+				}}
+			>
+				<Kicker color={t.accent}>
+					{f.category || "ESSAY"}&nbsp;&nbsp;·&nbsp;&nbsp;Vol.{issue}
+				</Kicker>
+				{f.lead && (
+					<div
+						style={{
+							maxWidth: 420,
+							fontFamily: UI_JP,
+							fontSize: 19,
+							lineHeight: 1.75,
+							fontWeight: 400,
+							color: t.muted,
+							whiteSpace: "pre-wrap",
+						}}
+					>
+						{f.lead}
+					</div>
+				)}
+				<span style={{ display: "flex", alignItems: "baseline", gap: 11 }}>
+					<span
+						style={{
+							fontFamily: UI_JP,
+							fontSize: 17,
+							fontWeight: 700,
+							color: t.text,
+						}}
+					>
+						{f.author}
+					</span>
+					{f.account && (
+						<span
+							style={{
+								fontFamily: UI_LATIN,
+								fontSize: 13,
+								color: t.faint,
 							}}
 						>
 							{f.account}

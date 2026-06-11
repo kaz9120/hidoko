@@ -1,4 +1,11 @@
-import { TplCover, TplEdition, TplQuiet } from "./templates";
+import {
+	TplCover,
+	TplEdition,
+	TplFrame,
+	TplQuiet,
+	TplSplit,
+	TplTate,
+} from "./templates";
 import type { TemplateDef } from "./types";
 
 export const TEMPLATES = [
@@ -22,6 +29,27 @@ export const TEMPLATES = [
 		note: "余白多めの和モダン",
 		useImage: "opt",
 		Comp: TplQuiet,
+	},
+	{
+		id: "frame",
+		label: "04 Frame",
+		note: "全面写真＋中央の枠ボックス",
+		useImage: "opt",
+		Comp: TplFrame,
+	},
+	{
+		id: "split",
+		label: "05 Split",
+		note: "上下 2 トーン・濃色の情報バンド",
+		useImage: "opt",
+		Comp: TplSplit,
+	},
+	{
+		id: "tate",
+		label: "06 Tate",
+		note: "縦書きタイトルの和モダン",
+		useImage: false,
+		Comp: TplTate,
 	},
 ] as const satisfies readonly TemplateDef[];
 
