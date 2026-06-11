@@ -10,6 +10,7 @@ import {
 	useRef,
 	useState,
 } from "react";
+import type { ViewportHandle } from "~/components/canvas/viewport";
 import type { CropData, CropEngineHandle } from "~/hooks/use-crop-engine";
 import { type ImageSource, resolveImageFileName } from "~/lib/file-name";
 import {
@@ -73,6 +74,18 @@ type SnapcropContextValue = {
 
 	activeTool: ActiveTool;
 	setActiveTool: (tool: ActiveTool) => void;
+
+	/**
+	 * キャンバスのズーム倍率 (1 = 100%)。実体は Viewport が onZoomChange で
+	 * 書き込む。ヘッダーの ZoomControl が % 表示のために購読する。
+	 */
+	zoom: number;
+	setZoom: (zoom: number) => void;
+	/**
+	 * Viewport の imperative ハンドル。ヘッダーやショートカットが
+	 * fit / 100% / 任意倍率ズームを呼ぶための共有 ref。画像未ロード時は null。
+	 */
+	viewportRef: RefObject<ViewportHandle | null>;
 
 	/**
 	 * クロップツールの UI 状態。CropToolbar が読み書きする。画像差し替えで
@@ -461,8 +474,10 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 	}));
 	const cropperRef = useRef<CropEngineHandle | null>(null);
 	const rectEngineHandleRef = useRef<RectEngineHandle | null>(null);
+	const viewportRef = useRef<ViewportHandle | null>(null);
 	const spacePressedRef = useRef<boolean>(false);
 	const [cropData, setCropData] = useState<CropData | null>(null);
+	const [zoom, setZoom] = useState(1);
 	const [cropAspectRatioId, setCropAspectRatioIdState] = useState("free");
 	const [cropIsPortrait, setCropIsPortraitState] = useState(false);
 
@@ -527,6 +542,10 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 			activeTool: state.activeTool,
 			setActiveTool: (tool) => dispatch({ type: "SET_ACTIVE_TOOL", tool }),
 
+			zoom,
+			setZoom,
+			viewportRef,
+
 			annotations: state.annotation.annotations,
 			selectedAnnotationId: state.selectedAnnotationId,
 			selectAnnotation: (id) => dispatch({ type: "SELECT_ANNOT", id }),
@@ -560,7 +579,14 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 			cropIsPortrait,
 			setCropIsPortrait: setCropIsPortraitState,
 		};
-	}, [state, cropData, stableSetCropData, cropAspectRatioId, cropIsPortrait]);
+	}, [
+		state,
+		cropData,
+		stableSetCropData,
+		cropAspectRatioId,
+		cropIsPortrait,
+		zoom,
+	]);
 
 	return (
 		<SnapcropContext.Provider value={value}>
