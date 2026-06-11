@@ -6,6 +6,7 @@ import {
 	useImperativeHandle,
 	useLayoutEffect,
 	useRef,
+	useState,
 } from "react";
 
 export type ViewportHandle = {
@@ -41,12 +42,16 @@ function computeFitZoom(
 
 /**
  * 画像を表示する pan / zoom コンテナ。OS 標準スクロールバーを overflow:auto で
- * 出し、⌘+wheel ズーム / wheel スクロール / 右クリックドラッグ pan を提供する。
+ * 出し、⌘+wheel ズーム / wheel スクロール / 右クリックドラッグ pan /
+ * Space + 左ドラッグ pan を提供する。
  * children は画像 stage を絶対配置で埋めるコンポーネント。
  */
 export const Viewport = forwardRef<ViewportHandle, ViewportProps>(
 	function Viewport({ image, zoom, onZoomChange, children }, ref) {
 		const scrollerRef = useRef<HTMLDivElement>(null);
+		// Space 押下中フラグ。render では子レイヤーの pointer-events を止めるのに
+		// 使う (pan をツール操作より優先し、cursor も grab に切り替えるため)。
+		const [spacePressed, setSpacePressed] = useState(false);
 		const stageRef = useRef<HTMLDivElement>(null);
 		const fitZoomRef = useRef(1);
 		const wasFittedRef = useRef(true);
@@ -169,7 +174,10 @@ export const Viewport = forwardRef<ViewportHandle, ViewportProps>(
 			};
 		}, [applyZoomAt]);
 
-		// 右クリックドラッグで pan
+		// 右クリックドラッグ / Space + 左ドラッグで pan。
+		// Space は use-rect-shortcuts と同じ基準で、入力欄フォーカス中・IME 入力中
+		// は奪わない。Viewport 単体 (Storybook 等) でも成立するよう、ここで自前の
+		// keydown / keyup を持つ (context の spacePressedRef には依存しない)。
 		useEffect(() => {
 			const el = scrollerRef.current;
 			if (!el) return;
@@ -177,12 +185,43 @@ export const Viewport = forwardRef<ViewportHandle, ViewportProps>(
 			let activePointerId: number | null = null;
 			let lastX = 0;
 			let lastY = 0;
+			let spaceDown = false;
+
+			const applySpace = (next: boolean) => {
+				if (spaceDown === next) return;
+				spaceDown = next;
+				setSpacePressed(next);
+				// pan 中の cursor は grabbing を維持し、pointerup 側で復元する
+				if (!panning) el.style.cursor = next ? "grab" : "";
+			};
+
+			const onKeyDown = (e: KeyboardEvent) => {
+				if (e.code !== "Space") return;
+				if (e.isComposing || e.keyCode === 229) return;
+				if (isInputTarget(e.target)) return;
+				// ページスクロールを止める (use-rect-shortcuts 側でも止めているが、
+				// Viewport 単体でも成立させるためここでも止める)
+				e.preventDefault();
+				applySpace(true);
+			};
+			const onKeyUp = (e: KeyboardEvent) => {
+				if (e.code !== "Space") return;
+				applySpace(false);
+			};
+			// ウィンドウからフォーカスが外れると keyup を取り逃すので解除する
+			const onWindowBlur = () => {
+				applySpace(false);
+			};
 
 			const onContextMenu = (e: Event) => {
 				e.preventDefault();
 			};
 			const onPointerDown = (e: PointerEvent) => {
-				if (e.button !== 2) return;
+				if (panning) return;
+				const spacePan = e.button === 0 && spaceDown;
+				if (e.button !== 2 && !spacePan) return;
+				// 左ボタン時はテキスト選択などの既定動作を止める
+				if (spacePan) e.preventDefault();
 				panning = true;
 				activePointerId = e.pointerId;
 				el.setPointerCapture(e.pointerId);
@@ -206,15 +245,21 @@ export const Viewport = forwardRef<ViewportHandle, ViewportProps>(
 				} catch {
 					// pointer already released
 				}
-				el.style.cursor = "";
+				el.style.cursor = spaceDown ? "grab" : "";
 			};
 
+			document.addEventListener("keydown", onKeyDown);
+			document.addEventListener("keyup", onKeyUp);
+			window.addEventListener("blur", onWindowBlur);
 			el.addEventListener("contextmenu", onContextMenu);
 			el.addEventListener("pointerdown", onPointerDown);
 			el.addEventListener("pointermove", onPointerMove);
 			el.addEventListener("pointerup", onPointerUp);
 			el.addEventListener("pointercancel", onPointerUp);
 			return () => {
+				document.removeEventListener("keydown", onKeyDown);
+				document.removeEventListener("keyup", onKeyUp);
+				window.removeEventListener("blur", onWindowBlur);
 				el.removeEventListener("contextmenu", onContextMenu);
 				el.removeEventListener("pointerdown", onPointerDown);
 				el.removeEventListener("pointermove", onPointerMove);
@@ -256,6 +301,9 @@ export const Viewport = forwardRef<ViewportHandle, ViewportProps>(
 						// scrollLeft = 0 から右にしか動けず、画像左端 / 上端まで届かない。
 						alignItems: "safe center",
 						justifyContent: "safe center",
+						// Space 押下中は子レイヤー (crop / rect) のヒットを止めて pan を
+						// 優先する。cursor も scroller 側の grab / grabbing が効く。
+						pointerEvents: spacePressed ? "none" : undefined,
 					}}
 				>
 					<div
@@ -273,3 +321,14 @@ export const Viewport = forwardRef<ViewportHandle, ViewportProps>(
 		);
 	},
 );
+
+// use-rect-shortcuts.ts と同じ判定。入力欄 (input / textarea / contenteditable)
+// にフォーカスがあるときは Space を奪わない。
+function isInputTarget(target: EventTarget | null): boolean {
+	if (!(target instanceof HTMLElement)) return false;
+	return (
+		target.tagName === "INPUT" ||
+		target.tagName === "TEXTAREA" ||
+		target.isContentEditable
+	);
+}

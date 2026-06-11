@@ -5,6 +5,7 @@ import { ArrowLayer } from "~/components/canvas/arrow-layer";
 import { ArrowPreviewOverlay } from "~/components/canvas/arrow-preview-overlay";
 import { ArrowSelectionOverlay } from "~/components/canvas/arrow-selection-overlay";
 import { CropFrame } from "~/components/canvas/crop-frame";
+import { DimensionHud } from "~/components/canvas/dimension-hud";
 import { HighlightInteractionLayer } from "~/components/canvas/highlight-interaction-layer";
 import { HighlightLayer } from "~/components/canvas/highlight-layer";
 import { HighlightPreviewOverlay } from "~/components/canvas/highlight-preview-overlay";
@@ -41,6 +42,7 @@ export type ImageStageProps = {
  *   5. <RectSelectionOverlay>         1px ring + 8 handle (handle のみ events:auto)
  *   6. <RectPreviewOverlay>           drawing 中の破線プレビュー
  *   7. <CropFrame>                    activeTool==='crop' のとき
+ *   8. <DimensionHud>                 クロップ枠に追従する W × H 表示
  *
  * 矢印ツールのレイヤーも同じ構造で重ねる: <ArrowLayer> は 3 の直上 (矢印は
  * 常に矩形より前)、<ArrowInteractionLayer> / <ArrowSelectionOverlay> /
@@ -258,6 +260,14 @@ export function ImageStage({
 				/>
 			)}
 			{activeTool === "crop" && <CropFrame engine={cropEngine} zoom={zoom} />}
+			{activeTool === "crop" && cropEngine.cropRect && (
+				<DimensionHud
+					imageHeight={image.height}
+					imageWidth={image.width}
+					rect={cropEngine.cropRect}
+					zoom={zoom}
+				/>
+			)}
 		</>
 	);
 }
