@@ -21,11 +21,12 @@ import {
 
 const THICKNESS_OPTIONS: ReadonlyArray<{
 	id: HighlightThickness;
+	label: string;
 	barHeight: number;
 }> = [
-	{ id: "sm", barHeight: 3 },
-	{ id: "md", barHeight: 5 },
-	{ id: "lg", barHeight: 8 },
+	{ id: "sm", label: "細", barHeight: 3 },
+	{ id: "md", label: "中", barHeight: 5 },
+	{ id: "lg", label: "太", barHeight: 8 },
 ];
 
 /**
@@ -74,6 +75,38 @@ export function HighlightToolbar() {
 		}
 	};
 
+	return (
+		<HighlightToolbarView
+			current={current}
+			highlightCount={highlights.length}
+			onCommit={commit}
+			onDelete={selected ? () => deleteHighlight(selected.id) : undefined}
+			selected={selected !== null}
+		/>
+	);
+}
+
+export type HighlightToolbarViewProps = {
+	current: HighlightDefaults;
+	/** true なら「選択中」表示になり、onDelete の削除ボタンが出る。 */
+	selected: boolean;
+	highlightCount: number;
+	onCommit: (patch: Partial<HighlightDefaults>, batchKey?: string) => void;
+	onDelete?: () => void;
+};
+
+/**
+ * HighlightToolbar の見た目だけを担う props 駆動 view。Storybook から状態を
+ * 注入して検証できるよう、context 接続部 (HighlightToolbar) と分離している
+ * (ArrowToolbar / ZoomControl / StatusBar の先例に同じ)。
+ */
+export function HighlightToolbarView({
+	current,
+	selected,
+	highlightCount,
+	onCommit,
+	onDelete,
+}: HighlightToolbarViewProps) {
 	const opacityPercent = Math.round(current.opacity * 100);
 
 	return (
@@ -94,7 +127,7 @@ export function HighlightToolbar() {
 			<Label>色</Label>
 			<ColorSwatches
 				colors={HIGHLIGHT_PRESET_COLORS}
-				onChange={(color) => commit({ color })}
+				onChange={(color) => onCommit({ color })}
 				value={current.color}
 			/>
 
@@ -108,7 +141,7 @@ export function HighlightToolbar() {
 				min={HIGHLIGHT_MIN_OPACITY * 100}
 				onValueChange={([next]) => {
 					// スライダードラッグ中の連続変更は 1 履歴にまとめる
-					commit({ opacity: next / 100 }, "opacity");
+					onCommit({ opacity: next / 100 }, "opacity");
 				}}
 				step={5}
 				value={[opacityPercent]}
@@ -123,7 +156,7 @@ export function HighlightToolbar() {
 			<ToggleGroup
 				aria-label="太さ"
 				onValueChange={(next) => {
-					if (next) commit({ thickness: next as HighlightThickness });
+					if (next) onCommit({ thickness: next as HighlightThickness });
 				}}
 				type="single"
 				value={current.thickness}
@@ -131,9 +164,10 @@ export function HighlightToolbar() {
 			>
 				{THICKNESS_OPTIONS.map((opt) => (
 					<ToggleGroupItem
+						aria-label={`太さ: ${opt.label}`}
 						key={opt.id}
 						size="sm"
-						title={`太さ ${opt.id}`}
+						title={`太さ: ${opt.label}`}
 						value={opt.id}
 					>
 						<span
@@ -147,15 +181,15 @@ export function HighlightToolbar() {
 			<div className="flex-1" />
 
 			<span className="font-mono text-[10px] text-muted-foreground tracking-[0.04em]">
-				{highlights.length} 本のマーカー
+				{highlightCount} 本のマーカー
 			</span>
 
-			{selected && (
+			{selected && onDelete && (
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<Button
 							aria-label="選択中のマーカーを削除"
-							onClick={() => deleteHighlight(selected.id)}
+							onClick={onDelete}
 							size="icon-sm"
 							variant="ghost"
 						>
