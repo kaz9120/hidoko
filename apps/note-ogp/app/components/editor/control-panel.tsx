@@ -123,9 +123,14 @@ export function ControlPanel({
 					<PalettePicker
 						value={state.palette}
 						theme={state.theme}
+						photoPalettes={state.photoPalettes}
 						onChange={(palette) => update({ palette })}
 					/>
-					<FieldDescription>ベース・文字・差し色の3色セット</FieldDescription>
+					<FieldDescription>
+						{state.photoPalettes
+							? "ベース・文字・差し色の3色セット。上段は写真から抽出した提案"
+							: "ベース・文字・差し色の3色セット"}
+					</FieldDescription>
 				</Field>
 
 				<Field className="mb-3.5">
