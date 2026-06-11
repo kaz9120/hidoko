@@ -6,6 +6,10 @@ import { ArrowPreviewOverlay } from "~/components/canvas/arrow-preview-overlay";
 import { ArrowSelectionOverlay } from "~/components/canvas/arrow-selection-overlay";
 import { CropFrame } from "~/components/canvas/crop-frame";
 import { DimensionHud } from "~/components/canvas/dimension-hud";
+import { HighlightInteractionLayer } from "~/components/canvas/highlight-interaction-layer";
+import { HighlightLayer } from "~/components/canvas/highlight-layer";
+import { HighlightPreviewOverlay } from "~/components/canvas/highlight-preview-overlay";
+import { HighlightSelectionOverlay } from "~/components/canvas/highlight-selection-overlay";
 import { MosaicLayer } from "~/components/canvas/mosaic-layer";
 import { RectInteractionLayer } from "~/components/canvas/rect-interaction-layer";
 import { RectMiniActions } from "~/components/canvas/rect-mini-actions";
@@ -18,6 +22,7 @@ import { TextSelectionOverlay } from "~/components/canvas/text-selection-overlay
 import { type LoadedImage, useSnapcrop } from "~/contexts/snapcrop-context";
 import { useArrowEngine } from "~/hooks/use-arrow-engine";
 import type { UseCropEngineResult } from "~/hooks/use-crop-engine";
+import { useHighlightEngine } from "~/hooks/use-highlight-engine";
 import { useRectEngine } from "~/hooks/use-rect-engine";
 import { useTextEngine } from "~/hooks/use-text-engine";
 import { duplicateRectAnnotation } from "~/lib/rect-engine";
@@ -56,6 +61,11 @@ export type ImageStageProps = {
  * <TextEditorOverlay> は activeTool==='text' のときだけ。preview overlay の
  * 代わりに、インライン編集の <TextEditorOverlay> が「まだ commit されて
  * いない状態」を担う。
+ *
+ * マーカーツールのレイヤーも同様: <HighlightLayer> は <TextLayer> のさらに
+ * 直上 (kind ごとのレイヤー z-order で最前。multiply 合成なので下の矩形・
+ * 矢印・テキストは透けて見える)、interaction / selection / preview は
+ * activeTool==='highlight' のときだけ。
  */
 export function ImageStage({
 	image,
@@ -75,6 +85,9 @@ export function ImageStage({
 		texts,
 		textDefaults,
 		textEngineHandleRef,
+		highlights,
+		highlightDefaults,
+		highlightEngineHandleRef,
 		createAnnotation,
 		deleteAnnotation,
 	} = useSnapcrop();
@@ -87,6 +100,7 @@ export function ImageStage({
 	const rectEngine = useRectEngine(imageMetrics);
 	const arrowEngine = useArrowEngine(imageMetrics);
 	const textEngine = useTextEngine(imageMetrics);
+	const highlightEngine = useHighlightEngine(imageMetrics);
 
 	// engine の安定ハンドルを context の ref に差し込む。useRectShortcuts と
 	// RectInteractionLayer が Esc キャンセル / Space pan 抑制で使う。
@@ -113,6 +127,14 @@ export function ImageStage({
 			textEngineHandleRef.current = null;
 		};
 	}, [textEngineHandleRef, textEngine.handle]);
+
+	// マーカー engine も同様。useHighlightShortcuts の Esc キャンセルが使う。
+	useEffect(() => {
+		highlightEngineHandleRef.current = highlightEngine.handle;
+		return () => {
+			highlightEngineHandleRef.current = null;
+		};
+	}, [highlightEngineHandleRef, highlightEngine.handle]);
 
 	// stage 内の座標変換。<img> 要素を基準にして clientX/Y → 画像 px へ。
 	// interaction layer と selection overlay 双方で使う。画像ロード前や rect が
@@ -152,6 +174,13 @@ export function ImageStage({
 				null)
 			: null;
 
+	const selectedHighlightRendered =
+		selectedAnnotationId && activeTool === "highlight"
+			? (highlightEngine.renderedHighlights.find(
+					(h) => h.id === selectedAnnotationId,
+				) ?? null)
+			: null;
+
 	return (
 		<>
 			<img
@@ -183,6 +212,11 @@ export function ImageStage({
 				imageHeight={image.height}
 				imageWidth={image.width}
 				texts={textEngine.renderedTexts}
+			/>
+			<HighlightLayer
+				highlights={highlightEngine.renderedHighlights}
+				imageHeight={image.height}
+				imageWidth={image.width}
 			/>
 			{/*
 			 * RectInteractionLayer は SelectionOverlay の手前に置くと選択ハンドル
@@ -276,6 +310,32 @@ export function ImageStage({
 					onCommit={textEngine.commitEdit}
 					texts={texts}
 					zoom={zoom}
+				/>
+			)}
+			{activeTool === "highlight" && (
+				<HighlightInteractionLayer
+					engine={highlightEngine}
+					getImagePoint={getImagePoint}
+					highlights={highlights}
+					zoom={zoom}
+				/>
+			)}
+			{selectedHighlightRendered && (
+				<HighlightSelectionOverlay
+					engine={highlightEngine}
+					getImagePoint={getImagePoint}
+					highlight={selectedHighlightRendered}
+					imageHeight={image.height}
+					imageWidth={image.width}
+					zoom={zoom}
+				/>
+			)}
+			{highlightEngine.previewHighlight && activeTool === "highlight" && (
+				<HighlightPreviewOverlay
+					defaults={highlightDefaults}
+					imageHeight={image.height}
+					imageWidth={image.width}
+					previewHighlight={highlightEngine.previewHighlight}
 				/>
 			)}
 			{activeTool === "crop" && <CropFrame engine={cropEngine} zoom={zoom} />}

@@ -1,5 +1,9 @@
 import type { CropEngineHandle } from "~/hooks/use-crop-engine";
 import { type ArrowAnnotation, getArrowRenderModel } from "~/lib/arrow-engine";
+import {
+	getHighlightRenderModel,
+	type HighlightAnnotation,
+} from "~/lib/highlight-engine";
 import { paintMosaicRect } from "~/lib/mosaic";
 import {
 	FILL_OPACITY,
@@ -25,6 +29,10 @@ import {
  * arrows (矢印アノテーション) / texts (テキストアノテーション) も同様に
  * baked-in する。表示レイヤーの z-order (矢印は矩形より前、テキストは矢印
  * より前) に合わせ、矩形 → 矢印 → テキストの順に描く。
+ *
+ * highlights (マーカーアノテーション) も同様に baked-in する。表示レイヤーの
+ * z-order (マーカーは kind レイヤーの最前) に合わせ、最後に multiply 合成で
+ * 描く (下の文字が透ける)。
  */
 export async function getCroppedBlob(
 	engine: CropEngineHandle,
@@ -32,10 +40,20 @@ export async function getCroppedBlob(
 	annotations: readonly RectAnnotation[] = [],
 	arrows: readonly ArrowAnnotation[] = [],
 	texts: readonly TextAnnotation[] = [],
+	highlights: readonly HighlightAnnotation[] = [],
 ): Promise<Blob> {
 	const canvas =
-		annotations.length > 0 || arrows.length > 0 || texts.length > 0
-			? renderAnnotatedCroppedCanvas(engine, annotations, arrows, texts)
+		annotations.length > 0 ||
+		arrows.length > 0 ||
+		texts.length > 0 ||
+		highlights.length > 0
+			? renderAnnotatedCroppedCanvas(
+					engine,
+					annotations,
+					arrows,
+					texts,
+					highlights,
+				)
 			: engine.toCanvas({ imageSmoothingQuality: "high" });
 	return await new Promise<Blob>((resolve, reject) => {
 		canvas.toBlob((blob) => {
@@ -61,6 +79,7 @@ function renderAnnotatedCroppedCanvas(
 	annotations: readonly RectAnnotation[],
 	arrows: readonly ArrowAnnotation[],
 	texts: readonly TextAnnotation[],
+	highlights: readonly HighlightAnnotation[],
 ): HTMLCanvasElement {
 	const cropRect = engine.getData();
 	const source = engine.getSourceImage();
@@ -98,6 +117,9 @@ function renderAnnotatedCroppedCanvas(
 	}
 	if (texts.length > 0) {
 		drawTexts(outCtx, texts, cropRect);
+	}
+	if (highlights.length > 0) {
+		drawHighlights(outCtx, highlights, cropRect);
 	}
 	return out;
 }
@@ -262,6 +284,40 @@ function drawTexts(
 	}
 	ctx.textAlign = prevAlign;
 	ctx.textBaseline = prevBaseline;
+}
+
+/**
+ * マーカーを canvas に baked-in する。形状計算は highlight-engine の
+ * getHighlightRenderModel に集約していて、SVG レイヤー (highlight-layer) と
+ * 同じ見た目になる。蛍光ペンの重ね味は globalCompositeOperation = "multiply"
+ * + globalAlpha で出す (SVG 側の mix-blend-mode: multiply + stroke-opacity
+ * と同じ合成結果)。クロップ範囲外は canvas 側で自動的に切れるので、
+ * intersect 判定はしない (drawArrows と同じ理由)。
+ */
+function drawHighlights(
+	ctx: CanvasRenderingContext2D,
+	highlights: readonly HighlightAnnotation[],
+	cropRect: { x: number; y: number },
+): void {
+	const sorted = [...highlights].sort((a, b) => a.createdAt - b.createdAt);
+	const prevLineCap = ctx.lineCap;
+	const prevAlpha = ctx.globalAlpha;
+	const prevComposite = ctx.globalCompositeOperation;
+	ctx.lineCap = "butt";
+	ctx.globalCompositeOperation = "multiply";
+	for (const h of sorted) {
+		const m = getHighlightRenderModel(h);
+		ctx.strokeStyle = m.color;
+		ctx.lineWidth = m.bandWidth;
+		ctx.globalAlpha = m.opacity;
+		ctx.beginPath();
+		ctx.moveTo(m.from.x - cropRect.x, m.from.y - cropRect.y);
+		ctx.lineTo(m.to.x - cropRect.x, m.to.y - cropRect.y);
+		ctx.stroke();
+	}
+	ctx.lineCap = prevLineCap;
+	ctx.globalAlpha = prevAlpha;
+	ctx.globalCompositeOperation = prevComposite;
 }
 
 function pathRoundRect(

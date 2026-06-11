@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import type { CropEngineHandle } from "~/hooks/use-crop-engine";
 import type { ArrowAnnotation } from "~/lib/arrow-engine";
 import { writeImageToClipboard } from "~/lib/clipboard";
+import type { HighlightAnnotation } from "~/lib/highlight-engine";
 import { getCroppedBlob } from "~/lib/image-export";
 import type { RectAnnotation } from "~/lib/rect-engine";
 import type { TextAnnotation } from "~/lib/text-engine";
@@ -12,6 +13,7 @@ type Options = {
 	annotations: readonly RectAnnotation[];
 	arrows: readonly ArrowAnnotation[];
 	texts: readonly TextAnnotation[];
+	highlights: readonly HighlightAnnotation[];
 	onSuccess: () => void;
 	onFailure: () => void;
 };
@@ -31,6 +33,7 @@ export function useCopyShortcut({
 	annotations,
 	arrows,
 	texts,
+	highlights,
 	onSuccess,
 	onFailure,
 }: Options) {
@@ -44,6 +47,8 @@ export function useCopyShortcut({
 	arrowsRef.current = arrows;
 	const textsRef = useRef(texts);
 	textsRef.current = texts;
+	const highlightsRef = useRef(highlights);
+	highlightsRef.current = highlights;
 	const onSuccessRef = useRef(onSuccess);
 	onSuccessRef.current = onSuccess;
 	const onFailureRef = useRef(onFailure);
@@ -90,6 +95,7 @@ export function useCopyShortcut({
 						annotationsRef.current,
 						arrowsRef.current,
 						textsRef.current,
+						highlightsRef.current,
 					);
 					const ok = await writeImageToClipboard(blob);
 					if (ok) {
