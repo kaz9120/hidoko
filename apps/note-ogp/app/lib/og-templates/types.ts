@@ -4,10 +4,20 @@ export type ThemeMode = "light" | "dark";
 export type FontMode = "serif" | "gothic" | "hand";
 export type CoverText = "light" | "dark";
 export type TemplateId = "edition" | "cover" | "quiet";
+export type PaletteId =
+	| "takibi"
+	| "koke"
+	| "geppaku"
+	| "tetsusabi"
+	| "suna"
+	| "sumi"
+	| "aikin"
+	| "budou";
 
 export type Fields = {
 	templateId: TemplateId;
 	theme: ThemeMode;
+	palette: PaletteId;
 	fontMode: FontMode;
 	coverText: CoverText;
 	title: string;

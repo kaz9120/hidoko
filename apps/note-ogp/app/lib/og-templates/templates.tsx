@@ -6,7 +6,9 @@ import {
 	M,
 	markUrlFor,
 	PhotoPlaceholder,
+	paletteById,
 	renderLines,
+	rgbaFromHex,
 	styleFrom,
 	titleFamily,
 	UI_JP,
@@ -159,30 +161,35 @@ export function TplEdition({ f }: { f: Fields }) {
 // ─────────────────────────────────────────────────────────
 export function TplCover({ f }: { f: Fields }) {
 	const { ft } = styleFrom(f);
+	const pal = paletteById(f.palette);
 	const issue = String(f.issue || "001").padStart(3, "0");
 	const hasImg = !!f.image;
 	const darkText = f.coverText === "dark"; // 明るい画像向け
 
-	// 文字色とスクリム
-	const ink = darkText ? "#1b1610" : "#fff8ee";
-	const sub = darkText ? "rgba(27,22,16,0.66)" : "rgba(255,248,238,0.74)";
-	const kicker = darkText ? "#a23a14" : "#f8a05c";
+	// 文字色とスクリム。暗い文字 = 明るい画像想定なのでライト面のロール、
+	// 明るい文字 = 暗い画像想定なのでダーク面のロールを使う。
+	const inkRoles = darkText ? pal.light : pal.dark;
+	const ink = inkRoles.sub;
+	const sub = rgbaFromHex(ink, darkText ? 0.66 : 0.74);
+	const kicker = inkRoles.accent;
+	// スクリムと文字ハロは「文字と逆の明るさ」= inkRoles.base で敷く
+	const scrim = inkRoles.base;
 	const shadow = darkText
-		? "0 1px 10px rgba(255,250,242,0.55)"
-		: "0 2px 16px rgba(0,0,0,0.5)";
+		? `0 1px 10px ${rgbaFromHex(scrim, 0.55)}`
+		: `0 2px 16px ${rgbaFromHex(scrim, 0.5)}`;
 	// 下スクリム（どんな画像でも下段が読めるよう、高め＆強め）
 	const bottomScrim = darkText
-		? "linear-gradient(0deg, rgba(247,242,232,0.94) 0%, rgba(247,242,232,0.86) 16%, rgba(247,242,232,0.45) 38%, rgba(247,242,232,0) 56%)"
-		: "linear-gradient(0deg, rgba(8,6,4,0.92) 0%, rgba(8,6,4,0.80) 16%, rgba(8,6,4,0.42) 38%, rgba(8,6,4,0) 56%)";
+		? `linear-gradient(0deg, ${rgbaFromHex(scrim, 0.94)} 0%, ${rgbaFromHex(scrim, 0.86)} 16%, ${rgbaFromHex(scrim, 0.45)} 38%, ${rgbaFromHex(scrim, 0)} 56%)`
+		: `linear-gradient(0deg, ${rgbaFromHex(scrim, 0.92)} 0%, ${rgbaFromHex(scrim, 0.8)} 16%, ${rgbaFromHex(scrim, 0.42)} 38%, ${rgbaFromHex(scrim, 0)} 56%)`;
 	const topScrim = darkText
-		? "linear-gradient(180deg, rgba(247,242,232,0.85) 0%, rgba(247,242,232,0) 100%)"
-		: "linear-gradient(180deg, rgba(8,6,4,0.6) 0%, rgba(8,6,4,0) 100%)";
+		? `linear-gradient(180deg, ${rgbaFromHex(scrim, 0.85)} 0%, ${rgbaFromHex(scrim, 0)} 100%)`
+		: `linear-gradient(180deg, ${rgbaFromHex(scrim, 0.6)} 0%, ${rgbaFromHex(scrim, 0)} 100%)`;
 
 	// 文字色が暗い = 明るい背景想定 → cream マーク。snapcrop と同じ規則
 	const markUrl = markUrlFor(darkText ? "light" : "dark");
 
 	return (
-		<div style={{ ...FRAME_BASE, background: "#13100c", color: ink }}>
+		<div style={{ ...FRAME_BASE, background: pal.dark.base, color: ink }}>
 			{hasImg && f.image ? (
 				<img
 					src={f.image}
@@ -197,7 +204,10 @@ export function TplCover({ f }: { f: Fields }) {
 					}}
 				/>
 			) : (
-				<PhotoPlaceholder dark={!darkText} label="表紙写真を追加" />
+				<PhotoPlaceholder
+					roles={darkText ? pal.light : pal.dark}
+					label="表紙写真を追加"
+				/>
 			)}
 
 			<div
