@@ -16,4 +16,11 @@ export const TOOLS: Tool[] = [
 		tags: ["Web", "Image"],
 		accent: true,
 	},
+	{
+		id: "note-ogp",
+		name: "note OGP",
+		href: "https://note-ogp.y-kaz.com/",
+		desc: "note のアイキャッチ画像をテンプレートから作る、ブラウザ完結のエディタ。",
+		tags: ["Web", "Image"],
+	},
 ];
