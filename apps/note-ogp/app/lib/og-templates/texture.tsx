@@ -1,4 +1,4 @@
-import { ogThemeFor, rgbaFromHex } from "./palettes";
+import { paletteForSelection, resolveOgTheme, rgbaFromHex } from "./palettes";
 import type { Fields, PaperStrength } from "./types";
 
 // ─────────────────────────────────────────────────────────
@@ -51,7 +51,8 @@ const PAPER_OPACITY: Record<PaperStrength, number> = {
 
 export function TextureLayer({ f }: { f: Fields }) {
 	if (f.texture === "none") return null;
-	const t = ogThemeFor(f.palette, f.theme);
+	const roles = paletteForSelection(f.palette, f.photoPalettes)[f.theme];
+	const t = resolveOgTheme(roles, f.theme);
 
 	if (f.texture === "paper") {
 		return (

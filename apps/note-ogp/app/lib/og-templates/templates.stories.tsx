@@ -27,6 +27,7 @@ const DEFAULT_FIELDS: Fields = {
 	image: null,
 	texture: "none",
 	paperStrength: "weak",
+	photoPalettes: null,
 };
 
 const FRAME_STYLE: React.CSSProperties = {

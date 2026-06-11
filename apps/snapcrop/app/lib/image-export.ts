@@ -192,8 +192,10 @@ function drawAnnotations(
 /**
  * 矢印を canvas に baked-in する。形状計算は arrow-engine の
  * getArrowRenderModel に集約していて、SVG レイヤー (arrow-layer) と同じ
- * 見た目になる。クロップ範囲外は canvas 側で自動的に切れるので、
- * intersect 判定はしない (矢印のパス描画は十分軽い)。
+ * 見た目になる。手書き風 (sketchy) はモデルが返す SVG パス文字列を
+ * Path2D に通して描くので、SVG 側とジオメトリが完全に一致する。
+ * クロップ範囲外は canvas 側で自動的に切れるので、intersect 判定はしない
+ * (矢印のパス描画は十分軽い)。
  */
 function drawArrows(
 	ctx: CanvasRenderingContext2D,
@@ -208,6 +210,19 @@ function drawArrows(
 		ctx.fillStyle = arrow.color;
 		ctx.lineWidth = m.strokeWidth;
 		ctx.lineCap = "round";
+		if (m.sketchy) {
+			// パス文字列は画像座標系なので、クロップ原点ぶん translate して描く
+			ctx.save();
+			ctx.translate(-cropRect.x, -cropRect.y);
+			for (const d of m.sketchy.linePaths) {
+				ctx.stroke(new Path2D(d));
+			}
+			for (const d of m.sketchy.capPaths) {
+				ctx.fill(new Path2D(d));
+			}
+			ctx.restore();
+			continue;
+		}
 		ctx.beginPath();
 		ctx.moveTo(m.from.x - cropRect.x, m.from.y - cropRect.y);
 		if (m.control) {

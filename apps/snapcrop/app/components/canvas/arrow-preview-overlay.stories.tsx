@@ -43,7 +43,7 @@ const IMAGE_HEIGHT = 300;
  */
 export const Default: Story = {
 	args: {
-		previewArrow: { x1: 80, y1: 220, x2: 380, y2: 80 },
+		previewArrow: { x1: 80, y1: 220, x2: 380, y2: 80, seed: 1 },
 		imageWidth: IMAGE_WIDTH,
 		imageHeight: IMAGE_HEIGHT,
 		defaults: {
@@ -52,6 +52,28 @@ export const Default: Story = {
 			endCap: "arrow",
 			color: PRESET_COLORS[0],
 			thickness: "md",
+			style: "clean",
+		},
+	},
+};
+
+/**
+ * 手書き風 (sketchy) でのプレビュー。破線のまま揺らぎ線になり、commit 後の
+ * 形 (同じ seed) をそのまま先取りする。
+ * @summary 手書き風のプレビュー
+ */
+export const Sketchy: Story = {
+	args: {
+		previewArrow: { x1: 80, y1: 200, x2: 400, y2: 100, seed: 7 },
+		imageWidth: IMAGE_WIDTH,
+		imageHeight: IMAGE_HEIGHT,
+		defaults: {
+			line: "straight",
+			startCap: "none",
+			endCap: "arrow",
+			color: PRESET_COLORS[0],
+			thickness: "md",
+			style: "sketchy",
 		},
 	},
 };
@@ -63,7 +85,7 @@ export const Default: Story = {
  */
 export const CurvedThick: Story = {
 	args: {
-		previewArrow: { x1: 60, y1: 240, x2: 420, y2: 120 },
+		previewArrow: { x1: 60, y1: 240, x2: 420, y2: 120, seed: 1 },
 		imageWidth: IMAGE_WIDTH,
 		imageHeight: IMAGE_HEIGHT,
 		defaults: {
@@ -72,6 +94,7 @@ export const CurvedThick: Story = {
 			endCap: "arrow",
 			color: PRESET_COLORS[2],
 			thickness: "lg",
+			style: "clean",
 		},
 	},
 };
@@ -83,7 +106,7 @@ export const CurvedThick: Story = {
  */
 export const Thin: Story = {
 	args: {
-		previewArrow: { x1: 180, y1: 160, x2: 280, y2: 120 },
+		previewArrow: { x1: 180, y1: 160, x2: 280, y2: 120, seed: 1 },
 		imageWidth: IMAGE_WIDTH,
 		imageHeight: IMAGE_HEIGHT,
 		defaults: {
@@ -92,6 +115,7 @@ export const Thin: Story = {
 			endCap: "arrow",
 			color: PRESET_COLORS[3],
 			thickness: "sm",
+			style: "clean",
 		},
 	},
 };

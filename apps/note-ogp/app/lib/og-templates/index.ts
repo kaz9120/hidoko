@@ -25,12 +25,13 @@ export const TEMPLATES = [
 	},
 ] as const satisfies readonly TemplateDef[];
 
-export type { OgPalette, OgRoles, OgTheme } from "./palettes";
+export type { OgPalette, OgTheme } from "./palettes";
 export {
 	DEFAULT_PALETTE_ID,
 	ogThemeFor,
 	PALETTES,
 	paletteById,
+	paletteForSelection,
 	resolveOgTheme,
 } from "./palettes";
 export { TextureLayer } from "./texture";
@@ -38,8 +39,12 @@ export type {
 	CoverText,
 	Fields,
 	FontMode,
+	OgRoles,
 	PaletteId,
+	PaletteSelection,
 	PaperStrength,
+	PhotoPalette,
+	PhotoPaletteId,
 	TemplateDef,
 	TemplateId,
 	TextureId,

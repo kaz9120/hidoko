@@ -1,20 +1,19 @@
-import type { PaletteId, ThemeMode } from "./types";
+import type {
+	OgRoles,
+	PaletteId,
+	PaletteSelection,
+	PhotoPalette,
+	ThemeMode,
+} from "./types";
 
 // ─────────────────────────────────────────────────────────
-// 配色の 3 ロール構造
-//   参考書（『けっきょくは、よはく。』ほか）の「ベース 70% / サブ 25% /
-//   アクセント 5%」に対応する。OGP 画像内の塗りはすべてこの 3 色から導出し、
+// 配色の 3 ロール構造（OgRoles）は types.ts に定義がある。
+//   OGP 画像内の塗りはすべて base / sub / accent の 3 色から導出し、
 //   自由なカラーピッカーは出さない（色の盛りすぎを構造的に防ぐ）。
-//   #87（写真からの色抽出）は OgRoles を組み立てて resolveOgTheme に渡せばよい。
+//   写真からの色抽出（photo-palette.ts）も OgRoles を組み立てて
+//   resolveOgTheme に渡すことで同じ構造に乗る。
 // ─────────────────────────────────────────────────────────
-export type OgRoles = {
-	/** ベース（≈70%）— 背景 */
-	base: string;
-	/** サブ（≈25%）— 文字 */
-	sub: string;
-	/** アクセント（≈5%）— 差し色 */
-	accent: string;
-};
+export type { OgRoles } from "./types";
 
 export type OgPalette = {
 	id: PaletteId;
@@ -163,4 +162,20 @@ export function paletteById(id: string): OgPalette {
 /** パレット id × テーマモードから 6 トークンを得るショートカット */
 export function ogThemeFor(id: PaletteId, mode: ThemeMode): OgTheme {
 	return resolveOgTheme(paletteById(id)[mode], mode);
+}
+
+/**
+ * パレット選択値（プリセット or 写真由来）から light / dark 両面のロールを引く。
+ * 写真パレットが選択されているのに候補が無い（写真と一緒に消えた等）場合は
+ * 焚き火にフォールバックする。
+ */
+export function paletteForSelection(
+	selection: PaletteSelection,
+	photoPalettes: PhotoPalette[] | null | undefined,
+): Pick<OgPalette, "light" | "dark"> {
+	if (selection.startsWith("photo-")) {
+		const found = photoPalettes?.find((p) => p.id === selection);
+		return found ?? paletteById(DEFAULT_PALETTE_ID);
+	}
+	return paletteById(selection);
 }

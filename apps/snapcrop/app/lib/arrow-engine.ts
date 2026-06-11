@@ -6,6 +6,11 @@
  */
 
 import type { ImageMetrics } from "~/lib/crop-engine";
+import {
+	sketchyCirclePath,
+	sketchyLinePaths,
+	sketchyPolygonPath,
+} from "~/lib/hand-drawn";
 import { PRESET_COLORS } from "~/lib/rect-engine";
 
 export type { ImageMetrics };
@@ -14,6 +19,8 @@ export type ArrowLineStyle = "straight" | "curve";
 export type ArrowCapStyle = "none" | "arrow" | "dot";
 export type ArrowThickness = "sm" | "md" | "lg";
 export type ArrowEndpoint = "start" | "end";
+/** 線の質感。clean = きっちりした幾何線、sketchy = 手書き風の揺らぎ線。 */
+export type ArrowStrokeStyle = "clean" | "sketchy";
 
 export type ArrowAnnotation = {
 	id: string;
@@ -27,6 +34,12 @@ export type ArrowAnnotation = {
 	endCap: ArrowCapStyle;
 	color: string;
 	thickness: ArrowThickness;
+	style: ArrowStrokeStyle;
+	/**
+	 * 手書き風の揺らぎを決める乱数 seed。作成時に 1 度だけ採番し、以後は
+	 * 不変 (移動 / 端点ドラッグ / undo / redo / 再描画で形が変わらない)。
+	 */
+	seed: number;
 	createdAt: number;
 };
 
@@ -47,6 +60,7 @@ export type ArrowAnnotationPatch = Partial<
 		| "endCap"
 		| "color"
 		| "thickness"
+		| "style"
 	>
 >;
 
@@ -56,6 +70,7 @@ export type ArrowDefaults = {
 	endCap: ArrowCapStyle;
 	color: string;
 	thickness: ArrowThickness;
+	style: ArrowStrokeStyle;
 };
 
 // キャプション用途では「強調」が命なので、線も矢尻も太めに振る。矢尻は
@@ -84,6 +99,7 @@ export const DEFAULT_ARROW_DEFAULTS: ArrowDefaults = {
 	endCap: "arrow",
 	color: PRESET_COLORS[0],
 	thickness: "md",
+	style: "clean",
 };
 
 export const MIN_ARROW_LENGTH = 8;
@@ -169,12 +185,23 @@ function newId(): string {
 	return `arrow_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
+/**
+ * 手書き風の揺らぎに使う seed の採番。描画開始時 (beginDraw) に呼ぶことで、
+ * プレビューと commit 後の矢印が同じ形になる。値そのものに意味はなく、
+ * 32bit 整数に収まればよい。
+ */
+export function newArrowSeed(): number {
+	return Math.floor(Math.random() * 0x7fffffff);
+}
+
 export function createArrowAnnotation(args: {
 	x1: number;
 	y1: number;
 	x2: number;
 	y2: number;
 	defaults: ArrowDefaults;
+	/** 省略時は新規採番。プレビューと同じ形を保ちたいときに指定する。 */
+	seed?: number;
 }): ArrowAnnotation {
 	return {
 		id: newId(),
@@ -188,6 +215,8 @@ export function createArrowAnnotation(args: {
 		endCap: args.defaults.endCap,
 		color: args.defaults.color,
 		thickness: args.defaults.thickness,
+		style: args.defaults.style,
+		seed: args.seed ?? newArrowSeed(),
 		createdAt: Date.now(),
 	};
 }
@@ -267,9 +296,23 @@ export type ArrowCapShape =
 	| { type: "dot"; center: Point; radius: number };
 
 /**
+ * 手書き風 (style === "sketchy") のときだけ埋まる描画パス。すべて SVG パスの
+ * `d` 文字列で、SVG 側は `<path d>`、canvas 側は `new Path2D(d)` で描くことで
+ * 画面と書き出しの見た目をジオメトリレベルで一致させる。
+ */
+export type ArrowSketchyRender = {
+	/** 線。stroke する (2 パス重ね描き) */
+	linePaths: string[];
+	/** キャップ (矢頭 / 丸)。fill する */
+	capPaths: string[];
+};
+
+/**
  * SVG レイヤー (arrow-layer.tsx) と canvas エクスポート (image-export.ts) が
  * 同じ見た目を共有するための描画モデル。線 (from → to、control があれば
- * quadratic) と、端点キャップの図形リストに分解する。
+ * quadratic) と、端点キャップの図形リストに分解する。手書き風のときは
+ * sketchy に揺らぎ済みのパス文字列が入り、from / to / control / caps の
+ * 代わりにそちらを描く。
  */
 export type ArrowRenderModel = {
 	from: Point;
@@ -277,6 +320,7 @@ export type ArrowRenderModel = {
 	control: Point | null;
 	strokeWidth: number;
 	caps: ArrowCapShape[];
+	sketchy: ArrowSketchyRender | null;
 };
 
 export function getArrowRenderModel(a: ArrowAnnotation): ArrowRenderModel {
@@ -300,13 +344,51 @@ export function getArrowRenderModel(a: ArrowAnnotation): ArrowRenderModel {
 		a.endCap === "arrow"
 			? { x: to.x - outEnd.x * inset, y: to.y - outEnd.y * inset }
 			: to;
+	const strokeWidth = ARROW_STROKE_PX[a.thickness];
 	return {
 		from: lineFrom,
 		to: lineTo,
 		control,
-		strokeWidth: ARROW_STROKE_PX[a.thickness],
+		strokeWidth,
 		caps,
+		sketchy:
+			a.style === "sketchy"
+				? buildSketchyRender(a, lineFrom, lineTo, control, caps, strokeWidth)
+				: null,
 	};
+}
+
+/**
+ * 手書き風の揺らぎパスを組み立てる。揺らぎ幅は線幅に比例させ (細い線ほど
+ * 控えめ)、キャップは caps の幾何 (clean と同じ頂点 / 半径) を seed 違いで
+ * 揺らす。同じ annotation (= 同じ seed) なら常に同じパスを返す。
+ */
+function buildSketchyRender(
+	a: ArrowAnnotation,
+	lineFrom: Point,
+	lineTo: Point,
+	control: Point | null,
+	caps: readonly ArrowCapShape[],
+	strokeWidth: number,
+): ArrowSketchyRender {
+	const amplitude = Math.max(1.25, strokeWidth * 0.35);
+	const linePaths = sketchyLinePaths({
+		from: lineFrom,
+		to: lineTo,
+		control,
+		seed: a.seed,
+		amplitude,
+	});
+	const capPaths = caps.map((cap, i) => {
+		// start / end で別系列の揺らぎになるよう seed をずらす
+		const capSeed = a.seed + (i + 1) * 7717;
+		if (cap.type === "arrowhead") {
+			const capAmp = Math.max(1, ARROW_HEAD_LEN_PX[a.thickness] * 0.06);
+			return sketchyPolygonPath(cap.points, capSeed, capAmp);
+		}
+		return sketchyCirclePath(cap.center, cap.radius, capSeed);
+	});
+	return { linePaths, capPaths };
 }
 
 /** 端点 tip での「線から外へ抜ける」単位ベクトル。曲線は制御点を接線の基準にする。 */

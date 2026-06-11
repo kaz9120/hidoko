@@ -50,6 +50,9 @@ const mkArrow = (
 	endCap: "arrow",
 	color: PRESET_COLORS[0],
 	thickness: "md",
+	style: "clean",
+	// VRT で揺らぎが安定するよう固定 seed (sketchy の story で使う)
+	seed: 1,
 	createdAt: Date.now(),
 	...overrides,
 });
@@ -162,6 +165,75 @@ export const ThicknessVariants: Story = {
 				y2: 280,
 				thickness: "lg",
 				color: PRESET_COLORS[3],
+			}),
+		],
+	},
+};
+
+/**
+ * 手書き風 (sketchy) の比較。上から「直線 + 終点矢頭」「曲線」「両端キャップ
+ * (丸 + 矢頭)」。揺らぎは seed 固定で決定的に生成されるため、再描画しても
+ * VRT でも同じ形を保つ。書き出し (canvas) も同じパス文字列を描くので
+ * 見た目が一致する。
+ * @summary 手書き風スタイル
+ */
+export const SketchyArrows: Story = {
+	args: {
+		imageWidth: IMAGE_WIDTH,
+		imageHeight: IMAGE_HEIGHT,
+		arrows: [
+			mkArrow("s1", {
+				x1: 60,
+				y1: 70,
+				x2: 420,
+				y2: 90,
+				style: "sketchy",
+				seed: 11,
+			}),
+			mkArrow("s2", {
+				x1: 60,
+				y1: 250,
+				x2: 420,
+				y2: 160,
+				line: "curve",
+				style: "sketchy",
+				seed: 22,
+				color: PRESET_COLORS[1],
+			}),
+			mkArrow("s3", {
+				x1: 60,
+				y1: 320,
+				x2: 420,
+				y2: 300,
+				startCap: "dot",
+				style: "sketchy",
+				seed: 33,
+				thickness: "lg",
+				color: PRESET_COLORS[3],
+			}),
+		],
+	},
+};
+
+/**
+ * 同じ座標の矢印を「きっちり (clean)」と「手書き (sketchy)」で並べた比較。
+ * 手書き側は 2 パスの重ね描きで線の密度にムラが出る。
+ * @summary きっちり / 手書き比較
+ */
+export const StyleComparison: Story = {
+	args: {
+		imageWidth: IMAGE_WIDTH,
+		imageHeight: IMAGE_HEIGHT,
+		arrows: [
+			mkArrow("clean", { x1: 60, y1: 120, x2: 420, y2: 120 }),
+			mkArrow("sketchy", {
+				x1: 60,
+				y1: 240,
+				x2: 420,
+				y2: 240,
+				style: "sketchy",
+				seed: 42,
+				color: PRESET_COLORS[2],
 			}),
 		],
 	},
