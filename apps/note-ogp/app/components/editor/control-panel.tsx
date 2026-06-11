@@ -24,6 +24,7 @@ import type {
 	ThemeMode,
 } from "~/lib/og-templates";
 import { TEMPLATES } from "~/lib/og-templates";
+import { ThemeToggle } from "../theme-toggle";
 import { ImageField } from "./image-field";
 import { SectionTitle } from "./section-title";
 import { TemplateThumb } from "./template-thumb";
@@ -66,6 +67,9 @@ export function ControlPanel({
 					<span className="font-mono text-[12px] uppercase tracking-[0.22em] text-primary">
 						HIDOKO ／ note OGP
 					</span>
+					<div className="ml-auto">
+						<ThemeToggle />
+					</div>
 				</div>
 				<h1 className="text-xl font-bold tracking-tight text-foreground">
 					アイキャッチ台紙
