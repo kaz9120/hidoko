@@ -13,6 +13,7 @@ import { useClipboardPaste } from "~/hooks/use-clipboard-paste";
 import { useCopyShortcut } from "~/hooks/use-copy-shortcut";
 import { useCropEngine } from "~/hooks/use-crop-engine";
 import { useFileDrop } from "~/hooks/use-file-drop";
+import { useHighlightShortcuts } from "~/hooks/use-highlight-shortcuts";
 import { useRectShortcuts } from "~/hooks/use-rect-shortcuts";
 import { useSelectAllShortcut } from "~/hooks/use-select-all-shortcut";
 import { writeImageToClipboard } from "~/lib/clipboard";
@@ -23,8 +24,14 @@ import {
 } from "~/lib/image-export";
 
 export function EditorCanvas() {
-	const { image, loadImageFromBlob, cropperRef, annotations, arrows } =
-		useSnapcrop();
+	const {
+		image,
+		loadImageFromBlob,
+		cropperRef,
+		annotations,
+		arrows,
+		highlights,
+	} = useSnapcrop();
 	const isDragging = useFileDrop(loadImageFromBlob);
 	useClipboardPaste((blob) => void loadImageFromBlob(blob, "clipboard"));
 	useCopyShortcut({
@@ -32,12 +39,14 @@ export function EditorCanvas() {
 		hasImage: image !== null,
 		annotations,
 		arrows,
+		highlights,
 		onSuccess: () => toast.success("クリップボードにコピーしました"),
 		onFailure: () => toast.error("クリップボードへのコピーに失敗しました"),
 	});
 	useSelectAllShortcut({ cropperRef, hasImage: image !== null });
 	useRectShortcuts();
 	useArrowShortcuts();
+	useHighlightShortcuts();
 
 	if (image) {
 		// 画像 src が変わったら engine を作り直すために key を付ける。
@@ -113,7 +122,7 @@ function ImageCanvas({
 }
 
 function CanvasActions() {
-	const { cropperRef, image, annotations, arrows } = useSnapcrop();
+	const { cropperRef, image, annotations, arrows, highlights } = useSnapcrop();
 	const [isCopying, setIsCopying] = useState(false);
 	const [isDownloading, setIsDownloading] = useState(false);
 
@@ -133,6 +142,7 @@ function CanvasActions() {
 				"image/png",
 				annotations,
 				arrows,
+				highlights,
 			);
 			const ok = await writeImageToClipboard(blob);
 			if (ok) {
@@ -159,6 +169,7 @@ function CanvasActions() {
 				"image/png",
 				annotations,
 				arrows,
+				highlights,
 			);
 			downloadBlob(blob, makeDownloadFilename("png"));
 		} catch {

@@ -36,6 +36,7 @@ export function useRectShortcuts() {
 		annotations,
 		rectEngineHandleRef,
 		arrowEngineHandleRef,
+		highlightEngineHandleRef,
 		spacePressedRef,
 	} = useSnapcrop();
 
@@ -58,6 +59,7 @@ export function useRectShortcuts() {
 	annotationsRef.current = annotations;
 	const engineHandleRef = rectEngineHandleRef;
 	const arrowHandleRef = arrowEngineHandleRef;
+	const highlightHandleRef = highlightEngineHandleRef;
 	const spaceRef = spacePressedRef;
 
 	// Space は keydown / keyup の両方を捕まえてフラグを維持。フォーカスが他に
@@ -132,9 +134,12 @@ export function useRectShortcuts() {
 				const eng = engineHandleRef.current;
 				if (eng?.isInteracting()) {
 					eng.cancelInteraction();
-				} else if (!arrowHandleRef.current?.isInteracting()) {
-					// 矢印側の interaction 中はそのキャンセルを use-arrow-shortcuts に
-					// 任せ、ここで選択解除までしない (rect の Esc と同じ挙動に揃える)
+				} else if (
+					!arrowHandleRef.current?.isInteracting() &&
+					!highlightHandleRef.current?.isInteracting()
+				) {
+					// 矢印 / マーカー側の interaction 中はそのキャンセルを各 shortcuts
+					// hook に任せ、ここで選択解除までしない (rect の Esc と同じ挙動に揃える)
 					selectAnnotationRef.current(null);
 				}
 				return;
@@ -199,7 +204,7 @@ export function useRectShortcuts() {
 		};
 		document.addEventListener("keydown", handler);
 		return () => document.removeEventListener("keydown", handler);
-	}, [engineHandleRef, arrowHandleRef]);
+	}, [engineHandleRef, arrowHandleRef, highlightHandleRef]);
 }
 
 function isInputTarget(target: EventTarget | null): boolean {

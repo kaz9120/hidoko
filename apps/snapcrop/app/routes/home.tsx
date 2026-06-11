@@ -1,6 +1,7 @@
 import { ArrowToolbar } from "~/components/layout/arrow-toolbar";
 import { CropToolbar } from "~/components/layout/crop-toolbar";
 import { EditorCanvas } from "~/components/layout/editor-canvas";
+import { HighlightToolbar } from "~/components/layout/highlight-toolbar";
 import { RectToolbar } from "~/components/layout/rect-toolbar";
 import { SiteFooter } from "~/components/layout/site-footer";
 import { SiteHeader } from "~/components/layout/site-header";
@@ -26,6 +27,7 @@ export default function Home() {
 				<CropToolbar />
 				<RectToolbar />
 				<ArrowToolbar />
+				<HighlightToolbar />
 				<EditorCanvas />
 				<StatusBar />
 				<SiteFooter />

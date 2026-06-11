@@ -6,23 +6,25 @@ import { PRESET_COLORS } from "~/lib/rect-engine";
  * 注釈ツール共通のプリセット 6 色スウォッチ + カスタム色 (近日対応) ボタン。
  * rect-toolbar.tsx 内のものと同じ見た目で、矢印以降の注釈ツールバーが共用する。
  * セグメント類は ui の ToggleGroup で揃えるが、色だけは円形 + ブランドカラー
- * の都合で自前。
+ * の都合で自前。`colors` で色配列を差し替えられる (マーカーの蛍光パレット等)。
  */
 export function ColorSwatches({
 	value,
 	onChange,
 	disabled = false,
+	colors = PRESET_COLORS,
 }: {
 	value: string;
 	onChange: (next: string) => void;
 	disabled?: boolean;
+	colors?: readonly string[];
 }) {
 	return (
 		<div
 			className="inline-flex items-center gap-1.5 px-1"
 			style={{ opacity: disabled ? 0.35 : 1 }}
 		>
-			{PRESET_COLORS.map((c) => {
+			{colors.map((c) => {
 				const active = value.toLowerCase() === c.toLowerCase();
 				return (
 					<button
