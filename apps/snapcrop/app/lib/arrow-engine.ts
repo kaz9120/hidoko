@@ -58,22 +58,24 @@ export type ArrowDefaults = {
 	thickness: ArrowThickness;
 };
 
+// キャプション用途では「強調」が命なので、線も矢尻も太めに振る。矢尻は
+// 線幅の 4 倍前後の長さ + 開き 0.5 で、遠目にも矢印だと一目で分かる比率。
 export const ARROW_STROKE_PX: Record<ArrowThickness, number> = {
-	sm: 2,
-	md: 4,
-	lg: 8,
+	sm: 3,
+	md: 6,
+	lg: 12,
 };
 
 export const ARROW_HEAD_LEN_PX: Record<ArrowThickness, number> = {
-	sm: 10,
-	md: 16,
-	lg: 26,
+	sm: 14,
+	md: 26,
+	lg: 48,
 };
 
 export const ARROW_DOT_RADIUS_PX: Record<ArrowThickness, number> = {
-	sm: 3.5,
-	md: 5.5,
-	lg: 9,
+	sm: 5,
+	md: 8,
+	lg: 14,
 };
 
 export const DEFAULT_ARROW_DEFAULTS: ArrowDefaults = {
@@ -315,7 +317,7 @@ function pushCap(
 	}
 	const len = ARROW_HEAD_LEN_PX[thickness];
 	const back = { x: tip.x - out.x * len, y: tip.y - out.y * len };
-	const half = len * 0.45;
+	const half = len * 0.5;
 	const nx = -out.y;
 	const ny = out.x;
 	caps.push({
