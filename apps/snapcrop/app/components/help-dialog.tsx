@@ -27,6 +27,7 @@ type ShortcutSection = {
  *   - ⌘A        → use-select-all-shortcut.ts
  *   - ⌘Z / ⌘⇧Z → site-header.tsx
  *   - ⌘0 / ⌘1  → use-canvas-shortcuts.ts
+ *   - Space pan → components/canvas/viewport.tsx
  *   - それ以外   → use-rect-shortcuts.ts
  * ショートカットを追加・変更したら、この一覧も一緒に更新すること。
  */
@@ -51,6 +52,7 @@ const SECTIONS: readonly ShortcutSection[] = [
 		shortcuts: [
 			{ keys: ["⌘", "0"], description: "ウィンドウに合わせる" },
 			{ keys: ["⌘", "1"], description: "100% 表示にする" },
+			{ keys: ["Space"], description: "押しながらドラッグでキャンバスをパン" },
 		],
 	},
 	{

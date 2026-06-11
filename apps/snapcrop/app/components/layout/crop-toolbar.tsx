@@ -1,4 +1,9 @@
-import { RotateCwSquareIcon } from "lucide-react";
+import {
+	FocusIcon,
+	MaximizeIcon,
+	RotateCcwIcon,
+	RotateCwSquareIcon,
+} from "lucide-react";
 import {
 	type ChangeEvent,
 	type KeyboardEvent,
@@ -6,7 +11,15 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { Toggle, ToggleGroup, ToggleGroupItem } from "ui";
+import {
+	Button,
+	Toggle,
+	ToggleGroup,
+	ToggleGroupItem,
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "ui";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 
 type AspectRatio = {
@@ -43,8 +56,9 @@ function effectiveRatio(ratio: number | null, isPortrait: boolean): number {
 
 /**
  * クロップツール選択中だけ現れる 38px の context row。W×H 数値入力、向き反転、
- * アスペクト比プリセットを並べる。状態 (selectedRatio / isPortrait) は
- * SnapcropContext に持たせており、ツール切替で値が消えない。
+ * アスペクト比プリセットを並べ、右端に配置系の操作 (中央寄せ / 全画面 /
+ * リセット) を置く。状態 (selectedRatio / isPortrait) は SnapcropContext に
+ * 持たせており、ツール切替で値が消えない。
  */
 export function CropToolbar() {
 	const {
@@ -87,6 +101,32 @@ export function CropToolbar() {
 
 	const setCropSize = (next: { width?: number; height?: number }) => {
 		cropperRef.current?.setData(next);
+	};
+
+	const handleCenter = () => {
+		const cropper = cropperRef.current;
+		if (!cropper) return;
+		const rect = cropper.getData();
+		const img = cropper.getImageData();
+		cropper.setData({
+			x: (img.naturalWidth - rect.width) / 2,
+			y: (img.naturalHeight - rect.height) / 2,
+		});
+	};
+
+	const handleFullscreen = () => {
+		// ⌘A と同じ挙動。比率ロック中は画像内に収まる最大の比率矩形になる。
+		cropperRef.current?.selectAll();
+	};
+
+	const handleReset = () => {
+		// 画像取り込み直後と同じ状態に戻す: 自由比率・横向き・全選択。
+		setCropAspectRatioId("free");
+		setCropIsPortrait(false);
+		const cropper = cropperRef.current;
+		if (!cropper) return;
+		cropper.setAspectRatio(Number.NaN);
+		cropper.selectAll();
 	};
 
 	return (
@@ -148,6 +188,48 @@ export function CropToolbar() {
 					</ToggleGroupItem>
 				))}
 			</ToggleGroup>
+
+			<div className="flex-1" />
+
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button
+						aria-label="選択範囲を画像中央へ移動"
+						onClick={handleCenter}
+						size="icon-sm"
+						variant="ghost"
+					>
+						<FocusIcon strokeWidth={1.75} />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>中央寄せ</TooltipContent>
+			</Tooltip>
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button
+						aria-label="選択範囲を画像全体に広げる"
+						onClick={handleFullscreen}
+						size="icon-sm"
+						variant="ghost"
+					>
+						<MaximizeIcon strokeWidth={1.75} />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>全画面 (⌘A)</TooltipContent>
+			</Tooltip>
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button
+						aria-label="選択範囲を初期状態に戻す"
+						onClick={handleReset}
+						size="icon-sm"
+						variant="ghost"
+					>
+						<RotateCcwIcon strokeWidth={1.75} />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>リセット</TooltipContent>
+			</Tooltip>
 		</div>
 	);
 }

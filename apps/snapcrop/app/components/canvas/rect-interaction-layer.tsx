@@ -41,7 +41,9 @@ export function RectInteractionLayer({
 			engine.beginMove(hit.id, pt);
 			return;
 		}
-		// 空クリック: 選択解除 + 描画開始 (ただし Space 押下中は描画しない)
+		// 空クリック: 選択解除 + 描画開始。Space 押下中は viewport が
+		// pointer-events を止めて pan するためここには届かないが、解除直後の
+		// 取りこぼしに備えて描画開始だけは抑制する。
 		selectAnnotation(null);
 		if (spacePressedRef.current) return;
 		dragRef.current = { pointerId: e.pointerId };

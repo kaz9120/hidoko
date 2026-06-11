@@ -5,9 +5,11 @@ import { Viewport } from "./viewport";
 
 /**
  * 画像を表示する pan / zoom コンテナ。OS 標準のスクロールバーを `overflow:auto`
- * で出し、⌘+wheel ズーム / wheel スクロール / 右クリックドラッグ pan を
- * 提供する。Storybook では実画像の代わりに塗り潰しブロックを `children` として
- * 渡し、コンテナと stage の関係を可視化する。
+ * で出し、⌘+wheel ズーム / wheel スクロール / 右クリックドラッグ pan /
+ * Space + 左ドラッグ pan を提供する。Space 押下中は cursor が grab / grabbing
+ * に変わり、子レイヤーの pointer-events を止めて pan を優先する。
+ * Storybook では実画像の代わりに塗り潰しブロックを `children` として渡し、
+ * コンテナと stage の関係を可視化する。
  *
  * @summary pan / zoom つき画像コンテナ
  */
@@ -38,8 +40,8 @@ function Stage({ width, height }: { width: number; height: number }) {
 
 /**
  * 初期表示は fit-to-container。画像の縦横比に応じて、padding を確保した上で
- * stage を中央に落とす。⌘ + wheel でズーム、右クリックドラッグで pan できる
- * — Storybook の preview frame 上でも操作可能。
+ * stage を中央に落とす。⌘ + wheel でズーム、右クリックドラッグまたは
+ * Space + 左ドラッグで pan できる — Storybook の preview frame 上でも操作可能。
  * @summary fit 初期化
  */
 export const Default: Story = {
