@@ -1,0 +1,42 @@
+name: バグ報告
+description: 期待と違う挙動の報告
+labels: ["bug"]
+body:
+  - type: input
+    id: target
+    attributes:
+      label: 対象
+      description: 影響する workspace
+      placeholder: snapcrop / homepage / futari-no-yotei / packages/ui
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 再現手順
+      placeholder: |
+        1. トップページを開く
+        2. 画像をドロップする
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期待する挙動
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 実際の挙動
+      description: エラーメッセージ・スクリーンショットがあれば添付する
+    validations:
+      required: true
+  - type: textarea
+    id: env
+    attributes:
+      label: 環境・補足
+      placeholder: macOS / Safari 18、preview URL、関連 PR など
+    validations:
+      required: false

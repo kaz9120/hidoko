@@ -3,6 +3,7 @@
 		"workingDir": ".reg",
 		"actualDir": "apps/storybook/__screenshots__",
 		"thresholdRate": 0,
+		"matchingThreshold": 0.05,
 		"ximgdiff": { "invocationType": "client" }
 	},
 	"plugins": {

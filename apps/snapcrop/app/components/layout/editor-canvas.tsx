@@ -1,9 +1,10 @@
-import { CopyIcon, DownloadIcon, ImageIcon } from "lucide-react";
+import { CopyIcon, DownloadIcon } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "ui";
 import { ImageStage } from "~/components/canvas/image-stage";
 import { Viewport, type ViewportHandle } from "~/components/canvas/viewport";
+import { EmptyHero } from "~/components/layout/empty-hero";
 import { ToolRail } from "~/components/layout/tool-rail";
 import { type LoadedImage, useSnapcrop } from "~/contexts/snapcrop-context";
 import { useArrowShortcuts } from "~/hooks/use-arrow-shortcuts";
@@ -25,7 +26,7 @@ export function EditorCanvas() {
 	const { image, loadImageFromBlob, cropperRef, annotations, arrows } =
 		useSnapcrop();
 	const isDragging = useFileDrop(loadImageFromBlob);
-	useClipboardPaste(loadImageFromBlob);
+	useClipboardPaste((blob) => void loadImageFromBlob(blob, "clipboard"));
 	useCopyShortcut({
 		cropperRef,
 		hasImage: image !== null,
@@ -45,7 +46,7 @@ export function EditorCanvas() {
 		);
 	}
 
-	return <EmptyState isDragging={isDragging} />;
+	return <EmptyHero isDragging={isDragging} />;
 }
 
 function ImageCanvas({
@@ -199,32 +200,6 @@ function CanvasActions() {
 				</span>
 			</button>
 		</div>
-	);
-}
-
-function EmptyState({ isDragging }: { isDragging: boolean }) {
-	return (
-		<section className="relative flex flex-1 items-center justify-center overflow-hidden p-5">
-			<div
-				className={`absolute inset-5 flex flex-col items-center justify-center gap-4 rounded-xl border-2 border-dashed text-center transition-colors ${
-					isDragging ? "border-primary bg-primary/10" : "border-border"
-				}`}
-			>
-				<ImageIcon
-					className={`opacity-40 transition-colors ${
-						isDragging ? "text-primary" : "text-muted-foreground"
-					}`}
-					size={64}
-					strokeWidth={1.5}
-				/>
-				<div className="flex flex-col gap-2">
-					<p className="text-foreground/80 text-lg">画像をドラッグ＆ドロップ</p>
-					<p className="text-muted-foreground text-sm">
-						または上部メニューから取り込み (⌘V で貼付)
-					</p>
-				</div>
-			</div>
-		</section>
 	);
 }
 

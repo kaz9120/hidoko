@@ -1,6 +1,5 @@
 import {
 	Grid2X2Icon,
-	PlusIcon,
 	SquareIcon,
 	SquareStackIcon,
 	Trash2Icon,
@@ -14,13 +13,9 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "ui";
+import { RectColorSwatches } from "~/components/layout/rect-color-swatches";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
-import {
-	PRESET_COLORS,
-	type RectDefaults,
-	type RectStyle,
-	type RectThickness,
-} from "~/lib/rect-engine";
+import type { RectDefaults, RectStyle, RectThickness } from "~/lib/rect-engine";
 
 const STYLE_OPTIONS: ReadonlyArray<{
 	id: RectStyle;
@@ -138,7 +133,7 @@ export function RectToolbar() {
 			<Divider />
 
 			<Label>色</Label>
-			<ColorSwatches
+			<RectColorSwatches
 				disabled={colorDisabled}
 				onChange={(color) => commit({ color })}
 				value={current.color}
@@ -208,62 +203,5 @@ function Label({ children }: { children: ReactNode }) {
 		<span className="font-mono text-[11px] text-muted-foreground">
 			{children}
 		</span>
-	);
-}
-
-function ColorSwatches({
-	value,
-	onChange,
-	disabled,
-}: {
-	value: string;
-	onChange: (next: string) => void;
-	disabled: boolean;
-}) {
-	return (
-		<div
-			className="inline-flex items-center gap-1.5 px-1"
-			style={{ opacity: disabled ? 0.35 : 1 }}
-		>
-			{PRESET_COLORS.map((c) => {
-				const active = value.toLowerCase() === c.toLowerCase();
-				return (
-					<button
-						aria-pressed={active}
-						aria-label={`色 ${c}`}
-						className={`size-[18px] cursor-pointer rounded-full border-[1.5px] p-0 transition-transform not-disabled:hover:scale-110 disabled:cursor-not-allowed ${
-							active
-								? "border-foreground shadow-[0_0_0_1.5px_var(--background)]"
-								: "border-transparent"
-						}`}
-						disabled={disabled}
-						key={c}
-						onClick={() => onChange(c)}
-						style={{ background: c }}
-						type="button"
-					/>
-				);
-			})}
-			<Tooltip>
-				<TooltipTrigger asChild>
-					{/* aria-disabled で「無効だが Tooltip / focus は機能する」状態に。
-					    native disabled だと pointer event を受けないので Tooltip が出ない。 */}
-					<button
-						aria-disabled="true"
-						aria-label="カスタム色 (近日対応)"
-						className="inline-flex size-[18px] cursor-not-allowed items-center justify-center rounded-full border-[1.5px] border-transparent p-0"
-						onClick={(e) => e.preventDefault()}
-						style={{
-							background:
-								"conic-gradient(from 0deg, #f44, #fa3, #fd0, #4d4, #4af, #94f, #f4a, #f44)",
-						}}
-						type="button"
-					>
-						<PlusIcon className="size-2.5 text-black/60" strokeWidth={2.5} />
-					</button>
-				</TooltipTrigger>
-				<TooltipContent>近日対応</TooltipContent>
-			</Tooltip>
-		</div>
 	);
 }

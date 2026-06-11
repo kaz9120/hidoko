@@ -21,6 +21,7 @@ import {
 	type ArrowDefaults,
 	DEFAULT_ARROW_DEFAULTS,
 } from "~/lib/arrow-engine";
+import { type ImageSource, resolveImageFileName } from "~/lib/file-name";
 import {
 	loadRectDefaults,
 	saveRectDefaults,
@@ -41,6 +42,7 @@ export type {
 	ArrowLineStyle,
 	ArrowThickness,
 } from "~/lib/arrow-engine";
+export type { ImageSource } from "~/lib/file-name";
 export type {
 	Annotation,
 	RectAnnotation,
@@ -57,6 +59,8 @@ export type LoadedImage = {
 	height: number;
 	format: string;
 	fileSize: number;
+	/** 表示用ファイル名。名前のない blob 由来は経路ごとの生成名が入る。 */
+	fileName: string;
 };
 
 export type ActiveTool = "crop" | "rect" | "arrow";
@@ -79,7 +83,7 @@ export type ArrowEngineHandle = RectEngineHandle;
 
 type SnapcropContextValue = {
 	image: LoadedImage | null;
-	loadImageFromBlob: (blob: Blob) => Promise<void>;
+	loadImageFromBlob: (blob: Blob, source?: ImageSource) => Promise<void>;
 	clearImage: () => void;
 	cropperRef: RefObject<CropEngineHandle | null>;
 	cropData: CropData | null;
@@ -737,8 +741,8 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 
 		return {
 			image: image ?? null,
-			loadImageFromBlob: async (blob: Blob) => {
-				const next = await readImageFromBlob(blob);
+			loadImageFromBlob: async (blob: Blob, source: ImageSource = "file") => {
+				const next = await readImageFromBlob(blob, source);
 				dispatch({ type: "LOAD", image: next });
 			},
 			clearImage: () => dispatch({ type: "CLEAR" }),
@@ -842,7 +846,10 @@ export function useSnapcrop(): SnapcropContextValue {
 	return ctx;
 }
 
-async function readImageFromBlob(blob: Blob): Promise<LoadedImage> {
+async function readImageFromBlob(
+	blob: Blob,
+	source: ImageSource,
+): Promise<LoadedImage> {
 	const src = URL.createObjectURL(blob);
 	const img = new Image();
 	await new Promise<void>((resolve, reject) => {
@@ -860,5 +867,6 @@ async function readImageFromBlob(blob: Blob): Promise<LoadedImage> {
 		height: img.naturalHeight,
 		format: blob.type || "image/png",
 		fileSize: blob.size,
+		fileName: resolveImageFileName(blob, source),
 	};
 }

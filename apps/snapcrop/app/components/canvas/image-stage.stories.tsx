@@ -56,6 +56,7 @@ const STUB_IMAGE: LoadedImage = {
 	height: 600,
 	format: "image/svg+xml",
 	fileSize: 0,
+	fileName: "snapcrop-stage-stub.svg",
 };
 
 function makeCropEngine(cropRect: CropRect | null): UseCropEngineResult {
