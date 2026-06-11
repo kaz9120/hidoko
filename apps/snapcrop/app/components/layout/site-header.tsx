@@ -13,6 +13,7 @@ import { Button, Tooltip, TooltipContent, TooltipTrigger } from "ui";
 import logoCreamUrl from "ui/assets/logo/mark-cream.svg?url";
 import logoDarkUrl from "ui/assets/logo/mark-dark.svg?url";
 import { HelpDialog } from "~/components/help-dialog";
+import { ExportActions } from "~/components/layout/export-actions";
 import { ShareButton } from "~/components/layout/share-button";
 import { ZoomControl } from "~/components/layout/zoom-control";
 import { SettingsDialog } from "~/components/settings-dialog";
@@ -160,6 +161,7 @@ export function SiteHeader() {
 				<ThemeToggle />
 				<SettingsDialog />
 				<Divider />
+				<ExportActions />
 				<ShareButton />
 			</div>
 		</header>
