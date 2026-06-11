@@ -1,10 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { PALETTES } from "./palettes";
+import { FOCAL_POINTS } from "./photo";
 import { TplCover, TplEdition, TplQuiet } from "./templates";
 import type {
 	Fields,
+	FocalPoint,
 	FontMode,
 	PaletteId,
+	PhotoLayout,
 	TextureId,
 	ThemeMode,
 } from "./types";
@@ -28,7 +31,28 @@ const DEFAULT_FIELDS: Fields = {
 	texture: "none",
 	paperStrength: "weak",
 	photoPalettes: null,
+	photoLayout: "full",
+	focalPoint: "center",
+	photoMirror: false,
 };
+
+/**
+ * 配置・注視点の確認用サンプル写真（外部リソースなしの SVG データ URI）。
+ * 「主役」が左上に寄った構図 — 注視点やミラーの効果が見た目に出る。
+ */
+const SAMPLE_PHOTO =
+	"data:image/svg+xml;utf8," +
+	encodeURIComponent(
+		`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000">` +
+			`<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">` +
+			`<stop offset="0" stop-color="#41311f"/><stop offset="1" stop-color="#0e0a06"/>` +
+			`</linearGradient></defs>` +
+			`<rect width="1600" height="1000" fill="url(#g)"/>` +
+			`<circle cx="430" cy="300" r="170" fill="#d9a05c"/>` +
+			`<circle cx="430" cy="300" r="240" fill="none" stroke="#d9a05c" stroke-opacity="0.35" stroke-width="3"/>` +
+			`<rect y="760" width="1600" height="240" fill="#241a10"/>` +
+			`</svg>`,
+	);
 
 const FRAME_STYLE: React.CSSProperties = {
 	width: 1280,
@@ -133,6 +157,75 @@ export const CoverWithImage: Story = {
 	render: (args) => (
 		<div style={FRAME_STYLE}>
 			<TplCover f={withDefaults(args)} />
+		</div>
+	),
+};
+
+/** Cover 片寄せ: 写真を左 2/3 に裁ち落とし、右はテーマ base のテキスト面。 */
+export const CoverEdge: Story = {
+	args: { templateId: "cover", photoLayout: "edge", image: SAMPLE_PHOTO },
+	argTypes: {
+		photoLayout: {
+			control: { type: "inline-radio" },
+			options: ["full", "edge", "kakuhan"] satisfies PhotoLayout[],
+		},
+		focalPoint: {
+			control: { type: "select" },
+			options: FOCAL_POINTS as unknown as FocalPoint[],
+		},
+		photoMirror: { control: "boolean" },
+	},
+	render: (args) => (
+		<div style={FRAME_STYLE}>
+			<TplCover f={withDefaults(args)} />
+		</div>
+	),
+};
+
+/** Cover 片寄せのミラー: 写真が右、テキスト面が左にくる。 */
+export const CoverEdgeMirror: Story = {
+	...CoverEdge,
+	args: { ...CoverEdge.args, photoMirror: true },
+};
+
+/** Cover 角版: 四周に地余白を残した額縁構図。ダーク面で確認。 */
+export const CoverKakuhan: Story = {
+	...CoverEdge,
+	args: {
+		templateId: "cover",
+		photoLayout: "kakuhan",
+		image: SAMPLE_PHOTO,
+		theme: "dark",
+	},
+};
+
+/** 注視点 9 点の見比べ。主役（左上の円）にクロップが追従する。 */
+export const FocalPointGallery: Story = {
+	render: (args) => (
+		<div
+			style={{
+				display: "grid",
+				gridTemplateColumns: "repeat(3, 1280px)",
+				gap: "16px 16px",
+				transform: "scale(0.16)",
+				transformOrigin: "top left",
+				marginBottom: -(670 * 3 + 16 * 2) * 0.84,
+				marginRight: -(1280 * 3 + 16 * 2) * 0.84,
+			}}
+		>
+			{FOCAL_POINTS.map((focalPoint) => (
+				<div key={focalPoint} style={{ width: 1280, height: 670 }}>
+					<TplCover
+						f={withDefaults({
+							...args,
+							templateId: "cover",
+							photoLayout: "kakuhan",
+							image: SAMPLE_PHOTO,
+							focalPoint,
+						})}
+					/>
+				</div>
+			))}
 		</div>
 	),
 };
