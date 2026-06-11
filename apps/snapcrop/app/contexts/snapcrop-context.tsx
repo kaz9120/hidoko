@@ -10,6 +10,7 @@ import {
 	useRef,
 	useState,
 } from "react";
+import type { ViewportHandle } from "~/components/canvas/viewport";
 import type { CropData, CropEngineHandle } from "~/hooks/use-crop-engine";
 import {
 	loadArrowDefaults,
@@ -21,6 +22,7 @@ import {
 	type ArrowDefaults,
 	DEFAULT_ARROW_DEFAULTS,
 } from "~/lib/arrow-engine";
+import { type ImageSource, resolveImageFileName } from "~/lib/file-name";
 import {
 	loadRectDefaults,
 	saveRectDefaults,
@@ -51,6 +53,7 @@ export type {
 	ArrowLineStyle,
 	ArrowThickness,
 } from "~/lib/arrow-engine";
+export type { ImageSource } from "~/lib/file-name";
 export type {
 	Annotation,
 	RectAnnotation,
@@ -75,6 +78,8 @@ export type LoadedImage = {
 	height: number;
 	format: string;
 	fileSize: number;
+	/** 表示用ファイル名。名前のない blob 由来は経路ごとの生成名が入る。 */
+	fileName: string;
 };
 
 export type ActiveTool = "crop" | "rect" | "arrow" | "text";
@@ -106,7 +111,7 @@ export type TextEngineHandle = RectEngineHandle;
 
 type SnapcropContextValue = {
 	image: LoadedImage | null;
-	loadImageFromBlob: (blob: Blob) => Promise<void>;
+	loadImageFromBlob: (blob: Blob, source?: ImageSource) => Promise<void>;
 	clearImage: () => void;
 	cropperRef: RefObject<CropEngineHandle | null>;
 	cropData: CropData | null;
@@ -120,6 +125,18 @@ type SnapcropContextValue = {
 
 	activeTool: ActiveTool;
 	setActiveTool: (tool: ActiveTool) => void;
+
+	/**
+	 * キャンバスのズーム倍率 (1 = 100%)。実体は Viewport が onZoomChange で
+	 * 書き込む。ヘッダーの ZoomControl が % 表示のために購読する。
+	 */
+	zoom: number;
+	setZoom: (zoom: number) => void;
+	/**
+	 * Viewport の imperative ハンドル。ヘッダーやショートカットが
+	 * fit / 100% / 任意倍率ズームを呼ぶための共有 ref。画像未ロード時は null。
+	 */
+	viewportRef: RefObject<ViewportHandle | null>;
 
 	/**
 	 * クロップツールの UI 状態。CropToolbar が読み書きする。画像差し替えで
@@ -917,8 +934,10 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 	const rectEngineHandleRef = useRef<RectEngineHandle | null>(null);
 	const arrowEngineHandleRef = useRef<ArrowEngineHandle | null>(null);
 	const textEngineHandleRef = useRef<TextEngineHandle | null>(null);
+	const viewportRef = useRef<ViewportHandle | null>(null);
 	const spacePressedRef = useRef<boolean>(false);
 	const [cropData, setCropData] = useState<CropData | null>(null);
+	const [zoom, setZoom] = useState(1);
 	const [cropAspectRatioId, setCropAspectRatioIdState] = useState("free");
 	const [cropIsPortrait, setCropIsPortraitState] = useState(false);
 
@@ -960,8 +979,8 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 
 		return {
 			image: image ?? null,
-			loadImageFromBlob: async (blob: Blob) => {
-				const next = await readImageFromBlob(blob);
+			loadImageFromBlob: async (blob: Blob, source: ImageSource = "file") => {
+				const next = await readImageFromBlob(blob, source);
 				dispatch({ type: "LOAD", image: next });
 			},
 			clearImage: () => dispatch({ type: "CLEAR" }),
@@ -990,6 +1009,10 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 
 			activeTool: state.activeTool,
 			setActiveTool: (tool) => dispatch({ type: "SET_ACTIVE_TOOL", tool }),
+
+			zoom,
+			setZoom,
+			viewportRef,
 
 			annotations: state.annotation.annotations,
 			selectedAnnotationId: state.selectedAnnotationId,
@@ -1072,7 +1095,14 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 			cropIsPortrait,
 			setCropIsPortrait: setCropIsPortraitState,
 		};
-	}, [state, cropData, stableSetCropData, cropAspectRatioId, cropIsPortrait]);
+	}, [
+		state,
+		cropData,
+		stableSetCropData,
+		cropAspectRatioId,
+		cropIsPortrait,
+		zoom,
+	]);
 
 	return (
 		<SnapcropContext.Provider value={value}>
@@ -1089,7 +1119,10 @@ export function useSnapcrop(): SnapcropContextValue {
 	return ctx;
 }
 
-async function readImageFromBlob(blob: Blob): Promise<LoadedImage> {
+async function readImageFromBlob(
+	blob: Blob,
+	source: ImageSource,
+): Promise<LoadedImage> {
 	const src = URL.createObjectURL(blob);
 	const img = new Image();
 	await new Promise<void>((resolve, reject) => {
@@ -1107,5 +1140,6 @@ async function readImageFromBlob(blob: Blob): Promise<LoadedImage> {
 		height: img.naturalHeight,
 		format: blob.type || "image/png",
 		fileSize: blob.size,
+		fileName: resolveImageFileName(blob, source),
 	};
 }

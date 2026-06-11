@@ -5,8 +5,10 @@ import { ArrowLayer } from "~/components/canvas/arrow-layer";
 import { ArrowPreviewOverlay } from "~/components/canvas/arrow-preview-overlay";
 import { ArrowSelectionOverlay } from "~/components/canvas/arrow-selection-overlay";
 import { CropFrame } from "~/components/canvas/crop-frame";
+import { DimensionHud } from "~/components/canvas/dimension-hud";
 import { MosaicLayer } from "~/components/canvas/mosaic-layer";
 import { RectInteractionLayer } from "~/components/canvas/rect-interaction-layer";
+import { RectMiniActions } from "~/components/canvas/rect-mini-actions";
 import { RectPreviewOverlay } from "~/components/canvas/rect-preview-overlay";
 import { RectSelectionOverlay } from "~/components/canvas/rect-selection-overlay";
 import { TextEditorOverlay } from "~/components/canvas/text-editor-overlay";
@@ -18,6 +20,7 @@ import { useArrowEngine } from "~/hooks/use-arrow-engine";
 import type { UseCropEngineResult } from "~/hooks/use-crop-engine";
 import { useRectEngine } from "~/hooks/use-rect-engine";
 import { useTextEngine } from "~/hooks/use-text-engine";
+import { duplicateRectAnnotation } from "~/lib/rect-engine";
 
 export type ImageStageProps = {
 	image: LoadedImage;
@@ -39,12 +42,14 @@ export type ImageStageProps = {
  *                                     (SelectionOverlay の下に置くことで handle
  *                                     クリックを奪わない)
  *   5. <RectSelectionOverlay>         1px ring + 8 handle (handle のみ events:auto)
- *   6. <RectPreviewOverlay>           drawing 中の破線プレビュー
- *   7. <CropFrame>                    activeTool==='crop' のとき
+ *   6. <RectMiniActions>              選択矩形近傍の複製 / 削除バー (interaction 中は非表示)
+ *   7. <RectPreviewOverlay>           drawing 中の破線プレビュー
+ *   8. <CropFrame>                    activeTool==='crop' のとき
+ *   9. <DimensionHud>                 クロップ枠に追従する W × H 表示
  *
  * 矢印ツールのレイヤーも同じ構造で重ねる: <ArrowLayer> は 3 の直上 (矢印は
  * 常に矩形より前)、<ArrowInteractionLayer> / <ArrowSelectionOverlay> /
- * <ArrowPreviewOverlay> は 6 と 7 の間 (activeTool==='arrow' のときだけ)。
+ * <ArrowPreviewOverlay> は 7 と 8 の間 (activeTool==='arrow' のときだけ)。
  *
  * テキストツールも同様: <TextLayer> は <ArrowLayer> の直上 (テキストは常に
  * 矢印より前)、<TextInteractionLayer> / <TextSelectionOverlay> /
@@ -70,6 +75,8 @@ export function ImageStage({
 		texts,
 		textDefaults,
 		textEngineHandleRef,
+		createAnnotation,
+		deleteAnnotation,
 	} = useSnapcrop();
 
 	const imageMetrics = useMemo(
@@ -198,6 +205,21 @@ export function ImageStage({
 					zoom={zoom}
 				/>
 			)}
+			{/* ドラッグ・リサイズ中は操作の邪魔になるので隠す */}
+			{selectedRendered && !rectEngine.isInteracting && (
+				<RectMiniActions
+					annotation={selectedRendered}
+					imageHeight={image.height}
+					imageWidth={image.width}
+					onDelete={() => deleteAnnotation(selectedRendered.id)}
+					onDuplicate={() =>
+						createAnnotation(
+							duplicateRectAnnotation(selectedRendered, imageMetrics),
+						)
+					}
+					zoom={zoom}
+				/>
+			)}
 			{rectEngine.previewRect && activeTool === "rect" && (
 				<RectPreviewOverlay
 					color={rectDefaults.color}
@@ -257,6 +279,14 @@ export function ImageStage({
 				/>
 			)}
 			{activeTool === "crop" && <CropFrame engine={cropEngine} zoom={zoom} />}
+			{activeTool === "crop" && cropEngine.cropRect && (
+				<DimensionHud
+					imageHeight={image.height}
+					imageWidth={image.width}
+					rect={cropEngine.cropRect}
+					zoom={zoom}
+				/>
+			)}
 		</>
 	);
 }

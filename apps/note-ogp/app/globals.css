@@ -1,0 +1,28 @@
+@import "tailwindcss" source(".");
+@source "../../../packages/ui/src";
+@import "ui/tokens.css";
+@import "ui/styles.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+	}
+	body {
+		@apply bg-background text-foreground;
+		font-family: var(--font-sans);
+	}
+}
+
+/* Editor のステージ背景。ダーク基準で、上方からほのかに ember 光が差す。
+   tokens.css の --glow-ember-soft と同じ色域を radial で敷く。 */
+.note-ogp-stage-bg {
+	background:
+		radial-gradient(
+			ellipse 60% 40% at 50% 35%,
+			rgba(244, 125, 58, 0.06),
+			transparent 70%
+		),
+		var(--bg-0);
+}

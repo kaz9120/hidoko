@@ -1,13 +1,47 @@
-import { useSnapcrop } from "~/contexts/snapcrop-context";
+import {
+	type CropData,
+	type LoadedImage,
+	useSnapcrop,
+} from "~/contexts/snapcrop-context";
 import { formatBytes, formatMimeType } from "~/lib/format";
 
 /**
- * 画面下端 24px のステータスバー。画像情報・選択範囲・履歴位置・準備状態を
- * 横一列に表示する。画像未ロード時は空のヒントだけ。
+ * 画面下端 24px のステータスバー。ファイル名・元画像サイズ・形式・容量と、
+ * 選択範囲 (寸法 + 出力推定容量)・図形数・履歴位置・準備状態を横一列に表示する。
+ * 画像未ロード時は空のヒントだけ。
  */
 export function StatusBar() {
-	const { image, cropData, historyIndex, historyLength } = useSnapcrop();
+	const { image, cropData, annotations, historyIndex, historyLength } =
+		useSnapcrop();
 
+	return (
+		<StatusBarView
+			annotationCount={annotations.length}
+			cropData={cropData}
+			historyIndex={historyIndex}
+			historyLength={historyLength}
+			image={image}
+		/>
+	);
+}
+
+/**
+ * StatusBar の表示部。context から切り離した純粋な props 描画で、
+ * Storybook から画像ロード後の状態を直接組み立てられるようにしている。
+ */
+export function StatusBarView({
+	image,
+	cropData,
+	annotationCount,
+	historyIndex,
+	historyLength,
+}: {
+	image: LoadedImage | null;
+	cropData: CropData | null;
+	annotationCount: number;
+	historyIndex: number;
+	historyLength: number;
+}) {
 	if (!image) {
 		return (
 			<footer className="flex h-6 shrink-0 items-center gap-3 border-border border-t bg-card/50 px-3 font-mono text-[11px] text-muted-foreground">
@@ -21,9 +55,17 @@ export function StatusBar() {
 	const cropDims = cropData
 		? `${Math.round(cropData.width)} × ${Math.round(cropData.height)}`
 		: "—";
+	const estimatedBytes = estimateOutputBytes(image, cropData);
 
 	return (
 		<footer className="flex h-6 shrink-0 items-center gap-3 border-border border-t bg-card/50 px-3 font-mono text-[11px] text-muted-foreground">
+			<span
+				className="max-w-[200px] truncate text-foreground/80"
+				title={image.fileName}
+			>
+				{image.fileName}
+			</span>
+			<Sep />
 			<span className="text-foreground/80">{dims}</span>
 			<Sep />
 			<span>
@@ -32,6 +74,13 @@ export function StatusBar() {
 			<span className="ml-auto" />
 			<span>
 				選択: <span className="text-foreground/80">{cropDims}</span>
+				{estimatedBytes !== null && (
+					<span> · 約 {formatBytes(estimatedBytes)}</span>
+				)}
+			</span>
+			<Sep />
+			<span>
+				図形: <span className="text-foreground/80">{annotationCount}</span>
 			</span>
 			<Sep />
 			<span>
@@ -47,6 +96,26 @@ export function StatusBar() {
 			<span>準備完了</span>
 		</footer>
 	);
+}
+
+/**
+ * 選択範囲を書き出したときの容量の概算。元画像の bytes/pixel に選択面積を
+ * 掛けるだけの近似で、再エンコードは走らせない (選択ドラッグの毎フレーム
+ * 更新に追従させるため)。元画像の容量が取れないときは null。
+ */
+function estimateOutputBytes(
+	image: LoadedImage,
+	cropData: CropData | null,
+): number | null {
+	if (!cropData) {
+		return null;
+	}
+	const sourcePixels = image.width * image.height;
+	if (sourcePixels <= 0 || image.fileSize <= 0) {
+		return null;
+	}
+	const ratio = (cropData.width * cropData.height) / sourcePixels;
+	return Math.max(0, Math.round(image.fileSize * ratio));
 }
 
 function Sep() {
