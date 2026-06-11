@@ -30,8 +30,8 @@ export function NoteOgpEditor() {
 	}, [busy, state.title, state.issue]);
 
 	return (
-		<div className="flex h-screen flex-col bg-background">
-			<div className="grid min-h-0 flex-1 grid-cols-[1fr_420px]">
+		<div className="flex min-h-screen flex-col bg-background md:h-screen">
+			<div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[minmax(0,1fr)_420px]">
 				<Stage tpl={tpl} fields={state} frameRef={frameRef} />
 				<ControlPanel
 					state={state}
