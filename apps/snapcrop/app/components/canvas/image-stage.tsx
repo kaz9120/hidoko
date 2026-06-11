@@ -15,11 +15,16 @@ import { RectInteractionLayer } from "~/components/canvas/rect-interaction-layer
 import { RectMiniActions } from "~/components/canvas/rect-mini-actions";
 import { RectPreviewOverlay } from "~/components/canvas/rect-preview-overlay";
 import { RectSelectionOverlay } from "~/components/canvas/rect-selection-overlay";
+import { TextEditorOverlay } from "~/components/canvas/text-editor-overlay";
+import { TextInteractionLayer } from "~/components/canvas/text-interaction-layer";
+import { TextLayer } from "~/components/canvas/text-layer";
+import { TextSelectionOverlay } from "~/components/canvas/text-selection-overlay";
 import { type LoadedImage, useSnapcrop } from "~/contexts/snapcrop-context";
 import { useArrowEngine } from "~/hooks/use-arrow-engine";
 import type { UseCropEngineResult } from "~/hooks/use-crop-engine";
 import { useHighlightEngine } from "~/hooks/use-highlight-engine";
 import { useRectEngine } from "~/hooks/use-rect-engine";
+import { useTextEngine } from "~/hooks/use-text-engine";
 import { duplicateRectAnnotation } from "~/lib/rect-engine";
 
 export type ImageStageProps = {
@@ -51,10 +56,16 @@ export type ImageStageProps = {
  * 常に矩形より前)、<ArrowInteractionLayer> / <ArrowSelectionOverlay> /
  * <ArrowPreviewOverlay> は 7 と 8 の間 (activeTool==='arrow' のときだけ)。
  *
- * マーカーツールのレイヤーも同様: <HighlightLayer> は <ArrowLayer> の直上
- * (kind ごとのレイヤー z-order で最前。multiply 合成なので下の矩形・矢印は
- * 透けて見える)、interaction / selection / preview は activeTool==='highlight'
- * のときだけ。
+ * テキストツールも同様: <TextLayer> は <ArrowLayer> の直上 (テキストは常に
+ * 矢印より前)、<TextInteractionLayer> / <TextSelectionOverlay> /
+ * <TextEditorOverlay> は activeTool==='text' のときだけ。preview overlay の
+ * 代わりに、インライン編集の <TextEditorOverlay> が「まだ commit されて
+ * いない状態」を担う。
+ *
+ * マーカーツールのレイヤーも同様: <HighlightLayer> は <TextLayer> のさらに
+ * 直上 (kind ごとのレイヤー z-order で最前。multiply 合成なので下の矩形・
+ * 矢印・テキストは透けて見える)、interaction / selection / preview は
+ * activeTool==='highlight' のときだけ。
  */
 export function ImageStage({
 	image,
@@ -71,6 +82,9 @@ export function ImageStage({
 		arrows,
 		arrowDefaults,
 		arrowEngineHandleRef,
+		texts,
+		textDefaults,
+		textEngineHandleRef,
 		highlights,
 		highlightDefaults,
 		highlightEngineHandleRef,
@@ -85,6 +99,7 @@ export function ImageStage({
 
 	const rectEngine = useRectEngine(imageMetrics);
 	const arrowEngine = useArrowEngine(imageMetrics);
+	const textEngine = useTextEngine(imageMetrics);
 	const highlightEngine = useHighlightEngine(imageMetrics);
 
 	// engine の安定ハンドルを context の ref に差し込む。useRectShortcuts と
@@ -103,6 +118,15 @@ export function ImageStage({
 			arrowEngineHandleRef.current = null;
 		};
 	}, [arrowEngineHandleRef, arrowEngine.handle]);
+
+	// テキスト engine も同様。useTextShortcuts の Esc キャンセルと、
+	// use-rect-shortcuts の「編集中は選択解除しない」判定が使う。
+	useEffect(() => {
+		textEngineHandleRef.current = textEngine.handle;
+		return () => {
+			textEngineHandleRef.current = null;
+		};
+	}, [textEngineHandleRef, textEngine.handle]);
 
 	// マーカー engine も同様。useHighlightShortcuts の Esc キャンセルが使う。
 	useEffect(() => {
@@ -144,6 +168,12 @@ export function ImageStage({
 				) ?? null)
 			: null;
 
+	const selectedTextRendered =
+		selectedAnnotationId && activeTool === "text"
+			? (textEngine.renderedTexts.find((t) => t.id === selectedAnnotationId) ??
+				null)
+			: null;
+
 	const selectedHighlightRendered =
 		selectedAnnotationId && activeTool === "highlight"
 			? (highlightEngine.renderedHighlights.find(
@@ -176,6 +206,12 @@ export function ImageStage({
 				arrows={arrowEngine.renderedArrows}
 				imageHeight={image.height}
 				imageWidth={image.width}
+			/>
+			<TextLayer
+				editingId={textEngine.editing?.id ?? null}
+				imageHeight={image.height}
+				imageWidth={image.width}
+				texts={textEngine.renderedTexts}
 			/>
 			<HighlightLayer
 				highlights={highlightEngine.renderedHighlights}
@@ -251,6 +287,29 @@ export function ImageStage({
 					imageHeight={image.height}
 					imageWidth={image.width}
 					previewArrow={arrowEngine.previewArrow}
+				/>
+			)}
+			{activeTool === "text" && (
+				<TextInteractionLayer
+					engine={textEngine}
+					getImagePoint={getImagePoint}
+					texts={texts}
+					zoom={zoom}
+				/>
+			)}
+			{selectedTextRendered &&
+				textEngine.editing?.id !== selectedTextRendered.id && (
+					<TextSelectionOverlay text={selectedTextRendered} zoom={zoom} />
+				)}
+			{activeTool === "text" && textEngine.editing && (
+				<TextEditorOverlay
+					defaults={textDefaults}
+					editing={textEngine.editing}
+					key={textEngine.editing.id ?? "new"}
+					onCancel={textEngine.cancelEdit}
+					onCommit={textEngine.commitEdit}
+					texts={texts}
+					zoom={zoom}
 				/>
 			)}
 			{activeTool === "highlight" && (

@@ -36,6 +36,7 @@ export function useRectShortcuts() {
 		annotations,
 		rectEngineHandleRef,
 		arrowEngineHandleRef,
+		textEngineHandleRef,
 		highlightEngineHandleRef,
 		spacePressedRef,
 	} = useSnapcrop();
@@ -59,6 +60,7 @@ export function useRectShortcuts() {
 	annotationsRef.current = annotations;
 	const engineHandleRef = rectEngineHandleRef;
 	const arrowHandleRef = arrowEngineHandleRef;
+	const textHandleRef = textEngineHandleRef;
 	const highlightHandleRef = highlightEngineHandleRef;
 	const spaceRef = spacePressedRef;
 
@@ -136,10 +138,11 @@ export function useRectShortcuts() {
 					eng.cancelInteraction();
 				} else if (
 					!arrowHandleRef.current?.isInteracting() &&
+					!textHandleRef.current?.isInteracting() &&
 					!highlightHandleRef.current?.isInteracting()
 				) {
-					// 矢印 / マーカー側の interaction 中はそのキャンセルを各 shortcuts
-					// hook に任せ、ここで選択解除までしない (rect の Esc と同じ挙動に揃える)
+					// 矢印 / テキスト / マーカー側の interaction 中はそのキャンセルを
+					// 各ツールの shortcuts hook に任せ、ここで選択解除までしない
 					selectAnnotationRef.current(null);
 				}
 				return;
@@ -204,7 +207,7 @@ export function useRectShortcuts() {
 		};
 		document.addEventListener("keydown", handler);
 		return () => document.removeEventListener("keydown", handler);
-	}, [engineHandleRef, arrowHandleRef, highlightHandleRef]);
+	}, [engineHandleRef, arrowHandleRef, textHandleRef, highlightHandleRef]);
 }
 
 function isInputTarget(target: EventTarget | null): boolean {

@@ -16,6 +16,7 @@ import { useFileDrop } from "~/hooks/use-file-drop";
 import { useHighlightShortcuts } from "~/hooks/use-highlight-shortcuts";
 import { useRectShortcuts } from "~/hooks/use-rect-shortcuts";
 import { useSelectAllShortcut } from "~/hooks/use-select-all-shortcut";
+import { useTextShortcuts } from "~/hooks/use-text-shortcuts";
 import { writeImageToClipboard } from "~/lib/clipboard";
 import {
 	downloadBlob,
@@ -30,6 +31,7 @@ export function EditorCanvas() {
 		cropperRef,
 		annotations,
 		arrows,
+		texts,
 		highlights,
 	} = useSnapcrop();
 	const isDragging = useFileDrop(loadImageFromBlob);
@@ -39,6 +41,7 @@ export function EditorCanvas() {
 		hasImage: image !== null,
 		annotations,
 		arrows,
+		texts,
 		highlights,
 		onSuccess: () => toast.success("クリップボードにコピーしました"),
 		onFailure: () => toast.error("クリップボードへのコピーに失敗しました"),
@@ -46,6 +49,7 @@ export function EditorCanvas() {
 	useSelectAllShortcut({ cropperRef, hasImage: image !== null });
 	useRectShortcuts();
 	useArrowShortcuts();
+	useTextShortcuts();
 	useHighlightShortcuts();
 
 	if (image) {
@@ -122,7 +126,8 @@ function ImageCanvas({
 }
 
 function CanvasActions() {
-	const { cropperRef, image, annotations, arrows, highlights } = useSnapcrop();
+	const { cropperRef, image, annotations, arrows, texts, highlights } =
+		useSnapcrop();
 	const [isCopying, setIsCopying] = useState(false);
 	const [isDownloading, setIsDownloading] = useState(false);
 
@@ -142,6 +147,7 @@ function CanvasActions() {
 				"image/png",
 				annotations,
 				arrows,
+				texts,
 				highlights,
 			);
 			const ok = await writeImageToClipboard(blob);
@@ -169,6 +175,7 @@ function CanvasActions() {
 				"image/png",
 				annotations,
 				arrows,
+				texts,
 				highlights,
 			);
 			downloadBlob(blob, makeDownloadFilename("png"));

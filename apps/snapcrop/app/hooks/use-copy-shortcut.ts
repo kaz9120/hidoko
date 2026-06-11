@@ -5,12 +5,14 @@ import { writeImageToClipboard } from "~/lib/clipboard";
 import type { HighlightAnnotation } from "~/lib/highlight-engine";
 import { getCroppedBlob } from "~/lib/image-export";
 import type { RectAnnotation } from "~/lib/rect-engine";
+import type { TextAnnotation } from "~/lib/text-engine";
 
 type Options = {
 	cropperRef: React.RefObject<CropEngineHandle | null>;
 	hasImage: boolean;
 	annotations: readonly RectAnnotation[];
 	arrows: readonly ArrowAnnotation[];
+	texts: readonly TextAnnotation[];
 	highlights: readonly HighlightAnnotation[];
 	onSuccess: () => void;
 	onFailure: () => void;
@@ -30,6 +32,7 @@ export function useCopyShortcut({
 	hasImage,
 	annotations,
 	arrows,
+	texts,
 	highlights,
 	onSuccess,
 	onFailure,
@@ -42,6 +45,8 @@ export function useCopyShortcut({
 	annotationsRef.current = annotations;
 	const arrowsRef = useRef(arrows);
 	arrowsRef.current = arrows;
+	const textsRef = useRef(texts);
+	textsRef.current = texts;
 	const highlightsRef = useRef(highlights);
 	highlightsRef.current = highlights;
 	const onSuccessRef = useRef(onSuccess);
@@ -89,6 +94,7 @@ export function useCopyShortcut({
 						"image/png",
 						annotationsRef.current,
 						arrowsRef.current,
+						textsRef.current,
 						highlightsRef.current,
 					);
 					const ok = await writeImageToClipboard(blob);

@@ -6,6 +6,7 @@ import { RectToolbar } from "~/components/layout/rect-toolbar";
 import { SiteFooter } from "~/components/layout/site-footer";
 import { SiteHeader } from "~/components/layout/site-header";
 import { StatusBar } from "~/components/layout/status-bar";
+import { TextToolbar } from "~/components/layout/text-toolbar";
 import { SnapcropProvider } from "~/contexts/snapcrop-context";
 
 export function meta() {
@@ -27,6 +28,7 @@ export default function Home() {
 				<CropToolbar />
 				<RectToolbar />
 				<ArrowToolbar />
+				<TextToolbar />
 				<HighlightToolbar />
 				<EditorCanvas />
 				<StatusBar />
