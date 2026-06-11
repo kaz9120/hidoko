@@ -6,6 +6,7 @@
  */
 
 import type { ImageMetrics } from "~/lib/crop-engine";
+import { PRESET_COLORS } from "~/lib/rect-engine";
 
 export type { ImageMetrics };
 
@@ -57,29 +58,31 @@ export type ArrowDefaults = {
 	thickness: ArrowThickness;
 };
 
+// キャプション用途では「強調」が命なので、線も矢尻も太めに振る。矢尻は
+// 線幅の 4 倍前後の長さ + 開き 0.5 で、遠目にも矢印だと一目で分かる比率。
 export const ARROW_STROKE_PX: Record<ArrowThickness, number> = {
-	sm: 2,
-	md: 4,
-	lg: 8,
+	sm: 3,
+	md: 6,
+	lg: 12,
 };
 
 export const ARROW_HEAD_LEN_PX: Record<ArrowThickness, number> = {
-	sm: 10,
-	md: 16,
-	lg: 26,
+	sm: 14,
+	md: 26,
+	lg: 48,
 };
 
 export const ARROW_DOT_RADIUS_PX: Record<ArrowThickness, number> = {
-	sm: 3.5,
-	md: 5.5,
-	lg: 9,
+	sm: 5,
+	md: 8,
+	lg: 14,
 };
 
 export const DEFAULT_ARROW_DEFAULTS: ArrowDefaults = {
 	line: "straight",
 	startCap: "none",
 	endCap: "arrow",
-	color: "#ef4444",
+	color: PRESET_COLORS[0],
 	thickness: "md",
 };
 
@@ -280,10 +283,30 @@ export function getArrowRenderModel(a: ArrowAnnotation): ArrowRenderModel {
 	const control = arrowControlPoint(a);
 	const from = { x: a.x1, y: a.y1 };
 	const to = { x: a.x2, y: a.y2 };
+	const outStart = outwardUnit(to, control, from);
+	const outEnd = outwardUnit(from, control, to);
 	const caps: ArrowCapShape[] = [];
-	pushCap(caps, a.startCap, from, outwardUnit(to, control, from), a.thickness);
-	pushCap(caps, a.endCap, to, outwardUnit(from, control, to), a.thickness);
-	return { from, to, control, strokeWidth: ARROW_STROKE_PX[a.thickness], caps };
+	pushCap(caps, a.startCap, from, outStart, a.thickness);
+	pushCap(caps, a.endCap, to, outEnd, a.thickness);
+	// 矢尻が付く端は、線を頭の中まで引っ込めて頂点から round cap が突き出ない
+	// ようにする。引っ込め量は頭長の 8 割 (短い矢印では全長の 4 割で打ち止め)。
+	const span = Math.hypot(a.x2 - a.x1, a.y2 - a.y1);
+	const inset = Math.min(ARROW_HEAD_LEN_PX[a.thickness] * 0.8, span * 0.4);
+	const lineFrom =
+		a.startCap === "arrow"
+			? { x: from.x - outStart.x * inset, y: from.y - outStart.y * inset }
+			: from;
+	const lineTo =
+		a.endCap === "arrow"
+			? { x: to.x - outEnd.x * inset, y: to.y - outEnd.y * inset }
+			: to;
+	return {
+		from: lineFrom,
+		to: lineTo,
+		control,
+		strokeWidth: ARROW_STROKE_PX[a.thickness],
+		caps,
+	};
 }
 
 /** 端点 tip での「線から外へ抜ける」単位ベクトル。曲線は制御点を接線の基準にする。 */
@@ -314,7 +337,7 @@ function pushCap(
 	}
 	const len = ARROW_HEAD_LEN_PX[thickness];
 	const back = { x: tip.x - out.x * len, y: tip.y - out.y * len };
-	const half = len * 0.45;
+	const half = len * 0.5;
 	const nx = -out.y;
 	const ny = out.x;
 	caps.push({
