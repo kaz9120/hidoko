@@ -1,5 +1,9 @@
 import { type RefObject, useCallback, useEffect, useMemo } from "react";
 import { AnnotationLayer } from "~/components/canvas/annotation-layer";
+import { ArrowInteractionLayer } from "~/components/canvas/arrow-interaction-layer";
+import { ArrowLayer } from "~/components/canvas/arrow-layer";
+import { ArrowPreviewOverlay } from "~/components/canvas/arrow-preview-overlay";
+import { ArrowSelectionOverlay } from "~/components/canvas/arrow-selection-overlay";
 import { CropFrame } from "~/components/canvas/crop-frame";
 import { DimensionHud } from "~/components/canvas/dimension-hud";
 import { MosaicLayer } from "~/components/canvas/mosaic-layer";
@@ -8,6 +12,7 @@ import { RectMiniActions } from "~/components/canvas/rect-mini-actions";
 import { RectPreviewOverlay } from "~/components/canvas/rect-preview-overlay";
 import { RectSelectionOverlay } from "~/components/canvas/rect-selection-overlay";
 import { type LoadedImage, useSnapcrop } from "~/contexts/snapcrop-context";
+import { useArrowEngine } from "~/hooks/use-arrow-engine";
 import type { UseCropEngineResult } from "~/hooks/use-crop-engine";
 import { useRectEngine } from "~/hooks/use-rect-engine";
 import { duplicateRectAnnotation } from "~/lib/rect-engine";
@@ -36,6 +41,10 @@ export type ImageStageProps = {
  *   7. <RectPreviewOverlay>           drawing 中の破線プレビュー
  *   8. <CropFrame>                    activeTool==='crop' のとき
  *   9. <DimensionHud>                 クロップ枠に追従する W × H 表示
+ *
+ * 矢印ツールのレイヤーも同じ構造で重ねる: <ArrowLayer> は 3 の直上 (矢印は
+ * 常に矩形より前)、<ArrowInteractionLayer> / <ArrowSelectionOverlay> /
+ * <ArrowPreviewOverlay> は 7 と 8 の間 (activeTool==='arrow' のときだけ)。
  */
 export function ImageStage({
 	image,
@@ -49,6 +58,9 @@ export function ImageStage({
 		selectedAnnotationId,
 		rectDefaults,
 		rectEngineHandleRef,
+		arrows,
+		arrowDefaults,
+		arrowEngineHandleRef,
 		createAnnotation,
 		deleteAnnotation,
 	} = useSnapcrop();
@@ -59,6 +71,7 @@ export function ImageStage({
 	);
 
 	const rectEngine = useRectEngine(imageMetrics);
+	const arrowEngine = useArrowEngine(imageMetrics);
 
 	// engine の安定ハンドルを context の ref に差し込む。useRectShortcuts と
 	// RectInteractionLayer が Esc キャンセル / Space pan 抑制で使う。
@@ -68,6 +81,14 @@ export function ImageStage({
 			rectEngineHandleRef.current = null;
 		};
 	}, [rectEngineHandleRef, rectEngine.handle]);
+
+	// 矢印 engine も同様。useArrowShortcuts の Esc キャンセルが使う。
+	useEffect(() => {
+		arrowEngineHandleRef.current = arrowEngine.handle;
+		return () => {
+			arrowEngineHandleRef.current = null;
+		};
+	}, [arrowEngineHandleRef, arrowEngine.handle]);
 
 	// stage 内の座標変換。<img> 要素を基準にして clientX/Y → 画像 px へ。
 	// interaction layer と selection overlay 双方で使う。画像ロード前や rect が
@@ -94,6 +115,13 @@ export function ImageStage({
 				) ?? null)
 			: null;
 
+	const selectedArrowRendered =
+		selectedAnnotationId && activeTool === "arrow"
+			? (arrowEngine.renderedArrows.find(
+					(a) => a.id === selectedAnnotationId,
+				) ?? null)
+			: null;
+
 	return (
 		<>
 			<img
@@ -112,6 +140,11 @@ export function ImageStage({
 			/>
 			<AnnotationLayer
 				annotations={rectEngine.renderedAnnotations}
+				imageHeight={image.height}
+				imageWidth={image.width}
+			/>
+			<ArrowLayer
+				arrows={arrowEngine.renderedArrows}
 				imageHeight={image.height}
 				imageWidth={image.width}
 			/>
@@ -158,6 +191,32 @@ export function ImageStage({
 					imageWidth={image.width}
 					previewRect={rectEngine.previewRect}
 					thickness={rectDefaults.thickness}
+				/>
+			)}
+			{activeTool === "arrow" && (
+				<ArrowInteractionLayer
+					arrows={arrows}
+					engine={arrowEngine}
+					getImagePoint={getImagePoint}
+					zoom={zoom}
+				/>
+			)}
+			{selectedArrowRendered && (
+				<ArrowSelectionOverlay
+					arrow={selectedArrowRendered}
+					engine={arrowEngine}
+					getImagePoint={getImagePoint}
+					imageHeight={image.height}
+					imageWidth={image.width}
+					zoom={zoom}
+				/>
+			)}
+			{arrowEngine.previewArrow && activeTool === "arrow" && (
+				<ArrowPreviewOverlay
+					defaults={arrowDefaults}
+					imageHeight={image.height}
+					imageWidth={image.width}
+					previewArrow={arrowEngine.previewArrow}
 				/>
 			)}
 			{activeTool === "crop" && <CropFrame engine={cropEngine} zoom={zoom} />}
