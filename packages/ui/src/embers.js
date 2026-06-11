@@ -58,10 +58,13 @@ class HiEmbers extends HTMLElement {
     this._ro = new ResizeObserver(() => this._resize());
     this._ro.observe(this);
     this._resize();
+    // reduced motion 環境では火の粉を描かず、静的なグローだけ残す。
+    // アクセシビリティ対応であると同時に、VRT の撮影を決定的にする (#65)。
+    this._reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (this._reduce) return;
     this._spawnInitial();
     this._tick = this._tick.bind(this);
     this._raf = requestAnimationFrame(this._tick);
-    this._reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   }
 
   disconnectedCallback() {
