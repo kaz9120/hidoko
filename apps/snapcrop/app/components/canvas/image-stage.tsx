@@ -1,22 +1,19 @@
 import { type RefObject, useCallback, useEffect, useMemo } from "react";
+import { AnnotationInteractionLayer } from "~/components/canvas/annotation-interaction-layer";
 import { AnnotationLayer } from "~/components/canvas/annotation-layer";
-import { ArrowInteractionLayer } from "~/components/canvas/arrow-interaction-layer";
 import { ArrowLayer } from "~/components/canvas/arrow-layer";
 import { ArrowPreviewOverlay } from "~/components/canvas/arrow-preview-overlay";
 import { ArrowSelectionOverlay } from "~/components/canvas/arrow-selection-overlay";
 import { CropFrame } from "~/components/canvas/crop-frame";
 import { DimensionHud } from "~/components/canvas/dimension-hud";
-import { HighlightInteractionLayer } from "~/components/canvas/highlight-interaction-layer";
 import { HighlightLayer } from "~/components/canvas/highlight-layer";
 import { HighlightPreviewOverlay } from "~/components/canvas/highlight-preview-overlay";
 import { HighlightSelectionOverlay } from "~/components/canvas/highlight-selection-overlay";
 import { MosaicLayer } from "~/components/canvas/mosaic-layer";
-import { RectInteractionLayer } from "~/components/canvas/rect-interaction-layer";
 import { RectMiniActions } from "~/components/canvas/rect-mini-actions";
 import { RectPreviewOverlay } from "~/components/canvas/rect-preview-overlay";
 import { RectSelectionOverlay } from "~/components/canvas/rect-selection-overlay";
 import { TextEditorOverlay } from "~/components/canvas/text-editor-overlay";
-import { TextInteractionLayer } from "~/components/canvas/text-interaction-layer";
 import { TextLayer } from "~/components/canvas/text-layer";
 import { TextSelectionOverlay } from "~/components/canvas/text-selection-overlay";
 import { type LoadedImage, useSnapcrop } from "~/contexts/snapcrop-context";
@@ -42,30 +39,24 @@ export type ImageStageProps = {
  * z-order (上に行くほど前):
  *   1. <img>                          画像本体 (pointer-events:none)
  *   2. <MosaicLayer>                  mosaic スタイルだけを canvas で焼く
- *   3. <AnnotationLayer>              SVG outline / fill
- *   4. <RectInteractionLayer>         activeTool==='rect' のとき、stage 全体の hit
- *                                     (SelectionOverlay の下に置くことで handle
- *                                     クリックを奪わない)
- *   5. <RectSelectionOverlay>         1px ring + 8 handle (handle のみ events:auto)
- *   6. <RectMiniActions>              選択矩形近傍の複製 / 削除バー (interaction 中は非表示)
- *   7. <RectPreviewOverlay>           drawing 中の破線プレビュー
- *   8. <CropFrame>                    activeTool==='crop' のとき
- *   9. <DimensionHud>                 クロップ枠に追従する W × H 表示
- *
- * 矢印ツールのレイヤーも同じ構造で重ねる: <ArrowLayer> は 3 の直上 (矢印は
- * 常に矩形より前)、<ArrowInteractionLayer> / <ArrowSelectionOverlay> /
- * <ArrowPreviewOverlay> は 7 と 8 の間 (activeTool==='arrow' のときだけ)。
- *
- * テキストツールも同様: <TextLayer> は <ArrowLayer> の直上 (テキストは常に
- * 矢印より前)、<TextInteractionLayer> / <TextSelectionOverlay> /
- * <TextEditorOverlay> は activeTool==='text' のときだけ。preview overlay の
- * 代わりに、インライン編集の <TextEditorOverlay> が「まだ commit されて
- * いない状態」を担う。
- *
- * マーカーツールのレイヤーも同様: <HighlightLayer> は <TextLayer> のさらに
- * 直上 (kind ごとのレイヤー z-order で最前。multiply 合成なので下の矩形・
- * 矢印・テキストは透けて見える)、interaction / selection / preview は
- * activeTool==='highlight' のときだけ。
+ *   3. <AnnotationLayer>              SVG outline / fill (矩形)
+ *   4. <ArrowLayer>                   矢印は常に矩形より前
+ *   5. <TextLayer>                    テキストは常に矢印より前
+ *   6. <HighlightLayer>               kind ごとのレイヤー z-order で最前
+ *                                     (multiply 合成なので下は透けて見える)
+ *   7. <AnnotationInteractionLayer>   描画系ツール (crop 以外) のとき、stage
+ *                                     全体の hit。全種別横断の hit test (#103)
+ *                                     を行う (SelectionOverlay の下に置くことで
+ *                                     handle クリックを奪わない)
+ *   8. 各種 SelectionOverlay          選択中の注釈の種別に応じて 1 つだけ表示
+ *                                     (ring + handle。handle のみ events:auto)
+ *   9. <RectMiniActions>              選択矩形近傍の複製 / 削除バー (interaction 中は非表示)
+ *  10. 各種 PreviewOverlay            drawing 中のプレビュー (activeTool のものだけ)。
+ *                                     テキストは preview の代わりにインライン編集の
+ *                                     <TextEditorOverlay> が「まだ commit されて
+ *                                     いない状態」を担う
+ *  11. <CropFrame>                    activeTool==='crop' のとき
+ *  12. <DimensionHud>                 クロップ枠に追従する W × H 表示
  */
 export function ImageStage({
 	image,
@@ -103,7 +94,7 @@ export function ImageStage({
 	const highlightEngine = useHighlightEngine(imageMetrics);
 
 	// engine の安定ハンドルを context の ref に差し込む。useRectShortcuts と
-	// RectInteractionLayer が Esc キャンセル / Space pan 抑制で使う。
+	// AnnotationInteractionLayer が Esc キャンセル / Space pan 抑制で使う。
 	useEffect(() => {
 		rectEngineHandleRef.current = rectEngine.handle;
 		return () => {
@@ -154,32 +145,31 @@ export function ImageStage({
 		[imgRef, zoom],
 	);
 
-	const selectedRendered =
-		selectedAnnotationId && activeTool === "rect"
-			? (rectEngine.renderedAnnotations.find(
-					(a) => a.id === selectedAnnotationId,
-				) ?? null)
-			: null;
+	// 選択 overlay の出し分けは activeTool でなくデータ駆動 — 選択 id がどの
+	// 種別のリストにあるかで決める。クロス選択 (#103) では activeTool が選択
+	// 種別へ追従するが、表示自体を activeTool に依存させない方が頑健。
+	// (id は全種別を通して一意なので、最大 1 つしかヒットしない)
+	const selectedRendered = selectedAnnotationId
+		? (rectEngine.renderedAnnotations.find(
+				(a) => a.id === selectedAnnotationId,
+			) ?? null)
+		: null;
 
-	const selectedArrowRendered =
-		selectedAnnotationId && activeTool === "arrow"
-			? (arrowEngine.renderedArrows.find(
-					(a) => a.id === selectedAnnotationId,
-				) ?? null)
-			: null;
+	const selectedArrowRendered = selectedAnnotationId
+		? (arrowEngine.renderedArrows.find((a) => a.id === selectedAnnotationId) ??
+			null)
+		: null;
 
-	const selectedTextRendered =
-		selectedAnnotationId && activeTool === "text"
-			? (textEngine.renderedTexts.find((t) => t.id === selectedAnnotationId) ??
-				null)
-			: null;
+	const selectedTextRendered = selectedAnnotationId
+		? (textEngine.renderedTexts.find((t) => t.id === selectedAnnotationId) ??
+			null)
+		: null;
 
-	const selectedHighlightRendered =
-		selectedAnnotationId && activeTool === "highlight"
-			? (highlightEngine.renderedHighlights.find(
-					(h) => h.id === selectedAnnotationId,
-				) ?? null)
-			: null;
+	const selectedHighlightRendered = selectedAnnotationId
+		? (highlightEngine.renderedHighlights.find(
+				(h) => h.id === selectedAnnotationId,
+			) ?? null)
+		: null;
 
 	return (
 		<>
@@ -219,16 +209,24 @@ export function ImageStage({
 				imageWidth={image.width}
 			/>
 			{/*
-			 * RectInteractionLayer は SelectionOverlay の手前に置くと選択ハンドル
-			 * へのクリックが奪われるため、先に配置 (= 視覚的に下) する。本体クリック
-			 * は SelectionOverlay の body 側を pointer-events:none にして
-			 * InteractionLayer に流す。
+			 * AnnotationInteractionLayer は SelectionOverlay の手前に置くと選択
+			 * ハンドルへのクリックが奪われるため、先に配置 (= 視覚的に下) する。
+			 * 本体クリックは SelectionOverlay の body 側を pointer-events:none に
+			 * して InteractionLayer に流す。
 			 */}
-			{activeTool === "rect" && (
-				<RectInteractionLayer
+			{activeTool !== "crop" && (
+				<AnnotationInteractionLayer
+					activeTool={activeTool}
 					annotations={annotations}
-					engine={rectEngine}
+					arrowEngine={arrowEngine}
+					arrows={arrows}
 					getImagePoint={getImagePoint}
+					highlightEngine={highlightEngine}
+					highlights={highlights}
+					rectEngine={rectEngine}
+					textEngine={textEngine}
+					texts={texts}
+					zoom={zoom}
 				/>
 			)}
 			{selectedRendered && (
@@ -263,14 +261,6 @@ export function ImageStage({
 					thickness={rectDefaults.thickness}
 				/>
 			)}
-			{activeTool === "arrow" && (
-				<ArrowInteractionLayer
-					arrows={arrows}
-					engine={arrowEngine}
-					getImagePoint={getImagePoint}
-					zoom={zoom}
-				/>
-			)}
 			{selectedArrowRendered && (
 				<ArrowSelectionOverlay
 					arrow={selectedArrowRendered}
@@ -289,14 +279,6 @@ export function ImageStage({
 					previewArrow={arrowEngine.previewArrow}
 				/>
 			)}
-			{activeTool === "text" && (
-				<TextInteractionLayer
-					engine={textEngine}
-					getImagePoint={getImagePoint}
-					texts={texts}
-					zoom={zoom}
-				/>
-			)}
 			{selectedTextRendered &&
 				textEngine.editing?.id !== selectedTextRendered.id && (
 					<TextSelectionOverlay text={selectedTextRendered} zoom={zoom} />
@@ -310,14 +292,6 @@ export function ImageStage({
 					onCommit={textEngine.commitEdit}
 					registerFlush={textEngine.registerEditorFlush}
 					texts={texts}
-					zoom={zoom}
-				/>
-			)}
-			{activeTool === "highlight" && (
-				<HighlightInteractionLayer
-					engine={highlightEngine}
-					getImagePoint={getImagePoint}
-					highlights={highlights}
 					zoom={zoom}
 				/>
 			)}

@@ -24,7 +24,7 @@ type TextLayerProps = {
  * テキストアノテーションを SVG で重ね描きする。arrow-layer.tsx と同じく
  * viewBox を画像座標 (= naturalWidth × naturalHeight) で張り、font-size を
  * 画像 px のまま指定する。pointer-events は通さない (hit は
- * TextInteractionLayer 側で取る)。
+ * AnnotationInteractionLayer 側で取る)。
  */
 export function TextLayer({
 	texts,

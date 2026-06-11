@@ -13,7 +13,7 @@ type HighlightLayerProps = {
  * マーカーアノテーションを SVG で重ね描きする。arrow-layer.tsx と同じく
  * viewBox を画像座標 (= naturalWidth × naturalHeight) で張り、stroke-width を
  * 画像 px のまま指定する。pointer-events は通さない (hit は
- * HighlightInteractionLayer 側で取る)。
+ * AnnotationInteractionLayer 側で取る)。
  *
  * 蛍光ペンの重ね味 (下の文字が透ける) は、各帯ごとの
  * `mix-blend-mode: multiply` + stroke-opacity で出す。createdAt 順に

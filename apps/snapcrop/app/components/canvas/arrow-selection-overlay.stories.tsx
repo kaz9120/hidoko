@@ -9,7 +9,7 @@ import { ArrowSelectionOverlay } from "./arrow-selection-overlay";
  * 選択中の矢印に重ねる ember ハロー (線に沿った半透明の太線) と、始点・終点の
  * 2 つの端点ハンドル。ハンドルだけが pointer-events を受けて端点ドラッグ
  * (リサイズ相当) を開始し、線上のクリックは下のレイヤー
- * (ArrowInteractionLayer) へ流して move 開始に繋ぐ。Storybook では
+ * (AnnotationInteractionLayer) へ流して move 開始に繋ぐ。Storybook では
  * ハンドルとハローを見せるための静的なスナップショットとして組む。
  *
  * @summary 選択矢印のハロー + 端点ハンドル

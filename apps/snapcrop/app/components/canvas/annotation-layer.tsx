@@ -13,7 +13,7 @@ type AnnotationLayerProps = {
 /**
  * outline / fill の rect を SVG で重ね描きする。mosaic は別レイヤー (mosaic-layer)
  * で扱うのでここでは filter out する。pointer-events は通さない (hit は
- * RectInteractionLayer 側で取る)。
+ * AnnotationInteractionLayer 側で取る)。
  *
  * viewBox を画像座標 (= naturalWidth × naturalHeight) で張るので、stroke-width
  * や rx をそのまま画像 px で指定できる。display は CSS の width:100% で zoom に

@@ -23,7 +23,7 @@ type Props = {
  * 選択中のハイライトに重ねる ember ハロー (帯に沿った半透明の太線) と、
  * 始点・終点の 2 つの端点ハンドル。arrow-selection-overlay.tsx の先例どおり、
  * ハンドルだけが pointer-events を受け、帯上のクリックは下のレイヤー
- * (= HighlightInteractionLayer) へ流して move 開始に繋げる。
+ * (= AnnotationInteractionLayer) へ流して move 開始に繋げる。
  */
 export function HighlightSelectionOverlay({
 	highlight,

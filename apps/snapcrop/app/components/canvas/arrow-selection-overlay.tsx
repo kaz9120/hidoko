@@ -24,7 +24,7 @@ type Props = {
  * 選択中の矢印に重ねる ember ハロー (線に沿った半透明の太線) と、始点・終点の
  * 2 つの端点ハンドル。rect-selection-overlay.tsx の 8 ハンドルの矢印版で、
  * ハンドルだけが pointer-events を受け、線上のクリックは下のレイヤー
- * (= ArrowInteractionLayer) へ流して move 開始に繋げる。
+ * (= AnnotationInteractionLayer) へ流して move 開始に繋げる。
  */
 export function ArrowSelectionOverlay({
 	arrow,

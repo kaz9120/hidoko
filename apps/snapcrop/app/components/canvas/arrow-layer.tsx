@@ -10,7 +10,7 @@ type ArrowLayerProps = {
  * 矢印アノテーションを SVG で重ね描きする。annotation-layer.tsx (rect) と同じく
  * viewBox を画像座標 (= naturalWidth × naturalHeight) で張り、stroke-width を
  * 画像 px のまま指定する。pointer-events は通さない (hit は
- * ArrowInteractionLayer 側で取る)。
+ * AnnotationInteractionLayer 側で取る)。
  */
 export function ArrowLayer({
 	arrows,

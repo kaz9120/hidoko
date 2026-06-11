@@ -9,7 +9,7 @@ import { HighlightSelectionOverlay } from "./highlight-selection-overlay";
  * 選択中のハイライトに重ねる ember ハロー (帯に沿った半透明の太線) と、
  * 始点・終点の 2 つの端点ハンドル。ハンドルだけが pointer-events を受けて
  * 端点ドラッグ (リサイズ相当) を開始し、帯上のクリックは下のレイヤー
- * (HighlightInteractionLayer) へ流して move 開始に繋ぐ。Storybook では
+ * (AnnotationInteractionLayer) へ流して move 開始に繋ぐ。Storybook では
  * ハンドルとハローを見せるための静的なスナップショットとして組む。
  *
  * @summary 選択ハイライトのハロー + 端点ハンドル
