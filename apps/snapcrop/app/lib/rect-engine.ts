@@ -3,7 +3,11 @@
  * 引数で受け取った annotation を更新した新しい annotation を返す。
  */
 
-import type { ImageMetrics, ResizeHandle } from "~/lib/crop-engine";
+import {
+	type ImageMetrics,
+	type ResizeHandle,
+	resizeRect,
+} from "~/lib/crop-engine";
 
 export type { ImageMetrics, ResizeHandle };
 
@@ -119,15 +123,28 @@ export function moveAnnotation(
 }
 
 /**
- * ハンドルドラッグでリサイズ。aspectRatio 拘束なし、最小サイズに当たったら
- * アンカー側を維持して打ち止める。比率なしの crop-engine.ts と同じ思想。
+ * ハンドルドラッグでリサイズ。通常は aspectRatio 拘束なしで、最小サイズに
+ * 当たったらアンカー側を維持して打ち止める (比率なしの crop-engine.ts と同じ
+ * 思想)。keepAspect (= Shift ドラッグ) のときはドラッグ開始時の縦横比を
+ * 維持してリサイズする — 比率追従・境界・最小サイズの reconcile は
+ * crop-engine の resizeRect に委譲する。
  */
 export function resizeAnnotation(
 	a: RectAnnotation,
 	handle: ResizeHandle,
 	delta: { dx: number; dy: number },
 	img: ImageMetrics,
+	keepAspect = false,
 ): RectAnnotation {
+	if (keepAspect) {
+		const next = resizeRect(
+			{ x: a.x, y: a.y, width: a.width, height: a.height },
+			handle,
+			delta,
+			{ aspectRatio: a.width / a.height, img, minSize: MIN_RECT_SIZE },
+		);
+		return { ...a, ...next };
+	}
 	const hasN = handle.includes("n");
 	const hasS = handle.includes("s");
 	const hasE = handle.includes("e");
