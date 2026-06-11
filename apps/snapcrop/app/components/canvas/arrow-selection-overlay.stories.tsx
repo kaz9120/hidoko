@@ -61,6 +61,8 @@ const mkArrow = (overrides: Partial<ArrowAnnotation>): ArrowAnnotation => ({
 	endCap: "arrow",
 	color: "#ef4444",
 	thickness: "md",
+	style: "clean",
+	seed: 1,
 	createdAt: 0,
 	...overrides,
 });

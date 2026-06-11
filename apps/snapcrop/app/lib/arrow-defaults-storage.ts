@@ -9,6 +9,7 @@ import {
 	type ArrowCapStyle,
 	type ArrowDefaults,
 	type ArrowLineStyle,
+	type ArrowStrokeStyle,
 	type ArrowThickness,
 	DEFAULT_ARROW_DEFAULTS,
 } from "~/lib/arrow-engine";
@@ -18,6 +19,10 @@ const STORAGE_KEY = "snapcrop.arrow.defaults";
 const LINES: ReadonlySet<ArrowLineStyle> = new Set(["straight", "curve"]);
 const CAPS: ReadonlySet<ArrowCapStyle> = new Set(["none", "arrow", "dot"]);
 const THICKNESSES: ReadonlySet<ArrowThickness> = new Set(["sm", "md", "lg"]);
+const STROKE_STYLES: ReadonlySet<ArrowStrokeStyle> = new Set([
+	"clean",
+	"sketchy",
+]);
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 
 export function loadArrowDefaults(): ArrowDefaults {
@@ -53,12 +58,20 @@ export function loadArrowDefaults(): ArrowDefaults {
 		) {
 			return DEFAULT_ARROW_DEFAULTS;
 		}
+		// style は後付けフィールドなので、欠落 (旧フォーマット) や不正値は
+		// 他のフィールドを生かしたままデフォルトに倒す
+		const style = obj.style;
+		const strokeStyle =
+			typeof style === "string" && STROKE_STYLES.has(style as ArrowStrokeStyle)
+				? (style as ArrowStrokeStyle)
+				: DEFAULT_ARROW_DEFAULTS.style;
 		return {
 			line: line as ArrowLineStyle,
 			startCap: startCap as ArrowCapStyle,
 			endCap: endCap as ArrowCapStyle,
 			color,
 			thickness: thickness as ArrowThickness,
+			style: strokeStyle,
 		};
 	} catch {
 		return DEFAULT_ARROW_DEFAULTS;

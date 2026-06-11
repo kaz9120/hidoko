@@ -13,6 +13,7 @@ import {
 	MIN_ARROW_LENGTH,
 	moveArrow,
 	moveArrowEndpoint,
+	newArrowSeed,
 } from "~/lib/arrow-engine";
 import { constrainToAngleSnap } from "~/lib/constrain";
 
@@ -29,6 +30,8 @@ type Interaction =
 			startImg: ImagePoint;
 			currentImg: ImagePoint;
 			constrain: boolean;
+			/** 手書き風の揺らぎ seed。プレビューと commit 後で同じ形を保つ */
+			seed: number;
 	  }
 	| {
 			kind: "moving";
@@ -61,8 +64,14 @@ function resolveDrawCurrent(
 export type UseArrowEngineResult = {
 	/** 表示用 arrow 配列。interaction 中はその矢印だけ delta 反映済 */
 	renderedArrows: readonly ArrowAnnotation[];
-	/** 描画中の preview 線分 (= まだ commit されていない) */
-	previewArrow: { x1: number; y1: number; x2: number; y2: number } | null;
+	/** 描画中の preview 線分 (= まだ commit されていない)。seed は手書き風用 */
+	previewArrow: {
+		x1: number;
+		y1: number;
+		x2: number;
+		y2: number;
+		seed: number;
+	} | null;
 	/** drawing / moving / endpoint いずれか進行中か */
 	isInteracting: boolean;
 	beginDraw: (startImg: ImagePoint, constrain?: boolean) => void;
@@ -104,6 +113,7 @@ export function useArrowEngine(image: ImageMetrics): UseArrowEngineResult {
 			startImg,
 			currentImg: startImg,
 			constrain,
+			seed: newArrowSeed(),
 		});
 	}, []);
 
@@ -177,6 +187,7 @@ export function useArrowEngine(image: ImageMetrics): UseArrowEngineResult {
 					x2: p2.x,
 					y2: p2.y,
 					defaults: arrowDefaultsRef.current,
+					seed: prev.seed,
 				});
 				createArrow(arrow);
 			}
@@ -236,7 +247,13 @@ export function useArrowEngine(image: ImageMetrics): UseArrowEngineResult {
 		const p1 = clampPointInImage(interaction.startImg, img);
 		const p2 = clampPointInImage(resolveDrawCurrent(interaction, img), img);
 		if (p1.x === p2.x && p1.y === p2.y) return null;
-		return { x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y };
+		return {
+			x1: p1.x,
+			y1: p1.y,
+			x2: p2.x,
+			y2: p2.y,
+			seed: interaction.seed,
+		};
 	}, [interaction]);
 
 	// handle: 上で持っている interactionRef を参照するだけの安定関数を返す

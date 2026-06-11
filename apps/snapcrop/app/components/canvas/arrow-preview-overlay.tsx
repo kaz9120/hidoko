@@ -1,7 +1,14 @@
 import { ArrowShape } from "~/components/canvas/arrow-layer";
 import type { ArrowDefaults } from "~/lib/arrow-engine";
 
-type PreviewArrow = { x1: number; y1: number; x2: number; y2: number };
+type PreviewArrow = {
+	x1: number;
+	y1: number;
+	x2: number;
+	y2: number;
+	/** 手書き風の揺らぎ seed。commit 後の矢印と同じ形をプレビューする */
+	seed: number;
+};
 
 type ArrowPreviewOverlayProps = {
 	previewArrow: PreviewArrow;
@@ -41,6 +48,8 @@ export function ArrowPreviewOverlay({
 					endCap: defaults.endCap,
 					color: defaults.color,
 					thickness: defaults.thickness,
+					style: defaults.style,
+					seed: previewArrow.seed,
 					createdAt: 0,
 				}}
 				dashed
