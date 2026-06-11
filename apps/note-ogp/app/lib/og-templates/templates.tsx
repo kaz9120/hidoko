@@ -7,7 +7,6 @@ import {
 	markUrlFor,
 	PhotoPlaceholder,
 	paletteForSelection,
-	renderLines,
 	rgbaFromHex,
 	styleFrom,
 	TextureLayer,
@@ -15,6 +14,7 @@ import {
 	UI_JP,
 	UI_LATIN,
 } from "./helpers";
+import { renderTitleLines } from "./title-decoration";
 import type { Fields } from "./types";
 
 // ─────────────────────────────────────────────────────────
@@ -83,7 +83,7 @@ export function TplEdition({ f }: { f: Fields }) {
 			{/* タイトル */}
 			<div style={{ position: "absolute", left: M, top: 232, right: M }}>
 				<AutoFitTitle
-					lines={renderLines(f.title)}
+					lines={renderTitleLines(f.title, f.titleDecoration, t.accent)}
 					width={1280 - M * 2}
 					maxH={196}
 					max={104}
@@ -277,7 +277,7 @@ export function TplCover({ f }: { f: Fields }) {
 					{f.category || "ESSAY"}
 				</Kicker>
 				<AutoFitTitle
-					lines={renderLines(f.title)}
+					lines={renderTitleLines(f.title, f.titleDecoration, kicker)}
 					width={1280 - M * 2}
 					maxH={208}
 					max={100}
@@ -415,7 +415,7 @@ export function TplQuiet({ f }: { f: Fields }) {
 					{f.category || "ESSAY"}&nbsp;&nbsp;·&nbsp;&nbsp;Vol.{issue}
 				</Kicker>
 				<AutoFitTitle
-					lines={renderLines(f.title)}
+					lines={renderTitleLines(f.title, f.titleDecoration, t.accent)}
 					width={1280 - 150 * 2}
 					maxH={236}
 					max={hasImg ? 62 : 78}

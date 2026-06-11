@@ -11,6 +11,7 @@ import type {
 	TemplateId,
 	TextureId,
 	ThemeMode,
+	TitleDecoration,
 } from "./og-templates";
 import { DEFAULT_PALETTE_ID, PALETTES } from "./og-templates";
 
@@ -39,6 +40,7 @@ export const DEFAULTS: Fields = {
 	texture: "none",
 	paperStrength: "weak",
 	photoPalettes: null,
+	titleDecoration: "none",
 };
 
 const TEMPLATE_IDS = new Set<TemplateId>(["edition", "cover", "quiet"]);
@@ -48,6 +50,12 @@ const FONT_MODES = new Set<FontMode>(["serif", "gothic", "hand"]);
 const COVER_TEXTS = new Set<CoverText>(["light", "dark"]);
 const TEXTURE_IDS = new Set<TextureId>(["none", "paper", "gradient", "shape"]);
 const PAPER_STRENGTHS = new Set<PaperStrength>(["weak", "medium"]);
+const TITLE_DECORATIONS = new Set<TitleDecoration>([
+	"none",
+	"merihari",
+	"zurashi",
+	"hanzure",
+]);
 
 function pickEnum<T extends string>(
 	value: unknown,
@@ -158,6 +166,12 @@ export function loadState(): Fields {
 				DEFAULTS.paperStrength,
 			),
 			photoPalettes,
+			// 装飾キーを持たない既存データは「なし」（現行どおり）にフォールバック
+			titleDecoration: pickEnum(
+				parsed.titleDecoration,
+				TITLE_DECORATIONS,
+				DEFAULTS.titleDecoration,
+			),
 		};
 	} catch {
 		return DEFAULTS;

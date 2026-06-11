@@ -35,6 +35,7 @@ export {
 	resolveOgTheme,
 } from "./palettes";
 export { TextureLayer } from "./texture";
+export { renderTitleLines, splitMerihari } from "./title-decoration";
 export type {
 	CoverText,
 	Fields,
@@ -49,4 +50,5 @@ export type {
 	TemplateId,
 	TextureId,
 	ThemeMode,
+	TitleDecoration,
 } from "./types";
