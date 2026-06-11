@@ -12,7 +12,7 @@ export const TEMPLATES = [
 	{
 		id: "cover",
 		label: "02 Cover",
-		note: "写真フルブリードの表紙",
+		note: "写真が主役・配置 3 型",
 		useImage: true,
 		Comp: TplCover,
 	},
