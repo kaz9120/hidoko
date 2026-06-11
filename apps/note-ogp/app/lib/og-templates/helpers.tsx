@@ -7,7 +7,12 @@ import {
 } from "react";
 import markCreamUrl from "ui/assets/logo/mark-cream.svg?url";
 import markDarkUrl from "ui/assets/logo/mark-dark.svg?url";
-import { mixHex, type OgRoles, ogThemeFor } from "./palettes";
+import {
+	mixHex,
+	type OgRoles,
+	paletteForSelection,
+	resolveOgTheme,
+} from "./palettes";
 import type { Fields, FontMode, ThemeMode } from "./types";
 
 // ─────────────────────────────────────────────────────────
@@ -70,6 +75,7 @@ export {
 	ogThemeFor,
 	PALETTES,
 	paletteById,
+	paletteForSelection,
 	resolveOgTheme,
 	rgbaFromHex,
 } from "./palettes";
@@ -277,7 +283,9 @@ export function AutoFitTitle({
 	);
 }
 
-// テーマと書体を Fields から1度に取り出すためのショートカット
+// テーマと書体を Fields から1度に取り出すためのショートカット。
+// パレット選択は写真由来の動的パレット（photoPalettes）も解決する。
 export function styleFrom(f: Fields) {
-	return { t: ogThemeFor(f.palette, f.theme), ft: fonts(f.fontMode) };
+	const roles = paletteForSelection(f.palette, f.photoPalettes)[f.theme];
+	return { t: resolveOgTheme(roles, f.theme), ft: fonts(f.fontMode) };
 }

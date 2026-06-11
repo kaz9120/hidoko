@@ -2,7 +2,11 @@ import type {
 	CoverText,
 	Fields,
 	FontMode,
+	OgRoles,
 	PaletteId,
+	PaletteSelection,
+	PhotoPalette,
+	PhotoPaletteId,
 	TemplateId,
 	ThemeMode,
 } from "./og-templates";
@@ -30,6 +34,7 @@ export const DEFAULTS: Fields = {
 	account: "@kyamamoto9120",
 	showMark: true,
 	image: null,
+	photoPalettes: null,
 };
 
 const TEMPLATE_IDS = new Set<TemplateId>(["edition", "cover", "quiet"]);
@@ -62,12 +67,62 @@ function pickImage(value: unknown): string | null {
 	return value;
 }
 
+const PHOTO_PALETTE_IDS = new Set<PhotoPaletteId>([
+	"photo-najimase",
+	"photo-hikitate",
+]);
+const HEX_RE = /^#[0-9a-f]{6}$/i;
+
+function pickRoles(value: unknown): OgRoles | null {
+	if (typeof value !== "object" || value === null) return null;
+	const v = value as Record<string, unknown>;
+	const hex = (x: unknown): x is string =>
+		typeof x === "string" && HEX_RE.test(x);
+	if (!hex(v.base) || !hex(v.sub) || !hex(v.accent)) return null;
+	return { base: v.base, sub: v.sub, accent: v.accent };
+}
+
+/**
+ * 写真由来パレットの復元。写真本体（dataURL）はサイズ超過で保存されないことが
+ * あるため、パレットは色値ごと独立して保存・復元する。1 件でも壊れていたら
+ * 全体を捨てる（候補が中途半端に欠けた状態を作らない）。
+ */
+function pickPhotoPalettes(value: unknown): PhotoPalette[] | null {
+	if (!Array.isArray(value) || value.length === 0) return null;
+	const result: PhotoPalette[] = [];
+	const seen = new Set<PhotoPaletteId>();
+	for (const item of value) {
+		if (typeof item !== "object" || item === null) return null;
+		const v = item as Record<string, unknown>;
+		const id = v.id;
+		if (
+			typeof id !== "string" ||
+			!PHOTO_PALETTE_IDS.has(id as PhotoPaletteId) ||
+			seen.has(id as PhotoPaletteId)
+		) {
+			return null;
+		}
+		const light = pickRoles(v.light);
+		const dark = pickRoles(v.dark);
+		if (!light || !dark || typeof v.label !== "string") return null;
+		seen.add(id as PhotoPaletteId);
+		result.push({ id: id as PhotoPaletteId, label: v.label, light, dark });
+	}
+	return result;
+}
+
 export function loadState(): Fields {
 	if (typeof window === "undefined") return DEFAULTS;
 	try {
 		const raw = window.localStorage.getItem(STORAGE_KEY);
 		if (!raw) return DEFAULTS;
 		const parsed = JSON.parse(raw) as Record<string, unknown>;
+		const photoPalettes = pickPhotoPalettes(parsed.photoPalettes);
+		// 選択可能なパレット = プリセット + 復元できた写真由来パレット
+		const selectable = new Set<PaletteSelection>([
+			...PALETTE_IDS,
+			...(photoPalettes?.map((p) => p.id) ?? []),
+		]);
 		return {
 			templateId: pickEnum(
 				parsed.templateId,
@@ -76,7 +131,7 @@ export function loadState(): Fields {
 			),
 			theme: pickEnum(parsed.theme, THEMES, DEFAULTS.theme),
 			// パレットキーを持たない既存データは焚き火（現行配色）にフォールバック
-			palette: pickEnum(parsed.palette, PALETTE_IDS, DEFAULTS.palette),
+			palette: pickEnum(parsed.palette, selectable, DEFAULTS.palette),
 			fontMode: pickEnum(parsed.fontMode, FONT_MODES, DEFAULTS.fontMode),
 			coverText: pickEnum(parsed.coverText, COVER_TEXTS, DEFAULTS.coverText),
 			title: pickString(parsed.title, DEFAULTS.title),
@@ -89,6 +144,7 @@ export function loadState(): Fields {
 			account: pickString(parsed.account, DEFAULTS.account),
 			showMark: pickBool(parsed.showMark, DEFAULTS.showMark),
 			image: pickImage(parsed.image),
+			photoPalettes,
 		};
 	} catch {
 		return DEFAULTS;

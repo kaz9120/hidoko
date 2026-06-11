@@ -6,7 +6,7 @@ import {
 	M,
 	markUrlFor,
 	PhotoPlaceholder,
-	paletteById,
+	paletteForSelection,
 	renderLines,
 	rgbaFromHex,
 	styleFrom,
@@ -161,7 +161,7 @@ export function TplEdition({ f }: { f: Fields }) {
 // ─────────────────────────────────────────────────────────
 export function TplCover({ f }: { f: Fields }) {
 	const { ft } = styleFrom(f);
-	const pal = paletteById(f.palette);
+	const pal = paletteForSelection(f.palette, f.photoPalettes);
 	const issue = String(f.issue || "001").padStart(3, "0");
 	const hasImg = !!f.image;
 	const darkText = f.coverText === "dark"; // 明るい画像向け
