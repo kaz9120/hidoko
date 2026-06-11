@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "ui";
 import logoCreamUrl from "ui/assets/logo/mark-cream.svg?url";
 import logoDarkUrl from "ui/assets/logo/mark-dark.svg?url";
+import { ShareButton } from "~/components/layout/share-button";
 import { ZoomControl } from "~/components/layout/zoom-control";
 import { ThemeToggle } from "~/components/theme-toggle";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
@@ -70,7 +71,7 @@ export function SiteHeader() {
 		try {
 			const blob = await captureScreen();
 			if (blob) {
-				await loadImageFromBlob(blob);
+				await loadImageFromBlob(blob, "screen-capture");
 			}
 		} finally {
 			setIsCapturing(false);
@@ -80,7 +81,7 @@ export function SiteHeader() {
 	const handlePaste = async () => {
 		const blob = await readImageFromClipboard();
 		if (blob) {
-			await loadImageFromBlob(blob);
+			await loadImageFromBlob(blob, "clipboard");
 		} else {
 			toast.error("クリップボードに画像が見つかりません");
 		}
@@ -154,6 +155,8 @@ export function SiteHeader() {
 					onClick={redo}
 				/>
 				<ThemeToggle />
+				<Divider />
+				<ShareButton />
 			</div>
 		</header>
 	);

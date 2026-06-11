@@ -8,8 +8,8 @@ import { SiteHeader } from "./site-header";
 
 /**
  * snapcrop 画面最上段に貼り付くヘッダ。ロゴ・取り込み手段 (スクショ / 貼り付け
- * / ファイル)・ズームコントロールを左に、undo / redo / テーマ切替を右に
- * 並べる。`SnapcropContext`
+ * / ファイル)・ズームコントロールを左に、undo / redo / テーマ切替 /
+ * X シェアを右に並べる。`SnapcropContext`
  * と `next-themes` の両方を購読しているため、Storybook では両方の Provider で
  * wrap する必要がある。
  *

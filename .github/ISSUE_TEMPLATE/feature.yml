@@ -1,0 +1,41 @@
+name: 機能・改善
+description: 新しい機能や改善のアイデア。Why / What / Done を埋めると、そのまま AI に開発を依頼できる粒度になる
+labels: ["enhancement"]
+body:
+  - type: input
+    id: target
+    attributes:
+      label: 対象
+      description: 影響する workspace
+      placeholder: snapcrop / homepage / futari-no-yotei / packages/ui / リポジトリ全体
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why — なぜやるのか
+      description: 背景・目的・ユーザー価値
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What — 何をするのか
+      description: 具体的な変更内容。変更の境界（何を変えないか）も書けるとよい
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Done — 完成条件
+      description: ユーザー操作と期待結果のペアで書く
+      placeholder: サイドバーが開いた状態でトグルボタンに ← アイコンが表示される
+    validations:
+      required: false
+  - type: textarea
+    id: notes
+    attributes:
+      label: 制約・参照リンク
+      description: デザイン制約、関連 Issue / PR、Figma 等。なければ空欄
+    validations:
+      required: false
