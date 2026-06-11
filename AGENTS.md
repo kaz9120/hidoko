@@ -73,6 +73,20 @@ bun --filter snapcrop build    # apps/snapcrop のビルド
 7. CodeRabbit のレビューに対応する。指摘は鵜呑みにせず妥当性を検証し、採用しない場合も理由を返信する。
 8. マージするかどうかは人間が判断する。
 
+## Cloudflare Workers Builds の監視パス
+
+モノレポなので、各 Worker のビルドは関係するパスが変わったときだけ走らせたい。この「監視パス (build watch paths)」はダッシュボードで手入力せず、スクリプトで同期する。
+
+```sh
+bun run cf:watch-paths --dry-run   # 差分の確認だけ
+bun run cf:watch-paths             # Cloudflare に反映
+```
+
+- 監視パスは各 app の `package.json` の workspace 依存から自動導出する（app 自身 + 依存 package + `bun.lock` / `package.json` / `tsconfig.base.json`）。
+- 導出で足りない app は、その `package.json` に `workersBuilds.watchPaths` を書いて全置換する（例: `apps/storybook` は全 workspace の story を集約するので全体を監視する）。
+- 認証は `CLOUDFLARE_API_TOKEN` と `CLOUDFLARE_ACCOUNT_ID`。[.env.example](.env.example) をコピーしてルートに `.env.local`（gitignore 済み）を作れば Bun が自動で読む。トークンの権限は example 内のコメント参照。
+- 新しい app を追加したら、初回デプロイと Git 連携のあとにこのスクリプトを 1 回実行する。
+
 ## コミット規約
 
 `@commitlint/config-conventional` を使う。
