@@ -33,12 +33,15 @@ export {
 	paletteById,
 	resolveOgTheme,
 } from "./palettes";
+export { TextureLayer } from "./texture";
 export type {
 	CoverText,
 	Fields,
 	FontMode,
 	PaletteId,
+	PaperStrength,
 	TemplateDef,
 	TemplateId,
+	TextureId,
 	ThemeMode,
 } from "./types";

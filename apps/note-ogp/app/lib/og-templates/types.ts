@@ -13,6 +13,9 @@ export type PaletteId =
 	| "sumi"
 	| "aikin"
 	| "budou";
+/** 背景の質感。さじ加減は固定プリセット（不透明度の自由調整は出さない） */
+export type TextureId = "none" | "paper" | "gradient" | "shape";
+export type PaperStrength = "weak" | "medium";
 
 export type Fields = {
 	templateId: TemplateId;
@@ -30,6 +33,8 @@ export type Fields = {
 	account: string;
 	showMark: boolean;
 	image: string | null;
+	texture: TextureId;
+	paperStrength: PaperStrength;
 };
 
 export type TemplateDef = {
