@@ -22,6 +22,7 @@ import type {
 	ArrowCapStyle,
 	ArrowDefaults,
 	ArrowLineStyle,
+	ArrowStrokeStyle,
 	ArrowThickness,
 } from "~/lib/arrow-engine";
 
@@ -42,6 +43,38 @@ const CAP_OPTIONS: ReadonlyArray<{
 	{ id: "arrow", label: "矢印" },
 	{ id: "dot", label: "丸" },
 ];
+
+const STYLE_OPTIONS: ReadonlyArray<{
+	id: ArrowStrokeStyle;
+	label: string;
+}> = [
+	{ id: "clean", label: "きっちり" },
+	{ id: "sketchy", label: "手書き" },
+];
+
+/**
+ * きっちり / 手書きの違いを線そのもので見せるミニアイコン。lucide に
+ * 「同じモチーフの直線版 / 揺らぎ版」のペアがないため自前 SVG で描く。
+ */
+function StrokeStyleIcon({ style }: { style: ArrowStrokeStyle }) {
+	return (
+		<svg
+			aria-hidden="true"
+			className="size-4"
+			fill="none"
+			stroke="currentColor"
+			strokeLinecap="round"
+			strokeWidth={1.75}
+			viewBox="0 0 16 16"
+		>
+			{style === "clean" ? (
+				<path d="M2 8 H14" />
+			) : (
+				<path d="M2 8.5 C 4 6, 5.5 10.5, 8 8 S 12 6, 14 8.5" />
+			)}
+		</svg>
+	);
+}
 
 const THICKNESS_OPTIONS: ReadonlyArray<{
 	id: ArrowThickness;
@@ -95,6 +128,7 @@ export function ArrowToolbar() {
 				endCap: selected.endCap,
 				color: selected.color,
 				thickness: selected.thickness,
+				style: selected.style,
 			}
 		: arrowDefaults;
 
@@ -176,6 +210,30 @@ export function ArrowToolbarView({
 						</ToggleGroupItem>
 					);
 				})}
+			</ToggleGroup>
+
+			<Divider />
+
+			<ToggleGroup
+				aria-label="線の質感"
+				onValueChange={(next) => {
+					if (next) onCommit({ style: next as ArrowStrokeStyle });
+				}}
+				type="single"
+				value={current.style}
+				variant="outline"
+			>
+				{STYLE_OPTIONS.map((opt) => (
+					<ToggleGroupItem
+						key={opt.id}
+						size="sm"
+						title={opt.label}
+						value={opt.id}
+					>
+						<StrokeStyleIcon style={opt.id} />
+						<span>{opt.label}</span>
+					</ToggleGroupItem>
+				))}
 			</ToggleGroup>
 
 			<Divider />

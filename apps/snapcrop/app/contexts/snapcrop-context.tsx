@@ -589,7 +589,8 @@ function arrowShallowEqual(a: ArrowAnnotation, b: ArrowAnnotation): boolean {
 		a.startCap === b.startCap &&
 		a.endCap === b.endCap &&
 		a.color === b.color &&
-		a.thickness === b.thickness
+		a.thickness === b.thickness &&
+		a.style === b.style
 	);
 }
 

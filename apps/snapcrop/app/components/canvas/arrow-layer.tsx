@@ -35,7 +35,8 @@ export function ArrowLayer({
  * 矢印 1 本ぶんの SVG 描画。線 (直線 or quadratic bezier) + 端点キャップ
  * (矢頭 / 丸)。dashed は描画中プレビュー (arrow-preview-overlay) が使う。
  * 形状計算は arrow-engine の getArrowRenderModel に集約していて、canvas
- * エクスポート (image-export) と同じ見た目になる。
+ * エクスポート (image-export) と同じ見た目になる。手書き風 (sketchy) は
+ * モデルが返す揺らぎ済みパス文字列をそのまま描く。
  */
 export function ArrowShape({
 	arrow,
@@ -45,6 +46,29 @@ export function ArrowShape({
 	dashed?: boolean;
 }) {
 	const model = getArrowRenderModel(arrow);
+	if (model.sketchy) {
+		const dashArray = dashed
+			? `${model.strokeWidth * 3} ${model.strokeWidth * 2}`
+			: undefined;
+		return (
+			<g>
+				{model.sketchy.linePaths.map((d) => (
+					<path
+						d={d}
+						fill="none"
+						key={d}
+						stroke={arrow.color}
+						strokeDasharray={dashArray}
+						strokeLinecap="round"
+						strokeWidth={model.strokeWidth}
+					/>
+				))}
+				{model.sketchy.capPaths.map((d) => (
+					<path d={d} fill={arrow.color} key={d} />
+				))}
+			</g>
+		);
+	}
 	const d = model.control
 		? `M ${model.from.x} ${model.from.y} Q ${model.control.x} ${model.control.y} ${model.to.x} ${model.to.y}`
 		: `M ${model.from.x} ${model.from.y} L ${model.to.x} ${model.to.y}`;
