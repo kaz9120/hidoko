@@ -19,6 +19,7 @@ const DEFAULT_FIELDS: Fields = {
 	account: "@kyamamoto9120",
 	showMark: true,
 	image: null,
+	photoPalettes: null,
 };
 
 const FRAME_STYLE: React.CSSProperties = {

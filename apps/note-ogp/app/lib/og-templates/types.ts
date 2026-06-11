@@ -14,10 +14,44 @@ export type PaletteId =
 	| "aikin"
 	| "budou";
 
+/**
+ * 配色の 3 ロール構造。
+ * 参考書（『けっきょくは、よはく。』ほか）の「ベース 70% / サブ 25% /
+ * アクセント 5%」に対応する。OGP 画像内の塗りはすべてこの 3 色から導出する。
+ */
+export type OgRoles = {
+	/** ベース（≈70%）— 背景 */
+	base: string;
+	/** サブ（≈25%）— 文字 */
+	sub: string;
+	/** アクセント（≈5%）— 差し色 */
+	accent: string;
+};
+
+/** 写真から抽出した動的パレットの id。プリセットの PaletteId とは重ならない */
+export type PhotoPaletteId = "photo-najimase" | "photo-hikitate";
+
+/** パレット選択値。プリセット or 写真由来の動的パレット */
+export type PaletteSelection = PaletteId | PhotoPaletteId;
+
+/**
+ * 写真から抽出した動的パレット。プリセット（OgPalette）と同じ
+ * 3 ロール × ライト / ダーク構造を持ち、色値ごと localStorage に保存される
+ * （写真本体はサイズ超過で保存されないことがあるため、独立して持つ）。
+ */
+export type PhotoPalette = {
+	id: PhotoPaletteId;
+	label: string;
+	light: OgRoles;
+	dark: OgRoles;
+};
+
 export type Fields = {
 	templateId: TemplateId;
 	theme: ThemeMode;
-	palette: PaletteId;
+	palette: PaletteSelection;
+	/** 写真から抽出した配色候補。写真未設定なら null */
+	photoPalettes: PhotoPalette[] | null;
 	fontMode: FontMode;
 	coverText: CoverText;
 	title: string;
