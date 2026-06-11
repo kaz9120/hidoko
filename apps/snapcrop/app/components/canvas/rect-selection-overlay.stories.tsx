@@ -7,7 +7,7 @@ import { RectSelectionOverlay } from "./rect-selection-overlay";
 
 /**
  * 選択中の矩形に重ねる 1px ember ring と 8 つのリサイズハンドル。本体 (ring の
- * 内側) は pointer-events を受け取らず、下のレイヤー (RectInteractionLayer) に
+ * 内側) は pointer-events を受け取らず、下のレイヤー (AnnotationInteractionLayer) に
  * クリックを流して move 開始に繋ぐ。Storybook ではハンドルを見せるための
  * 静的なスナップショットとして組む。
  *

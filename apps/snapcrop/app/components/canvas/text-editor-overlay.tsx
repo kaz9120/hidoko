@@ -31,7 +31,7 @@ type Props = {
  * 空の textarea を、再編集 (ダブルクリック) は既存テキストの内容を、
  * アンカー位置にそのままの見た目 (フォント / サイズ / 色 / 背景 / 寄せ) で
  * 重ねる。確定は blur か ⌘/Ctrl+Enter、破棄は Esc。Enter は改行 (複数行対応)。
- * stage 内の外側クリックは TextInteractionLayer が registerFlush 経由で即時
+ * stage 内の外側クリックは AnnotationInteractionLayer が registerFlush 経由で即時
  * commit する (確定クリックをそのままドラッグ開始に繋ぐため。issue #80)。
  * blur 確定は、ツールバー操作やタブ切替などレイヤー外へフォーカスが移る
  * ケースの受け皿として残す。

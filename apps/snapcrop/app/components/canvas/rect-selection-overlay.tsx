@@ -49,7 +49,7 @@ type Props = {
 
 /**
  * 選択中の矩形に重ねる 1px ember ring と 8 つのリサイズハンドル。ハンドルだけが
- * pointer-events を受け、本体 (ring の内側) は下のレイヤー (= RectInteractionLayer)
+ * pointer-events を受け、本体 (ring の内側) は下のレイヤー (= AnnotationInteractionLayer)
  * へ click を流して move 開始に繋げる。
  */
 export function RectSelectionOverlay({

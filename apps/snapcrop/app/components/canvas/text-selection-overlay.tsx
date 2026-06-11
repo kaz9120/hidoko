@@ -9,7 +9,7 @@ type Props = {
  * 選択中のテキストに重ねる ember ring。rect-selection-overlay.tsx の 1px ring
  * と同じ見た目だが、テキストはリサイズハンドルを持たない (サイズはツールバー
  * のフォントサイズで変える) ので、全体が pointer-events:none。本体クリックは
- * 下のレイヤー (= TextInteractionLayer) へ流れて move 開始に繋がる。
+ * 下のレイヤー (= AnnotationInteractionLayer) へ流れて move 開始に繋がる。
  */
 export function TextSelectionOverlay({ text, zoom }: Props) {
 	const b = textHitBounds(text);

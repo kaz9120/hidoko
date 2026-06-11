@@ -102,7 +102,7 @@ export type ActiveTool = "crop" | "rect" | "arrow" | "text" | "highlight";
 
 /**
  * 矩形ツールのキーボード操作 (Esc キャンセル, Space pan 抑制) が、
- * RectInteractionLayer や useRectShortcuts から engine の状態に触れるための
+ * AnnotationInteractionLayer や useRectShortcuts から engine の状態に触れるための
  * 共有ハンドル。ImageStage 内で engine が組み立てた値を ref に書き込む。
  */
 export type RectEngineHandle = {
