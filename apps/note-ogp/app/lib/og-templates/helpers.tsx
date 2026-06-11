@@ -231,6 +231,11 @@ export const TITLE_NOWRAP: CSSProperties = {
 
 // タイトル自動フィット：指定の枠（幅・高さ）に収まるまでフォントを縮小。
 //   手動改行は尊重（自動では折り返さない）。実寸測定なので右余白が必ず残る。
+//
+//   vertical=true で縦書き（writing-mode: vertical-rl）になる。このとき maxH が
+//   行方向（高さ）の基準で必須、width は段（カラム）の積み上げ幅の上限になる。
+//   フィットは 2 段階：まず段送りなしで高さに収まるまで縮小し、min でも
+//   収まらない長文だけ段送り（左へ段が増える）を解禁して破綻を防ぐ。
 export function AutoFitTitle({
 	lines,
 	style,
@@ -239,6 +244,7 @@ export function AutoFitTitle({
 	max,
 	min,
 	step = 2,
+	vertical = false,
 }: {
 	lines: ReactNode;
 	style?: CSSProperties;
@@ -247,31 +253,47 @@ export function AutoFitTitle({
 	max: number;
 	min: number;
 	step?: number;
+	vertical?: boolean;
 }) {
 	const ref = useRef<HTMLDivElement | null>(null);
-	const [size, setSize] = useState(max);
+	const [fit, setFit] = useState({ size: max, wrap: false });
 	// lines は effect 内のコードからは読まないが、children として描画される
 	// 結果を scrollWidth/Height で測るため、lines が変われば再フィットさせたい。
 	// biome-ignore lint/correctness/useExhaustiveDependencies: lines 変更時に DOM 再測定が必要
 	useLayoutEffect(() => {
 		const el = ref.current;
 		if (!el) return;
+		const overflows = () =>
+			el.scrollWidth > Math.ceil(width) ||
+			(!!maxH && el.scrollHeight > Math.ceil(maxH));
 		let s = max;
+		el.style.whiteSpace = "pre";
 		el.style.fontSize = `${s}px`;
 		let guard = 0;
-		while (
-			guard++ < 80 &&
-			s > min &&
-			(el.scrollWidth > Math.ceil(width) ||
-				(!!maxH && el.scrollHeight > Math.ceil(maxH)))
-		) {
+		while (guard++ < 80 && s > min && overflows()) {
 			s -= step;
 			el.style.fontSize = `${s}px`;
 		}
-		setSize(s);
-	}, [lines, width, maxH, max, min, step]);
+		// 縦書きで min まで縮めても 1 段に収まらないときだけ段送りを解禁する
+		const wrap = vertical && overflows();
+		if (wrap) el.style.whiteSpace = "pre-wrap";
+		setFit({ size: s, wrap });
+	}, [lines, width, maxH, max, min, step, vertical]);
+	// 縦書きでは width（ブロック方向）を固定せず、高さだけを枠にする。
+	// ブロックサイズは content 由来になるので scrollWidth が段の実寸を返す。
+	const frame: CSSProperties = vertical
+		? {
+				height: maxH,
+				writingMode: "vertical-rl",
+				textOrientation: "mixed",
+				...(fit.wrap ? { whiteSpace: "pre-wrap", wordBreak: "normal" } : null),
+			}
+		: { width };
 	return (
-		<div ref={ref} style={{ ...style, width, fontSize: size, ...TITLE_NOWRAP }}>
+		<div
+			ref={ref}
+			style={{ ...style, fontSize: fit.size, ...TITLE_NOWRAP, ...frame }}
+		>
 			{lines}
 		</div>
 	);
