@@ -106,6 +106,7 @@ export const Selected: Story = {
 				endCap: "arrow",
 				color: PRESET_COLORS[2],
 				thickness: "md",
+				style: "clean",
 			}}
 			selected={true}
 			withDelete
@@ -134,7 +135,29 @@ export const ThickBlue: Story = {
 				endCap: "arrow",
 				color: PRESET_COLORS[4],
 				thickness: "lg",
+				style: "clean",
 			}}
+			selected={false}
+		/>
+	),
+};
+
+/**
+ * 線の質感を「手書き」にした状態。きっちり / 手書きの 2 択トグルが
+ * 手書き側で点灯する。
+ * @summary 手書きスタイル選択中
+ */
+export const SketchyStyle: Story = {
+	args: {
+		current: DEFAULT_ARROW_DEFAULTS,
+		selected: false,
+		arrowCount: 2,
+		onCommit: () => {},
+	},
+	render: () => (
+		<StatefulToolbar
+			arrowCount={2}
+			initial={{ ...DEFAULT_ARROW_DEFAULTS, style: "sketchy" }}
 			selected={false}
 		/>
 	),
