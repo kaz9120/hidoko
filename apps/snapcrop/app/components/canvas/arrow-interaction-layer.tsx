@@ -49,7 +49,7 @@ export function ArrowInteractionLayer({
 		if (spacePressedRef.current) return;
 		dragRef.current = { pointerId: e.pointerId };
 		e.currentTarget.setPointerCapture(e.pointerId);
-		engine.beginDraw(pt);
+		engine.beginDraw(pt, e.shiftKey);
 	};
 
 	const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -57,7 +57,8 @@ export function ArrowInteractionLayer({
 		if (!d || d.pointerId !== e.pointerId) return;
 		const pt = getImagePoint(e.clientX, e.clientY);
 		if (!pt) return;
-		engine.updateInteraction(pt);
+		// shiftKey で拘束 (45° 刻みの角度スナップ)。途中の押下・解放にも追従する
+		engine.updateInteraction(pt, e.shiftKey);
 	};
 
 	const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {

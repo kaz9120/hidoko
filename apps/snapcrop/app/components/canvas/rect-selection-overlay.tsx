@@ -73,7 +73,7 @@ export function RectSelectionOverlay({
 		e.stopPropagation();
 		dragRef.current = { pointerId: e.pointerId, handle: h };
 		e.currentTarget.setPointerCapture(e.pointerId);
-		engine.beginResize(annotation.id, h, pt);
+		engine.beginResize(annotation.id, h, pt, e.shiftKey);
 	};
 
 	const onHandleMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -81,7 +81,8 @@ export function RectSelectionOverlay({
 		if (!d || d.pointerId !== e.pointerId) return;
 		const pt = getImagePoint(e.clientX, e.clientY);
 		if (!pt) return;
-		engine.updateInteraction(pt);
+		// shiftKey で拘束 (アスペクト比維持)。途中の押下・解放にも追従する
+		engine.updateInteraction(pt, e.shiftKey);
 	};
 
 	const onHandleUp = (e: React.PointerEvent<HTMLDivElement>) => {

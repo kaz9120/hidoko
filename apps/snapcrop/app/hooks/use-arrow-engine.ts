@@ -3,6 +3,7 @@ import {
 	type ArrowEngineHandle,
 	useSnapcrop,
 } from "~/contexts/snapcrop-context";
+import { useShiftConstrainKey } from "~/hooks/use-shift-constrain-key";
 import {
 	type ArrowAnnotation,
 	type ArrowEndpoint,
@@ -13,21 +14,29 @@ import {
 	moveArrow,
 	moveArrowEndpoint,
 } from "~/lib/arrow-engine";
+import { constrainToAngleSnap } from "~/lib/constrain";
 
 type ImagePoint = { x: number; y: number };
 
 /**
  * 進行中の操作。kind に応じて drawing / moving / endpoint (端点ドラッグ =
  * rect の resizing 相当) を表現する。use-rect-engine.ts と同じ構造。
+ * constrain は Shift 押下中の拘束 (drawing = 45° 刻みの角度スナップ)。
  */
 type Interaction =
-	| { kind: "drawing"; startImg: ImagePoint; currentImg: ImagePoint }
+	| {
+			kind: "drawing";
+			startImg: ImagePoint;
+			currentImg: ImagePoint;
+			constrain: boolean;
+	  }
 	| {
 			kind: "moving";
 			id: string;
 			startImg: ImagePoint;
 			startArrow: ArrowAnnotation;
 			currentImg: ImagePoint;
+			constrain: boolean;
 	  }
 	| {
 			kind: "endpoint";
@@ -36,7 +45,18 @@ type Interaction =
 			startImg: ImagePoint;
 			startArrow: ArrowAnnotation;
 			currentImg: ImagePoint;
+			constrain: boolean;
 	  };
+
+/** drawing 中の実効 current 点。Shift 拘束中は 45° 刻みの角度へ吸着する。 */
+function resolveDrawCurrent(
+	i: { startImg: ImagePoint; currentImg: ImagePoint; constrain: boolean },
+	img: ImageMetrics,
+): ImagePoint {
+	return i.constrain
+		? constrainToAngleSnap(i.startImg, i.currentImg, img)
+		: i.currentImg;
+}
 
 export type UseArrowEngineResult = {
 	/** 表示用 arrow 配列。interaction 中はその矢印だけ delta 反映済 */
@@ -45,14 +65,14 @@ export type UseArrowEngineResult = {
 	previewArrow: { x1: number; y1: number; x2: number; y2: number } | null;
 	/** drawing / moving / endpoint いずれか進行中か */
 	isInteracting: boolean;
-	beginDraw: (startImg: ImagePoint) => void;
+	beginDraw: (startImg: ImagePoint, constrain?: boolean) => void;
 	beginMove: (id: string, startImg: ImagePoint) => void;
 	beginEndpointDrag: (
 		id: string,
 		endpoint: ArrowEndpoint,
 		startImg: ImagePoint,
 	) => void;
-	updateInteraction: (currentImg: ImagePoint) => void;
+	updateInteraction: (currentImg: ImagePoint, constrain?: boolean) => void;
 	endInteraction: () => void;
 	cancelInteraction: () => void;
 	/** context にぶら下げる用の安定ハンドル。useEffect で ref へ差し込む */
@@ -78,11 +98,12 @@ export function useArrowEngine(image: ImageMetrics): UseArrowEngineResult {
 	const arrowDefaultsRef = useRef(arrowDefaults);
 	arrowDefaultsRef.current = arrowDefaults;
 
-	const beginDraw = useCallback((startImg: ImagePoint) => {
+	const beginDraw = useCallback((startImg: ImagePoint, constrain = false) => {
 		setInteraction({
 			kind: "drawing",
 			startImg,
 			currentImg: startImg,
+			constrain,
 		});
 	}, []);
 
@@ -96,6 +117,7 @@ export function useArrowEngine(image: ImageMetrics): UseArrowEngineResult {
 				startImg,
 				startArrow: target,
 				currentImg: startImg,
+				constrain: false,
 			});
 		},
 		[arrows],
@@ -112,14 +134,29 @@ export function useArrowEngine(image: ImageMetrics): UseArrowEngineResult {
 				startImg,
 				startArrow: target,
 				currentImg: startImg,
+				constrain: false,
 			});
 		},
 		[arrows],
 	);
 
-	const updateInteraction = useCallback((currentImg: ImagePoint) => {
-		setInteraction((prev) => (prev ? { ...prev, currentImg } : null));
+	const updateInteraction = useCallback(
+		(currentImg: ImagePoint, constrain = false) => {
+			setInteraction((prev) =>
+				prev ? { ...prev, currentImg, constrain } : null,
+			);
+		},
+		[],
+	);
+
+	// ポインタ静止中の Shift 押下・解放にも追従する (pointermove 由来の更新は
+	// updateInteraction が担う)。
+	const setConstrain = useCallback((constrain: boolean) => {
+		setInteraction((prev) =>
+			prev && prev.constrain !== constrain ? { ...prev, constrain } : prev,
+		);
 	}, []);
+	useShiftConstrainKey(interaction !== null, setConstrain);
 
 	const cancelInteraction = useCallback(() => {
 		setInteraction(null);
@@ -132,7 +169,7 @@ export function useArrowEngine(image: ImageMetrics): UseArrowEngineResult {
 		// 副作用を setState の外で先に処理してから state クリア
 		if (prev.kind === "drawing") {
 			const p1 = clampPointInImage(prev.startImg, img);
-			const p2 = clampPointInImage(prev.currentImg, img);
+			const p2 = clampPointInImage(resolveDrawCurrent(prev, img), img);
 			if (Math.hypot(p2.x - p1.x, p2.y - p1.y) >= MIN_ARROW_LENGTH) {
 				const arrow = createArrowAnnotation({
 					x1: p1.x,
@@ -197,7 +234,7 @@ export function useArrowEngine(image: ImageMetrics): UseArrowEngineResult {
 		if (interaction?.kind !== "drawing") return null;
 		const img = imageRef.current;
 		const p1 = clampPointInImage(interaction.startImg, img);
-		const p2 = clampPointInImage(interaction.currentImg, img);
+		const p2 = clampPointInImage(resolveDrawCurrent(interaction, img), img);
 		if (p1.x === p2.x && p1.y === p2.y) return null;
 		return { x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y };
 	}, [interaction]);
