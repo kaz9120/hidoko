@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { SnapcropProvider } from "~/contexts/snapcrop-context";
 import type { UseArrowEngineResult } from "~/hooks/use-arrow-engine";
 import type { ArrowAnnotation } from "~/lib/arrow-engine";
+import { PRESET_COLORS } from "~/lib/rect-engine";
 
 import { ArrowInteractionLayer } from "./arrow-interaction-layer";
 
@@ -66,7 +67,7 @@ const mkArrow = (overrides: Partial<ArrowAnnotation>): ArrowAnnotation => ({
 	line: "straight",
 	startCap: "none",
 	endCap: "arrow",
-	color: "#ef4444",
+	color: PRESET_COLORS[0],
 	thickness: "md",
 	createdAt: 0,
 	...overrides,
@@ -105,7 +106,7 @@ export const WithArrows: Story = {
 				x2: 420,
 				y2: 80,
 				line: "curve",
-				color: "#22c55e",
+				color: PRESET_COLORS[3],
 			}),
 		],
 		zoom: 1,

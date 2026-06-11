@@ -6,6 +6,7 @@
  */
 
 import type { ImageMetrics } from "~/lib/crop-engine";
+import { PRESET_COLORS } from "~/lib/rect-engine";
 
 export type { ImageMetrics };
 
@@ -79,7 +80,7 @@ export const DEFAULT_ARROW_DEFAULTS: ArrowDefaults = {
 	line: "straight",
 	startCap: "none",
 	endCap: "arrow",
-	color: "#ef4444",
+	color: PRESET_COLORS[0],
 	thickness: "md",
 };
 
