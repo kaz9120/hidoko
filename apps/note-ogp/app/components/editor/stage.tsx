@@ -23,7 +23,7 @@ export function Stage({
 		<section className="note-ogp-stage-bg flex h-full flex-col border-r border-border">
 			<div className="flex flex-shrink-0 items-center justify-between border-b border-border px-6 py-3.5 font-mono text-[12px] uppercase tracking-[0.22em] text-muted-foreground">
 				<span className="flex items-center gap-2">
-					<span className="inline-block size-1.5 rounded-full bg-primary shadow-[0_0_12px_rgba(244,125,58,0.5)]" />
+					<span className="inline-block size-1.5 rounded-full bg-primary shadow-[0_0_12px_color-mix(in_oklab,var(--ember-400)_50%,transparent)]" />
 					note OGP　1280 × 670
 				</span>
 				<strong className="font-medium text-foreground">
@@ -44,7 +44,7 @@ export function Stage({
 								height: 670,
 								transform: `scale(${scale})`,
 								boxShadow:
-									"0 24px 80px rgba(0,0,0,0.6), 0 2px 0 rgba(0,0,0,0.4), 0 0 0 1px var(--border)",
+									"0 24px 80px color-mix(in oklab, var(--ink-0) 60%, transparent), 0 2px 0 color-mix(in oklab, var(--ink-0) 40%, transparent), 0 0 0 1px var(--border)",
 							}}
 						>
 							<Comp f={fields} />
