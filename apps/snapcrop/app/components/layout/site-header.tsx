@@ -14,6 +14,7 @@ import logoCreamUrl from "ui/assets/logo/mark-cream.svg?url";
 import logoDarkUrl from "ui/assets/logo/mark-dark.svg?url";
 import { HelpDialog } from "~/components/help-dialog";
 import { ShareButton } from "~/components/layout/share-button";
+import { ZoomControl } from "~/components/layout/zoom-control";
 import { SettingsDialog } from "~/components/settings-dialog";
 import { ThemeToggle } from "~/components/theme-toggle";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
@@ -137,6 +138,10 @@ export function SiteHeader() {
 				ref={fileInputRef}
 				type="file"
 			/>
+
+			<Divider />
+
+			<ZoomControl />
 
 			<div className="ml-auto flex items-center gap-1">
 				<TooltipIconButton
