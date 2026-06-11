@@ -1,6 +1,9 @@
-import { DownloadIcon, FlameIcon } from "lucide-react";
-import { useId } from "react";
+import { DownloadIcon } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useEffect, useId, useState } from "react";
 import { Button, ToggleGroup, ToggleGroupItem } from "ui";
+import logoCreamUrl from "ui/assets/logo/mark-cream.svg?url";
+import logoDarkUrl from "ui/assets/logo/mark-dark.svg?url";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -45,6 +48,18 @@ export function ControlPanel({
 	onDownload: () => void;
 	busy: boolean;
 }) {
+	const { resolvedTheme } = useTheme();
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
+
+	// hydration 前は dark 想定で描画してチラつきを抑える。tokens.css は
+	// dark が初期状態 (`:root` がダーク基準) なので整合する。
+	const logoUrl =
+		mounted && resolvedTheme === "light" ? logoCreamUrl : logoDarkUrl;
+
 	const titleId = useId();
 	const leadId = useId();
 	const categoryId = useId();
@@ -60,11 +75,7 @@ export function ControlPanel({
 		<aside className="flex h-full flex-col overflow-hidden bg-card">
 			<header className="flex-shrink-0 border-b border-border px-6 pt-5 pb-3.5">
 				<div className="mb-1 flex items-center gap-2.5">
-					<FlameIcon
-						className="size-5 text-primary"
-						strokeWidth={1.75}
-						aria-hidden
-					/>
+					<img alt="" aria-hidden="true" className="size-5" src={logoUrl} />
 					<span className="font-mono text-[12px] uppercase tracking-[0.22em] text-primary">
 						HIDOKO ／ note OGP
 					</span>
