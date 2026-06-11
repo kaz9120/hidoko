@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
+import { SiteFooter } from "~/components/layout/site-footer";
 import { useNoteOgpState } from "~/hooks/use-note-ogp-state";
 import { buildFileName, downloadPng } from "~/lib/download-png";
 import { TEMPLATES } from "~/lib/og-templates";
@@ -29,16 +30,19 @@ export function NoteOgpEditor() {
 	}, [busy, state.title, state.issue]);
 
 	return (
-		<div className="grid h-screen grid-cols-[1fr_420px] bg-background">
-			<Stage tpl={tpl} fields={state} frameRef={frameRef} />
-			<ControlPanel
-				state={state}
-				update={update}
-				reset={reset}
-				tpl={tpl}
-				onDownload={handleDownload}
-				busy={busy}
-			/>
+		<div className="flex h-screen flex-col bg-background">
+			<div className="grid min-h-0 flex-1 grid-cols-[1fr_420px]">
+				<Stage tpl={tpl} fields={state} frameRef={frameRef} />
+				<ControlPanel
+					state={state}
+					update={update}
+					reset={reset}
+					tpl={tpl}
+					onDownload={handleDownload}
+					busy={busy}
+				/>
+			</div>
+			<SiteFooter />
 		</div>
 	);
 }
