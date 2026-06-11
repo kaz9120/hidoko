@@ -9,6 +9,7 @@ import {
 	DEFAULT_HIGHLIGHT_DEFAULTS,
 	HIGHLIGHT_MAX_OPACITY,
 	HIGHLIGHT_MIN_OPACITY,
+	HIGHLIGHT_PRESET_COLORS,
 	type HighlightDefaults,
 	type HighlightThickness,
 } from "~/lib/highlight-engine";
@@ -20,7 +21,9 @@ const THICKNESSES: ReadonlySet<HighlightThickness> = new Set([
 	"md",
 	"lg",
 ]);
-const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
+// マーカーは固定パレット仕様 (矩形のカスタム色とは違う)。プリセット外の値を
+// 復元すると swatch の選択表示と実際の描画色がズレるので、包含チェックで弾く。
+const HIGHLIGHT_COLORS: ReadonlySet<string> = new Set(HIGHLIGHT_PRESET_COLORS);
 
 export function loadHighlightDefaults(): HighlightDefaults {
 	if (typeof window === "undefined") return DEFAULT_HIGHLIGHT_DEFAULTS;
@@ -35,7 +38,7 @@ export function loadHighlightDefaults(): HighlightDefaults {
 		const color = obj.color;
 		const opacity = obj.opacity;
 		const thickness = obj.thickness;
-		if (typeof color !== "string" || !HEX_COLOR.test(color)) {
+		if (typeof color !== "string" || !HIGHLIGHT_COLORS.has(color)) {
 			return DEFAULT_HIGHLIGHT_DEFAULTS;
 		}
 		if (
