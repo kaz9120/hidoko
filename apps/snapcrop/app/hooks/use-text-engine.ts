@@ -44,7 +44,12 @@ export type UseTextEngineResult = {
 	isInteracting: boolean;
 	/** インライン編集中の状態。null なら編集していない */
 	editing: TextEditingState | null;
-	beginMove: (id: string, startImg: ImagePoint) => void;
+	/**
+	 * 移動を開始する。id でなく annotation そのものを受け取る — commit 直後の
+	 * テキストは context 反映前で id 検索できないため、interaction layer が
+	 * hit test の結果をそのまま渡す。
+	 */
+	beginMove: (target: TextAnnotation, startImg: ImagePoint) => void;
 	updateInteraction: (currentImg: ImagePoint) => void;
 	endInteraction: () => void;
 	cancelInteraction: () => void;
@@ -54,9 +59,18 @@ export type UseTextEngineResult = {
 	beginEdit: (id: string) => void;
 	/**
 	 * 編集を確定する。新規で空文字なら何も作らず、既存で空文字なら削除する
-	 * (issue #50 の仕様)。
+	 * (issue #50 の仕様)。確定後の annotation を返す (作らない / 削除した
+	 * ときは null)。
 	 */
-	commitEdit: (value: string) => void;
+	commitEdit: (value: string) => TextAnnotation | null;
+	/**
+	 * 編集中なら textarea の現在値で即時 commit し、確定後の annotation を
+	 * 返す。interaction layer が pointerdown で「確定 → そのままドラッグ」を
+	 * 1 ジェスチャに繋ぐために使う (issue #80)。編集していなければ null。
+	 */
+	flushEdit: () => TextAnnotation | null;
+	/** TextEditorOverlay が flushEdit の実体を mount 中だけ登録する */
+	registerEditorFlush: (flush: (() => TextAnnotation | null) | null) => void;
 	/** 編集を破棄する (新規は捨て、既存は元のまま) */
 	cancelEdit: () => void;
 	/** context にぶら下げる用の安定ハンドル。useEffect で ref へ差し込む */
@@ -107,18 +121,16 @@ export function useTextEngine(image: ImageMetrics): UseTextEngineResult {
 	}, [activeTool]);
 
 	const beginMove = useCallback(
-		(id: string, startImg: ImagePoint) => {
-			const target = texts.find((t) => t.id === id);
-			if (!target) return;
+		(target: TextAnnotation, startImg: ImagePoint) => {
 			setInteraction({
 				kind: "moving",
-				id,
+				id: target.id,
 				startImg,
 				startText: target,
 				currentImg: startImg,
 			});
 		},
-		[texts],
+		[],
 	);
 
 	const updateInteraction = useCallback((currentImg: ImagePoint) => {
@@ -155,33 +167,48 @@ export function useTextEngine(image: ImageMetrics): UseTextEngineResult {
 	}, []);
 
 	const commitEdit = useCallback(
-		(value: string) => {
+		(value: string): TextAnnotation | null => {
 			const ed = editingRef.current;
-			if (!ed) return;
+			if (!ed) return null;
 			editingRef.current = null;
 			setEditing(null);
 			const isEmpty = value.trim() === "";
 			if (ed.id === null) {
 				// 空文字で確定したら注釈を作らない (issue #50)
-				if (isEmpty) return;
-				createText(
-					createTextAnnotation({
-						x: ed.x,
-						y: ed.y,
-						text: value,
-						defaults: textDefaultsRef.current,
-					}),
-				);
-				return;
+				if (isEmpty) return null;
+				const created = createTextAnnotation({
+					x: ed.x,
+					y: ed.y,
+					text: value,
+					defaults: textDefaultsRef.current,
+				});
+				createText(created);
+				return created;
 			}
 			if (isEmpty) {
 				deleteText(ed.id);
-				return;
+				return null;
 			}
 			updateText(ed.id, { text: value });
+			const target = textsRef.current.find((t) => t.id === ed.id);
+			return target ? { ...target, text: value } : null;
 		},
 		[createText, deleteText, updateText],
 	);
+
+	// TextEditorOverlay が登録する「現在の入力値で即時 commit する」関数。
+	// blur 経由の commit を待つと、編集中の pointerdown が確定に消費される
+	// だけで「確定 → そのままドラッグ」が繋がらない (issue #80)。
+	const editorFlushRef = useRef<(() => TextAnnotation | null) | null>(null);
+
+	const registerEditorFlush = useCallback(
+		(flush: (() => TextAnnotation | null) | null) => {
+			editorFlushRef.current = flush;
+		},
+		[],
+	);
+
+	const flushEdit = useCallback(() => editorFlushRef.current?.() ?? null, []);
 
 	const cancelEdit = useCallback(() => {
 		editingRef.current = null;
@@ -228,6 +255,8 @@ export function useTextEngine(image: ImageMetrics): UseTextEngineResult {
 		beginCreate,
 		beginEdit,
 		commitEdit,
+		flushEdit,
+		registerEditorFlush,
 		cancelEdit,
 		handle,
 	};

@@ -35,9 +35,10 @@ type Props = {
  * rect / arrow の先例どおり、座標変換は親 (image-stage) から `getImagePoint`
  * を受け取る。
  *
- * インライン編集中の pointerdown は何もしない — クリックによる textarea の
- * blur (= commit) に任せ、編集の確定と新規作成が 1 クリックで同時に起きない
- * ようにする。
+ * インライン編集中の pointerdown は、blur 任せにせず engine.flushEdit() で
+ * 先に編集を確定してから通常の hit test に流す。テキストの上なら確定と同じ
+ * ジェスチャで移動が始まり (issue #80)、空クリックなら確定だけで終わる
+ * (編集の確定と新規作成が 1 クリックで同時に起きないようにする)。
  */
 export function TextInteractionLayer({
 	engine,
@@ -50,13 +51,20 @@ export function TextInteractionLayer({
 
 	const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
 		if (e.button !== 0) return;
-		// 編集中のクリックは textarea の blur → commit に流す (上記コメント参照)
-		if (engine.editing) return;
 		const pt = getImagePoint(e.clientX, e.clientY);
 		if (!pt) return;
+		// 編集中のクリックはここで即時 commit し、同じジェスチャを下の hit test
+		// に流す (上記コメント参照)。textarea 自体へのクリックはこのレイヤーに
+		// 届かない (caret 移動のまま) ので、ここに来るのは「外側」だけ。
+		const wasEditing = engine.editing !== null;
+		const committed = wasEditing ? engine.flushEdit() : null;
 		e.preventDefault();
+		// commit 直後のテキストは context 反映前なので、hit 対象を差し替える
+		const hitTargets = committed
+			? [...texts.filter((t) => t.id !== committed.id), committed]
+			: texts;
 		// 画面上で約 4px を画像座標に換算した許容距離 (小さい文字でも掴める)
-		const hit = hitTestText(texts, pt.x, pt.y, 4 / zoom);
+		const hit = hitTestText(hitTargets, pt.x, pt.y, 4 / zoom);
 		if (hit) {
 			// ダブルクリック (連打 2 回目) は移動ではなく再編集を開始する
 			if (e.detail >= 2) {
@@ -67,7 +75,13 @@ export function TextInteractionLayer({
 			dragRef.current = { kind: "move", pointerId: e.pointerId };
 			e.currentTarget.setPointerCapture(e.pointerId);
 			selectAnnotation(hit.id);
-			engine.beginMove(hit.id, pt);
+			engine.beginMove(hit, pt);
+			return;
+		}
+		// 確定だけの空クリック: 新規作成は始めず、確定したテキストを選択して
+		// 終わる (確定と新規作成が 1 クリックで同時に起きないようにする)
+		if (wasEditing) {
+			selectAnnotation(committed?.id ?? null);
 			return;
 		}
 		// 空クリック: 選択解除 + 入力開始候補 (ただし Space 押下中は開始しない)

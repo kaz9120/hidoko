@@ -308,6 +308,7 @@ export function ImageStage({
 					key={textEngine.editing.id ?? "new"}
 					onCancel={textEngine.cancelEdit}
 					onCommit={textEngine.commitEdit}
+					registerFlush={textEngine.registerEditorFlush}
 					texts={texts}
 					zoom={zoom}
 				/>

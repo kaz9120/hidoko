@@ -30,8 +30,9 @@ const meta = {
 		),
 	],
 	args: {
-		onCommit: () => {},
+		onCommit: () => null,
 		onCancel: () => {},
+		registerFlush: () => {},
 	},
 } satisfies Meta<typeof TextEditorOverlay>;
 
