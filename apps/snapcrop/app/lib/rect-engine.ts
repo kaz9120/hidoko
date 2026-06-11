@@ -213,6 +213,49 @@ export function createRectAnnotation(args: {
 	};
 }
 
+/** 複製時に元矩形からずらす距離 (画像 px)。 */
+export const DUPLICATE_OFFSET_PX = 16;
+
+/**
+ * annotation を複製して新しい id / createdAt を持つコピーを返す。位置は
+ * 右下へ DUPLICATE_OFFSET_PX ずらし、画像境界に当たって元と同位置に
+ * clamp されてしまう場合は左上方向へフォールバックする (重なって
+ * 複製に気づけない事態を避ける)。
+ */
+export function duplicateRectAnnotation(
+	source: RectAnnotation,
+	img: ImageMetrics,
+): RectAnnotation {
+	const size = { width: source.width, height: source.height };
+	let placed = clampRectInImage(
+		{
+			x: source.x + DUPLICATE_OFFSET_PX,
+			y: source.y + DUPLICATE_OFFSET_PX,
+			...size,
+		},
+		img,
+	);
+	if (placed.x === source.x && placed.y === source.y) {
+		placed = clampRectInImage(
+			{
+				x: source.x - DUPLICATE_OFFSET_PX,
+				y: source.y - DUPLICATE_OFFSET_PX,
+				...size,
+			},
+			img,
+		);
+	}
+	return {
+		...source,
+		id: newId(),
+		x: placed.x,
+		y: placed.y,
+		width: placed.width,
+		height: placed.height,
+		createdAt: Date.now(),
+	};
+}
+
 /** createdAt 降順走査 (新しい = 上) で先頭一致の annotation を返す。 */
 export function hitTest(
 	annotations: readonly RectAnnotation[],
