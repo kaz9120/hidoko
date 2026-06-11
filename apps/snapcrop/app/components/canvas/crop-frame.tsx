@@ -45,8 +45,9 @@ export type CropFrameProps = {
 
 /**
  * クロップ枠 UI。8 ハンドル + 内側ドラッグで rect を編集し、外側を 4 分割 div
- * で dim する。サイズ表示は header / status-bar に出ているのでここには置かない
- * (枠下に置くと画像端の rect で stage がはみ出してスクロールがチラつくため)。
+ * で dim する。サイズ表示は DimensionHud (兄弟レイヤー) が担当する。HUD は
+ * stage 境界内に clamp して配置するので、画像端の rect でも stage がはみ出して
+ * スクロールがチラつくことはない。
  *
  * 画像座標 → stage 座標は `× zoom`、pointer delta (CSS px) は `/ zoom` で
  * 画像座標に戻して engine に渡す。

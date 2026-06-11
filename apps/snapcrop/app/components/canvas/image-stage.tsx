@@ -1,6 +1,7 @@
 import { type RefObject, useCallback, useEffect, useMemo } from "react";
 import { AnnotationLayer } from "~/components/canvas/annotation-layer";
 import { CropFrame } from "~/components/canvas/crop-frame";
+import { DimensionHud } from "~/components/canvas/dimension-hud";
 import { MosaicLayer } from "~/components/canvas/mosaic-layer";
 import { RectInteractionLayer } from "~/components/canvas/rect-interaction-layer";
 import { RectMiniActions } from "~/components/canvas/rect-mini-actions";
@@ -34,6 +35,7 @@ export type ImageStageProps = {
  *   6. <RectMiniActions>              選択矩形近傍の複製 / 削除バー (interaction 中は非表示)
  *   7. <RectPreviewOverlay>           drawing 中の破線プレビュー
  *   8. <CropFrame>                    activeTool==='crop' のとき
+ *   9. <DimensionHud>                 クロップ枠に追従する W × H 表示
  */
 export function ImageStage({
 	image,
@@ -159,6 +161,14 @@ export function ImageStage({
 				/>
 			)}
 			{activeTool === "crop" && <CropFrame engine={cropEngine} zoom={zoom} />}
+			{activeTool === "crop" && cropEngine.cropRect && (
+				<DimensionHud
+					imageHeight={image.height}
+					imageWidth={image.width}
+					rect={cropEngine.cropRect}
+					zoom={zoom}
+				/>
+			)}
 		</>
 	);
 }

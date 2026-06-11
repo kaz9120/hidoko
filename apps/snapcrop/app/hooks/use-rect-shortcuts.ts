@@ -17,7 +17,7 @@ import {
  *   ↑↓←→             → 選択中の矩形を 1px nudge (250ms バッチで 1 履歴)
  *   Shift + ↑↓←→     → 10px nudge
  *   Alt   + ↑↓←→     → 右辺 / 下辺リサイズ (←: w-1, →: w+1, ↑: h-1, ↓: h+1)
- *   Space (押下中)    → ドラッグでパンする想定 (別チケット) のため、押下中は
+ *   Space (押下中)    → 左ドラッグで pan (実装は viewport.tsx)。押下中は
  *                       矩形描画を抑制する
  *
  * 入力欄 (input / textarea / contenteditable) と IME 入力中は全キー無効化。
@@ -64,7 +64,7 @@ export function useRectShortcuts() {
 		const onDown = (event: KeyboardEvent) => {
 			if (event.code !== "Space") return;
 			if (isInputTarget(event.target)) return;
-			// ページスクロールを止める (将来 Space+drag pan の前提)
+			// ページスクロールを止める (Space+drag pan の前提)
 			event.preventDefault();
 			spaceRef.current = true;
 		};
