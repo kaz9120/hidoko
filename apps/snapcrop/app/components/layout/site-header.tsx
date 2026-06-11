@@ -13,6 +13,7 @@ import { Button, Tooltip, TooltipContent, TooltipTrigger } from "ui";
 import logoCreamUrl from "ui/assets/logo/mark-cream.svg?url";
 import logoDarkUrl from "ui/assets/logo/mark-dark.svg?url";
 import { ShareButton } from "~/components/layout/share-button";
+import { ZoomControl } from "~/components/layout/zoom-control";
 import { ThemeToggle } from "~/components/theme-toggle";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 import { readImageFromClipboard } from "~/lib/clipboard";
@@ -135,6 +136,10 @@ export function SiteHeader() {
 				ref={fileInputRef}
 				type="file"
 			/>
+
+			<Divider />
+
+			<ZoomControl />
 
 			<div className="ml-auto flex items-center gap-1">
 				<TooltipIconButton

@@ -12,6 +12,7 @@ import { HighlightPreviewOverlay } from "~/components/canvas/highlight-preview-o
 import { HighlightSelectionOverlay } from "~/components/canvas/highlight-selection-overlay";
 import { MosaicLayer } from "~/components/canvas/mosaic-layer";
 import { RectInteractionLayer } from "~/components/canvas/rect-interaction-layer";
+import { RectMiniActions } from "~/components/canvas/rect-mini-actions";
 import { RectPreviewOverlay } from "~/components/canvas/rect-preview-overlay";
 import { RectSelectionOverlay } from "~/components/canvas/rect-selection-overlay";
 import { type LoadedImage, useSnapcrop } from "~/contexts/snapcrop-context";
@@ -19,6 +20,7 @@ import { useArrowEngine } from "~/hooks/use-arrow-engine";
 import type { UseCropEngineResult } from "~/hooks/use-crop-engine";
 import { useHighlightEngine } from "~/hooks/use-highlight-engine";
 import { useRectEngine } from "~/hooks/use-rect-engine";
+import { duplicateRectAnnotation } from "~/lib/rect-engine";
 
 export type ImageStageProps = {
 	image: LoadedImage;
@@ -40,13 +42,14 @@ export type ImageStageProps = {
  *                                     (SelectionOverlay の下に置くことで handle
  *                                     クリックを奪わない)
  *   5. <RectSelectionOverlay>         1px ring + 8 handle (handle のみ events:auto)
- *   6. <RectPreviewOverlay>           drawing 中の破線プレビュー
- *   7. <CropFrame>                    activeTool==='crop' のとき
- *   8. <DimensionHud>                 クロップ枠に追従する W × H 表示
+ *   6. <RectMiniActions>              選択矩形近傍の複製 / 削除バー (interaction 中は非表示)
+ *   7. <RectPreviewOverlay>           drawing 中の破線プレビュー
+ *   8. <CropFrame>                    activeTool==='crop' のとき
+ *   9. <DimensionHud>                 クロップ枠に追従する W × H 表示
  *
  * 矢印ツールのレイヤーも同じ構造で重ねる: <ArrowLayer> は 3 の直上 (矢印は
  * 常に矩形より前)、<ArrowInteractionLayer> / <ArrowSelectionOverlay> /
- * <ArrowPreviewOverlay> は 6 と 7 の間 (activeTool==='arrow' のときだけ)。
+ * <ArrowPreviewOverlay> は 7 と 8 の間 (activeTool==='arrow' のときだけ)。
  *
  * マーカーツールのレイヤーも同様: <HighlightLayer> は <ArrowLayer> の直上
  * (kind ごとのレイヤー z-order で最前。multiply 合成なので下の矩形・矢印は
@@ -71,6 +74,8 @@ export function ImageStage({
 		highlights,
 		highlightDefaults,
 		highlightEngineHandleRef,
+		createAnnotation,
+		deleteAnnotation,
 	} = useSnapcrop();
 
 	const imageMetrics = useMemo(
@@ -195,6 +200,21 @@ export function ImageStage({
 					annotation={selectedRendered}
 					engine={rectEngine}
 					getImagePoint={getImagePoint}
+					zoom={zoom}
+				/>
+			)}
+			{/* ドラッグ・リサイズ中は操作の邪魔になるので隠す */}
+			{selectedRendered && !rectEngine.isInteracting && (
+				<RectMiniActions
+					annotation={selectedRendered}
+					imageHeight={image.height}
+					imageWidth={image.width}
+					onDelete={() => deleteAnnotation(selectedRendered.id)}
+					onDuplicate={() =>
+						createAnnotation(
+							duplicateRectAnnotation(selectedRendered, imageMetrics),
+						)
+					}
 					zoom={zoom}
 				/>
 			)}

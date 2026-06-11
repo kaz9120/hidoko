@@ -1,0 +1,40 @@
+import type { Meta, StoryObj } from "@storybook/react-vite";
+import { MemoryRouter } from "react-router";
+
+import { SiteFooter } from "./site-footer";
+
+/**
+ * 画面最下端 22px の静的フッター。ステータスバー (上段・動的なアプリ状態)
+ * と段を分け、バージョン・法務リンク・サイト帰属だけを置く。背景を
+ * `--bg-sunken` で一段沈め、上段との役割の違いを視覚的に区切る。
+ *
+ * `/privacy` `/terms` への `<Link>` を含むので、story では MemoryRouter で
+ * wrap する。
+ *
+ * @summary 画面最下端の静的フッター
+ */
+const meta = {
+	title: "snapcrop/Layout/SiteFooter",
+	component: SiteFooter,
+	parameters: {
+		layout: "fullscreen",
+	},
+	decorators: [
+		(Story) => (
+			<MemoryRouter>
+				<Story />
+			</MemoryRouter>
+		),
+	],
+} satisfies Meta<typeof SiteFooter>;
+
+export default meta;
+
+type Story = StoryObj<typeof meta>;
+
+/**
+ * 静的フッターなので状態の variant はない。バージョン・プライバシー
+ * ポリシー・利用規約・帰属リンクが 1 行に収まることを確認する。
+ * @summary 既定の表示
+ */
+export const Default: Story = {};

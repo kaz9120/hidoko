@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipTrigger } from "ui";
 import { ImageStage } from "~/components/canvas/image-stage";
-import { Viewport, type ViewportHandle } from "~/components/canvas/viewport";
+import { Viewport } from "~/components/canvas/viewport";
 import { EmptyHero } from "~/components/layout/empty-hero";
 import { ToolRail } from "~/components/layout/tool-rail";
 import { type LoadedImage, useSnapcrop } from "~/contexts/snapcrop-context";
@@ -65,10 +65,10 @@ function ImageCanvas({
 	image: LoadedImage;
 	isDragging: boolean;
 }) {
-	const { cropperRef, setCropData } = useSnapcrop();
-	const viewportRef = useRef<ViewportHandle>(null);
+	// zoom / viewportRef は context 持ち。ヘッダーの ZoomControl が % 表示と
+	// fit / 拡縮の操作で参照するため、ここで Viewport と結線する。
+	const { cropperRef, setCropData, zoom, setZoom, viewportRef } = useSnapcrop();
 	const imgRef = useRef<HTMLImageElement | null>(null);
-	const [zoom, setZoom] = useState(1);
 
 	const imageMetrics = useMemo(
 		() => ({ naturalWidth: image.width, naturalHeight: image.height }),
