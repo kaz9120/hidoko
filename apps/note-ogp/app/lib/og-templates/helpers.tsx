@@ -281,9 +281,13 @@ export function AutoFitTitle({
 	}, [lines, width, maxH, max, min, step, vertical]);
 	// 縦書きでは width（ブロック方向）を固定せず、高さだけを枠にする。
 	// ブロックサイズは content 由来になるので scrollWidth が段の実寸を返す。
+	// maxWidth + overflow で、min まで縮めても収まらない極端な長文が
+	// width の予算を超えて隣の要素に被らないよう上限を保証する。
 	const frame: CSSProperties = vertical
 		? {
 				height: maxH,
+				maxWidth: width,
+				overflow: "hidden",
 				writingMode: "vertical-rl",
 				textOrientation: "mixed",
 				...(fit.wrap ? { whiteSpace: "pre-wrap", wordBreak: "normal" } : null),
