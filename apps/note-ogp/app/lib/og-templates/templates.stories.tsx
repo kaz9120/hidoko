@@ -7,6 +7,7 @@ import type {
 	PaletteId,
 	TextureId,
 	ThemeMode,
+	TitleDecoration,
 } from "./types";
 
 const DEFAULT_FIELDS: Fields = {
@@ -28,6 +29,7 @@ const DEFAULT_FIELDS: Fields = {
 	texture: "none",
 	paperStrength: "weak",
 	photoPalettes: null,
+	titleDecoration: "none",
 };
 
 const FRAME_STYLE: React.CSSProperties = {
@@ -80,6 +82,15 @@ const meta: Meta = {
 		paperStrength: {
 			control: { type: "inline-radio" },
 			options: ["weak", "medium"],
+		},
+		titleDecoration: {
+			control: { type: "inline-radio" },
+			options: [
+				"none",
+				"merihari",
+				"zurashi",
+				"hanzure",
+			] satisfies TitleDecoration[],
 		},
 		title: { control: "text" },
 		lead: { control: "text" },
@@ -201,6 +212,47 @@ export const QuietPaperDark: Story = {
 		theme: "dark",
 		texture: "paper",
 		paperStrength: "medium",
+	},
+	render: (args) => (
+		<div style={FRAME_STYLE}>
+			<TplQuiet f={withDefaults(args)} />
+		</div>
+	),
+};
+
+/** タイトル装飾 4 種（なし / メリハリ / 行ずらし / 版ずれ）の見比べ。 */
+export const TitleDecorationGallery: Story = {
+	args: { title: "夜更けに\nコードを書く理由" },
+	render: (args) => (
+		<div
+			style={{
+				display: "grid",
+				gridTemplateColumns: "repeat(2, 1280px)",
+				gap: "16px 16px",
+				transform: "scale(0.25)",
+				transformOrigin: "top left",
+				marginBottom: -(670 * 2 + 16) * 0.75,
+				marginRight: -(1280 * 2 + 16) * 0.75,
+			}}
+		>
+			{(
+				["none", "merihari", "zurashi", "hanzure"] satisfies TitleDecoration[]
+			).map((titleDecoration) => (
+				<div key={titleDecoration} style={{ width: 1280, height: 670 }}>
+					<TplEdition f={withDefaults({ ...args, titleDecoration })} />
+				</div>
+			))}
+		</div>
+	),
+};
+
+/** 中央揃え（Quiet）× 版ずれ。フチが文字に正しく重なるかを見る。 */
+export const QuietHanzureDark: Story = {
+	args: {
+		templateId: "quiet",
+		theme: "dark",
+		titleDecoration: "hanzure",
+		title: "夜更けに\nコードを書く理由",
 	},
 	render: (args) => (
 		<div style={FRAME_STYLE}>
