@@ -5,13 +5,13 @@ const X_PROFILE_URL = "https://x.com/kyamamoto9120";
 const PERSONAL_SITE_URL = "https://y-kaz.com/";
 
 /**
- * 画面最下端 22px の静的フッター。バージョン・法務リンク・サイト帰属だけを
- * 置く。背景を `--bg-sunken` で一段沈め、エディタ本体との段差を視覚的に
- * 区切る。
+ * 画面最下端の静的フッター。バージョン・法務リンク・サイト帰属だけを置く。
+ * 背景を `--bg-sunken` で一段沈め、エディタ本体との段差を視覚的に区切る。
+ * 通常は 1 行 22px で、横幅が足りない小画面では折り返して複数行になる。
  */
 export function SiteFooter() {
 	return (
-		<footer className="flex h-[22px] shrink-0 items-center gap-3 border-border border-t bg-[var(--bg-sunken)] px-3 font-mono text-[10px] text-muted-foreground">
+		<footer className="flex min-h-[22px] shrink-0 flex-wrap items-center gap-x-3 gap-y-0.5 border-border border-t bg-[var(--bg-sunken)] px-3 py-0.5 font-mono text-[10px] text-muted-foreground">
 			<span>v{packageJson.version}</span>
 			<Sep />
 			<FooterLink to="/privacy">プライバシーポリシー</FooterLink>
