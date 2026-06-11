@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import packageJson from "../../../package.json";
 
 const X_PROFILE_URL = "https://x.com/kyamamoto9120";
-const PERSONAL_SITE_URL = "https://kyamamoto.dev";
+const PERSONAL_SITE_URL = "https://y-kaz.com/";
 
 /**
  * 画面最下端 22px の静的フッター。動的なアプリ状態を出すステータスバー
@@ -20,7 +20,7 @@ export function SiteFooter() {
 			<span className="ml-auto" />
 			<FooterLink href={X_PROFILE_URL}>powered by @kyamamoto9120</FooterLink>
 			<Sep />
-			<FooterLink href={PERSONAL_SITE_URL}>kyamamoto.dev ↗</FooterLink>
+			<FooterLink href={PERSONAL_SITE_URL}>y-kaz.com ↗</FooterLink>
 		</footer>
 	);
 }
