@@ -283,10 +283,30 @@ export function getArrowRenderModel(a: ArrowAnnotation): ArrowRenderModel {
 	const control = arrowControlPoint(a);
 	const from = { x: a.x1, y: a.y1 };
 	const to = { x: a.x2, y: a.y2 };
+	const outStart = outwardUnit(to, control, from);
+	const outEnd = outwardUnit(from, control, to);
 	const caps: ArrowCapShape[] = [];
-	pushCap(caps, a.startCap, from, outwardUnit(to, control, from), a.thickness);
-	pushCap(caps, a.endCap, to, outwardUnit(from, control, to), a.thickness);
-	return { from, to, control, strokeWidth: ARROW_STROKE_PX[a.thickness], caps };
+	pushCap(caps, a.startCap, from, outStart, a.thickness);
+	pushCap(caps, a.endCap, to, outEnd, a.thickness);
+	// 矢尻が付く端は、線を頭の中まで引っ込めて頂点から round cap が突き出ない
+	// ようにする。引っ込め量は頭長の 8 割 (短い矢印では全長の 4 割で打ち止め)。
+	const span = Math.hypot(a.x2 - a.x1, a.y2 - a.y1);
+	const inset = Math.min(ARROW_HEAD_LEN_PX[a.thickness] * 0.8, span * 0.4);
+	const lineFrom =
+		a.startCap === "arrow"
+			? { x: from.x - outStart.x * inset, y: from.y - outStart.y * inset }
+			: from;
+	const lineTo =
+		a.endCap === "arrow"
+			? { x: to.x - outEnd.x * inset, y: to.y - outEnd.y * inset }
+			: to;
+	return {
+		from: lineFrom,
+		to: lineTo,
+		control,
+		strokeWidth: ARROW_STROKE_PX[a.thickness],
+		caps,
+	};
 }
 
 /** 端点 tip での「線から外へ抜ける」単位ベクトル。曲線は制御点を接線の基準にする。 */
