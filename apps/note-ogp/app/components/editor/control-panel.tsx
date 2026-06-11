@@ -26,6 +26,7 @@ import type {
 import { TEMPLATES } from "~/lib/og-templates";
 import { ThemeToggle } from "../theme-toggle";
 import { ImageField } from "./image-field";
+import { PalettePicker } from "./palette-picker";
 import { SectionTitle } from "./section-title";
 import { TemplateThumb } from "./template-thumb";
 
@@ -113,6 +114,18 @@ export function ControlPanel({
 							ライト
 						</ToggleGroupItem>
 					</ToggleGroup>
+				</Field>
+
+				<Field className="mb-3.5">
+					<FieldLabel className="font-mono text-[10px] uppercase tracking-[0.22em]">
+						カラーパレット
+					</FieldLabel>
+					<PalettePicker
+						value={state.palette}
+						theme={state.theme}
+						onChange={(palette) => update({ palette })}
+					/>
+					<FieldDescription>ベース・文字・差し色の3色セット</FieldDescription>
 				</Field>
 
 				<Field className="mb-3.5">

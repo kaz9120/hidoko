@@ -7,6 +7,7 @@ import {
 } from "react";
 import markCreamUrl from "ui/assets/logo/mark-cream.svg?url";
 import markDarkUrl from "ui/assets/logo/mark-dark.svg?url";
+import { mixHex, type OgRoles, ogThemeFor } from "./palettes";
 import type { Fields, FontMode, ThemeMode } from "./types";
 
 // ─────────────────────────────────────────────────────────
@@ -59,40 +60,19 @@ export const UI_JP = "'LINE Seed JP', system-ui, sans-serif";
 export const UI_LATIN = "'Archivo', sans-serif";
 
 // ─────────────────────────────────────────────────────────
-// テーマ（OGP 画像内の塗り。CSS 変数は使わない — html-to-image での解決失敗を避ける）
+// テーマ（OGP 画像内の塗り）
+//   3 ロール（base / sub / accent）からの導出は palettes.ts に集約した。
+//   CSS 変数は使わない — html-to-image での解決失敗を避ける。
 // ─────────────────────────────────────────────────────────
-export type OgTheme = {
-	bg: string;
-	text: string;
-	muted: string;
-	faint: string;
-	rule: string;
-	ruleStrong: string;
-	accent: string;
-};
-
-export function theme(mode: ThemeMode): OgTheme {
-	if (mode === "light") {
-		return {
-			bg: "#f7f2e8",
-			text: "#1b1610",
-			muted: "#6c6253",
-			faint: "#a0937f",
-			rule: "#ddd3bf",
-			ruleStrong: "#c9bca2",
-			accent: "#bd4718",
-		};
-	}
-	return {
-		bg: "#13100c",
-		text: "#f3ede1",
-		muted: "#9c9285",
-		faint: "#6b6256",
-		rule: "#2e2820",
-		ruleStrong: "#473f33",
-		accent: "#f47d3a",
-	};
-}
+export type { OgPalette, OgRoles, OgTheme } from "./palettes";
+export {
+	DEFAULT_PALETTE_ID,
+	ogThemeFor,
+	PALETTES,
+	paletteById,
+	resolveOgTheme,
+	rgbaFromHex,
+} from "./palettes";
 
 // ─────────────────────────────────────────────────────────
 // ロゴ URL の選び方（snapcrop と同じ「背景色と同じ外縁色」規則）
@@ -209,20 +189,21 @@ export function Brand({
 }
 
 export function PhotoPlaceholder({
-	dark,
+	roles,
 	label = "写真を追加",
 }: {
-	dark: boolean;
+	/** プレースホルダの面に使うロール（パレットのライト面 or ダーク面） */
+	roles: OgRoles;
 	label?: string;
 }) {
+	const from = mixHex(roles.sub, roles.base, 0.06);
+	const to = mixHex(roles.sub, roles.base, 0.01);
 	return (
 		<div
 			style={{
 				position: "absolute",
 				inset: 0,
-				background: dark
-					? "linear-gradient(160deg, #221c15 0%, #14110d 70%)"
-					: "linear-gradient(160deg, #ece3d2 0%, #f3ece0 70%)",
+				background: `linear-gradient(160deg, ${from} 0%, ${to} 70%)`,
 				display: "flex",
 				alignItems: "center",
 				justifyContent: "center",
@@ -233,7 +214,7 @@ export function PhotoPlaceholder({
 					fontFamily: "'Newsreader', serif",
 					fontStyle: "italic",
 					fontSize: 22,
-					color: dark ? "#5a5145" : "#b3a791",
+					color: mixHex(roles.sub, roles.base, 0.32),
 				}}
 			>
 				{label}
@@ -298,5 +279,5 @@ export function AutoFitTitle({
 
 // テーマと書体を Fields から1度に取り出すためのショートカット
 export function styleFrom(f: Fields) {
-	return { t: theme(f.theme), ft: fonts(f.fontMode) };
+	return { t: ogThemeFor(f.palette, f.theme), ft: fonts(f.fontMode) };
 }

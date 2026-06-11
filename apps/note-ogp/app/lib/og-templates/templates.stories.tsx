@@ -1,10 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { PALETTES } from "./palettes";
 import { TplCover, TplEdition, TplQuiet } from "./templates";
-import type { Fields, FontMode, ThemeMode } from "./types";
+import type { Fields, FontMode, PaletteId, ThemeMode } from "./types";
 
 const DEFAULT_FIELDS: Fields = {
 	templateId: "edition",
 	theme: "light",
+	palette: "takibi",
 	fontMode: "serif",
 	coverText: "light",
 	title: "夜更けにコードを書く理由",
@@ -33,8 +35,7 @@ const FRAME_STYLE: React.CSSProperties = {
 
 /**
  * note OGP のテンプレ本体（1280×670 のキャンバス）。表示倍率は 50%。
- * テーマ × タイトル書体の 6 通り（dark/light × serif/gothic/hand）を切り替えて
- * 確認できる。
+ * テーマ × カラーパレット × タイトル書体を切り替えて確認できる。
  *
  * @summary 1280×670 の OGP テンプレ本体
  */
@@ -45,6 +46,7 @@ const meta: Meta = {
 	},
 	args: {
 		theme: "light",
+		palette: "takibi",
 		fontMode: "serif",
 		title: "夜更けにコードを書く理由",
 		lead: "焚き火と同じ温度で、コードに向き合う。",
@@ -53,6 +55,10 @@ const meta: Meta = {
 		theme: {
 			control: { type: "inline-radio" },
 			options: ["light", "dark"] satisfies ThemeMode[],
+		},
+		palette: {
+			control: { type: "select" },
+			options: PALETTES.map((p) => p.id) satisfies PaletteId[],
 		},
 		fontMode: {
 			control: { type: "inline-radio" },
@@ -140,6 +146,29 @@ export const EditionManualBreak: Story = {
 	render: (args) => (
 		<div style={FRAME_STYLE}>
 			<TplEdition f={withDefaults(args)} />
+		</div>
+	),
+};
+
+/** 8 パレットの一覧。theme arg でライト / ダークを切り替えて見比べる。 */
+export const PaletteGallery: Story = {
+	render: (args) => (
+		<div
+			style={{
+				display: "grid",
+				gridTemplateColumns: "repeat(2, 1280px)",
+				gap: "16px 16px",
+				transform: "scale(0.25)",
+				transformOrigin: "top left",
+				marginBottom: -(670 * 4 + 16 * 3) * 0.75,
+				marginRight: -(1280 * 2 + 16) * 0.75,
+			}}
+		>
+			{PALETTES.map((p) => (
+				<div key={p.id} style={{ width: 1280, height: 670 }}>
+					<TplEdition f={withDefaults({ ...args, palette: p.id })} />
+				</div>
+			))}
 		</div>
 	),
 };

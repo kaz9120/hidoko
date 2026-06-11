@@ -2,9 +2,11 @@ import type {
 	CoverText,
 	Fields,
 	FontMode,
+	PaletteId,
 	TemplateId,
 	ThemeMode,
 } from "./og-templates";
+import { DEFAULT_PALETTE_ID, PALETTES } from "./og-templates";
 
 const STORAGE_KEY = "hidoko-note-ogp:v1";
 
@@ -15,6 +17,7 @@ const MAX_IMAGE_BYTES = 1_500_000;
 export const DEFAULTS: Fields = {
 	templateId: "edition",
 	theme: "light",
+	palette: DEFAULT_PALETTE_ID,
 	fontMode: "serif",
 	coverText: "light",
 	title: "夜更けにコードを書く理由",
@@ -31,6 +34,7 @@ export const DEFAULTS: Fields = {
 
 const TEMPLATE_IDS = new Set<TemplateId>(["edition", "cover", "quiet"]);
 const THEMES = new Set<ThemeMode>(["light", "dark"]);
+const PALETTE_IDS = new Set<PaletteId>(PALETTES.map((p) => p.id));
 const FONT_MODES = new Set<FontMode>(["serif", "gothic", "hand"]);
 const COVER_TEXTS = new Set<CoverText>(["light", "dark"]);
 
@@ -71,6 +75,8 @@ export function loadState(): Fields {
 				DEFAULTS.templateId,
 			),
 			theme: pickEnum(parsed.theme, THEMES, DEFAULTS.theme),
+			// パレットキーを持たない既存データは焚き火（現行配色）にフォールバック
+			palette: pickEnum(parsed.palette, PALETTE_IDS, DEFAULTS.palette),
 			fontMode: pickEnum(parsed.fontMode, FONT_MODES, DEFAULTS.fontMode),
 			coverText: pickEnum(parsed.coverText, COVER_TEXTS, DEFAULTS.coverText),
 			title: pickString(parsed.title, DEFAULTS.title),
