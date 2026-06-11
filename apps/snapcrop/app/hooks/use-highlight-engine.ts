@@ -3,6 +3,8 @@ import {
 	type HighlightEngineHandle,
 	useSnapcrop,
 } from "~/contexts/snapcrop-context";
+import { useShiftConstrainKey } from "~/hooks/use-shift-constrain-key";
+import { constrainToAxis } from "~/lib/constrain";
 import {
 	clampPointInImage,
 	createHighlightAnnotation,
@@ -19,15 +21,22 @@ type ImagePoint = { x: number; y: number };
 /**
  * 進行中の操作。kind に応じて drawing / moving / endpoint (端点ドラッグ =
  * rect の resizing 相当) を表現する。use-arrow-engine.ts と同じ構造。
+ * constrain は Shift 押下中の拘束 (drawing = 水平 / 垂直への吸着)。
  */
 type Interaction =
-	| { kind: "drawing"; startImg: ImagePoint; currentImg: ImagePoint }
+	| {
+			kind: "drawing";
+			startImg: ImagePoint;
+			currentImg: ImagePoint;
+			constrain: boolean;
+	  }
 	| {
 			kind: "moving";
 			id: string;
 			startImg: ImagePoint;
 			startHighlight: HighlightAnnotation;
 			currentImg: ImagePoint;
+			constrain: boolean;
 	  }
 	| {
 			kind: "endpoint";
@@ -36,7 +45,17 @@ type Interaction =
 			startImg: ImagePoint;
 			startHighlight: HighlightAnnotation;
 			currentImg: ImagePoint;
+			constrain: boolean;
 	  };
+
+/** drawing 中の実効 current 点。Shift 拘束中は優勢な軸 (水平 / 垂直) へ吸着する。 */
+function resolveDrawCurrent(i: {
+	startImg: ImagePoint;
+	currentImg: ImagePoint;
+	constrain: boolean;
+}): ImagePoint {
+	return i.constrain ? constrainToAxis(i.startImg, i.currentImg) : i.currentImg;
+}
 
 export type UseHighlightEngineResult = {
 	/** 表示用 highlight 配列。interaction 中はそのハイライトだけ delta 反映済 */
@@ -45,14 +64,14 @@ export type UseHighlightEngineResult = {
 	previewHighlight: { x1: number; y1: number; x2: number; y2: number } | null;
 	/** drawing / moving / endpoint いずれか進行中か */
 	isInteracting: boolean;
-	beginDraw: (startImg: ImagePoint) => void;
+	beginDraw: (startImg: ImagePoint, constrain?: boolean) => void;
 	beginMove: (id: string, startImg: ImagePoint) => void;
 	beginEndpointDrag: (
 		id: string,
 		endpoint: HighlightEndpoint,
 		startImg: ImagePoint,
 	) => void;
-	updateInteraction: (currentImg: ImagePoint) => void;
+	updateInteraction: (currentImg: ImagePoint, constrain?: boolean) => void;
 	endInteraction: () => void;
 	cancelInteraction: () => void;
 	/** context にぶら下げる用の安定ハンドル。useEffect で ref へ差し込む */
@@ -81,11 +100,12 @@ export function useHighlightEngine(
 	const highlightDefaultsRef = useRef(highlightDefaults);
 	highlightDefaultsRef.current = highlightDefaults;
 
-	const beginDraw = useCallback((startImg: ImagePoint) => {
+	const beginDraw = useCallback((startImg: ImagePoint, constrain = false) => {
 		setInteraction({
 			kind: "drawing",
 			startImg,
 			currentImg: startImg,
+			constrain,
 		});
 	}, []);
 
@@ -99,6 +119,7 @@ export function useHighlightEngine(
 				startImg,
 				startHighlight: target,
 				currentImg: startImg,
+				constrain: false,
 			});
 		},
 		[highlights],
@@ -115,14 +136,29 @@ export function useHighlightEngine(
 				startImg,
 				startHighlight: target,
 				currentImg: startImg,
+				constrain: false,
 			});
 		},
 		[highlights],
 	);
 
-	const updateInteraction = useCallback((currentImg: ImagePoint) => {
-		setInteraction((prev) => (prev ? { ...prev, currentImg } : null));
+	const updateInteraction = useCallback(
+		(currentImg: ImagePoint, constrain = false) => {
+			setInteraction((prev) =>
+				prev ? { ...prev, currentImg, constrain } : null,
+			);
+		},
+		[],
+	);
+
+	// ポインタ静止中の Shift 押下・解放にも追従する (pointermove 由来の更新は
+	// updateInteraction が担う)。
+	const setConstrain = useCallback((constrain: boolean) => {
+		setInteraction((prev) =>
+			prev && prev.constrain !== constrain ? { ...prev, constrain } : prev,
+		);
 	}, []);
+	useShiftConstrainKey(interaction !== null, setConstrain);
 
 	const cancelInteraction = useCallback(() => {
 		setInteraction(null);
@@ -135,7 +171,7 @@ export function useHighlightEngine(
 		// 副作用を setState の外で先に処理してから state クリア
 		if (prev.kind === "drawing") {
 			const p1 = clampPointInImage(prev.startImg, img);
-			const p2 = clampPointInImage(prev.currentImg, img);
+			const p2 = clampPointInImage(resolveDrawCurrent(prev), img);
 			if (Math.hypot(p2.x - p1.x, p2.y - p1.y) >= MIN_HIGHLIGHT_LENGTH) {
 				const highlight = createHighlightAnnotation({
 					x1: p1.x,
@@ -200,7 +236,7 @@ export function useHighlightEngine(
 		if (interaction?.kind !== "drawing") return null;
 		const img = imageRef.current;
 		const p1 = clampPointInImage(interaction.startImg, img);
-		const p2 = clampPointInImage(interaction.currentImg, img);
+		const p2 = clampPointInImage(resolveDrawCurrent(interaction), img);
 		if (p1.x === p2.x && p1.y === p2.y) return null;
 		return { x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y };
 	}, [interaction]);

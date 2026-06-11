@@ -3,6 +3,8 @@ import {
 	type RectEngineHandle,
 	useSnapcrop,
 } from "~/contexts/snapcrop-context";
+import { useShiftConstrainKey } from "~/hooks/use-shift-constrain-key";
+import { constrainToSquare } from "~/lib/constrain";
 import {
 	createRectAnnotation,
 	type ImageMetrics,
@@ -19,15 +21,22 @@ type ImagePoint = { x: number; y: number };
 /**
  * 進行中の操作。kind に応じて drawing / moving / resizing を表現する。
  * delta は image 座標系の差分 (= currentImgPt - startImgPt)。
+ * constrain は Shift 押下中の拘束 (drawing = 正方形 / resizing = 比率維持)。
  */
 type Interaction =
-	| { kind: "drawing"; startImg: ImagePoint; currentImg: ImagePoint }
+	| {
+			kind: "drawing";
+			startImg: ImagePoint;
+			currentImg: ImagePoint;
+			constrain: boolean;
+	  }
 	| {
 			kind: "moving";
 			id: string;
 			startImg: ImagePoint;
 			startRect: RectAnnotation;
 			currentImg: ImagePoint;
+			constrain: boolean;
 	  }
 	| {
 			kind: "resizing";
@@ -36,7 +45,18 @@ type Interaction =
 			startImg: ImagePoint;
 			startRect: RectAnnotation;
 			currentImg: ImagePoint;
+			constrain: boolean;
 	  };
+
+/** drawing 中の実効 current 点。Shift 拘束中は正方形になる点へ吸着する。 */
+function resolveDrawCurrent(
+	i: { startImg: ImagePoint; currentImg: ImagePoint; constrain: boolean },
+	img: ImageMetrics,
+): ImagePoint {
+	return i.constrain
+		? constrainToSquare(i.startImg, i.currentImg, img)
+		: i.currentImg;
+}
 
 export type UseRectEngineResult = {
 	/** 表示用 annotation 配列。interaction 中はその rect だけ delta 反映済 */
@@ -45,10 +65,15 @@ export type UseRectEngineResult = {
 	previewRect: { x: number; y: number; width: number; height: number } | null;
 	/** drawing / moving / resizing いずれか進行中か */
 	isInteracting: boolean;
-	beginDraw: (startImg: ImagePoint) => void;
+	beginDraw: (startImg: ImagePoint, constrain?: boolean) => void;
 	beginMove: (id: string, startImg: ImagePoint) => void;
-	beginResize: (id: string, handle: ResizeHandle, startImg: ImagePoint) => void;
-	updateInteraction: (currentImg: ImagePoint) => void;
+	beginResize: (
+		id: string,
+		handle: ResizeHandle,
+		startImg: ImagePoint,
+		constrain?: boolean,
+	) => void;
+	updateInteraction: (currentImg: ImagePoint, constrain?: boolean) => void;
 	endInteraction: () => void;
 	cancelInteraction: () => void;
 	/** context にぶら下げる用の安定ハンドル。useEffect で ref へ差し込む */
@@ -77,11 +102,12 @@ export function useRectEngine(image: ImageMetrics): UseRectEngineResult {
 	const rectDefaultsRef = useRef(rectDefaults);
 	rectDefaultsRef.current = rectDefaults;
 
-	const beginDraw = useCallback((startImg: ImagePoint) => {
+	const beginDraw = useCallback((startImg: ImagePoint, constrain = false) => {
 		setInteraction({
 			kind: "drawing",
 			startImg,
 			currentImg: startImg,
+			constrain,
 		});
 	}, []);
 
@@ -95,13 +121,19 @@ export function useRectEngine(image: ImageMetrics): UseRectEngineResult {
 				startImg,
 				startRect: target,
 				currentImg: startImg,
+				constrain: false,
 			});
 		},
 		[annotations],
 	);
 
 	const beginResize = useCallback(
-		(id: string, handle: ResizeHandle, startImg: ImagePoint) => {
+		(
+			id: string,
+			handle: ResizeHandle,
+			startImg: ImagePoint,
+			constrain = false,
+		) => {
 			const target = annotations.find((a) => a.id === id);
 			if (!target) return;
 			setInteraction({
@@ -111,14 +143,29 @@ export function useRectEngine(image: ImageMetrics): UseRectEngineResult {
 				startImg,
 				startRect: target,
 				currentImg: startImg,
+				constrain,
 			});
 		},
 		[annotations],
 	);
 
-	const updateInteraction = useCallback((currentImg: ImagePoint) => {
-		setInteraction((prev) => (prev ? { ...prev, currentImg } : null));
+	const updateInteraction = useCallback(
+		(currentImg: ImagePoint, constrain = false) => {
+			setInteraction((prev) =>
+				prev ? { ...prev, currentImg, constrain } : null,
+			);
+		},
+		[],
+	);
+
+	// ポインタ静止中の Shift 押下・解放にも追従する (pointermove 由来の更新は
+	// updateInteraction が担う)。
+	const setConstrain = useCallback((constrain: boolean) => {
+		setInteraction((prev) =>
+			prev && prev.constrain !== constrain ? { ...prev, constrain } : prev,
+		);
 	}, []);
+	useShiftConstrainKey(interaction !== null, setConstrain);
 
 	const cancelInteraction = useCallback(() => {
 		setInteraction(null);
@@ -130,7 +177,11 @@ export function useRectEngine(image: ImageMetrics): UseRectEngineResult {
 		const img = imageRef.current;
 		// 副作用を setState の外で先に処理してから state クリア
 		if (prev.kind === "drawing") {
-			const rect = normalizeDrawingRect(prev.startImg, prev.currentImg, img);
+			const rect = normalizeDrawingRect(
+				prev.startImg,
+				resolveDrawCurrent(prev, img),
+				img,
+			);
 			if (rect.width >= MIN_RECT_SIZE && rect.height >= MIN_RECT_SIZE) {
 				const annotation = createRectAnnotation({
 					...rect,
@@ -156,6 +207,7 @@ export function useRectEngine(image: ImageMetrics): UseRectEngineResult {
 				prev.handle,
 				{ dx, dy },
 				img,
+				prev.constrain,
 			);
 			updateAnnotation(prev.id, {
 				x: next.x,
@@ -184,6 +236,7 @@ export function useRectEngine(image: ImageMetrics): UseRectEngineResult {
 				interaction.handle,
 				{ dx, dy },
 				img,
+				interaction.constrain,
 			);
 		});
 	}, [annotations, interaction]);
@@ -192,7 +245,7 @@ export function useRectEngine(image: ImageMetrics): UseRectEngineResult {
 		if (interaction?.kind !== "drawing") return null;
 		const rect = normalizeDrawingRect(
 			interaction.startImg,
-			interaction.currentImg,
+			resolveDrawCurrent(interaction, imageRef.current),
 			imageRef.current,
 		);
 		return rect.width > 0 && rect.height > 0 ? rect : null;
