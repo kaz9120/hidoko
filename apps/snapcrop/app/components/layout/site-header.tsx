@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "ui";
 import logoCreamUrl from "ui/assets/logo/mark-cream.svg?url";
 import logoDarkUrl from "ui/assets/logo/mark-dark.svg?url";
+import { ShareButton } from "~/components/layout/share-button";
 import { ThemeToggle } from "~/components/theme-toggle";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 import { readImageFromClipboard } from "~/lib/clipboard";
@@ -149,6 +150,8 @@ export function SiteHeader() {
 					onClick={redo}
 				/>
 				<ThemeToggle />
+				<Divider />
+				<ShareButton />
 			</div>
 		</header>
 	);
