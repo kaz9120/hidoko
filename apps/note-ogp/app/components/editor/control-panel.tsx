@@ -32,6 +32,7 @@ import { ImageField } from "./image-field";
 import { PalettePicker } from "./palette-picker";
 import { SectionTitle } from "./section-title";
 import { TemplateThumb } from "./template-thumb";
+import { TextureField } from "./texture-field";
 
 export function ControlPanel({
 	state,
@@ -138,6 +139,12 @@ export function ControlPanel({
 					/>
 					<FieldDescription>ベース・文字・差し色の3色セット</FieldDescription>
 				</Field>
+
+				<TextureField
+					state={state}
+					update={update}
+					unused={tpl.useImage === true}
+				/>
 
 				<Field className="mb-3.5">
 					<FieldLabel className="font-mono text-[10px] uppercase tracking-[0.22em]">
