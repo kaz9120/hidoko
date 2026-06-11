@@ -50,7 +50,9 @@ const STUB_ENGINE: UseTextEngineResult = {
 	cancelInteraction: () => {},
 	beginCreate: () => {},
 	beginEdit: () => {},
-	commitEdit: () => {},
+	commitEdit: () => null,
+	flushEdit: () => null,
+	registerEditorFlush: () => {},
 	cancelEdit: () => {},
 	handle: {
 		isInteracting: () => false,
