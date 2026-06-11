@@ -38,11 +38,13 @@ const sections = [
 /**
  * 縦にオーバーフローする本文をスクロール領域に収める形。
  * 高さを固定し、中身が溢れたときだけスクロールバーが現れる。
+ * story では表示タイミングに依存しないよう `type="always"` で
+ * スクロールバーを常時表示にしている (#65)。
  * @summary 縦に長い本文をスクロールする形
  */
 export const Default: Story = {
 	render: () => (
-		<ScrollArea className="h-64 w-64 rounded-md border">
+		<ScrollArea type="always" className="h-64 w-64 rounded-md border">
 			<div className="p-4">
 				<div className="mb-2 text-sm font-medium">夜の手順</div>
 				{sections.map((section) => (
@@ -63,7 +65,10 @@ export const Default: Story = {
  */
 export const Horizontal: Story = {
 	render: () => (
-		<ScrollArea className="w-[420px] rounded-md border whitespace-nowrap">
+		<ScrollArea
+			type="always"
+			className="w-[420px] rounded-md border whitespace-nowrap"
+		>
 			<div className="flex w-max gap-3 p-4">
 				{Array.from({ length: 10 }).map((_, index) => (
 					<div
