@@ -142,20 +142,20 @@ export function SiteHeader() {
 			<Divider />
 
 			<ZoomControl />
+			<TooltipIconButton
+				disabled={!canUndo}
+				icon={Undo2Icon}
+				label="元に戻す (⌘Z)"
+				onClick={undo}
+			/>
+			<TooltipIconButton
+				disabled={!canRedo}
+				icon={Redo2Icon}
+				label="やり直す (⌘⇧Z)"
+				onClick={redo}
+			/>
 
 			<div className="ml-auto flex items-center gap-1">
-				<TooltipIconButton
-					disabled={!canUndo}
-					icon={Undo2Icon}
-					label="元に戻す (⌘Z)"
-					onClick={undo}
-				/>
-				<TooltipIconButton
-					disabled={!canRedo}
-					icon={Redo2Icon}
-					label="やり直す (⌘⇧Z)"
-					onClick={redo}
-				/>
 				<HelpDialog />
 				<ThemeToggle />
 				<SettingsDialog />
