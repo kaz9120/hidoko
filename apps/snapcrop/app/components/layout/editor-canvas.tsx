@@ -1,7 +1,5 @@
-import { CopyIcon, DownloadIcon } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
-import { Tooltip, TooltipContent, TooltipTrigger } from "ui";
 import { ImageStage } from "~/components/canvas/image-stage";
 import { Viewport } from "~/components/canvas/viewport";
 import { EmptyHero } from "~/components/layout/empty-hero";
@@ -17,12 +15,6 @@ import { useHighlightShortcuts } from "~/hooks/use-highlight-shortcuts";
 import { useRectShortcuts } from "~/hooks/use-rect-shortcuts";
 import { useSelectAllShortcut } from "~/hooks/use-select-all-shortcut";
 import { useTextShortcuts } from "~/hooks/use-text-shortcuts";
-import { writeImageToClipboard } from "~/lib/clipboard";
-import {
-	downloadBlob,
-	getCroppedBlob,
-	makeDownloadFilename,
-} from "~/lib/image-export";
 
 export function EditorCanvas() {
 	const {
@@ -119,105 +111,8 @@ function ImageCanvas({
 					/>
 				</Viewport>
 				{isDragging && <DropOverlay />}
-				<CanvasActions />
 			</div>
 		</section>
-	);
-}
-
-function CanvasActions() {
-	const { cropperRef, image, annotations, arrows, texts, highlights } =
-		useSnapcrop();
-	const [isCopying, setIsCopying] = useState(false);
-	const [isDownloading, setIsDownloading] = useState(false);
-
-	if (!image) {
-		return null;
-	}
-
-	const handleCopy = async () => {
-		const cropper = cropperRef.current;
-		if (!cropper || isCopying) {
-			return;
-		}
-		setIsCopying(true);
-		try {
-			const blob = await getCroppedBlob(
-				cropper,
-				"image/png",
-				annotations,
-				arrows,
-				texts,
-				highlights,
-			);
-			const ok = await writeImageToClipboard(blob);
-			if (ok) {
-				toast.success("クリップボードにコピーしました");
-			} else {
-				toast.error("クリップボードへのコピーに失敗しました");
-			}
-		} catch {
-			toast.error("クリップボードへのコピーに失敗しました");
-		} finally {
-			setIsCopying(false);
-		}
-	};
-
-	const handleDownload = async () => {
-		const cropper = cropperRef.current;
-		if (!cropper || isDownloading) {
-			return;
-		}
-		setIsDownloading(true);
-		try {
-			const blob = await getCroppedBlob(
-				cropper,
-				"image/png",
-				annotations,
-				arrows,
-				texts,
-				highlights,
-			);
-			downloadBlob(blob, makeDownloadFilename("png"));
-		} catch {
-			toast.error("画像の書き出しに失敗しました");
-		} finally {
-			setIsDownloading(false);
-		}
-	};
-
-	return (
-		<div className="absolute right-5 bottom-5 flex items-center gap-2.5">
-			<Tooltip>
-				<TooltipTrigger asChild>
-					<button
-						aria-busy={isDownloading}
-						aria-label="PNG でダウンロード"
-						className="flex size-10 items-center justify-center rounded-full border border-border bg-card/80 text-foreground/80 backdrop-blur-md transition-colors hover:bg-card disabled:opacity-50"
-						disabled={isDownloading}
-						onClick={handleDownload}
-						type="button"
-					>
-						<DownloadIcon size={16} strokeWidth={1.75} />
-					</button>
-				</TooltipTrigger>
-				<TooltipContent>PNG でダウンロード</TooltipContent>
-			</Tooltip>
-			<button
-				aria-busy={isCopying}
-				aria-label="クリップボードへコピー"
-				className="flex h-10 items-center gap-2 rounded-full border border-[var(--ember-600)] bg-gradient-to-b from-[var(--ember-300)] to-[var(--ember-500)] px-5 font-semibold text-[#1a0d05] text-sm shadow-[0_4px_24px_rgba(244,125,58,0.35),0_1px_0_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,240,220,0.35)] transition-all hover:from-[var(--ember-200)] hover:to-[var(--ember-400)] disabled:opacity-50"
-				disabled={isCopying}
-				onClick={handleCopy}
-				type="button"
-			>
-				<CopyIcon size={16} strokeWidth={2} />
-				<span>コピー</span>
-				<span className="ml-1 rounded-sm bg-black/20 px-1.5 py-px font-mono text-[10px] text-black/70">
-					⌘C
-				</span>
-			</button>
-		</div>
 	);
 }
 

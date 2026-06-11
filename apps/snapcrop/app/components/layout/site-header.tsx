@@ -13,6 +13,7 @@ import { Button, Tooltip, TooltipContent, TooltipTrigger } from "ui";
 import logoCreamUrl from "ui/assets/logo/mark-cream.svg?url";
 import logoDarkUrl from "ui/assets/logo/mark-dark.svg?url";
 import { HelpDialog } from "~/components/help-dialog";
+import { ExportActions } from "~/components/layout/export-actions";
 import { ShareButton } from "~/components/layout/share-button";
 import { ZoomControl } from "~/components/layout/zoom-control";
 import { SettingsDialog } from "~/components/settings-dialog";
@@ -142,24 +143,25 @@ export function SiteHeader() {
 			<Divider />
 
 			<ZoomControl />
+			<TooltipIconButton
+				disabled={!canUndo}
+				icon={Undo2Icon}
+				label="元に戻す (⌘Z)"
+				onClick={undo}
+			/>
+			<TooltipIconButton
+				disabled={!canRedo}
+				icon={Redo2Icon}
+				label="やり直す (⌘⇧Z)"
+				onClick={redo}
+			/>
 
 			<div className="ml-auto flex items-center gap-1">
-				<TooltipIconButton
-					disabled={!canUndo}
-					icon={Undo2Icon}
-					label="元に戻す (⌘Z)"
-					onClick={undo}
-				/>
-				<TooltipIconButton
-					disabled={!canRedo}
-					icon={Redo2Icon}
-					label="やり直す (⌘⇧Z)"
-					onClick={redo}
-				/>
 				<HelpDialog />
 				<ThemeToggle />
 				<SettingsDialog />
 				<Divider />
+				<ExportActions />
 				<ShareButton />
 			</div>
 		</header>

@@ -8,10 +8,10 @@ import { SiteHeader } from "./site-header";
 
 /**
  * snapcrop 画面最上段に貼り付くヘッダ。ロゴ・取り込み手段 (スクショ / 貼り付け
- * / ファイル)・ズームコントロールを左に、undo / redo / テーマ切替 /
- * X シェアを右に並べる。`SnapcropContext`
- * と `next-themes` の両方を購読しているため、Storybook では両方の Provider で
- * wrap する必要がある。
+ * / ファイル)・編集系コントロール (ズーム / undo / redo) を左に、ヘルプ /
+ * テーマ切替 / 設定と、書き出し系 (PNG ダウンロード / コピー / X シェア) を
+ * 右に並べる。`SnapcropContext` と `next-themes` の両方を購読しているため、
+ * Storybook では両方の Provider で wrap する必要がある。
  *
  * @summary 画面上端のヘッダ
  */
@@ -39,9 +39,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * 画像未ロードの初期状態。undo / redo は disabled。取り込み系のアイコンだけが
- * 押せる。Storybook の世界では実際の screen capture API や clipboard API は
- * 未承認のことが多く、ボタンを押しても画像は入らない。
+ * 画像未ロードの初期状態。undo / redo と書き出し系 (ダウンロード / コピー) は
+ * disabled。取り込み系のアイコンだけが押せる。Storybook の世界では実際の
+ * screen capture API や clipboard API は未承認のことが多く、ボタンを押しても
+ * 画像は入らない。
  * @summary 画像未ロード時
  */
 export const Default: Story = {};
