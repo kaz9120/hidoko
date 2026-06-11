@@ -1,7 +1,21 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { PALETTES } from "./palettes";
-import { TplCover, TplEdition, TplQuiet } from "./templates";
+import {
+	TplCover,
+	TplEdition,
+	TplFrame,
+	TplQuiet,
+	TplSplit,
+	TplTate,
+} from "./templates";
 import type { Fields, FontMode, PaletteId, ThemeMode } from "./types";
+
+// 写真の代わりに使うダミー画像（焚き火の暗がり風グラデーション）
+const SAMPLE_IMAGE =
+	"data:image/svg+xml;utf8," +
+	encodeURIComponent(
+		`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 670"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a2a1a"/><stop offset="1" stop-color="#0e0a06"/></linearGradient></defs><rect width="1280" height="670" fill="url(#g)"/></svg>`,
+	);
 
 const DEFAULT_FIELDS: Fields = {
 	templateId: "edition",
@@ -107,11 +121,7 @@ export const Cover: Story = {
 export const CoverWithImage: Story = {
 	args: {
 		templateId: "cover",
-		image:
-			"data:image/svg+xml;utf8," +
-			encodeURIComponent(
-				`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 670"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a2a1a"/><stop offset="1" stop-color="#0e0a06"/></linearGradient></defs><rect width="1280" height="670" fill="url(#g)"/></svg>`,
-			),
+		image: SAMPLE_IMAGE,
 	},
 	render: (args) => (
 		<div style={FRAME_STYLE}>
@@ -126,6 +136,69 @@ export const Quiet: Story = {
 	render: (args) => (
 		<div style={FRAME_STYLE}>
 			<TplQuiet f={withDefaults(args)} />
+		</div>
+	),
+};
+
+/** Frame: 全面写真の中央に枠ボックス。写真なしは反対面の色面になる。 */
+export const Frame: Story = {
+	args: { templateId: "frame" },
+	render: (args) => (
+		<div style={FRAME_STYLE}>
+			<TplFrame f={withDefaults(args)} />
+		</div>
+	),
+};
+
+/** Frame に画像を入れた状態。枠ボックスが写真の上に浮く。 */
+export const FrameWithImage: Story = {
+	args: { templateId: "frame", image: SAMPLE_IMAGE },
+	render: (args) => (
+		<div style={FRAME_STYLE}>
+			<TplFrame f={withDefaults(args)} />
+		</div>
+	),
+};
+
+/** Split: 上 2/3 を写真または色面、下 1/3 を濃色の情報バンドにする分割構図。 */
+export const Split: Story = {
+	args: { templateId: "split" },
+	render: (args) => (
+		<div style={FRAME_STYLE}>
+			<TplSplit f={withDefaults(args)} />
+		</div>
+	),
+};
+
+/** Split に画像を入れた状態。バンドの濃色とのコントラストが出る。 */
+export const SplitWithImage: Story = {
+	args: { templateId: "split", image: SAMPLE_IMAGE },
+	render: (args) => (
+		<div style={FRAME_STYLE}>
+			<TplSplit f={withDefaults(args)} />
+		</div>
+	),
+};
+
+/** Tate: タイトルを縦書きにした和モダン構図。明朝と好相性。 */
+export const Tate: Story = {
+	args: { templateId: "tate" },
+	render: (args) => (
+		<div style={FRAME_STYLE}>
+			<TplTate f={withDefaults(args)} />
+		</div>
+	),
+};
+
+/** Tate の長文タイトル。高さ基準の AutoFitTitle で縮小され、段が左へ伸びる。 */
+export const TateLongTitle: Story = {
+	args: {
+		templateId: "tate",
+		title: "夜更けにコードを書きながら考えていたこと、いくつか",
+	},
+	render: (args) => (
+		<div style={FRAME_STYLE}>
+			<TplTate f={withDefaults(args)} />
 		</div>
 	),
 };
