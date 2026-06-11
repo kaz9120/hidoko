@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import type { ArrowAnnotation } from "~/lib/arrow-engine";
+import { PRESET_COLORS } from "~/lib/rect-engine";
 
 import { ArrowLayer } from "./arrow-layer";
 
@@ -47,7 +48,7 @@ const mkArrow = (
 	line: "straight",
 	startCap: "none",
 	endCap: "arrow",
-	color: "#ef4444",
+	color: PRESET_COLORS[0],
 	thickness: "md",
 	createdAt: Date.now(),
 	...overrides,
@@ -82,7 +83,7 @@ export const CurvedArrow: Story = {
 				x2: 400,
 				y2: 100,
 				line: "curve",
-				color: "#f47d3a",
+				color: PRESET_COLORS[1],
 			}),
 		],
 	},
@@ -105,7 +106,7 @@ export const CapVariants: Story = {
 				x2: 420,
 				y2: 140,
 				startCap: "arrow",
-				color: "#facc15",
+				color: PRESET_COLORS[2],
 			}),
 			mkArrow("v3", {
 				x1: 60,
@@ -113,7 +114,7 @@ export const CapVariants: Story = {
 				x2: 420,
 				y2: 220,
 				startCap: "dot",
-				color: "#22c55e",
+				color: PRESET_COLORS[3],
 			}),
 			mkArrow("v4", {
 				x1: 60,
@@ -122,7 +123,7 @@ export const CapVariants: Story = {
 				y2: 300,
 				startCap: "dot",
 				endCap: "dot",
-				color: "#3b82f6",
+				color: PRESET_COLORS[4],
 			}),
 		],
 	},
@@ -144,7 +145,7 @@ export const ThicknessVariants: Story = {
 				x2: 420,
 				y2: 80,
 				thickness: "sm",
-				color: "#f47d3a",
+				color: PRESET_COLORS[1],
 			}),
 			mkArrow("md", {
 				x1: 60,
@@ -152,7 +153,7 @@ export const ThicknessVariants: Story = {
 				x2: 420,
 				y2: 180,
 				thickness: "md",
-				color: "#facc15",
+				color: PRESET_COLORS[2],
 			}),
 			mkArrow("lg", {
 				x1: 60,
@@ -160,7 +161,7 @@ export const ThicknessVariants: Story = {
 				x2: 420,
 				y2: 280,
 				thickness: "lg",
-				color: "#22c55e",
+				color: PRESET_COLORS[3],
 			}),
 		],
 	},

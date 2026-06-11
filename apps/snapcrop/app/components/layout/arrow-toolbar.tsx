@@ -45,11 +45,12 @@ const CAP_OPTIONS: ReadonlyArray<{
 
 const THICKNESS_OPTIONS: ReadonlyArray<{
 	id: ArrowThickness;
+	label: string;
 	barHeight: number;
 }> = [
-	{ id: "sm", barHeight: 1 },
-	{ id: "md", barHeight: 2.5 },
-	{ id: "lg", barHeight: 5 },
+	{ id: "sm", label: "細", barHeight: 1.5 },
+	{ id: "md", label: "中", barHeight: 3 },
+	{ id: "lg", label: "太", barHeight: 6 },
 ];
 
 function capIcon(side: "start" | "end", style: ArrowCapStyle) {
@@ -106,6 +107,38 @@ export function ArrowToolbar() {
 	};
 
 	return (
+		<ArrowToolbarView
+			arrowCount={arrows.length}
+			current={current}
+			onCommit={commit}
+			onDelete={selected ? () => deleteArrow(selected.id) : undefined}
+			selected={selected !== null}
+		/>
+	);
+}
+
+export type ArrowToolbarViewProps = {
+	current: ArrowDefaults;
+	/** true なら「選択中」表示になり、onDelete の削除ボタンが出る。 */
+	selected: boolean;
+	arrowCount: number;
+	onCommit: (patch: Partial<ArrowDefaults>) => void;
+	onDelete?: () => void;
+};
+
+/**
+ * ArrowToolbar の見た目だけを担う props 駆動 view。Storybook から状態を
+ * 注入して検証できるよう、context 接続部 (ArrowToolbar) と分離している
+ * (ZoomControl / StatusBar の先例に同じ)。
+ */
+export function ArrowToolbarView({
+	current,
+	selected,
+	arrowCount,
+	onCommit,
+	onDelete,
+}: ArrowToolbarViewProps) {
+	return (
 		<div
 			aria-label="矢印ツールのプロパティ"
 			className="flex h-[38px] shrink-0 items-center gap-2.5 border-border border-b bg-[var(--bg-overlay)] px-3.5"
@@ -123,7 +156,7 @@ export function ArrowToolbar() {
 			<ToggleGroup
 				aria-label="線形"
 				onValueChange={(next) => {
-					if (next) commit({ line: next as ArrowLineStyle });
+					if (next) onCommit({ line: next as ArrowLineStyle });
 				}}
 				type="single"
 				value={current.line}
@@ -151,7 +184,7 @@ export function ArrowToolbar() {
 			<ToggleGroup
 				aria-label="始点のスタイル"
 				onValueChange={(next) => {
-					if (next) commit({ startCap: next as ArrowCapStyle });
+					if (next) onCommit({ startCap: next as ArrowCapStyle });
 				}}
 				type="single"
 				value={current.startCap}
@@ -161,6 +194,7 @@ export function ArrowToolbar() {
 					const Icon = capIcon("start", opt.id);
 					return (
 						<ToggleGroupItem
+							aria-label={`始点: ${opt.label}`}
 							key={opt.id}
 							size="sm"
 							title={`始点: ${opt.label}`}
@@ -176,7 +210,7 @@ export function ArrowToolbar() {
 			<ToggleGroup
 				aria-label="終点のスタイル"
 				onValueChange={(next) => {
-					if (next) commit({ endCap: next as ArrowCapStyle });
+					if (next) onCommit({ endCap: next as ArrowCapStyle });
 				}}
 				type="single"
 				value={current.endCap}
@@ -186,6 +220,7 @@ export function ArrowToolbar() {
 					const Icon = capIcon("end", opt.id);
 					return (
 						<ToggleGroupItem
+							aria-label={`終点: ${opt.label}`}
 							key={opt.id}
 							size="sm"
 							title={`終点: ${opt.label}`}
@@ -201,7 +236,7 @@ export function ArrowToolbar() {
 
 			<Label>色</Label>
 			<ColorSwatches
-				onChange={(color) => commit({ color })}
+				onChange={(color) => onCommit({ color })}
 				value={current.color}
 			/>
 
@@ -211,7 +246,7 @@ export function ArrowToolbar() {
 			<ToggleGroup
 				aria-label="太さ"
 				onValueChange={(next) => {
-					if (next) commit({ thickness: next as ArrowThickness });
+					if (next) onCommit({ thickness: next as ArrowThickness });
 				}}
 				type="single"
 				value={current.thickness}
@@ -219,9 +254,10 @@ export function ArrowToolbar() {
 			>
 				{THICKNESS_OPTIONS.map((opt) => (
 					<ToggleGroupItem
+						aria-label={`太さ: ${opt.label}`}
 						key={opt.id}
 						size="sm"
-						title={`太さ ${opt.id}`}
+						title={`太さ: ${opt.label}`}
 						value={opt.id}
 					>
 						<span
@@ -235,15 +271,15 @@ export function ArrowToolbar() {
 			<div className="flex-1" />
 
 			<span className="font-mono text-[10px] text-muted-foreground tracking-[0.04em]">
-				{arrows.length} 本の矢印
+				{arrowCount} 本の矢印
 			</span>
 
-			{selected && (
+			{selected && onDelete && (
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<Button
 							aria-label="選択中の矢印を削除"
-							onClick={() => deleteArrow(selected.id)}
+							onClick={onDelete}
 							size="icon-sm"
 							variant="ghost"
 						>

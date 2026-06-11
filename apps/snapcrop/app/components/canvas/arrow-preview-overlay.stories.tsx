@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
+import { PRESET_COLORS } from "~/lib/rect-engine";
+
 import { ArrowPreviewOverlay } from "./arrow-preview-overlay";
 
 /**
@@ -48,7 +50,7 @@ export const Default: Story = {
 			line: "straight",
 			startCap: "none",
 			endCap: "arrow",
-			color: "#ef4444",
+			color: PRESET_COLORS[0],
 			thickness: "md",
 		},
 	},
@@ -68,7 +70,7 @@ export const CurvedThick: Story = {
 			line: "curve",
 			startCap: "dot",
 			endCap: "arrow",
-			color: "#facc15",
+			color: PRESET_COLORS[2],
 			thickness: "lg",
 		},
 	},
@@ -88,7 +90,7 @@ export const Thin: Story = {
 			line: "straight",
 			startCap: "none",
 			endCap: "arrow",
-			color: "#22c55e",
+			color: PRESET_COLORS[3],
 			thickness: "sm",
 		},
 	},
