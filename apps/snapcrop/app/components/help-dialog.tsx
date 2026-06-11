@@ -28,6 +28,7 @@ type ShortcutSection = {
  *   - ⌘Z / ⌘⇧Z → site-header.tsx
  *   - ⌘0 / ⌘1  → use-canvas-shortcuts.ts
  *   - Space pan → components/canvas/viewport.tsx
+ *   - ⇧ ドラッグ → lib/constrain.ts (各 engine hook が適用)
  *   - それ以外   → use-rect-shortcuts.ts
  * ショートカットを追加・変更したら、この一覧も一緒に更新すること。
  */
@@ -60,6 +61,15 @@ const SECTIONS: readonly ShortcutSection[] = [
 		shortcuts: [
 			{ keys: ["V"], description: "クロップツールに切り替え" },
 			{ keys: ["R"], description: "矩形ツールに切り替え" },
+		],
+	},
+	{
+		heading: "描画",
+		shortcuts: [
+			{
+				keys: ["⇧"],
+				description: "押しながらドラッグで拘束 (正方形 / 45° / 水平垂直)",
+			},
 		],
 	},
 	{
