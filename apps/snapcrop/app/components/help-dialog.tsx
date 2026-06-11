@@ -76,7 +76,7 @@ const SECTIONS: readonly ShortcutSection[] = [
 
 const AUTHOR_LINKS = [
 	{ label: "@kyamamoto9120", href: "https://x.com/kyamamoto9120" },
-	{ label: "kyamamoto.dev", href: "https://kyamamoto.dev" },
+	{ label: "y-kaz.com", href: "https://y-kaz.com/" },
 ] as const;
 
 /**
