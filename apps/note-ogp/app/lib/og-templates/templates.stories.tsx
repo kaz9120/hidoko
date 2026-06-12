@@ -28,6 +28,12 @@ const DEFAULT_FIELDS: Fields = {
 	texture: "none",
 	paperStrength: "weak",
 	photoPalettes: null,
+	watermark: false,
+	watermarkText: "",
+	band: "none",
+	bandText: "",
+	badge: "none",
+	badgeText: "",
 };
 
 const FRAME_STYLE: React.CSSProperties = {

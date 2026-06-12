@@ -16,6 +16,10 @@ export type PaletteId =
 /** 背景の質感。さじ加減は固定プリセット（不透明度の自由調整は出さない） */
 export type TextureId = "none" | "paper" | "gradient" | "shape";
 export type PaperStrength = "weak" | "medium";
+/** リピートテキスト帯の位置。none = 非表示（on / off と位置を 1 つの値で持つ） */
+export type BandPosition = "none" | "top" | "bottom";
+/** バッジの形状。none = 非表示。circle = 塗り丸、stamp = 枠線のみのスタンプ風 */
+export type BadgeShape = "none" | "circle" | "stamp";
 
 /**
  * 配色の 3 ロール構造。
@@ -69,6 +73,18 @@ export type Fields = {
 	image: string | null;
 	texture: TextureId;
 	paperStrength: PaperStrength;
+	/** 英字ウォーターマーク（背景に大きく敷く英字）の on / off */
+	watermark: boolean;
+	/** ウォーターマークの文言。空なら category にフォールバック */
+	watermarkText: string;
+	/** リピートテキスト帯の位置（none で非表示） */
+	band: BandPosition;
+	/** 帯に繰り返す単語。空なら category にフォールバック */
+	bandText: string;
+	/** バッジの形状（none で非表示） */
+	badge: BadgeShape;
+	/** バッジの文言。空なら "NEW" にフォールバック */
+	badgeText: string;
 };
 
 export type TemplateDef = {

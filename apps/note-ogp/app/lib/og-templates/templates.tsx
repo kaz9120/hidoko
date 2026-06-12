@@ -1,3 +1,4 @@
+import { AshiraiBackdrop, AshiraiBadge } from "./ashirai";
 import {
 	AutoFitTitle,
 	Brand,
@@ -27,6 +28,7 @@ export function TplEdition({ f }: { f: Fields }) {
 	return (
 		<div style={{ ...FRAME_BASE, background: t.bg, color: t.text }}>
 			<TextureLayer f={f} />
+			<AshiraiBackdrop f={f} />
 			{/* マストヘッド：左ブランド／右カテゴリ */}
 			<div
 				style={{
@@ -154,6 +156,7 @@ export function TplEdition({ f }: { f: Fields }) {
 			>
 				{f.date}
 			</Kicker>
+			<AshiraiBadge f={f} />
 		</div>
 	);
 }
@@ -189,6 +192,9 @@ export function TplCover({ f }: { f: Fields }) {
 
 	// 文字色が暗い = 明るい背景想定 → cream マーク。snapcrop と同じ規則
 	const markUrl = markUrlFor(darkText ? "light" : "dark");
+
+	// あしらいの塗りはスクリム・文字と同じロールで揃える（テーマ解決を経由しない）
+	const ashiraiInk = { ink, base: scrim, accent: kicker };
 
 	return (
 		<div style={{ ...FRAME_BASE, background: pal.dark.base, color: ink }}>
@@ -230,6 +236,7 @@ export function TplCover({ f }: { f: Fields }) {
 					background: bottomScrim,
 				}}
 			/>
+			<AshiraiBackdrop f={f} cover={ashiraiInk} />
 
 			{/* マストヘッド */}
 			<div
@@ -347,6 +354,7 @@ export function TplCover({ f }: { f: Fields }) {
 					</Kicker>
 				</div>
 			</div>
+			<AshiraiBadge f={f} cover={ashiraiInk} />
 		</div>
 	);
 }
@@ -362,6 +370,7 @@ export function TplQuiet({ f }: { f: Fields }) {
 	return (
 		<div style={{ ...FRAME_BASE, background: t.bg, color: t.text }}>
 			<TextureLayer f={f} />
+			<AshiraiBackdrop f={f} />
 			{/* マストヘッド（中央・ブランド） */}
 			<div
 				style={{
@@ -478,6 +487,7 @@ export function TplQuiet({ f }: { f: Fields }) {
 					{f.date}
 				</Kicker>
 			</div>
+			<AshiraiBadge f={f} />
 		</div>
 	);
 }

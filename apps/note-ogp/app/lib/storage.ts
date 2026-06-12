@@ -1,4 +1,6 @@
 import type {
+	BadgeShape,
+	BandPosition,
 	CoverText,
 	Fields,
 	FontMode,
@@ -39,6 +41,12 @@ export const DEFAULTS: Fields = {
 	texture: "none",
 	paperStrength: "weak",
 	photoPalettes: null,
+	watermark: false,
+	watermarkText: "",
+	band: "none",
+	bandText: "",
+	badge: "none",
+	badgeText: "",
 };
 
 const TEMPLATE_IDS = new Set<TemplateId>(["edition", "cover", "quiet"]);
@@ -48,6 +56,8 @@ const FONT_MODES = new Set<FontMode>(["serif", "gothic", "hand"]);
 const COVER_TEXTS = new Set<CoverText>(["light", "dark"]);
 const TEXTURE_IDS = new Set<TextureId>(["none", "paper", "gradient", "shape"]);
 const PAPER_STRENGTHS = new Set<PaperStrength>(["weak", "medium"]);
+const BAND_POSITIONS = new Set<BandPosition>(["none", "top", "bottom"]);
+const BADGE_SHAPES = new Set<BadgeShape>(["none", "circle", "stamp"]);
 
 function pickEnum<T extends string>(
 	value: unknown,
@@ -158,6 +168,13 @@ export function loadState(): Fields {
 				DEFAULTS.paperStrength,
 			),
 			photoPalettes,
+			// あしらいキーを持たない既存データはすべて off にフォールバック
+			watermark: pickBool(parsed.watermark, DEFAULTS.watermark),
+			watermarkText: pickString(parsed.watermarkText, DEFAULTS.watermarkText),
+			band: pickEnum(parsed.band, BAND_POSITIONS, DEFAULTS.band),
+			bandText: pickString(parsed.bandText, DEFAULTS.bandText),
+			badge: pickEnum(parsed.badge, BADGE_SHAPES, DEFAULTS.badge),
+			badgeText: pickString(parsed.badgeText, DEFAULTS.badgeText),
 		};
 	} catch {
 		return DEFAULTS;

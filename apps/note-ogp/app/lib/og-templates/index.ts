@@ -25,6 +25,7 @@ export const TEMPLATES = [
 	},
 ] as const satisfies readonly TemplateDef[];
 
+export { AshiraiBackdrop, AshiraiBadge } from "./ashirai";
 export type { OgPalette, OgTheme } from "./palettes";
 export {
 	DEFAULT_PALETTE_ID,
@@ -36,6 +37,8 @@ export {
 } from "./palettes";
 export { TextureLayer } from "./texture";
 export type {
+	BadgeShape,
+	BandPosition,
 	CoverText,
 	Fields,
 	FontMode,
