@@ -28,6 +28,7 @@ import type {
 } from "~/lib/og-templates";
 import { TEMPLATES } from "~/lib/og-templates";
 import { ThemeToggle } from "../theme-toggle";
+import { AshiraiField } from "./ashirai-field";
 import { ImageField } from "./image-field";
 import { PalettePicker } from "./palette-picker";
 import { SectionTitle } from "./section-title";
@@ -201,6 +202,8 @@ export function ControlPanel({
 						<FieldDescription>画像の明るさに合わせて</FieldDescription>
 					</Field>
 				)}
+
+				<AshiraiField state={state} update={update} />
 
 				<SectionTitle annotation={<ImageHint useImage={tpl.useImage} />}>
 					画像
