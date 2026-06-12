@@ -128,7 +128,7 @@ ci: PR ベースで lint / typecheck / build / commitlint を回す
 - semver に従い、bump は Conventional Commits から自動算出する。`feat` は minor、`fix` は patch、`BREAKING CHANGE` は major。PR 著者がバージョンのために行う追加作業はない。
 - 1.0 未満の間は `BREAKING CHANGE` も minor 扱いになる（`bump-minor-pre-major`）。`1.0.0` を切る判断は自動化せず、人間がコミット footer に `Release-As: 1.0.0` を書いて明示する。
 - `packages/ui` に release 対象の変更が入ると、`node-workspace` plugin が依存する app にも patch bump を波及させる。
-- main にコミットが積まれるたび、[release-please.yml](.github/workflows/release-please.yml) がリリース PR を作成・更新する。リリース PR をマージすると `package.json` の version と `CHANGELOG.md` が更新され、タグ（`<package>-v<version>`）と GitHub Release が作られる。マージするかどうかは人間が判断する。
+- main にコミットが積まれるたび、[release-please.yml](.github/workflows/release-please.yml) がリリース PR を作成・更新し、auto-merge を有効化する。required checks（lint / typecheck）の通過後に自動でマージされ、`package.json` の version と `CHANGELOG.md` が更新され、タグ（`<package>-v<version>`）と GitHub Release が作られる。人間によるマージ判断は不要（バージョン表記を本番デプロイに追従させるため）。
 - npm への publish はしない。バージョンはフッター表示と変更履歴のためのもの。
 
 ## コードスタイル
