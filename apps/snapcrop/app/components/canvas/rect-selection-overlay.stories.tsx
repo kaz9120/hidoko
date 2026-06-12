@@ -38,6 +38,7 @@ const STUB_ENGINE: UseRectEngineResult = {
 	isInteracting: false,
 	beginDraw: () => {},
 	beginMove: () => {},
+	beginDuplicate: () => {},
 	beginResize: () => {},
 	updateInteraction: () => {},
 	endInteraction: () => {},
