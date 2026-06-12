@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.3.0...snapcrop-v0.4.0) (2026-06-12)
+
+
+### Features
+
+* **snapcrop:** 注釈の重なり順 (z-order) を変更できるようにする ([#128](https://github.com/kaz9120/hidoko/issues/128)) ([9dfa636](https://github.com/kaz9120/hidoko/commit/9dfa6361d69cff54277e4563bdfc31c76dd86202))
+
 ## [0.3.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.2.0...snapcrop-v0.3.0) (2026-06-12)
 
 

@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.4.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.3.0...note-ogp-v0.4.0) (2026-06-12)
+
+
+### Features
+
+* **note-ogp:** タイトルの装飾プリセット（メリハリ・行ずらし・版ずれフチ）を追加する ([#122](https://github.com/kaz9120/hidoko/issues/122)) ([f490a5b](https://github.com/kaz9120/hidoko/commit/f490a5be16d683da75e24d03c58d0008ea523fb5))
+* **note-ogp:** 余白量とジャンプ率のプリセットでテンプレの表情を変えられるようにする ([#130](https://github.com/kaz9120/hidoko/issues/130)) ([3c398f9](https://github.com/kaz9120/hidoko/commit/3c398f99864188d6c0fbdc380fcd9be08d1f24a1))
+* **note-ogp:** 写真の加工プリセットとテキスト保護方式を追加する ([#127](https://github.com/kaz9120/hidoko/issues/127)) ([bad69e8](https://github.com/kaz9120/hidoko/commit/bad69e831a89cc076d3604d312bde120ac78f3e9))
+* **note-ogp:** 縮小プレビューと可読性ガードを追加する ([#129](https://github.com/kaz9120/hidoko/issues/129)) ([9bca487](https://github.com/kaz9120/hidoko/commit/9bca487e7bc9ddd91e6f95edf4e9530687003207))
+
 ## [0.3.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.2.1...note-ogp-v0.3.0) (2026-06-12)
 
 
