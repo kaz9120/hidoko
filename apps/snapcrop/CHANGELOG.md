@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.2.0...snapcrop-v0.3.0) (2026-06-12)
+
+
+### Features
+
+* **snapcrop:** 注釈の複製 (⌘D・Alt+ドラッグ) を全種別に広げる ([#124](https://github.com/kaz9120/hidoko/issues/124)) ([8f4c9fb](https://github.com/kaz9120/hidoko/commit/8f4c9fbe7a73e12532b4588719b22096ac4a09fa))
+
 ## [0.2.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.1.0...snapcrop-v0.2.0) (2026-06-11)
 
 

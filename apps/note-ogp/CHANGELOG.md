@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.2.1...note-ogp-v0.3.0) (2026-06-12)
+
+
+### Features
+
+* **note-ogp:** 写真の配置バリエーションとフォーカルポイント指定を追加する ([#121](https://github.com/kaz9120/hidoko/issues/121)) ([d6c735b](https://github.com/kaz9120/hidoko/commit/d6c735b3617587975ec598def5f97aafe82cb257))
+
 ## [0.2.1](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.2.0...note-ogp-v0.2.1) (2026-06-11)
 
 
