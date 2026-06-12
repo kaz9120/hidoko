@@ -3,6 +3,7 @@
  * 引数で受け取った annotation を更新した新しい annotation を返す。
  */
 
+import { initialZIndex } from "~/lib/annotation-z-order";
 import {
 	type ImageMetrics,
 	type ResizeHandle,
@@ -25,6 +26,8 @@ export type RectAnnotation = {
 	color: string;
 	thickness: RectThickness;
 	createdAt: number;
+	/** 種別横断の重なり順 (annotation-z-order.ts)。大きいほど前面。 */
+	zIndex: number;
 };
 
 export type Annotation = RectAnnotation;
@@ -32,12 +35,12 @@ export type Annotation = RectAnnotation;
 /**
  * updateAnnotation で書き換えてよいフィールドだけを切り出した patch 型。
  * id / kind / createdAt は不変なので含めない (履歴オペレーションの同一性が
- * 崩れないようにする)。
+ * 崩れないようにする)。zIndex は z 操作 (前面へ / 背面へ) が書き換える。
  */
 export type RectAnnotationPatch = Partial<
 	Pick<
 		RectAnnotation,
-		"x" | "y" | "width" | "height" | "style" | "color" | "thickness"
+		"x" | "y" | "width" | "height" | "style" | "color" | "thickness" | "zIndex"
 	>
 >;
 
@@ -227,6 +230,7 @@ export function createRectAnnotation(args: {
 		color: args.defaults.color,
 		thickness: args.defaults.thickness,
 		createdAt: Date.now(),
+		zIndex: initialZIndex("rect"),
 	};
 }
 
@@ -234,11 +238,18 @@ export function createRectAnnotation(args: {
 export const DUPLICATE_OFFSET_PX = 16;
 
 /**
- * annotation を位置を変えずに複製して、新しい id / createdAt を持つコピーを
- * 返す。Alt+ドラッグ複製の開始時 (コピーをその場に作ってドラッグへ繋ぐ) に使う。
+ * annotation を位置を変えずに複製して、新しい id / createdAt / zIndex を持つ
+ * コピーを返す。Alt+ドラッグ複製の開始時 (コピーをその場に作ってドラッグへ
+ * 繋ぐ) に使う。zIndex は新規作成と同じ採番なので、コピーは同種別の最前面に
+ * 乗る。
  */
 export function cloneRectAnnotation(source: RectAnnotation): RectAnnotation {
-	return { ...source, id: newId(), createdAt: Date.now() };
+	return {
+		...source,
+		id: newId(),
+		createdAt: Date.now(),
+		zIndex: initialZIndex("rect"),
+	};
 }
 
 /**

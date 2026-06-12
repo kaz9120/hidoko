@@ -51,6 +51,7 @@ export function ArrowPreviewOverlay({
 					style: defaults.style,
 					seed: previewArrow.seed,
 					createdAt: 0,
+					zIndex: 0,
 				}}
 				dashed
 			/>

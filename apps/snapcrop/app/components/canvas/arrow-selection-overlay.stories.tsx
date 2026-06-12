@@ -65,6 +65,7 @@ const mkArrow = (overrides: Partial<ArrowAnnotation>): ArrowAnnotation => ({
 	style: "clean",
 	seed: 1,
 	createdAt: 0,
+	zIndex: 0,
 	...overrides,
 });
 

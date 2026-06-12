@@ -54,6 +54,7 @@ const mkArrow = (
 	// VRT で揺らぎが安定するよう固定 seed (sketchy の story で使う)
 	seed: 1,
 	createdAt: Date.now(),
+	zIndex: 0,
 	...overrides,
 });
 

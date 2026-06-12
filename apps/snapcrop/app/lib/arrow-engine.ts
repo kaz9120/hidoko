@@ -5,6 +5,7 @@
  * (なし / 矢印 / 丸) をサポートする。
  */
 
+import { initialZIndex } from "~/lib/annotation-z-order";
 import type { ImageMetrics } from "~/lib/crop-engine";
 import {
 	sketchyCirclePath,
@@ -41,6 +42,8 @@ export type ArrowAnnotation = {
 	 */
 	seed: number;
 	createdAt: number;
+	/** 種別横断の重なり順 (annotation-z-order.ts)。大きいほど前面。 */
+	zIndex: number;
 };
 
 /**
@@ -61,6 +64,7 @@ export type ArrowAnnotationPatch = Partial<
 		| "color"
 		| "thickness"
 		| "style"
+		| "zIndex"
 	>
 >;
 
@@ -218,6 +222,7 @@ export function createArrowAnnotation(args: {
 		style: args.defaults.style,
 		seed: args.seed ?? newArrowSeed(),
 		createdAt: Date.now(),
+		zIndex: initialZIndex("arrow"),
 	};
 }
 
@@ -227,7 +232,12 @@ export function createArrowAnnotation(args: {
  * Alt+ドラッグ複製の開始時に使う。
  */
 export function cloneArrowAnnotation(source: ArrowAnnotation): ArrowAnnotation {
-	return { ...source, id: newId(), createdAt: Date.now() };
+	return {
+		...source,
+		id: newId(),
+		createdAt: Date.now(),
+		zIndex: initialZIndex("arrow"),
+	};
 }
 
 /**
@@ -252,7 +262,12 @@ export function duplicateArrowAnnotation(
 			img,
 		);
 	}
-	return { ...moved, id: newId(), createdAt: Date.now() };
+	return {
+		...moved,
+		id: newId(),
+		createdAt: Date.now(),
+		zIndex: initialZIndex("arrow"),
+	};
 }
 
 /** quadratic bezier の制御点。直線 (または長さ 0) のときは null。 */
