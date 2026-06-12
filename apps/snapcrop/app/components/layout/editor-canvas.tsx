@@ -10,6 +10,7 @@ import { useCanvasShortcuts } from "~/hooks/use-canvas-shortcuts";
 import { useClipboardPaste } from "~/hooks/use-clipboard-paste";
 import { useCopyShortcut } from "~/hooks/use-copy-shortcut";
 import { useCropEngine } from "~/hooks/use-crop-engine";
+import { useDuplicateShortcut } from "~/hooks/use-duplicate-shortcut";
 import { useFileDrop } from "~/hooks/use-file-drop";
 import { useHighlightShortcuts } from "~/hooks/use-highlight-shortcuts";
 import { useRectShortcuts } from "~/hooks/use-rect-shortcuts";
@@ -43,6 +44,7 @@ export function EditorCanvas() {
 	useArrowShortcuts();
 	useTextShortcuts();
 	useHighlightShortcuts();
+	useDuplicateShortcut();
 
 	if (image) {
 		// 画像 src が変わったら engine を作り直すために key を付ける。
