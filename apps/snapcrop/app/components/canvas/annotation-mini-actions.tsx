@@ -1,4 +1,9 @@
-import { CopyPlusIcon, Trash2Icon } from "lucide-react";
+import {
+	BringToFrontIcon,
+	CopyPlusIcon,
+	SendToBackIcon,
+	Trash2Icon,
+} from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "ui";
 import type { Rect } from "~/lib/annotation-bounds";
@@ -13,11 +18,20 @@ type Props = {
 	imageWidth: number;
 	imageHeight: number;
 	onDuplicate: () => void;
+	/** 1 段前面へ (#105)。 */
+	onBringForward: () => void;
+	/** 1 段背面へ (#105)。 */
+	onSendBackward: () => void;
+	/** 選択中の注釈がまだ前面へ動けるか。false でボタンを disable する。 */
+	canBringForward: boolean;
+	/** 選択中の注釈がまだ背面へ動けるか。false でボタンを disable する。 */
+	canSendBackward: boolean;
 	onDelete: () => void;
 };
 
 /**
- * 選択中の注釈近傍に浮かぶミニアクションバー (複製 / 削除)。種別を問わず
+ * 選択中の注釈近傍に浮かぶミニアクションバー (複製 / 前面へ / 背面へ / 削除)。
+ * 種別を問わず
  * 外接矩形 (bounds) を基準に配置する。stage 内に絶対配置するが、バー自体の
  * サイズは CSS px 固定なので zoom 倍率に影響されない (stage は
  * transform-scale ではなく実寸配置のため)。
@@ -33,6 +47,10 @@ export function AnnotationMiniActions({
 	imageWidth,
 	imageHeight,
 	onDuplicate,
+	onBringForward,
+	onSendBackward,
+	canBringForward,
+	canSendBackward,
 	onDelete,
 }: Props) {
 	const barRef = useRef<HTMLDivElement>(null);
@@ -90,6 +108,34 @@ export function AnnotationMiniActions({
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>複製 (⌘D)</TooltipContent>
+			</Tooltip>
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button
+						aria-label="選択中の注釈を前面へ"
+						disabled={!canBringForward}
+						onClick={onBringForward}
+						size="icon-sm"
+						variant="ghost"
+					>
+						<BringToFrontIcon strokeWidth={1.75} />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>前面へ (])</TooltipContent>
+			</Tooltip>
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button
+						aria-label="選択中の注釈を背面へ"
+						disabled={!canSendBackward}
+						onClick={onSendBackward}
+						size="icon-sm"
+						variant="ghost"
+					>
+						<SendToBackIcon strokeWidth={1.75} />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>背面へ ([)</TooltipContent>
 			</Tooltip>
 			<Tooltip>
 				<TooltipTrigger asChild>

@@ -1,4 +1,8 @@
 import type { CropEngineHandle } from "~/hooks/use-crop-engine";
+import {
+	groupAnnotationRuns,
+	sortAnnotationsByZ,
+} from "~/lib/annotation-z-order";
 import { type ArrowAnnotation, getArrowRenderModel } from "~/lib/arrow-engine";
 import {
 	getHighlightRenderModel,
@@ -26,13 +30,10 @@ import {
  * 重ね描く (元画像全面を一度焼くアプローチだと、大きな画像で常に
  * 元解像度の中間 canvas を作ってしまい重かった)。
  *
- * arrows (矢印アノテーション) / texts (テキストアノテーション) も同様に
- * baked-in する。表示レイヤーの z-order (矢印は矩形より前、テキストは矢印
- * より前) に合わせ、矩形 → 矢印 → テキストの順に描く。
- *
- * highlights (マーカーアノテーション) も同様に baked-in する。表示レイヤーの
- * z-order (マーカーは kind レイヤーの最前) に合わせ、最後に multiply 合成で
- * 描く (下の文字が透ける)。
+ * arrows (矢印) / texts (テキスト) / highlights (マーカー) も同様に
+ * baked-in する。重なり順は表示レイヤーと同じ zIndex 順
+ * (annotation-z-order.ts) — 全種別を 1 本に合流し、同種別の連続区間 (run)
+ * ごとに下から順に描く。マーカーは multiply 合成で描く (下の文字が透ける)。
  */
 export async function getCroppedBlob(
 	engine: CropEngineHandle,
@@ -71,7 +72,7 @@ export async function getCroppedBlob(
  * フル解像度 canvas を作らず、出力サイズに直接描く。
  *
  * mosaic は annotation を 1 つでも重ね描く前の cropped 画像ピクセルを
- * 1 度だけサンプル元に取り、createdAt 順に重ね描き中の上書きを受けない
+ * 1 度だけサンプル元に取り、zIndex 順に重ね描き中の上書きを受けない
  * ようにする。
  */
 function renderAnnotatedCroppedCanvas(
@@ -108,18 +109,46 @@ function renderAnnotatedCroppedCanvas(
 		out.height,
 	);
 
-	const visible = annotations.filter((a) => intersectsCrop(a, cropRect));
-	if (visible.length > 0) {
-		drawAnnotations(outCtx, out.width, out.height, visible, cropRect);
+	// 表示 (image-stage) と同じ zIndex 順に合流し、同種別の連続区間 (run)
+	// ごとに下から描く。z 操作をしていないドキュメントでは従来どおり
+	// 矩形 → 矢印 → テキスト → マーカーの 4 区間になる。
+	const runs = groupAnnotationRuns(
+		sortAnnotationsByZ({ annotations, arrows, texts, highlights }),
+	);
+
+	// mosaic 用に「annotation を 1 つも乗せていない cropped 画像のピクセル」を
+	// 1 度だけ取る。zIndex 順に上書きされていく途中の状態をサンプルしない。
+	const needsMosaic = annotations.some(
+		(a) => a.style === "mosaic" && intersectsCrop(a, cropRect),
+	);
+	let pixels: ImageData | null = null;
+	if (needsMosaic) {
+		try {
+			pixels = outCtx.getImageData(0, 0, out.width, out.height);
+		} catch {
+			pixels = null;
+		}
 	}
-	if (arrows.length > 0) {
-		drawArrows(outCtx, arrows, cropRect);
-	}
-	if (texts.length > 0) {
-		drawTexts(outCtx, texts, cropRect);
-	}
-	if (highlights.length > 0) {
-		drawHighlights(outCtx, highlights, cropRect);
+
+	for (const run of runs) {
+		switch (run.kind) {
+			case "rect": {
+				const visible = run.items.filter((a) => intersectsCrop(a, cropRect));
+				if (visible.length > 0) {
+					drawAnnotations(outCtx, visible, cropRect, pixels);
+				}
+				break;
+			}
+			case "arrow":
+				drawArrows(outCtx, run.items, cropRect);
+				break;
+			case "text":
+				drawTexts(outCtx, run.items, cropRect);
+				break;
+			case "highlight":
+				drawHighlights(outCtx, run.items, cropRect);
+				break;
+		}
 	}
 	return out;
 }
@@ -136,28 +165,20 @@ function intersectsCrop(
 	);
 }
 
+/**
+ * 矩形を canvas に baked-in する。配列は zIndex 昇順 (context が維持する
+ * 並び) を前提に、そのままの順で描く。pixels は mosaic のサンプル元
+ * (注釈を 1 つも乗せていない cropped 画像)。呼び側が 1 度だけ取得して
+ * 全 run で共有する。
+ */
 function drawAnnotations(
 	ctx: CanvasRenderingContext2D,
-	outWidth: number,
-	outHeight: number,
 	annotations: readonly RectAnnotation[],
 	cropRect: { x: number; y: number },
+	pixels: ImageData | null,
 ): void {
-	const sorted = [...annotations].sort((a, b) => a.createdAt - b.createdAt);
-	const needsMosaic = sorted.some((a) => a.style === "mosaic");
-	// mosaic 用に「annotation を 1 つも乗せていない cropped 画像のピクセル」を
-	// 1 度だけ取る。createdAt 順に上書きされていく途中の状態をサンプルしない。
-	let pixels: ImageData | null = null;
-	if (needsMosaic) {
-		try {
-			pixels = ctx.getImageData(0, 0, outWidth, outHeight);
-		} catch {
-			pixels = null;
-		}
-	}
-
 	const prevAlpha = ctx.globalAlpha;
-	for (const ann of sorted) {
+	for (const ann of annotations) {
 		const x = ann.x - cropRect.x;
 		const y = ann.y - cropRect.y;
 		if (ann.style === "outline") {
@@ -182,8 +203,8 @@ function drawAnnotations(
 					height: ann.height,
 					cellSize: MOSAIC_PX[ann.thickness],
 				},
-				outWidth,
-				outHeight,
+				pixels.width,
+				pixels.height,
 			);
 		}
 	}
@@ -202,9 +223,8 @@ function drawArrows(
 	arrows: readonly ArrowAnnotation[],
 	cropRect: { x: number; y: number },
 ): void {
-	const sorted = [...arrows].sort((a, b) => a.createdAt - b.createdAt);
 	const prevLineCap = ctx.lineCap;
-	for (const arrow of sorted) {
+	for (const arrow of arrows) {
 		const m = getArrowRenderModel(arrow);
 		ctx.strokeStyle = arrow.color;
 		ctx.fillStyle = arrow.color;
@@ -271,10 +291,9 @@ function drawTexts(
 	texts: readonly TextAnnotation[],
 	cropRect: { x: number; y: number },
 ): void {
-	const sorted = [...texts].sort((a, b) => a.createdAt - b.createdAt);
 	const prevAlign = ctx.textAlign;
 	const prevBaseline = ctx.textBaseline;
-	for (const t of sorted) {
+	for (const t of texts) {
 		const m = getTextRenderModel(t);
 		const bg = textBackgroundColor(t.background);
 		if (m.bgRect && bg) {
@@ -314,13 +333,12 @@ function drawHighlights(
 	highlights: readonly HighlightAnnotation[],
 	cropRect: { x: number; y: number },
 ): void {
-	const sorted = [...highlights].sort((a, b) => a.createdAt - b.createdAt);
 	const prevLineCap = ctx.lineCap;
 	const prevAlpha = ctx.globalAlpha;
 	const prevComposite = ctx.globalCompositeOperation;
 	ctx.lineCap = "butt";
 	ctx.globalCompositeOperation = "multiply";
-	for (const h of sorted) {
+	for (const h of highlights) {
 		const m = getHighlightRenderModel(h);
 		ctx.strokeStyle = m.color;
 		ctx.lineWidth = m.bandWidth;

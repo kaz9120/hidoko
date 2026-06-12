@@ -54,6 +54,7 @@ const mkText = (overrides: Partial<TextAnnotation>): TextAnnotation => ({
 	color: "#ef4444",
 	background: "none",
 	createdAt: 0,
+	zIndex: 0,
 	...overrides,
 });
 

@@ -131,6 +131,7 @@ const RECT_FIXTURE: RectAnnotation = {
 	color: "#ef4444",
 	thickness: "md",
 	createdAt: 0,
+	zIndex: 0,
 };
 
 const ARROW_FIXTURE: ArrowAnnotation = {
@@ -148,6 +149,7 @@ const ARROW_FIXTURE: ArrowAnnotation = {
 	style: "clean",
 	seed: 1,
 	createdAt: 1,
+	zIndex: 1,
 };
 
 const TEXT_FIXTURE: TextAnnotation = {
@@ -164,6 +166,7 @@ const TEXT_FIXTURE: TextAnnotation = {
 	color: "#ef4444",
 	background: "none",
 	createdAt: 2,
+	zIndex: 2,
 };
 
 const HIGHLIGHT_FIXTURE: HighlightAnnotation = {
@@ -177,6 +180,7 @@ const HIGHLIGHT_FIXTURE: HighlightAnnotation = {
 	opacity: 0.4,
 	thickness: "md",
 	createdAt: 3,
+	zIndex: 3,
 };
 
 const baseArgs = {

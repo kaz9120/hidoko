@@ -41,6 +41,7 @@ export function HighlightPreviewOverlay({
 					opacity: defaults.opacity,
 					thickness: defaults.thickness,
 					createdAt: 0,
+					zIndex: 0,
 				}}
 			/>
 		</svg>

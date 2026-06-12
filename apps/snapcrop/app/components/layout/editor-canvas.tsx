@@ -16,6 +16,7 @@ import { useHighlightShortcuts } from "~/hooks/use-highlight-shortcuts";
 import { useRectShortcuts } from "~/hooks/use-rect-shortcuts";
 import { useSelectAllShortcut } from "~/hooks/use-select-all-shortcut";
 import { useTextShortcuts } from "~/hooks/use-text-shortcuts";
+import { useZOrderShortcuts } from "~/hooks/use-z-order-shortcuts";
 
 export function EditorCanvas() {
 	const {
@@ -45,6 +46,7 @@ export function EditorCanvas() {
 	useTextShortcuts();
 	useHighlightShortcuts();
 	useDuplicateShortcut();
+	useZOrderShortcuts();
 
 	if (image) {
 		// 画像 src が変わったら engine を作り直すために key を付ける。

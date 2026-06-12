@@ -27,6 +27,7 @@ type ShortcutSection = {
  *   - ⌘A        → use-select-all-shortcut.ts
  *   - ⌘Z / ⌘⇧Z → site-header.tsx
  *   - ⌘D        → use-duplicate-shortcut.ts
+ *   - ] / [     → use-z-order-shortcuts.ts (⌘ 付きで最前面 / 最背面)
  *   - ⌘0 / ⌘1  → use-canvas-shortcuts.ts
  *   - Space pan → components/canvas/viewport.tsx
  *   - ⇧ ドラッグ → lib/constrain.ts (各 engine hook が適用)
@@ -86,6 +87,10 @@ const SECTIONS: readonly ShortcutSection[] = [
 			{ keys: ["⌫"], description: "選択中の注釈を削除" },
 			{ keys: ["⌘", "D"], description: "選択中の注釈を複製" },
 			{ keys: ["⌥", "ドラッグ"], description: "注釈を複製してドラッグ" },
+			{ keys: ["]"], description: "選択中の注釈を前面へ" },
+			{ keys: ["["], description: "選択中の注釈を背面へ" },
+			{ keys: ["⌘", "]"], description: "最前面へ" },
+			{ keys: ["⌘", "["], description: "最背面へ" },
 			{ keys: ["↑↓←→"], description: "選択中の注釈を 1px 移動" },
 			{ keys: ["⇧", "↑↓←→"], description: "10px 移動" },
 			{ keys: ["⌥", "↑↓←→"], description: "矩形の右辺 / 下辺をリサイズ" },

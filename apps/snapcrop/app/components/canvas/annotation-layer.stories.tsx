@@ -47,6 +47,7 @@ const mkRect = (
 	color: "#ef4444",
 	thickness: "md",
 	createdAt: Date.now(),
+	zIndex: 0,
 	...overrides,
 });
 

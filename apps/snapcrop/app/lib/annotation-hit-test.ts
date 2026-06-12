@@ -1,3 +1,4 @@
+import { sortAnnotationsByZ } from "~/lib/annotation-z-order";
 import { type ArrowAnnotation, hitTestArrow } from "~/lib/arrow-engine";
 import {
 	type HighlightAnnotation,
@@ -26,12 +27,12 @@ export type AnnotationLists = {
 
 /**
  * どのツール中でも既存注釈を掴めるようにするための、種別をまたいだ hit test
- * (#103)。後続の複製 (#104) や z-order 制御 (#105) もこの走査順を前提に乗る。
+ * (#103)。複製 (#104) や z-order 制御 (#105) もこの走査順を前提に乗る。
  *
- * 種別間の z-order はレイヤー構造 (rect < arrow < text < highlight) で固定
- * なので、最前面の highlight から順に当てる。各種別の hitTest* は配列末尾
- * (= createdAt が新しい = 同種内で前面) から走査するため、全体として
- * 「見えている一番手前の注釈」が勝つ。
+ * 全種別を zIndex 昇順に 1 本へ合流し (annotation-z-order.ts)、前面側
+ * (末尾) から 1 件ずつ当てる。描画 (image-stage / image-export) と同じ並び
+ * なので、「見えている一番手前の注釈」が勝つ。z 操作をしていないドキュメント
+ * では従来どおり highlight → text → arrow → rect の順になる。
  *
  * 許容距離は従来の各 interaction layer が使っていた値をそのまま引き継ぐ:
  * 矢印・マーカーは画面上約 8px、テキストは約 4px を zoom で画像 px に換算し、
@@ -43,10 +44,23 @@ export function hitTestAnnotations(
 	imgY: number,
 	zoom: number,
 ): AnnotationHit | null {
-	return (
-		hitTestHighlight(lists.highlights, imgX, imgY, 8 / zoom) ??
-		hitTestText(lists.texts, imgX, imgY, 4 / zoom) ??
-		hitTestArrow(lists.arrows, imgX, imgY, 8 / zoom) ??
-		hitTestRect(lists.annotations, imgX, imgY)
-	);
+	const ordered = sortAnnotationsByZ(lists);
+	for (let i = ordered.length - 1; i >= 0; i--) {
+		const a = ordered[i];
+		switch (a.kind) {
+			case "highlight":
+				if (hitTestHighlight([a], imgX, imgY, 8 / zoom)) return a;
+				break;
+			case "text":
+				if (hitTestText([a], imgX, imgY, 4 / zoom)) return a;
+				break;
+			case "arrow":
+				if (hitTestArrow([a], imgX, imgY, 8 / zoom)) return a;
+				break;
+			case "rect":
+				if (hitTestRect([a], imgX, imgY)) return a;
+				break;
+		}
+	}
+	return null;
 }
