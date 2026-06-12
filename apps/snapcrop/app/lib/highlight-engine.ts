@@ -8,6 +8,7 @@
  */
 
 import type { ImageMetrics } from "~/lib/crop-engine";
+import { DUPLICATE_OFFSET_PX } from "~/lib/rect-engine";
 
 export type { ImageMetrics };
 
@@ -174,6 +175,41 @@ export function createHighlightAnnotation(args: {
 		thickness: args.defaults.thickness,
 		createdAt: Date.now(),
 	};
+}
+
+/**
+ * annotation を位置を変えずに複製して、新しい id / createdAt を持つコピーを
+ * 返す。Alt+ドラッグ複製の開始時に使う。
+ */
+export function cloneHighlightAnnotation(
+	source: HighlightAnnotation,
+): HighlightAnnotation {
+	return { ...source, id: newId(), createdAt: Date.now() };
+}
+
+/**
+ * annotation を複製して新しい id / createdAt を持つコピーを返す。位置は
+ * rect-engine.ts の duplicateRectAnnotation と同じ思想で右下へ
+ * DUPLICATE_OFFSET_PX ずらし、画像境界に当たって元と同位置に clamp されて
+ * しまう場合は左上方向へフォールバックする。
+ */
+export function duplicateHighlightAnnotation(
+	source: HighlightAnnotation,
+	img: ImageMetrics,
+): HighlightAnnotation {
+	let moved = moveHighlight(
+		source,
+		{ dx: DUPLICATE_OFFSET_PX, dy: DUPLICATE_OFFSET_PX },
+		img,
+	);
+	if (moved.x1 === source.x1 && moved.y1 === source.y1) {
+		moved = moveHighlight(
+			source,
+			{ dx: -DUPLICATE_OFFSET_PX, dy: -DUPLICATE_OFFSET_PX },
+			img,
+		);
+	}
+	return { ...moved, id: newId(), createdAt: Date.now() };
 }
 
 function distToSegmentSq(p: Point, v: Point, w: Point): number {

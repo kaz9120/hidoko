@@ -8,7 +8,9 @@ import {
 	type ArrowAnnotation,
 	type ArrowEndpoint,
 	clampPointInImage,
+	cloneArrowAnnotation,
 	createArrowAnnotation,
+	duplicateArrowAnnotation,
 	type ImageMetrics,
 	MIN_ARROW_LENGTH,
 	moveArrow,
@@ -49,6 +51,14 @@ type Interaction =
 			startArrow: ArrowAnnotation;
 			currentImg: ImagePoint;
 			constrain: boolean;
+	  }
+	| {
+			kind: "duplicating";
+			/** 元と同位置に採番済みのコピー。pointerup まで context には入れない */
+			copy: ArrowAnnotation;
+			startImg: ImagePoint;
+			currentImg: ImagePoint;
+			constrain: boolean;
 	  };
 
 /** drawing 中の実効 current 点。Shift 拘束中は 45° 刻みの角度へ吸着する。 */
@@ -76,6 +86,12 @@ export type UseArrowEngineResult = {
 	isInteracting: boolean;
 	beginDraw: (startImg: ImagePoint, constrain?: boolean) => void;
 	beginMove: (id: string, startImg: ImagePoint) => void;
+	/**
+	 * Alt+ドラッグ複製を開始する。source のコピーをその場に作り、以後の
+	 * ドラッグはコピー側を動かす (元は動かない)。endInteraction で初めて
+	 * コピーを context に commit するので、複製は undo 1 回で取り消せる。
+	 */
+	beginDuplicate: (source: ArrowAnnotation, startImg: ImagePoint) => void;
 	beginEndpointDrag: (
 		id: string,
 		endpoint: ArrowEndpoint,
@@ -131,6 +147,19 @@ export function useArrowEngine(image: ImageMetrics): UseArrowEngineResult {
 			});
 		},
 		[arrows],
+	);
+
+	const beginDuplicate = useCallback(
+		(source: ArrowAnnotation, startImg: ImagePoint) => {
+			setInteraction({
+				kind: "duplicating",
+				copy: cloneArrowAnnotation(source),
+				startImg,
+				currentImg: startImg,
+				constrain: false,
+			});
+		},
+		[],
 	);
 
 	const beginEndpointDrag = useCallback(
@@ -191,6 +220,16 @@ export function useArrowEngine(image: ImageMetrics): UseArrowEngineResult {
 				});
 				createArrow(arrow);
 			}
+		} else if (prev.kind === "duplicating") {
+			const dx = prev.currentImg.x - prev.startImg.x;
+			const dy = prev.currentImg.y - prev.startImg.y;
+			// 動かさず放したときは元と完全に重なって気づけないため、⌘D と同じ
+			// オフセット配置にフォールバックする
+			createArrow(
+				dx === 0 && dy === 0
+					? duplicateArrowAnnotation(prev.copy, img)
+					: moveArrow(prev.copy, { dx, dy }, img),
+			);
 		} else if (prev.kind === "moving") {
 			const dx = prev.currentImg.x - prev.startImg.x;
 			const dy = prev.currentImg.y - prev.startImg.y;
@@ -227,6 +266,10 @@ export function useArrowEngine(image: ImageMetrics): UseArrowEngineResult {
 		const dx = interaction.currentImg.x - interaction.startImg.x;
 		const dy = interaction.currentImg.y - interaction.startImg.y;
 		const img = imageRef.current;
+		if (interaction.kind === "duplicating") {
+			// commit 前のコピーを末尾 (= 同種内で最前面) に足して見せる
+			return [...arrows, moveArrow(interaction.copy, { dx, dy }, img)];
+		}
 		return arrows.map((a) => {
 			if (a.id !== interaction.id) return a;
 			if (interaction.kind === "moving") {
@@ -271,6 +314,7 @@ export function useArrowEngine(image: ImageMetrics): UseArrowEngineResult {
 		isInteracting: interaction !== null,
 		beginDraw,
 		beginMove,
+		beginDuplicate,
 		beginEndpointDrag,
 		updateInteraction,
 		endInteraction,

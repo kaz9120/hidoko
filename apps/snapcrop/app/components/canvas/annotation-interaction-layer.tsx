@@ -60,6 +60,9 @@ type Props = {
  *   既存の「選択種別 = activeTool」の整合のまま機能する。レイヤー自体は
  *   描画系ツール間で共通なので、追従でツールが切り替わってもマウントは
  *   維持され、pointer capture が切れない。
+ * - Alt を押しながら既存注釈を掴むと、移動ではなく複製してからドラッグする
+ *   (#104)。コピーは各 engine の duplicating interaction が pointerup で
+ *   commit するため、複製は undo 1 回で取り消せる。
  * - 空クリック / 空ドラッグは従来どおり activeTool の新規作成になる
  *   (rect / arrow / highlight はドラッグ描画、text はクリックで入力開始)。
  * - テキストのインライン編集中の pointerdown は、blur 任せにせず
@@ -85,6 +88,23 @@ export function AnnotationInteractionLayer({
 }: Props) {
 	const { selectAnnotation, setActiveTool, spacePressedRef } = useSnapcrop();
 	const dragRef = useRef<Drag | null>(null);
+
+	const beginDuplicate = (hit: AnnotationHit, pt: ImagePoint) => {
+		switch (hit.kind) {
+			case "rect":
+				rectEngine.beginDuplicate(hit, pt);
+				return;
+			case "arrow":
+				arrowEngine.beginDuplicate(hit, pt);
+				return;
+			case "highlight":
+				highlightEngine.beginDuplicate(hit, pt);
+				return;
+			case "text":
+				textEngine.beginDuplicate(hit, pt);
+				return;
+		}
+	};
 
 	const beginMove = (hit: AnnotationHit, pt: ImagePoint) => {
 		switch (hit.kind) {
@@ -167,6 +187,20 @@ export function AnnotationInteractionLayer({
 			// どのツール中でも掴める。activeTool を種別へ追従させてから選択する
 			// (SET_ACTIVE_TOOL の pruneSelection は旧選択にだけ効く順序)
 			setActiveTool(hit.kind);
+			// Alt+ドラッグは移動でなく複製してからドラッグ (Excalidraw / Figma の
+			// 慣例)。コピーは pointerup まで context に入らないため、ドラッグ中は
+			// 選択を外しておき、commit 時の自動選択でコピー側が選択される。
+			if (e.altKey) {
+				selectAnnotation(null);
+				dragRef.current = {
+					kind: "move",
+					tool: hit.kind,
+					pointerId: e.pointerId,
+				};
+				e.currentTarget.setPointerCapture(e.pointerId);
+				beginDuplicate(hit, pt);
+				return;
+			}
 			selectAnnotation(hit.id);
 			// テキストのダブルクリック (連打 2 回目) は移動ではなく再編集を開始する
 			if (hit.kind === "text" && e.detail >= 2) {

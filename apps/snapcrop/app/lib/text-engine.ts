@@ -7,6 +7,7 @@
  */
 
 import type { ImageMetrics } from "~/lib/crop-engine";
+import { DUPLICATE_OFFSET_PX } from "~/lib/rect-engine";
 
 export type { ImageMetrics };
 
@@ -310,4 +311,37 @@ export function moveText(
 			? Math.max(-b.y, Math.min(delta.dy, img.naturalHeight - (b.y + b.height)))
 			: Math.max(-t.y, Math.min(delta.dy, img.naturalHeight - t.y));
 	return { ...t, x: t.x + dx, y: t.y + dy };
+}
+
+/**
+ * annotation を位置を変えずに複製して、新しい id / createdAt を持つコピーを
+ * 返す。Alt+ドラッグ複製の開始時に使う。
+ */
+export function cloneTextAnnotation(source: TextAnnotation): TextAnnotation {
+	return { ...source, id: newId(), createdAt: Date.now() };
+}
+
+/**
+ * annotation を複製して新しい id / createdAt を持つコピーを返す。位置は
+ * rect-engine.ts の duplicateRectAnnotation と同じ思想で右下へ
+ * DUPLICATE_OFFSET_PX ずらし、画像境界に当たって元と同位置に clamp されて
+ * しまう場合は左上方向へフォールバックする。
+ */
+export function duplicateTextAnnotation(
+	source: TextAnnotation,
+	img: ImageMetrics,
+): TextAnnotation {
+	let moved = moveText(
+		source,
+		{ dx: DUPLICATE_OFFSET_PX, dy: DUPLICATE_OFFSET_PX },
+		img,
+	);
+	if (moved.x === source.x && moved.y === source.y) {
+		moved = moveText(
+			source,
+			{ dx: -DUPLICATE_OFFSET_PX, dy: -DUPLICATE_OFFSET_PX },
+			img,
+		);
+	}
+	return { ...moved, id: newId(), createdAt: Date.now() };
 }

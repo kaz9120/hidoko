@@ -7,7 +7,9 @@ import { useShiftConstrainKey } from "~/hooks/use-shift-constrain-key";
 import { constrainToAxis } from "~/lib/constrain";
 import {
 	clampPointInImage,
+	cloneHighlightAnnotation,
 	createHighlightAnnotation,
+	duplicateHighlightAnnotation,
 	type HighlightAnnotation,
 	type HighlightEndpoint,
 	type ImageMetrics,
@@ -46,6 +48,14 @@ type Interaction =
 			startHighlight: HighlightAnnotation;
 			currentImg: ImagePoint;
 			constrain: boolean;
+	  }
+	| {
+			kind: "duplicating";
+			/** 元と同位置に採番済みのコピー。pointerup まで context には入れない */
+			copy: HighlightAnnotation;
+			startImg: ImagePoint;
+			currentImg: ImagePoint;
+			constrain: boolean;
 	  };
 
 /** drawing 中の実効 current 点。Shift 拘束中は優勢な軸 (水平 / 垂直) へ吸着する。 */
@@ -66,6 +76,12 @@ export type UseHighlightEngineResult = {
 	isInteracting: boolean;
 	beginDraw: (startImg: ImagePoint, constrain?: boolean) => void;
 	beginMove: (id: string, startImg: ImagePoint) => void;
+	/**
+	 * Alt+ドラッグ複製を開始する。source のコピーをその場に作り、以後の
+	 * ドラッグはコピー側を動かす (元は動かない)。endInteraction で初めて
+	 * コピーを context に commit するので、複製は undo 1 回で取り消せる。
+	 */
+	beginDuplicate: (source: HighlightAnnotation, startImg: ImagePoint) => void;
 	beginEndpointDrag: (
 		id: string,
 		endpoint: HighlightEndpoint,
@@ -125,6 +141,19 @@ export function useHighlightEngine(
 		[highlights],
 	);
 
+	const beginDuplicate = useCallback(
+		(source: HighlightAnnotation, startImg: ImagePoint) => {
+			setInteraction({
+				kind: "duplicating",
+				copy: cloneHighlightAnnotation(source),
+				startImg,
+				currentImg: startImg,
+				constrain: false,
+			});
+		},
+		[],
+	);
+
 	const beginEndpointDrag = useCallback(
 		(id: string, endpoint: HighlightEndpoint, startImg: ImagePoint) => {
 			const target = highlights.find((h) => h.id === id);
@@ -182,6 +211,16 @@ export function useHighlightEngine(
 				});
 				createHighlight(highlight);
 			}
+		} else if (prev.kind === "duplicating") {
+			const dx = prev.currentImg.x - prev.startImg.x;
+			const dy = prev.currentImg.y - prev.startImg.y;
+			// 動かさず放したときは元と完全に重なって気づけないため、⌘D と同じ
+			// オフセット配置にフォールバックする
+			createHighlight(
+				dx === 0 && dy === 0
+					? duplicateHighlightAnnotation(prev.copy, img)
+					: moveHighlight(prev.copy, { dx, dy }, img),
+			);
 		} else if (prev.kind === "moving") {
 			const dx = prev.currentImg.x - prev.startImg.x;
 			const dy = prev.currentImg.y - prev.startImg.y;
@@ -218,6 +257,10 @@ export function useHighlightEngine(
 		const dx = interaction.currentImg.x - interaction.startImg.x;
 		const dy = interaction.currentImg.y - interaction.startImg.y;
 		const img = imageRef.current;
+		if (interaction.kind === "duplicating") {
+			// commit 前のコピーを末尾 (= 同種内で最前面) に足して見せる
+			return [...highlights, moveHighlight(interaction.copy, { dx, dy }, img)];
+		}
 		return highlights.map((h) => {
 			if (h.id !== interaction.id) return h;
 			if (interaction.kind === "moving") {
@@ -256,6 +299,7 @@ export function useHighlightEngine(
 		isInteracting: interaction !== null,
 		beginDraw,
 		beginMove,
+		beginDuplicate,
 		beginEndpointDrag,
 		updateInteraction,
 		endInteraction,

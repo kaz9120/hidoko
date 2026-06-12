@@ -1,11 +1,13 @@
 import type {
 	CoverText,
 	Fields,
+	FocalPoint,
 	FontMode,
 	OgRoles,
 	PaletteId,
 	PaletteSelection,
 	PaperStrength,
+	PhotoLayout,
 	PhotoPalette,
 	PhotoPaletteId,
 	TemplateId,
@@ -13,7 +15,7 @@ import type {
 	ThemeMode,
 	TitleDecoration,
 } from "./og-templates";
-import { DEFAULT_PALETTE_ID, PALETTES } from "./og-templates";
+import { DEFAULT_PALETTE_ID, FOCAL_POINTS, PALETTES } from "./og-templates";
 
 const STORAGE_KEY = "hidoko-note-ogp:v1";
 
@@ -41,6 +43,9 @@ export const DEFAULTS: Fields = {
 	paperStrength: "weak",
 	photoPalettes: null,
 	titleDecoration: "none",
+	photoLayout: "full",
+	focalPoint: "center",
+	photoMirror: false,
 };
 
 const TEMPLATE_IDS = new Set<TemplateId>(["edition", "cover", "quiet"]);
@@ -56,6 +61,8 @@ const TITLE_DECORATIONS = new Set<TitleDecoration>([
 	"zurashi",
 	"hanzure",
 ]);
+const PHOTO_LAYOUT_IDS = new Set<PhotoLayout>(["full", "edge", "kakuhan"]);
+const FOCAL_POINT_IDS = new Set<FocalPoint>(FOCAL_POINTS);
 
 function pickEnum<T extends string>(
 	value: unknown,
@@ -172,6 +179,18 @@ export function loadState(): Fields {
 				TITLE_DECORATIONS,
 				DEFAULTS.titleDecoration,
 			),
+			// 配置・注視点キーを持たない既存データは全面・中央（現行の構図）に
+			photoLayout: pickEnum(
+				parsed.photoLayout,
+				PHOTO_LAYOUT_IDS,
+				DEFAULTS.photoLayout,
+			),
+			focalPoint: pickEnum(
+				parsed.focalPoint,
+				FOCAL_POINT_IDS,
+				DEFAULTS.focalPoint,
+			),
+			photoMirror: pickBool(parsed.photoMirror, DEFAULTS.photoMirror),
 		};
 	} catch {
 		return DEFAULTS;

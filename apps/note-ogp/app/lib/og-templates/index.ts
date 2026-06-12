@@ -12,7 +12,7 @@ export const TEMPLATES = [
 	{
 		id: "cover",
 		label: "02 Cover",
-		note: "写真フルブリードの表紙",
+		note: "写真が主役・配置 3 型",
 		useImage: true,
 		Comp: TplCover,
 	},
@@ -34,16 +34,23 @@ export {
 	paletteForSelection,
 	resolveOgTheme,
 } from "./palettes";
+export {
+	FOCAL_POINTS,
+	focalObjectPosition,
+	PHOTO_LAYOUTS,
+} from "./photo";
 export { TextureLayer } from "./texture";
 export { renderTitleLines, splitMerihari } from "./title-decoration";
 export type {
 	CoverText,
 	Fields,
+	FocalPoint,
 	FontMode,
 	OgRoles,
 	PaletteId,
 	PaletteSelection,
 	PaperStrength,
+	PhotoLayout,
 	PhotoPalette,
 	PhotoPaletteId,
 	TemplateDef,

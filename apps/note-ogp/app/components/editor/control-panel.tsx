@@ -30,6 +30,7 @@ import { TEMPLATES } from "~/lib/og-templates";
 import { ThemeToggle } from "../theme-toggle";
 import { ImageField } from "./image-field";
 import { PalettePicker } from "./palette-picker";
+import { PhotoLayoutField } from "./photo-layout-field";
 import { SectionTitle } from "./section-title";
 import { TemplateThumb } from "./template-thumb";
 import { TextureField } from "./texture-field";
@@ -79,7 +80,7 @@ export function ControlPanel({
 				<div className="mb-1 flex items-center gap-2.5">
 					<img alt="" aria-hidden="true" className="size-5" src={logoUrl} />
 					<span className="font-mono text-[12px] uppercase tracking-[0.22em] text-primary">
-						HIDOKO ／ note OGP
+						note OGP
 					</span>
 					<div className="ml-auto">
 						<ThemeToggle />
@@ -149,7 +150,7 @@ export function ControlPanel({
 				<TextureField
 					state={state}
 					update={update}
-					unused={tpl.useImage === true}
+					unused={tpl.useImage === true && state.photoLayout === "full"}
 				/>
 
 				<Field className="mb-3.5">
@@ -180,7 +181,7 @@ export function ControlPanel({
 
 				<TitleDecorationField state={state} update={update} />
 
-				{tpl.id === "cover" && (
+				{tpl.id === "cover" && state.photoLayout === "full" && (
 					<Field className="mb-3.5">
 						<FieldLabel className="font-mono text-[10px] uppercase tracking-[0.22em]">
 							表紙の文字色
@@ -212,6 +213,7 @@ export function ControlPanel({
 					value={state.image}
 					onChange={(v) => update({ image: v })}
 				/>
+				<PhotoLayoutField state={state} update={update} tpl={tpl} />
 
 				<SectionTitle>内容</SectionTitle>
 				<Field className="mb-3.5">

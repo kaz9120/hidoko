@@ -6,7 +6,9 @@ import {
 import { useShiftConstrainKey } from "~/hooks/use-shift-constrain-key";
 import { constrainToSquare } from "~/lib/constrain";
 import {
+	cloneRectAnnotation,
 	createRectAnnotation,
+	duplicateRectAnnotation,
 	type ImageMetrics,
 	MIN_RECT_SIZE,
 	moveAnnotation,
@@ -46,6 +48,14 @@ type Interaction =
 			startRect: RectAnnotation;
 			currentImg: ImagePoint;
 			constrain: boolean;
+	  }
+	| {
+			kind: "duplicating";
+			/** 元と同位置に採番済みのコピー。pointerup まで context には入れない */
+			copy: RectAnnotation;
+			startImg: ImagePoint;
+			currentImg: ImagePoint;
+			constrain: boolean;
 	  };
 
 /** drawing 中の実効 current 点。Shift 拘束中は正方形になる点へ吸着する。 */
@@ -67,6 +77,12 @@ export type UseRectEngineResult = {
 	isInteracting: boolean;
 	beginDraw: (startImg: ImagePoint, constrain?: boolean) => void;
 	beginMove: (id: string, startImg: ImagePoint) => void;
+	/**
+	 * Alt+ドラッグ複製を開始する。source のコピーをその場に作り、以後の
+	 * ドラッグはコピー側を動かす (元は動かない)。endInteraction で初めて
+	 * コピーを context に commit するので、複製は undo 1 回で取り消せる。
+	 */
+	beginDuplicate: (source: RectAnnotation, startImg: ImagePoint) => void;
 	beginResize: (
 		id: string,
 		handle: ResizeHandle,
@@ -125,6 +141,19 @@ export function useRectEngine(image: ImageMetrics): UseRectEngineResult {
 			});
 		},
 		[annotations],
+	);
+
+	const beginDuplicate = useCallback(
+		(source: RectAnnotation, startImg: ImagePoint) => {
+			setInteraction({
+				kind: "duplicating",
+				copy: cloneRectAnnotation(source),
+				startImg,
+				currentImg: startImg,
+				constrain: false,
+			});
+		},
+		[],
 	);
 
 	const beginResize = useCallback(
@@ -189,6 +218,16 @@ export function useRectEngine(image: ImageMetrics): UseRectEngineResult {
 				});
 				createAnnotation(annotation);
 			}
+		} else if (prev.kind === "duplicating") {
+			const dx = prev.currentImg.x - prev.startImg.x;
+			const dy = prev.currentImg.y - prev.startImg.y;
+			// 動かさず放したときは元と完全に重なって気づけないため、⌘D と同じ
+			// オフセット配置にフォールバックする
+			createAnnotation(
+				dx === 0 && dy === 0
+					? duplicateRectAnnotation(prev.copy, img)
+					: moveAnnotation(prev.copy, { dx, dy }, img),
+			);
 		} else if (prev.kind === "moving") {
 			const dx = prev.currentImg.x - prev.startImg.x;
 			const dy = prev.currentImg.y - prev.startImg.y;
@@ -226,6 +265,13 @@ export function useRectEngine(image: ImageMetrics): UseRectEngineResult {
 		const dx = interaction.currentImg.x - interaction.startImg.x;
 		const dy = interaction.currentImg.y - interaction.startImg.y;
 		const img = imageRef.current;
+		if (interaction.kind === "duplicating") {
+			// commit 前のコピーを末尾 (= 同種内で最前面) に足して見せる
+			return [
+				...annotations,
+				moveAnnotation(interaction.copy, { dx, dy }, img),
+			];
+		}
 		return annotations.map((a) => {
 			if (a.id !== interaction.id) return a;
 			if (interaction.kind === "moving") {
@@ -266,6 +312,7 @@ export function useRectEngine(image: ImageMetrics): UseRectEngineResult {
 		isInteracting: interaction !== null,
 		beginDraw,
 		beginMove,
+		beginDuplicate,
 		beginResize,
 		updateInteraction,
 		endInteraction,

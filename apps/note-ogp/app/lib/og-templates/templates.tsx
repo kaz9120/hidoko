@@ -14,6 +14,7 @@ import {
 	UI_JP,
 	UI_LATIN,
 } from "./helpers";
+import { focalObjectPosition } from "./photo";
 import { renderTitleLines } from "./title-decoration";
 import type { Fields } from "./types";
 
@@ -159,9 +160,16 @@ export function TplEdition({ f }: { f: Fields }) {
 }
 
 // ─────────────────────────────────────────────────────────
-// 02 Cover — 写真フルブリード。文字色トグル＋強スクリムで可読性確保
+// 02 Cover — 写真が主役。配置型（全面 / 片寄せ / 角版）で構図を切り替える
 // ─────────────────────────────────────────────────────────
 export function TplCover({ f }: { f: Fields }) {
+	if (f.photoLayout === "edge") return <CoverEdge f={f} />;
+	if (f.photoLayout === "kakuhan") return <CoverKakuhan f={f} />;
+	return <CoverFull f={f} />;
+}
+
+// 全面（現行）— フルブリード。文字色トグル＋強スクリムで可読性確保
+function CoverFull({ f }: { f: Fields }) {
 	const { ft } = styleFrom(f);
 	const pal = paletteForSelection(f.palette, f.photoPalettes);
 	const issue = String(f.issue || "001").padStart(3, "0");
@@ -203,6 +211,7 @@ export function TplCover({ f }: { f: Fields }) {
 						width: "100%",
 						height: "100%",
 						objectFit: "cover",
+						objectPosition: focalObjectPosition(f.focalPoint),
 					}}
 				/>
 			) : (
@@ -351,6 +360,299 @@ export function TplCover({ f }: { f: Fields }) {
 	);
 }
 
+// 片寄せ — 写真を片側 2/3 に三方裁ち落とし、反対側はテーマの base 色面。
+// テキスト面は写真と干渉しないので、可読性が写真に依存しない。
+function CoverEdge({ f }: { f: Fields }) {
+	const { t, ft } = styleFrom(f);
+	const pal = paletteForSelection(f.palette, f.photoPalettes);
+	const issue = String(f.issue || "001").padStart(3, "0");
+	const markUrl = markUrlFor(f.theme);
+	const mirror = !!f.photoMirror;
+	const photoW = 768; // 写真 60% / テキスト面 40%
+	const panelW = 1280 - photoW;
+	const PAD_X = 60;
+
+	return (
+		<div style={{ ...FRAME_BASE, background: t.bg, color: t.text }}>
+			<TextureLayer f={f} />
+			{/* 写真（上下と外側の三辺を裁ち落とし） */}
+			<div
+				style={{
+					position: "absolute",
+					top: 0,
+					bottom: 0,
+					width: photoW,
+					...(mirror ? { right: 0 } : { left: 0 }),
+					overflow: "hidden",
+				}}
+			>
+				{f.image ? (
+					<img
+						src={f.image}
+						alt=""
+						crossOrigin="anonymous"
+						style={{
+							width: "100%",
+							height: "100%",
+							objectFit: "cover",
+							objectPosition: focalObjectPosition(f.focalPoint),
+						}}
+					/>
+				) : (
+					<PhotoPlaceholder roles={pal[f.theme]} label="表紙写真を追加" />
+				)}
+			</div>
+
+			{/* テキスト面（base 色） */}
+			<div
+				style={{
+					position: "absolute",
+					top: 0,
+					bottom: 0,
+					width: panelW,
+					...(mirror ? { left: 0 } : { right: 0 }),
+					display: "flex",
+					flexDirection: "column",
+					padding: `54px ${PAD_X}px 50px`,
+				}}
+			>
+				<Brand
+					color={t.muted}
+					text={f.brand}
+					showMark={f.showMark !== false}
+					markUrl={markUrl}
+					size={15}
+					markSize={21}
+				/>
+
+				<div
+					style={{
+						flex: 1,
+						display: "flex",
+						flexDirection: "column",
+						justifyContent: "center",
+					}}
+				>
+					<Kicker
+						color={t.accent}
+						style={{ display: "inline-flex", alignItems: "center", gap: 12 }}
+					>
+						<span
+							style={{
+								width: 22,
+								height: 1,
+								background: t.accent,
+								display: "inline-block",
+							}}
+						/>
+						{f.category || "ESSAY"}&nbsp;&nbsp;·&nbsp;&nbsp;Vol.{issue}
+					</Kicker>
+					<AutoFitTitle
+						lines={renderTitleLines(f.title, f.titleDecoration, t.accent)}
+						width={panelW - PAD_X * 2}
+						maxH={300}
+						max={58}
+						min={24}
+						style={{
+							marginTop: 22,
+							fontFamily: titleFamily(ft),
+							fontWeight: ft.titleWeight,
+							lineHeight: ft.titleLeading,
+							letterSpacing: ft.titleTrack,
+							color: t.text,
+						}}
+					/>
+					{f.lead && (
+						<div
+							style={{
+								marginTop: 18,
+								fontFamily: UI_JP,
+								fontSize: 19,
+								lineHeight: 1.7,
+								fontWeight: 400,
+								color: t.muted,
+								whiteSpace: "pre-wrap",
+							}}
+						>
+							{f.lead}
+						</div>
+					)}
+				</div>
+
+				<div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+					<span
+						style={{
+							fontFamily: UI_JP,
+							fontSize: 16,
+							fontWeight: 700,
+							color: t.text,
+						}}
+					>
+						{f.author}
+						{f.account && (
+							<span
+								style={{
+									fontFamily: UI_LATIN,
+									fontSize: 13,
+									fontWeight: 400,
+									color: t.faint,
+									marginLeft: 10,
+								}}
+							>
+								{f.account}
+							</span>
+						)}
+					</span>
+					<Kicker color={t.faint} style={{ fontSize: 11 }}>
+						{f.date}
+					</Kicker>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+// 角版 — 写真を四周の地余白で囲む（額縁効果）。下に見出しと脚注。
+function CoverKakuhan({ f }: { f: Fields }) {
+	const { t, ft } = styleFrom(f);
+	const pal = paletteForSelection(f.palette, f.photoPalettes);
+	const issue = String(f.issue || "001").padStart(3, "0");
+	const markUrl = markUrlFor(f.theme);
+
+	return (
+		<div style={{ ...FRAME_BASE, background: t.bg, color: t.text }}>
+			<TextureLayer f={f} />
+			{/* マストヘッド：左ブランド／右カテゴリ・号数 */}
+			<div
+				style={{
+					position: "absolute",
+					top: 52,
+					left: M,
+					right: M,
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "space-between",
+				}}
+			>
+				<Brand
+					color={t.muted}
+					text={f.brand}
+					showMark={f.showMark !== false}
+					markUrl={markUrl}
+					size={15}
+					markSize={21}
+				/>
+				<Kicker color={t.muted}>
+					{f.category || "ESSAY"}&nbsp;&nbsp;·&nbsp;&nbsp;Vol.{issue}
+				</Kicker>
+			</div>
+
+			{/* 角版写真（四周に地余白） */}
+			<div
+				style={{
+					position: "absolute",
+					top: 110,
+					left: M,
+					right: M,
+					height: 314,
+					overflow: "hidden",
+				}}
+			>
+				{f.image ? (
+					<img
+						src={f.image}
+						alt=""
+						crossOrigin="anonymous"
+						style={{
+							width: "100%",
+							height: "100%",
+							objectFit: "cover",
+							objectPosition: focalObjectPosition(f.focalPoint),
+						}}
+					/>
+				) : (
+					<PhotoPlaceholder roles={pal[f.theme]} label="表紙写真を追加" />
+				)}
+			</div>
+
+			{/* タイトル＋リード */}
+			<div style={{ position: "absolute", left: M, right: M, top: 458 }}>
+				<AutoFitTitle
+					lines={renderTitleLines(f.title, f.titleDecoration, t.accent)}
+					width={1280 - M * 2}
+					maxH={96}
+					max={52}
+					min={24}
+					style={{
+						fontFamily: titleFamily(ft),
+						fontWeight: ft.titleWeight,
+						lineHeight: ft.titleLeading - 0.08,
+						letterSpacing: ft.titleTrack,
+						color: t.text,
+					}}
+				/>
+				{f.lead && (
+					<div
+						style={{
+							marginTop: 12,
+							maxWidth: 760,
+							fontFamily: UI_JP,
+							fontSize: 19,
+							lineHeight: 1.6,
+							fontWeight: 400,
+							color: t.muted,
+							whiteSpace: "pre-wrap",
+						}}
+					>
+						{f.lead}
+					</div>
+				)}
+			</div>
+
+			{/* フッター：左に著者、右下に日付 */}
+			<div
+				style={{
+					position: "absolute",
+					left: M,
+					bottom: 48,
+					display: "flex",
+					alignItems: "baseline",
+					gap: 13,
+				}}
+			>
+				<span
+					style={{
+						fontFamily: UI_JP,
+						fontSize: 16,
+						fontWeight: 700,
+						color: t.text,
+					}}
+				>
+					{f.author}
+				</span>
+				{f.account && (
+					<span
+						style={{
+							fontFamily: UI_LATIN,
+							fontSize: 13,
+							color: t.faint,
+							letterSpacing: "0.01em",
+						}}
+					>
+						{f.account}
+					</span>
+				)}
+			</div>
+			<Kicker
+				color={t.faint}
+				style={{ position: "absolute", right: M, bottom: 50, fontSize: 11 }}
+			>
+				{f.date}
+			</Kicker>
+		</div>
+	);
+}
+
 // ─────────────────────────────────────────────────────────
 // 03 Quiet — 余白多めの和モダン。明朝が映える。
 // ─────────────────────────────────────────────────────────
@@ -406,6 +708,7 @@ export function TplQuiet({ f }: { f: Fields }) {
 							width: 320,
 							height: 196,
 							objectFit: "cover",
+							objectPosition: focalObjectPosition(f.focalPoint),
 							marginBottom: 30,
 							filter: "saturate(0.96)",
 						}}
