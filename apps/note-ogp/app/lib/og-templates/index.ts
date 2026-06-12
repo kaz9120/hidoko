@@ -32,6 +32,7 @@ export {
 	subPx,
 	titlePx,
 } from "./expression";
+export { TitleFitContext } from "./helpers";
 export type { OgPalette, OgTheme } from "./palettes";
 export {
 	DEFAULT_PALETTE_ID,
