@@ -25,6 +25,7 @@ export const TEMPLATES = [
 	},
 ] as const satisfies readonly TemplateDef[];
 
+export { TitleFitContext } from "./helpers";
 export type { OgPalette, OgTheme } from "./palettes";
 export {
 	DEFAULT_PALETTE_ID,

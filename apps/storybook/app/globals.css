@@ -3,6 +3,7 @@
 @source "../../snapcrop/app";
 @source "../../futari-no-yotei/app";
 @source "../../homepage/app";
+@source "../../note-ogp/app";
 @import "ui/tokens.css";
 @import "ui/styles.css";
 
