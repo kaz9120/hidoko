@@ -47,10 +47,14 @@ jobs:
       # リリース PR の差分は version と CHANGELOG だけなので、CI 通過を条件に
       # 人間の確認なしでマージする。required checks は main の ruleset 側で
       # 指定している。squash は ruleset の required_linear_history に合わせた。
+      #
+      # NOTE: step の env は if が false でも評価される (actions/runner の仕様)。
+      # pr 出力が空のとき fromJSON が env でテンプレートエラーになり job ごと
+      # 落ちるため、env には生の JSON を渡してシェル側で jq でパースする。
       - name: Enable auto-merge on release PR
         if: steps.release-please.outputs.prs_created == 'true'
         env:
           GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
-          PR_NUMBER: ${{ fromJSON(steps.release-please.outputs.pr).number }}
+          PR_JSON: ${{ steps.release-please.outputs.pr }}
           REPO: ${{ github.repository }}
-        run: gh pr merge --auto --squash "$PR_NUMBER" --repo "$REPO"
+        run: gh pr merge --auto --squash "$(jq -r '.number' <<< "$PR_JSON")" --repo "$REPO"
