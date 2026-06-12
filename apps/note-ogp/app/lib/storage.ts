@@ -3,6 +3,7 @@ import type {
 	Fields,
 	FocalPoint,
 	FontMode,
+	JumpRate,
 	OgRoles,
 	PaletteId,
 	PaletteSelection,
@@ -11,6 +12,7 @@ import type {
 	PhotoLayout,
 	PhotoPalette,
 	PhotoPaletteId,
+	Spacing,
 	TemplateId,
 	TextGuard,
 	TextureId,
@@ -56,6 +58,8 @@ export const DEFAULTS: Fields = {
 	photoMirror: false,
 	photoFilter: "none",
 	textGuard: "scrim",
+	spacing: "normal",
+	jumpRate: "normal",
 };
 
 const TEMPLATE_IDS = new Set<TemplateId>(["edition", "cover", "quiet"]);
@@ -75,6 +79,8 @@ const PHOTO_LAYOUT_IDS = new Set<PhotoLayout>(["full", "edge", "kakuhan"]);
 const FOCAL_POINT_IDS = new Set<FocalPoint>(FOCAL_POINTS);
 const PHOTO_FILTER_IDS = new Set<PhotoFilter>(PHOTO_FILTERS.map((p) => p.id));
 const TEXT_GUARD_IDS = new Set<TextGuard>(TEXT_GUARDS.map((g) => g.id));
+const SPACING_IDS = new Set<Spacing>(["tight", "normal", "loose"]);
+const JUMP_RATE_IDS = new Set<JumpRate>(["low", "normal", "high"]);
 
 function pickEnum<T extends string>(
 	value: unknown,
@@ -211,6 +217,10 @@ export function loadState(): Fields {
 				DEFAULTS.photoFilter,
 			),
 			textGuard: pickEnum(parsed.textGuard, TEXT_GUARD_IDS, DEFAULTS.textGuard),
+			// 余白・ジャンプ率キーを持たない既存データは「標準」（現行と同一の
+			// 見た目）にフォールバック
+			spacing: pickEnum(parsed.spacing, SPACING_IDS, DEFAULTS.spacing),
+			jumpRate: pickEnum(parsed.jumpRate, JUMP_RATE_IDS, DEFAULTS.jumpRate),
 		};
 	} catch {
 		return DEFAULTS;

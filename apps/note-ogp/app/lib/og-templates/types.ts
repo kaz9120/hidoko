@@ -23,6 +23,19 @@ export type PaperStrength = "weak" | "medium";
 export type TitleDecoration = "none" | "merihari" | "zurashi" | "hanzure";
 
 /**
+ * 余白量のプリセット。外余白とタイトル周りの逃しを係数でまとめて変える。
+ * タイト＝勢い・密度、ゆったり＝上品・高級感。連続スライダーは出さない。
+ */
+export type Spacing = "tight" | "normal" | "loose";
+
+/**
+ * ジャンプ率（タイトル : リード : メタ情報のサイズ比）のプリセット。
+ * 控えめ＝しっとり、強め＝インパクト。タイトルは最大値側の基準が動くだけで、
+ * AutoFitTitle の自動縮小ロジックはそのまま。
+ */
+export type JumpRate = "low" | "normal" | "high";
+
+/**
  * 写真の配置型（書籍の「1 枚写真の基本形」より）。
  * - full:    全面裁ち落とし（現行の Cover）
  * - edge:    片側 2/3 を三方裁ち落とし＋反対側にテキスト面
@@ -127,6 +140,8 @@ export type Fields = {
 	photoMirror: boolean;
 	photoFilter: PhotoFilter;
 	textGuard: TextGuard;
+	spacing: Spacing;
+	jumpRate: JumpRate;
 };
 
 export type TemplateDef = {
