@@ -41,7 +41,8 @@ const PALE_PHOTO_PALETTES: PhotoPalette[] = [
 	},
 ];
 
-const EDITION = TEMPLATES[0];
+// 並び順に依存せず id で解決する（note-ogp-editor と同じフォールバック規則）
+const EDITION = TEMPLATES.find((t) => t.id === "edition") ?? TEMPLATES[0];
 
 /**
  * note タイムライン実寸相当（モバイル 343px 幅）の縮小プレビューと可読性の
