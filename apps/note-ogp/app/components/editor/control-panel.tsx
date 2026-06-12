@@ -28,6 +28,7 @@ import type {
 } from "~/lib/og-templates";
 import { TEMPLATES } from "~/lib/og-templates";
 import { ThemeToggle } from "../theme-toggle";
+import { ExpressionField } from "./expression-field";
 import { ImageField } from "./image-field";
 import { PalettePicker } from "./palette-picker";
 import { PhotoLayoutField } from "./photo-layout-field";
@@ -181,6 +182,8 @@ export function ControlPanel({
 				</Field>
 
 				<TitleDecorationField state={state} update={update} />
+
+				<ExpressionField state={state} update={update} />
 
 				{tpl.id === "cover" && state.photoLayout === "full" && (
 					<Field className="mb-3.5">

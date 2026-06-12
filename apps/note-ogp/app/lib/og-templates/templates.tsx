@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { spacingPx, subPx, titlePx } from "./expression";
 import {
 	AutoFitTitle,
 	Brand,
@@ -27,6 +28,9 @@ export function TplEdition({ f }: { f: Fields }) {
 	const { t, ft } = styleFrom(f);
 	const issue = String(f.issue || "001").padStart(3, "0");
 	const markUrl = markUrlFor(f.theme);
+	// 余白プリセットは外余白系（左右マージン・マストヘッド・フッター）だけに
+	// 効かせる。タイトル帯の top など骨格の絶対座標は動かさない。
+	const m = spacingPx(M, f.spacing);
 	return (
 		<div style={{ ...FRAME_BASE, background: t.bg, color: t.text }}>
 			<TextureLayer f={f} />
@@ -34,9 +38,9 @@ export function TplEdition({ f }: { f: Fields }) {
 			<div
 				style={{
 					position: "absolute",
-					top: 62,
-					left: M,
-					right: M,
+					top: spacingPx(62, f.spacing),
+					left: m,
+					right: m,
 					display: "flex",
 					alignItems: "center",
 					justifyContent: "space-between",
@@ -55,7 +59,7 @@ export function TplEdition({ f }: { f: Fields }) {
 			<div
 				style={{
 					position: "absolute",
-					right: M - 4,
+					right: m - 4,
 					bottom: 150,
 					fontFamily: UI_LATIN,
 					fontSize: 150,
@@ -84,12 +88,12 @@ export function TplEdition({ f }: { f: Fields }) {
 			</div>
 
 			{/* タイトル */}
-			<div style={{ position: "absolute", left: M, top: 232, right: M }}>
+			<div style={{ position: "absolute", left: m, top: 232, right: m }}>
 				<AutoFitTitle
 					lines={renderTitleLines(f.title, f.titleDecoration, t.accent)}
-					width={1280 - M * 2}
+					width={1280 - m * 2}
 					maxH={196}
-					max={104}
+					max={titlePx(104, f.jumpRate)}
 					min={28}
 					style={{
 						fontFamily: titleFamily(ft),
@@ -105,7 +109,7 @@ export function TplEdition({ f }: { f: Fields }) {
 							marginTop: 22,
 							maxWidth: 660,
 							fontFamily: UI_JP,
-							fontSize: 27,
+							fontSize: subPx(27, f.jumpRate),
 							lineHeight: 1.7,
 							fontWeight: 400,
 							color: t.muted,
@@ -121,8 +125,8 @@ export function TplEdition({ f }: { f: Fields }) {
 			<div
 				style={{
 					position: "absolute",
-					left: M,
-					bottom: 56,
+					left: m,
+					bottom: spacingPx(56, f.spacing),
 					display: "flex",
 					alignItems: "baseline",
 					gap: 14,
@@ -131,7 +135,7 @@ export function TplEdition({ f }: { f: Fields }) {
 				<span
 					style={{
 						fontFamily: UI_JP,
-						fontSize: 18,
+						fontSize: subPx(18, f.jumpRate),
 						fontWeight: 700,
 						color: t.text,
 					}}
@@ -142,7 +146,7 @@ export function TplEdition({ f }: { f: Fields }) {
 					<span
 						style={{
 							fontFamily: UI_LATIN,
-							fontSize: 14,
+							fontSize: subPx(14, f.jumpRate),
 							color: t.faint,
 							letterSpacing: "0.01em",
 						}}
@@ -153,7 +157,12 @@ export function TplEdition({ f }: { f: Fields }) {
 			</div>
 			<Kicker
 				color={t.muted}
-				style={{ position: "absolute", right: M, bottom: 58, fontSize: 12 }}
+				style={{
+					position: "absolute",
+					right: m,
+					bottom: spacingPx(58, f.spacing),
+					fontSize: 12,
+				}}
 			>
 				{f.date}
 			</Kicker>
@@ -178,6 +187,7 @@ function CoverFull({ f }: { f: Fields }) {
 	const issue = String(f.issue || "001").padStart(3, "0");
 	const hasImg = !!f.image;
 	const darkText = f.coverText === "dark"; // 明るい画像向け
+	const m = spacingPx(M, f.spacing);
 
 	// 文字色とスクリム。暗い文字 = 明るい画像想定なのでライト面のロール、
 	// 明るい文字 = 暗い画像想定なのでダーク面のロールを使う。
@@ -206,7 +216,7 @@ function CoverFull({ f }: { f: Fields }) {
 	// ボックスは左右に内側余白（40px）を取るぶんタイトル幅が縮む
 	const BOX_PAD_X = 40;
 	const contentW =
-		guard === "box" ? 1280 - M * 2 - BOX_PAD_X * 2 : 1280 - M * 2;
+		guard === "box" ? 1280 - m * 2 - BOX_PAD_X * 2 : 1280 - m * 2;
 	const bottomStyle: CSSProperties =
 		guard === "band"
 			? {
@@ -217,18 +227,23 @@ function CoverFull({ f }: { f: Fields }) {
 					right: 0,
 					bottom: 0,
 					background: scrim,
-					padding: `40px ${M}px 56px`,
+					padding: `40px ${m}px ${spacingPx(56, f.spacing)}px`,
 				}
 			: guard === "box"
 				? {
 						position: "absolute",
-						left: M,
-						right: M,
-						bottom: 56,
+						left: m,
+						right: m,
+						bottom: spacingPx(56, f.spacing),
 						background: rgbaFromHex(scrim, 0.86),
 						padding: `34px ${BOX_PAD_X}px 38px`,
 					}
-				: { position: "absolute", left: M, right: M, bottom: 64 };
+				: {
+						position: "absolute",
+						left: m,
+						right: m,
+						bottom: spacingPx(64, f.spacing),
+					};
 
 	// 文字色が暗い = 明るい背景想定 → cream マーク。snapcrop と同じ規則
 	const markUrl = markUrlFor(darkText ? "light" : "dark");
@@ -295,9 +310,9 @@ function CoverFull({ f }: { f: Fields }) {
 			<div
 				style={{
 					position: "absolute",
-					top: 58,
-					left: M,
-					right: M,
+					top: spacingPx(58, f.spacing),
+					left: m,
+					right: m,
 					display: "flex",
 					alignItems: "center",
 					justifyContent: "space-between",
@@ -340,7 +355,7 @@ function CoverFull({ f }: { f: Fields }) {
 					lines={renderTitleLines(f.title, f.titleDecoration, kicker)}
 					width={contentW}
 					maxH={208}
-					max={100}
+					max={titlePx(100, f.jumpRate)}
 					min={28}
 					style={{
 						marginTop: 18,
@@ -358,7 +373,7 @@ function CoverFull({ f }: { f: Fields }) {
 							marginTop: 16,
 							maxWidth: 800,
 							fontFamily: UI_JP,
-							fontSize: 22,
+							fontSize: subPx(22, f.jumpRate),
 							lineHeight: 1.6,
 							fontWeight: 400,
 							color: ink,
@@ -381,7 +396,7 @@ function CoverFull({ f }: { f: Fields }) {
 					<span
 						style={{
 							fontFamily: UI_JP,
-							fontSize: 17,
+							fontSize: subPx(17, f.jumpRate),
 							fontWeight: 700,
 							color: ink,
 							textShadow,
@@ -393,7 +408,7 @@ function CoverFull({ f }: { f: Fields }) {
 						<span
 							style={{
 								fontFamily: UI_LATIN,
-								fontSize: 14,
+								fontSize: subPx(14, f.jumpRate),
 								color: sub,
 								textShadow,
 							}}
@@ -421,7 +436,7 @@ function CoverEdge({ f }: { f: Fields }) {
 	const mirror = !!f.photoMirror;
 	const photoW = 768; // 写真 60% / テキスト面 40%
 	const panelW = 1280 - photoW;
-	const PAD_X = 60;
+	const PAD_X = spacingPx(60, f.spacing);
 
 	return (
 		<div style={{ ...FRAME_BASE, background: t.bg, color: t.text }}>
@@ -466,7 +481,7 @@ function CoverEdge({ f }: { f: Fields }) {
 					...(mirror ? { left: 0 } : { right: 0 }),
 					display: "flex",
 					flexDirection: "column",
-					padding: `54px ${PAD_X}px 50px`,
+					padding: `${spacingPx(54, f.spacing)}px ${PAD_X}px ${spacingPx(50, f.spacing)}px`,
 				}}
 			>
 				<Brand
@@ -504,7 +519,7 @@ function CoverEdge({ f }: { f: Fields }) {
 						lines={renderTitleLines(f.title, f.titleDecoration, t.accent)}
 						width={panelW - PAD_X * 2}
 						maxH={300}
-						max={58}
+						max={titlePx(58, f.jumpRate)}
 						min={24}
 						style={{
 							marginTop: 22,
@@ -520,7 +535,7 @@ function CoverEdge({ f }: { f: Fields }) {
 							style={{
 								marginTop: 18,
 								fontFamily: UI_JP,
-								fontSize: 19,
+								fontSize: subPx(19, f.jumpRate),
 								lineHeight: 1.7,
 								fontWeight: 400,
 								color: t.muted,
@@ -536,7 +551,7 @@ function CoverEdge({ f }: { f: Fields }) {
 					<span
 						style={{
 							fontFamily: UI_JP,
-							fontSize: 16,
+							fontSize: subPx(16, f.jumpRate),
 							fontWeight: 700,
 							color: t.text,
 						}}
@@ -546,7 +561,7 @@ function CoverEdge({ f }: { f: Fields }) {
 							<span
 								style={{
 									fontFamily: UI_LATIN,
-									fontSize: 13,
+									fontSize: subPx(13, f.jumpRate),
 									fontWeight: 400,
 									color: t.faint,
 									marginLeft: 10,
@@ -571,6 +586,10 @@ function CoverKakuhan({ f }: { f: Fields }) {
 	const pal = paletteForSelection(f.palette, f.photoPalettes);
 	const issue = String(f.issue || "001").padStart(3, "0");
 	const markUrl = markUrlFor(f.theme);
+	// 角版は縦に密な構図（写真 110-424 / タイトル 458- / フッター）なので、
+	// 縦方向はマストヘッドだけ動かし、フッターの bottom は固定のまま。
+	// 余白の印象は左右の地余白（額縁の幅）で出す。
+	const m = spacingPx(M, f.spacing);
 
 	return (
 		<div style={{ ...FRAME_BASE, background: t.bg, color: t.text }}>
@@ -579,9 +598,9 @@ function CoverKakuhan({ f }: { f: Fields }) {
 			<div
 				style={{
 					position: "absolute",
-					top: 52,
-					left: M,
-					right: M,
+					top: spacingPx(52, f.spacing),
+					left: m,
+					right: m,
 					display: "flex",
 					alignItems: "center",
 					justifyContent: "space-between",
@@ -605,8 +624,8 @@ function CoverKakuhan({ f }: { f: Fields }) {
 				style={{
 					position: "absolute",
 					top: 110,
-					left: M,
-					right: M,
+					left: m,
+					right: m,
 					height: 314,
 					overflow: "hidden",
 				}}
@@ -631,12 +650,12 @@ function CoverKakuhan({ f }: { f: Fields }) {
 			</div>
 
 			{/* タイトル＋リード */}
-			<div style={{ position: "absolute", left: M, right: M, top: 458 }}>
+			<div style={{ position: "absolute", left: m, right: m, top: 458 }}>
 				<AutoFitTitle
 					lines={renderTitleLines(f.title, f.titleDecoration, t.accent)}
-					width={1280 - M * 2}
+					width={1280 - m * 2}
 					maxH={96}
-					max={52}
+					max={titlePx(52, f.jumpRate)}
 					min={24}
 					style={{
 						fontFamily: titleFamily(ft),
@@ -652,7 +671,7 @@ function CoverKakuhan({ f }: { f: Fields }) {
 							marginTop: 12,
 							maxWidth: 760,
 							fontFamily: UI_JP,
-							fontSize: 19,
+							fontSize: subPx(19, f.jumpRate),
 							lineHeight: 1.6,
 							fontWeight: 400,
 							color: t.muted,
@@ -668,7 +687,7 @@ function CoverKakuhan({ f }: { f: Fields }) {
 			<div
 				style={{
 					position: "absolute",
-					left: M,
+					left: m,
 					bottom: 48,
 					display: "flex",
 					alignItems: "baseline",
@@ -678,7 +697,7 @@ function CoverKakuhan({ f }: { f: Fields }) {
 				<span
 					style={{
 						fontFamily: UI_JP,
-						fontSize: 16,
+						fontSize: subPx(16, f.jumpRate),
 						fontWeight: 700,
 						color: t.text,
 					}}
@@ -689,7 +708,7 @@ function CoverKakuhan({ f }: { f: Fields }) {
 					<span
 						style={{
 							fontFamily: UI_LATIN,
-							fontSize: 13,
+							fontSize: subPx(13, f.jumpRate),
 							color: t.faint,
 							letterSpacing: "0.01em",
 						}}
@@ -700,7 +719,7 @@ function CoverKakuhan({ f }: { f: Fields }) {
 			</div>
 			<Kicker
 				color={t.faint}
-				style={{ position: "absolute", right: M, bottom: 50, fontSize: 11 }}
+				style={{ position: "absolute", right: m, bottom: 50, fontSize: 11 }}
 			>
 				{f.date}
 			</Kicker>
@@ -716,6 +735,9 @@ export function TplQuiet({ f }: { f: Fields }) {
 	const issue = String(f.issue || "001").padStart(3, "0");
 	const hasImg = !!f.image;
 	const markUrl = markUrlFor(f.theme);
+	// Quiet の外余白は左右の内側パディング（基準 150px）で出す。
+	// 上下のパディングはマストヘッド・フッターの逃しなので据え置き。
+	const padX = spacingPx(150, f.spacing);
 	return (
 		<div style={{ ...FRAME_BASE, background: t.bg, color: t.text }}>
 			<TextureLayer f={f} />
@@ -723,7 +745,7 @@ export function TplQuiet({ f }: { f: Fields }) {
 			<div
 				style={{
 					position: "absolute",
-					top: 56,
+					top: spacingPx(56, f.spacing),
 					left: 0,
 					right: 0,
 					display: "flex",
@@ -751,7 +773,7 @@ export function TplQuiet({ f }: { f: Fields }) {
 					alignItems: "center",
 					justifyContent: "center",
 					textAlign: "center",
-					padding: "108px 150px 124px",
+					padding: `108px ${padX}px 124px`,
 				}}
 			>
 				{hasImg && f.image && (
@@ -785,9 +807,9 @@ export function TplQuiet({ f }: { f: Fields }) {
 				</Kicker>
 				<AutoFitTitle
 					lines={renderTitleLines(f.title, f.titleDecoration, t.accent)}
-					width={1280 - 150 * 2}
+					width={1280 - padX * 2}
 					maxH={236}
-					max={hasImg ? 62 : 78}
+					max={titlePx(hasImg ? 62 : 78, f.jumpRate)}
 					min={26}
 					style={{
 						fontFamily: titleFamily(ft),
@@ -804,7 +826,7 @@ export function TplQuiet({ f }: { f: Fields }) {
 							marginTop: 20,
 							maxWidth: 580,
 							fontFamily: UI_JP,
-							fontSize: 23,
+							fontSize: subPx(23, f.jumpRate),
 							lineHeight: 1.75,
 							fontWeight: 400,
 							color: t.muted,
@@ -820,7 +842,7 @@ export function TplQuiet({ f }: { f: Fields }) {
 			<div
 				style={{
 					position: "absolute",
-					bottom: 52,
+					bottom: spacingPx(52, f.spacing),
 					left: 0,
 					right: 0,
 					display: "flex",
@@ -829,7 +851,13 @@ export function TplQuiet({ f }: { f: Fields }) {
 					gap: 9,
 				}}
 			>
-				<span style={{ fontFamily: UI_JP, fontSize: 15, color: t.text }}>
+				<span
+					style={{
+						fontFamily: UI_JP,
+						fontSize: subPx(15, f.jumpRate),
+						color: t.text,
+					}}
+				>
 					<span style={{ fontWeight: 700 }}>{f.author}</span>
 					{f.account && (
 						<span

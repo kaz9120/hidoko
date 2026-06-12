@@ -6,9 +6,11 @@ import type {
 	Fields,
 	FocalPoint,
 	FontMode,
+	JumpRate,
 	PaletteId,
 	PhotoFilter,
 	PhotoLayout,
+	Spacing,
 	TextGuard,
 	TextureId,
 	ThemeMode,
@@ -40,6 +42,8 @@ const DEFAULT_FIELDS: Fields = {
 	photoMirror: false,
 	photoFilter: "none",
 	textGuard: "scrim",
+	spacing: "normal",
+	jumpRate: "normal",
 };
 
 /**
@@ -137,6 +141,14 @@ const meta: Meta = {
 				"zurashi",
 				"hanzure",
 			] satisfies TitleDecoration[],
+		},
+		spacing: {
+			control: { type: "inline-radio" },
+			options: ["tight", "normal", "loose"] satisfies Spacing[],
+		},
+		jumpRate: {
+			control: { type: "inline-radio" },
+			options: ["low", "normal", "high"] satisfies JumpRate[],
 		},
 		title: { control: "text" },
 		lead: { control: "text" },
@@ -499,6 +511,105 @@ export const QuietHanzureDark: Story = {
 	render: (args) => (
 		<div style={FRAME_STYLE}>
 			<TplQuiet f={withDefaults(args)} />
+		</div>
+	),
+};
+
+const SPACINGS = ["tight", "normal", "loose"] satisfies Spacing[];
+const JUMP_RATES = ["low", "normal", "high"] satisfies JumpRate[];
+
+/**
+ * 余白 × ジャンプ率の 9 組み合わせ（Edition）。カテゴリ表記が組み合わせ名。
+ * 「タイト × 強め＝勢い」「ゆったり × 控えめ＝上品」の対比を一覧で見る。
+ */
+export const ExpressionGallery: Story = {
+	render: (args) => (
+		<div
+			style={{
+				display: "grid",
+				gridTemplateColumns: "repeat(3, 1280px)",
+				gap: "16px 16px",
+				transform: "scale(0.16)",
+				transformOrigin: "top left",
+				marginBottom: -(670 * 3 + 16 * 2) * 0.84,
+				marginRight: -(1280 * 3 + 16 * 2) * 0.84,
+			}}
+		>
+			{SPACINGS.flatMap((spacing) =>
+				JUMP_RATES.map((jumpRate) => (
+					<div
+						key={`${spacing}-${jumpRate}`}
+						style={{ width: 1280, height: 670 }}
+					>
+						<TplEdition
+							f={withDefaults({
+								...args,
+								spacing,
+								jumpRate,
+								category: `${spacing} × ${jumpRate}`,
+							})}
+						/>
+					</div>
+				)),
+			)}
+		</div>
+	),
+};
+
+/** 余白 × ジャンプ率の 9 組み合わせ（Cover 角版）。いちばん縦に密な構図で破綻を見る。 */
+export const ExpressionGalleryKakuhan: Story = {
+	render: (args) => (
+		<div
+			style={{
+				display: "grid",
+				gridTemplateColumns: "repeat(3, 1280px)",
+				gap: "16px 16px",
+				transform: "scale(0.16)",
+				transformOrigin: "top left",
+				marginBottom: -(670 * 3 + 16 * 2) * 0.84,
+				marginRight: -(1280 * 3 + 16 * 2) * 0.84,
+			}}
+		>
+			{SPACINGS.flatMap((spacing) =>
+				JUMP_RATES.map((jumpRate) => (
+					<div
+						key={`${spacing}-${jumpRate}`}
+						style={{ width: 1280, height: 670 }}
+					>
+						<TplCover
+							f={withDefaults({
+								...args,
+								templateId: "cover",
+								photoLayout: "kakuhan",
+								image: SAMPLE_PHOTO,
+								spacing,
+								jumpRate,
+								category: `${spacing} × ${jumpRate}`,
+							})}
+						/>
+					</div>
+				)),
+			)}
+		</div>
+	),
+};
+
+/** タイト × 強め（Edition）。詰めた余白と大きなタイトルで勢いを出す。 */
+export const EditionTightHigh: Story = {
+	args: { spacing: "tight", jumpRate: "high" },
+	render: (args) => (
+		<div style={FRAME_STYLE}>
+			<TplEdition f={withDefaults(args)} />
+		</div>
+	),
+};
+
+/** ゆったり × 控えめ（Edition）。広い余白と抑えたタイトルで上品に。 */
+export const EditionLooseLow: Story = {
+	args: { spacing: "loose", jumpRate: "low" },
+	render: (args) => (
+		<div style={FRAME_STYLE}>
+			<TplEdition f={withDefaults(args)} />
 		</div>
 	),
 };

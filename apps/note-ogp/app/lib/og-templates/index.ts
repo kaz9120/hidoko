@@ -25,6 +25,13 @@ export const TEMPLATES = [
 	},
 ] as const satisfies readonly TemplateDef[];
 
+export {
+	JUMP_RATE_OPTIONS,
+	SPACING_OPTIONS,
+	spacingPx,
+	subPx,
+	titlePx,
+} from "./expression";
 export { TitleFitContext } from "./helpers";
 export type { OgPalette, OgTheme } from "./palettes";
 export {
@@ -50,6 +57,7 @@ export type {
 	Fields,
 	FocalPoint,
 	FontMode,
+	JumpRate,
 	OgRoles,
 	PaletteId,
 	PaletteSelection,
@@ -58,6 +66,7 @@ export type {
 	PhotoLayout,
 	PhotoPalette,
 	PhotoPaletteId,
+	Spacing,
 	TemplateDef,
 	TemplateId,
 	TextGuard,
