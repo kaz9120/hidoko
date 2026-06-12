@@ -1,6 +1,7 @@
 import { type RefObject, useCallback, useEffect, useMemo } from "react";
 import { AnnotationInteractionLayer } from "~/components/canvas/annotation-interaction-layer";
 import { AnnotationLayer } from "~/components/canvas/annotation-layer";
+import { AnnotationMiniActions } from "~/components/canvas/annotation-mini-actions";
 import { ArrowLayer } from "~/components/canvas/arrow-layer";
 import { ArrowPreviewOverlay } from "~/components/canvas/arrow-preview-overlay";
 import { ArrowSelectionOverlay } from "~/components/canvas/arrow-selection-overlay";
@@ -10,7 +11,6 @@ import { HighlightLayer } from "~/components/canvas/highlight-layer";
 import { HighlightPreviewOverlay } from "~/components/canvas/highlight-preview-overlay";
 import { HighlightSelectionOverlay } from "~/components/canvas/highlight-selection-overlay";
 import { MosaicLayer } from "~/components/canvas/mosaic-layer";
-import { RectMiniActions } from "~/components/canvas/rect-mini-actions";
 import { RectPreviewOverlay } from "~/components/canvas/rect-preview-overlay";
 import { RectSelectionOverlay } from "~/components/canvas/rect-selection-overlay";
 import { TextEditorOverlay } from "~/components/canvas/text-editor-overlay";
@@ -19,10 +19,12 @@ import { TextSelectionOverlay } from "~/components/canvas/text-selection-overlay
 import { type LoadedImage, useSnapcrop } from "~/contexts/snapcrop-context";
 import { useArrowEngine } from "~/hooks/use-arrow-engine";
 import type { UseCropEngineResult } from "~/hooks/use-crop-engine";
+import { useDuplicateAnnotation } from "~/hooks/use-duplicate-annotation";
 import { useHighlightEngine } from "~/hooks/use-highlight-engine";
 import { useRectEngine } from "~/hooks/use-rect-engine";
 import { useTextEngine } from "~/hooks/use-text-engine";
-import { duplicateRectAnnotation } from "~/lib/rect-engine";
+import { annotationBounds } from "~/lib/annotation-bounds";
+import type { AnnotationHit } from "~/lib/annotation-hit-test";
 
 export type ImageStageProps = {
 	image: LoadedImage;
@@ -50,7 +52,7 @@ export type ImageStageProps = {
  *                                     handle クリックを奪わない)
  *   8. 各種 SelectionOverlay          選択中の注釈の種別に応じて 1 つだけ表示
  *                                     (ring + handle。handle のみ events:auto)
- *   9. <RectMiniActions>              選択矩形近傍の複製 / 削除バー (interaction 中は非表示)
+ *   9. <AnnotationMiniActions>        選択注釈近傍の複製 / 削除バー (種別不問。interaction 中は非表示)
  *  10. 各種 PreviewOverlay            drawing 中のプレビュー (activeTool のものだけ)。
  *                                     テキストは preview の代わりにインライン編集の
  *                                     <TextEditorOverlay> が「まだ commit されて
@@ -79,9 +81,12 @@ export function ImageStage({
 		highlights,
 		highlightDefaults,
 		highlightEngineHandleRef,
-		createAnnotation,
 		deleteAnnotation,
+		deleteArrow,
+		deleteText,
+		deleteHighlight,
 	} = useSnapcrop();
+	const duplicateAnnotation = useDuplicateAnnotation();
 
 	const imageMetrics = useMemo(
 		() => ({ naturalWidth: image.width, naturalHeight: image.height }),
@@ -171,6 +176,41 @@ export function ImageStage({
 			) ?? null)
 		: null;
 
+	// ミニアクションバー (複製 / 削除) の基準。種別を問わず選択中の注釈 1 つに
+	// 出す。ドラッグ・リサイズ中とテキストのインライン編集中は操作の邪魔に
+	// なるので隠す。
+	const selectedHit: AnnotationHit | null =
+		selectedRendered ??
+		selectedArrowRendered ??
+		selectedTextRendered ??
+		selectedHighlightRendered;
+	const anyInteracting =
+		rectEngine.isInteracting ||
+		arrowEngine.isInteracting ||
+		textEngine.isInteracting ||
+		highlightEngine.isInteracting;
+	const showMiniActions =
+		selectedHit !== null &&
+		!anyInteracting &&
+		!(selectedHit.kind === "text" && textEngine.editing?.id === selectedHit.id);
+
+	const deleteSelected = (hit: AnnotationHit) => {
+		switch (hit.kind) {
+			case "rect":
+				deleteAnnotation(hit.id);
+				return;
+			case "arrow":
+				deleteArrow(hit.id);
+				return;
+			case "text":
+				deleteText(hit.id);
+				return;
+			case "highlight":
+				deleteHighlight(hit.id);
+				return;
+		}
+	};
+
 	return (
 		<>
 			<img
@@ -237,18 +277,13 @@ export function ImageStage({
 					zoom={zoom}
 				/>
 			)}
-			{/* ドラッグ・リサイズ中は操作の邪魔になるので隠す */}
-			{selectedRendered && !rectEngine.isInteracting && (
-				<RectMiniActions
-					annotation={selectedRendered}
+			{showMiniActions && (
+				<AnnotationMiniActions
+					bounds={annotationBounds(selectedHit)}
 					imageHeight={image.height}
 					imageWidth={image.width}
-					onDelete={() => deleteAnnotation(selectedRendered.id)}
-					onDuplicate={() =>
-						createAnnotation(
-							duplicateRectAnnotation(selectedRendered, imageMetrics),
-						)
-					}
+					onDelete={() => deleteSelected(selectedHit)}
+					onDuplicate={() => duplicateAnnotation(selectedHit, imageMetrics)}
 					zoom={zoom}
 				/>
 			)}
