@@ -11,7 +11,7 @@ import {
 	sketchyLinePaths,
 	sketchyPolygonPath,
 } from "~/lib/hand-drawn";
-import { PRESET_COLORS } from "~/lib/rect-engine";
+import { DUPLICATE_OFFSET_PX, PRESET_COLORS } from "~/lib/rect-engine";
 
 export type { ImageMetrics };
 
@@ -219,6 +219,40 @@ export function createArrowAnnotation(args: {
 		seed: args.seed ?? newArrowSeed(),
 		createdAt: Date.now(),
 	};
+}
+
+/**
+ * annotation を位置を変えずに複製して、新しい id / createdAt を持つコピーを
+ * 返す。seed は引き継ぐ (手書き風の揺らぎまで含めて同じ見た目のコピーにする)。
+ * Alt+ドラッグ複製の開始時に使う。
+ */
+export function cloneArrowAnnotation(source: ArrowAnnotation): ArrowAnnotation {
+	return { ...source, id: newId(), createdAt: Date.now() };
+}
+
+/**
+ * annotation を複製して新しい id / createdAt を持つコピーを返す。位置は
+ * rect-engine.ts の duplicateRectAnnotation と同じ思想で右下へ
+ * DUPLICATE_OFFSET_PX ずらし、画像境界に当たって元と同位置に clamp されて
+ * しまう場合は左上方向へフォールバックする。
+ */
+export function duplicateArrowAnnotation(
+	source: ArrowAnnotation,
+	img: ImageMetrics,
+): ArrowAnnotation {
+	let moved = moveArrow(
+		source,
+		{ dx: DUPLICATE_OFFSET_PX, dy: DUPLICATE_OFFSET_PX },
+		img,
+	);
+	if (moved.x1 === source.x1 && moved.y1 === source.y1) {
+		moved = moveArrow(
+			source,
+			{ dx: -DUPLICATE_OFFSET_PX, dy: -DUPLICATE_OFFSET_PX },
+			img,
+		);
+	}
+	return { ...moved, id: newId(), createdAt: Date.now() };
 }
 
 /** quadratic bezier の制御点。直線 (または長さ 0) のときは null。 */

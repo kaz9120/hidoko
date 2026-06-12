@@ -5,7 +5,9 @@ import {
 } from "~/contexts/snapcrop-context";
 import {
 	clampPointInImage,
+	cloneTextAnnotation,
 	createTextAnnotation,
+	duplicateTextAnnotation,
 	type ImageMetrics,
 	moveText,
 	type TextAnnotation,
@@ -15,15 +17,23 @@ type ImagePoint = { x: number; y: number };
 
 /**
  * 進行中のドラッグ操作。テキストはドラッグ描画がない (クリックで編集開始) ので
- * moving だけ。use-arrow-engine.ts と同じ構造。
+ * moving と duplicating (Alt+ドラッグ複製) だけ。use-arrow-engine.ts と同じ構造。
  */
-type Interaction = {
-	kind: "moving";
-	id: string;
-	startImg: ImagePoint;
-	startText: TextAnnotation;
-	currentImg: ImagePoint;
-};
+type Interaction =
+	| {
+			kind: "moving";
+			id: string;
+			startImg: ImagePoint;
+			startText: TextAnnotation;
+			currentImg: ImagePoint;
+	  }
+	| {
+			kind: "duplicating";
+			/** 元と同位置に採番済みのコピー。pointerup まで context には入れない */
+			copy: TextAnnotation;
+			startImg: ImagePoint;
+			currentImg: ImagePoint;
+	  };
 
 /**
  * インライン編集の状態。id === null は「空クリックからの新規作成」で、
@@ -50,6 +60,12 @@ export type UseTextEngineResult = {
 	 * hit test の結果をそのまま渡す。
 	 */
 	beginMove: (target: TextAnnotation, startImg: ImagePoint) => void;
+	/**
+	 * Alt+ドラッグ複製を開始する。source のコピーをその場に作り、以後の
+	 * ドラッグはコピー側を動かす (元は動かない)。endInteraction で初めて
+	 * コピーを context に commit するので、複製は undo 1 回で取り消せる。
+	 */
+	beginDuplicate: (source: TextAnnotation, startImg: ImagePoint) => void;
 	updateInteraction: (currentImg: ImagePoint) => void;
 	endInteraction: () => void;
 	cancelInteraction: () => void;
@@ -133,6 +149,18 @@ export function useTextEngine(image: ImageMetrics): UseTextEngineResult {
 		[],
 	);
 
+	const beginDuplicate = useCallback(
+		(source: TextAnnotation, startImg: ImagePoint) => {
+			setInteraction({
+				kind: "duplicating",
+				copy: cloneTextAnnotation(source),
+				startImg,
+				currentImg: startImg,
+			});
+		},
+		[],
+	);
+
 	const updateInteraction = useCallback((currentImg: ImagePoint) => {
 		setInteraction((prev) => (prev ? { ...prev, currentImg } : null));
 	}, []);
@@ -149,11 +177,21 @@ export function useTextEngine(image: ImageMetrics): UseTextEngineResult {
 		// 副作用を setState の外で先に処理してから state クリア
 		const dx = prev.currentImg.x - prev.startImg.x;
 		const dy = prev.currentImg.y - prev.startImg.y;
-		const next = moveText(prev.startText, { dx, dy }, img);
-		updateText(prev.id, { x: next.x, y: next.y });
+		if (prev.kind === "duplicating") {
+			// 動かさず放したときは元と完全に重なって気づけないため、⌘D と同じ
+			// オフセット配置にフォールバックする
+			createText(
+				dx === 0 && dy === 0
+					? duplicateTextAnnotation(prev.copy, img)
+					: moveText(prev.copy, { dx, dy }, img),
+			);
+		} else {
+			const next = moveText(prev.startText, { dx, dy }, img);
+			updateText(prev.id, { x: next.x, y: next.y });
+		}
 		interactionRef.current = null;
 		setInteraction(null);
-	}, [updateText]);
+	}, [createText, updateText]);
 
 	const beginCreate = useCallback((pt: ImagePoint) => {
 		const clamped = clampPointInImage(pt, imageRef.current);
@@ -215,12 +253,16 @@ export function useTextEngine(image: ImageMetrics): UseTextEngineResult {
 		setEditing(null);
 	}, []);
 
-	// rendered = text list + moving の delta を視覚的に反映
+	// rendered = text list + moving / duplicating の delta を視覚的に反映
 	const renderedTexts = useMemo(() => {
 		if (!interaction) return texts;
 		const dx = interaction.currentImg.x - interaction.startImg.x;
 		const dy = interaction.currentImg.y - interaction.startImg.y;
 		const img = imageRef.current;
+		if (interaction.kind === "duplicating") {
+			// commit 前のコピーを末尾 (= 同種内で最前面) に足して見せる
+			return [...texts, moveText(interaction.copy, { dx, dy }, img)];
+		}
 		return texts.map((t) =>
 			t.id === interaction.id
 				? moveText(interaction.startText, { dx, dy }, img)
@@ -249,6 +291,7 @@ export function useTextEngine(image: ImageMetrics): UseTextEngineResult {
 		isInteracting: interaction !== null,
 		editing,
 		beginMove,
+		beginDuplicate,
 		updateInteraction,
 		endInteraction,
 		cancelInteraction,

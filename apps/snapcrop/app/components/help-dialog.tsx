@@ -26,9 +26,13 @@ type ShortcutSection = {
  *   - ⌘V        → use-clipboard-paste.ts (paste イベント)
  *   - ⌘A        → use-select-all-shortcut.ts
  *   - ⌘Z / ⌘⇧Z → site-header.tsx
+ *   - ⌘D        → use-duplicate-shortcut.ts
  *   - ⌘0 / ⌘1  → use-canvas-shortcuts.ts
  *   - Space pan → components/canvas/viewport.tsx
  *   - ⇧ ドラッグ → lib/constrain.ts (各 engine hook が適用)
+ *   - ⌥ ドラッグ → components/canvas/annotation-interaction-layer.tsx
+ *   - A / T / H → use-arrow-shortcuts.ts / use-text-shortcuts.ts /
+ *                 use-highlight-shortcuts.ts
  *   - それ以外   → use-rect-shortcuts.ts
  * ショートカットを追加・変更したら、この一覧も一緒に更新すること。
  */
@@ -61,6 +65,9 @@ const SECTIONS: readonly ShortcutSection[] = [
 		shortcuts: [
 			{ keys: ["V"], description: "クロップツールに切り替え" },
 			{ keys: ["R"], description: "矩形ツールに切り替え" },
+			{ keys: ["A"], description: "矢印ツールに切り替え" },
+			{ keys: ["T"], description: "テキストツールに切り替え" },
+			{ keys: ["H"], description: "マーカーツールに切り替え" },
 		],
 	},
 	{
@@ -73,13 +80,15 @@ const SECTIONS: readonly ShortcutSection[] = [
 		],
 	},
 	{
-		heading: "矩形",
+		heading: "注釈",
 		shortcuts: [
 			{ keys: ["Esc"], description: "描画を破棄 / 選択を解除" },
-			{ keys: ["⌫"], description: "選択中の矩形を削除" },
-			{ keys: ["↑↓←→"], description: "選択中の矩形を 1px 移動" },
+			{ keys: ["⌫"], description: "選択中の注釈を削除" },
+			{ keys: ["⌘", "D"], description: "選択中の注釈を複製" },
+			{ keys: ["⌥", "ドラッグ"], description: "注釈を複製してドラッグ" },
+			{ keys: ["↑↓←→"], description: "選択中の注釈を 1px 移動" },
 			{ keys: ["⇧", "↑↓←→"], description: "10px 移動" },
-			{ keys: ["⌥", "↑↓←→"], description: "右辺 / 下辺をリサイズ" },
+			{ keys: ["⌥", "↑↓←→"], description: "矩形の右辺 / 下辺をリサイズ" },
 		],
 	},
 ] as const;

@@ -39,6 +39,7 @@ const STUB_ENGINE: UseArrowEngineResult = {
 	isInteracting: false,
 	beginDraw: () => {},
 	beginMove: () => {},
+	beginDuplicate: () => {},
 	beginEndpointDrag: () => {},
 	updateInteraction: () => {},
 	endInteraction: () => {},

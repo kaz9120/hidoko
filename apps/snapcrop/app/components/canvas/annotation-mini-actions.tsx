@@ -1,13 +1,14 @@
 import { CopyPlusIcon, Trash2Icon } from "lucide-react";
 import { useLayoutEffect, useRef, useState } from "react";
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "ui";
-import type { RectAnnotation } from "~/lib/rect-engine";
+import type { Rect } from "~/lib/annotation-bounds";
 
-/** 矩形とバーの間隔 (CSS px)。zoom に依存しない見た目上の距離。 */
+/** 注釈とバーの間隔 (CSS px)。zoom に依存しない見た目上の距離。 */
 const GAP_PX = 8;
 
 type Props = {
-	annotation: RectAnnotation;
+	/** 選択中の注釈の外接矩形 (画像 px)。annotationBounds() で算出する */
+	bounds: Rect;
 	zoom: number;
 	imageWidth: number;
 	imageHeight: number;
@@ -16,17 +17,18 @@ type Props = {
 };
 
 /**
- * 選択中の矩形近傍に浮かぶミニアクションバー (複製 / 削除)。stage 内に
- * 絶対配置するが、バー自体のサイズは CSS px 固定なので zoom 倍率に
- * 影響されない (stage は transform-scale ではなく実寸配置のため)。
+ * 選択中の注釈近傍に浮かぶミニアクションバー (複製 / 削除)。種別を問わず
+ * 外接矩形 (bounds) を基準に配置する。stage 内に絶対配置するが、バー自体の
+ * サイズは CSS px 固定なので zoom 倍率に影響されない (stage は
+ * transform-scale ではなく実寸配置のため)。
  *
- * 配置は「矩形の上」を基本とし、stage 上端で見切れるときは「矩形の下」、
- * それも収まらないときは「矩形の内側上」へフォールバックする。左右方向は
+ * 配置は「注釈の上」を基本とし、stage 上端で見切れるときは「注釈の下」、
+ * それも収まらないときは「注釈の内側上」へフォールバックする。左右方向は
  * stage 幅に収まるよう clamp する。ドラッグ・リサイズ中の非表示は呼び側
  * (ImageStage) が isInteracting を見て制御する。
  */
-export function RectMiniActions({
-	annotation,
+export function AnnotationMiniActions({
+	bounds,
 	zoom,
 	imageWidth,
 	imageHeight,
@@ -50,26 +52,26 @@ export function RectMiniActions({
 	const barW = size?.w ?? 0;
 	const barH = size?.h ?? 0;
 
-	const rectLeft = annotation.x * zoom;
-	const rectTop = annotation.y * zoom;
-	const rectBottom = (annotation.y + annotation.height) * zoom;
+	const boundsLeft = bounds.x * zoom;
+	const boundsTop = bounds.y * zoom;
+	const boundsBottom = (bounds.y + bounds.height) * zoom;
 
-	let top = rectTop - barH - GAP_PX;
+	let top = boundsTop - barH - GAP_PX;
 	if (top < 0) {
-		// 上に置けない → 矩形の下へ。それも stage を出るなら矩形の内側上へ。
+		// 上に置けない → 注釈の下へ。それも stage を出るなら注釈の内側上へ。
 		top =
-			rectBottom + GAP_PX + barH <= stageH
-				? rectBottom + GAP_PX
-				: Math.max(0, rectTop + GAP_PX);
+			boundsBottom + GAP_PX + barH <= stageH
+				? boundsBottom + GAP_PX
+				: Math.max(0, boundsTop + GAP_PX);
 	}
-	const left = Math.max(0, Math.min(rectLeft, stageW - barW));
+	const left = Math.max(0, Math.min(boundsLeft, stageW - barW));
 
 	return (
 		<div
 			className="absolute flex items-center gap-0.5 rounded-md border border-border bg-card/90 p-0.5 shadow-md backdrop-blur-md"
 			ref={barRef}
 			role="toolbar"
-			aria-label="選択中の矩形のアクション"
+			aria-label="選択中の注釈のアクション"
 			style={{
 				left,
 				top,
@@ -79,7 +81,7 @@ export function RectMiniActions({
 			<Tooltip>
 				<TooltipTrigger asChild>
 					<Button
-						aria-label="選択中の矩形を複製"
+						aria-label="選択中の注釈を複製"
 						onClick={onDuplicate}
 						size="icon-sm"
 						variant="ghost"
@@ -92,7 +94,7 @@ export function RectMiniActions({
 			<Tooltip>
 				<TooltipTrigger asChild>
 					<Button
-						aria-label="選択中の矩形を削除"
+						aria-label="選択中の注釈を削除"
 						onClick={onDelete}
 						size="icon-sm"
 						variant="ghost"
