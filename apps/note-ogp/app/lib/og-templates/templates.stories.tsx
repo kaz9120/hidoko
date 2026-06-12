@@ -1,13 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { PALETTES } from "./palettes";
-import { FOCAL_POINTS } from "./photo";
+import { FOCAL_POINTS, PHOTO_FILTERS, TEXT_GUARDS } from "./photo";
 import { TplCover, TplEdition, TplQuiet } from "./templates";
 import type {
 	Fields,
 	FocalPoint,
 	FontMode,
 	PaletteId,
+	PhotoFilter,
 	PhotoLayout,
+	TextGuard,
 	TextureId,
 	ThemeMode,
 	TitleDecoration,
@@ -36,6 +38,8 @@ const DEFAULT_FIELDS: Fields = {
 	photoLayout: "full",
 	focalPoint: "center",
 	photoMirror: false,
+	photoFilter: "none",
+	textGuard: "scrim",
 };
 
 /**
@@ -53,6 +57,24 @@ const SAMPLE_PHOTO =
 			`<circle cx="430" cy="300" r="170" fill="#d9a05c"/>` +
 			`<circle cx="430" cy="300" r="240" fill="none" stroke="#d9a05c" stroke-opacity="0.35" stroke-width="3"/>` +
 			`<rect y="760" width="1600" height="240" fill="#241a10"/>` +
+			`</svg>`,
+	);
+
+/**
+ * 明るい写真のサンプル（外部リソースなしの SVG データ URI）。
+ * テキスト保護方式が「明るい写真でも読めるか」を見るために使う。
+ */
+const SAMPLE_PHOTO_BRIGHT =
+	"data:image/svg+xml;utf8," +
+	encodeURIComponent(
+		`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000">` +
+			`<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">` +
+			`<stop offset="0" stop-color="#e9ddc8"/><stop offset="1" stop-color="#cdbb9b"/>` +
+			`</linearGradient></defs>` +
+			`<rect width="1600" height="1000" fill="url(#g)"/>` +
+			`<circle cx="1150" cy="260" r="150" fill="#f4ead4"/>` +
+			`<rect y="700" width="1600" height="300" fill="#b9a27c"/>` +
+			`<rect x="180" y="430" width="420" height="270" fill="#d8c5a2"/>` +
 			`</svg>`,
 	);
 
@@ -233,6 +255,133 @@ export const FocalPointGallery: Story = {
 							photoLayout: "kakuhan",
 							image: SAMPLE_PHOTO,
 							focalPoint,
+						})}
+					/>
+				</div>
+			))}
+		</div>
+	),
+};
+
+/** 写真フィルタ 5 種の見比べ（全面配置・暗い写真）。 */
+export const PhotoFilterGallery: Story = {
+	render: (args) => (
+		<div
+			style={{
+				display: "grid",
+				gridTemplateColumns: "repeat(3, 1280px)",
+				gap: "16px 16px",
+				transform: "scale(0.25)",
+				transformOrigin: "top left",
+				marginBottom: -(670 * 2 + 16) * 0.75,
+				marginRight: -(1280 * 3 + 16 * 2) * 0.75,
+			}}
+		>
+			{PHOTO_FILTERS.map((p) => (
+				<div key={p.id} style={{ width: 1280, height: 670 }}>
+					<TplCover
+						f={withDefaults({
+							...args,
+							templateId: "cover",
+							image: SAMPLE_PHOTO,
+							photoFilter: p.id satisfies PhotoFilter,
+							title: p.label,
+						})}
+					/>
+				</div>
+			))}
+		</div>
+	),
+};
+
+/** 写真フィルタ 5 種 × 角版配置。色面の上でもフィルタが効く。 */
+export const PhotoFilterKakuhan: Story = {
+	render: (args) => (
+		<div
+			style={{
+				display: "grid",
+				gridTemplateColumns: "repeat(3, 1280px)",
+				gap: "16px 16px",
+				transform: "scale(0.25)",
+				transformOrigin: "top left",
+				marginBottom: -(670 * 2 + 16) * 0.75,
+				marginRight: -(1280 * 3 + 16 * 2) * 0.75,
+			}}
+		>
+			{PHOTO_FILTERS.map((p) => (
+				<div key={p.id} style={{ width: 1280, height: 670 }}>
+					<TplCover
+						f={withDefaults({
+							...args,
+							templateId: "cover",
+							photoLayout: "kakuhan",
+							image: SAMPLE_PHOTO,
+							photoFilter: p.id satisfies PhotoFilter,
+							title: p.label,
+						})}
+					/>
+				</div>
+			))}
+		</div>
+	),
+};
+
+/** テキスト保護 4 方式 × 明るい写真（黒文字）。読めるかを見る。 */
+export const TextGuardGalleryBright: Story = {
+	render: (args) => (
+		<div
+			style={{
+				display: "grid",
+				gridTemplateColumns: "repeat(2, 1280px)",
+				gap: "16px 16px",
+				transform: "scale(0.25)",
+				transformOrigin: "top left",
+				marginBottom: -(670 * 2 + 16) * 0.75,
+				marginRight: -(1280 * 2 + 16) * 0.75,
+			}}
+		>
+			{TEXT_GUARDS.map((g) => (
+				<div key={g.id} style={{ width: 1280, height: 670 }}>
+					<TplCover
+						f={withDefaults({
+							...args,
+							templateId: "cover",
+							image: SAMPLE_PHOTO_BRIGHT,
+							coverText: "dark",
+							textGuard: g.id satisfies TextGuard,
+							title: g.label,
+						})}
+					/>
+				</div>
+			))}
+		</div>
+	),
+};
+
+/** テキスト保護 4 方式 × 暗い写真（白文字）。 */
+export const TextGuardGalleryDark: Story = {
+	render: (args) => (
+		<div
+			style={{
+				display: "grid",
+				gridTemplateColumns: "repeat(2, 1280px)",
+				gap: "16px 16px",
+				transform: "scale(0.25)",
+				transformOrigin: "top left",
+				marginBottom: -(670 * 2 + 16) * 0.75,
+				marginRight: -(1280 * 2 + 16) * 0.75,
+			}}
+		>
+			{TEXT_GUARDS.map((g) => (
+				<div key={g.id} style={{ width: 1280, height: 670 }}>
+					<TplCover
+						f={withDefaults({
+							...args,
+							templateId: "cover",
+							image: SAMPLE_PHOTO,
+							coverText: "light",
+							textGuard: g.id satisfies TextGuard,
+							title: g.label,
 						})}
 					/>
 				</div>

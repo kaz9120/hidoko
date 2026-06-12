@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import {
 	AutoFitTitle,
 	Brand,
@@ -6,6 +7,7 @@ import {
 	M,
 	markUrlFor,
 	PhotoPlaceholder,
+	PhotoVignette,
 	paletteForSelection,
 	rgbaFromHex,
 	styleFrom,
@@ -14,7 +16,7 @@ import {
 	UI_JP,
 	UI_LATIN,
 } from "./helpers";
-import { focalObjectPosition } from "./photo";
+import { focalObjectPosition, photoFilterCss } from "./photo";
 import { renderTitleLines } from "./title-decoration";
 import type { Fields } from "./types";
 
@@ -168,7 +170,8 @@ export function TplCover({ f }: { f: Fields }) {
 	return <CoverFull f={f} />;
 }
 
-// 全面（現行）— フルブリード。文字色トグル＋強スクリムで可読性確保
+// 全面（現行）— フルブリード。文字色トグル＋保護方式（スクリム / 帯 /
+// ボックス / 全面オーバーレイ）で可読性確保
 function CoverFull({ f }: { f: Fields }) {
 	const { ft } = styleFrom(f);
 	const pal = paletteForSelection(f.palette, f.photoPalettes);
@@ -195,6 +198,38 @@ function CoverFull({ f }: { f: Fields }) {
 		? `linear-gradient(180deg, ${rgbaFromHex(scrim, 0.85)} 0%, ${rgbaFromHex(scrim, 0)} 100%)`
 		: `linear-gradient(180deg, ${rgbaFromHex(scrim, 0.6)} 0%, ${rgbaFromHex(scrim, 0)} 100%)`;
 
+	// テキスト保護方式。帯・ボックスは下段の背面に面が立つので
+	// 文字ハロ（textShadow）を消し、スクリム・全面オーバーレイでは残す。
+	const guard = f.textGuard;
+	const onPanel = guard === "band" || guard === "box";
+	const textShadow = onPanel ? undefined : shadow;
+	// ボックスは左右に内側余白（40px）を取るぶんタイトル幅が縮む
+	const BOX_PAD_X = 40;
+	const contentW =
+		guard === "box" ? 1280 - M * 2 - BOX_PAD_X * 2 : 1280 - M * 2;
+	const bottomStyle: CSSProperties =
+		guard === "band"
+			? {
+					// 帯はキャンバスの三辺（左右・下）まで届かせ、完全な不透明にする
+					// —『デザインのミカタ』の「半透明の帯・中途半端な長さ」の禁則
+					position: "absolute",
+					left: 0,
+					right: 0,
+					bottom: 0,
+					background: scrim,
+					padding: `40px ${M}px 56px`,
+				}
+			: guard === "box"
+				? {
+						position: "absolute",
+						left: M,
+						right: M,
+						bottom: 56,
+						background: rgbaFromHex(scrim, 0.86),
+						padding: `34px ${BOX_PAD_X}px 38px`,
+					}
+				: { position: "absolute", left: M, right: M, bottom: 64 };
+
 	// 文字色が暗い = 明るい背景想定 → cream マーク。snapcrop と同じ規則
 	const markUrl = markUrlFor(darkText ? "light" : "dark");
 
@@ -212,6 +247,7 @@ function CoverFull({ f }: { f: Fields }) {
 						height: "100%",
 						objectFit: "cover",
 						objectPosition: focalObjectPosition(f.focalPoint),
+						filter: photoFilterCss(f.photoFilter),
 					}}
 				/>
 			) : (
@@ -220,7 +256,20 @@ function CoverFull({ f }: { f: Fields }) {
 					label="表紙写真を追加"
 				/>
 			)}
+			{hasImg && <PhotoVignette filter={f.photoFilter} />}
 
+			{/* 全面オーバーレイ：写真全体にテーマの base 色を薄く重ねて沈める */}
+			{guard === "overlay" && (
+				<div
+					style={{
+						position: "absolute",
+						inset: 0,
+						background: rgbaFromHex(scrim, 0.5),
+					}}
+				/>
+			)}
+
+			{/* 上スクリムはマストヘッド用。方式によらず共通で敷く */}
 			<div
 				style={{
 					position: "absolute",
@@ -229,16 +278,18 @@ function CoverFull({ f }: { f: Fields }) {
 					height: 170,
 				}}
 			/>
-			<div
-				style={{
-					position: "absolute",
-					left: 0,
-					right: 0,
-					bottom: 0,
-					height: "62%",
-					background: bottomScrim,
-				}}
-			/>
+			{guard === "scrim" && (
+				<div
+					style={{
+						position: "absolute",
+						left: 0,
+						right: 0,
+						bottom: 0,
+						height: "62%",
+						background: bottomScrim,
+					}}
+				/>
+			)}
 
 			{/* マストヘッド */}
 			<div
@@ -264,15 +315,15 @@ function CoverFull({ f }: { f: Fields }) {
 				</Kicker>
 			</div>
 
-			{/* タイトル（下段） */}
-			<div style={{ position: "absolute", left: M, right: M, bottom: 64 }}>
+			{/* タイトル（下段）— 保護方式によって背面（帯 / ボックス）が変わる */}
+			<div style={bottomStyle}>
 				<Kicker
 					color={kicker}
 					style={{
 						display: "inline-flex",
 						alignItems: "center",
 						gap: 12,
-						textShadow: shadow,
+						textShadow,
 					}}
 				>
 					<span
@@ -287,7 +338,7 @@ function CoverFull({ f }: { f: Fields }) {
 				</Kicker>
 				<AutoFitTitle
 					lines={renderTitleLines(f.title, f.titleDecoration, kicker)}
-					width={1280 - M * 2}
+					width={contentW}
 					maxH={208}
 					max={100}
 					min={28}
@@ -298,7 +349,7 @@ function CoverFull({ f }: { f: Fields }) {
 						lineHeight: ft.titleLeading - 0.06,
 						letterSpacing: ft.titleTrack,
 						color: ink,
-						textShadow: shadow,
+						textShadow,
 					}}
 				/>
 				{f.lead && (
@@ -313,7 +364,7 @@ function CoverFull({ f }: { f: Fields }) {
 							color: ink,
 							opacity: 0.9,
 							whiteSpace: "pre-wrap",
-							textShadow: shadow,
+							textShadow,
 						}}
 					>
 						{f.lead}
@@ -333,7 +384,7 @@ function CoverFull({ f }: { f: Fields }) {
 							fontSize: 17,
 							fontWeight: 700,
 							color: ink,
-							textShadow: shadow,
+							textShadow,
 						}}
 					>
 						{f.author}
@@ -344,14 +395,14 @@ function CoverFull({ f }: { f: Fields }) {
 								fontFamily: UI_LATIN,
 								fontSize: 14,
 								color: sub,
-								textShadow: shadow,
+								textShadow,
 							}}
 						>
 							{f.account}
 						</span>
 					)}
 					<span style={{ flex: 1 }} />
-					<Kicker color={sub} style={{ fontSize: 12, textShadow: shadow }}>
+					<Kicker color={sub} style={{ fontSize: 12, textShadow }}>
 						{f.date}
 					</Kicker>
 				</div>
@@ -396,11 +447,13 @@ function CoverEdge({ f }: { f: Fields }) {
 							height: "100%",
 							objectFit: "cover",
 							objectPosition: focalObjectPosition(f.focalPoint),
+							filter: photoFilterCss(f.photoFilter),
 						}}
 					/>
 				) : (
 					<PhotoPlaceholder roles={pal[f.theme]} label="表紙写真を追加" />
 				)}
+				{f.image && <PhotoVignette filter={f.photoFilter} />}
 			</div>
 
 			{/* テキスト面（base 色） */}
@@ -568,11 +621,13 @@ function CoverKakuhan({ f }: { f: Fields }) {
 							height: "100%",
 							objectFit: "cover",
 							objectPosition: focalObjectPosition(f.focalPoint),
+							filter: photoFilterCss(f.photoFilter),
 						}}
 					/>
 				) : (
 					<PhotoPlaceholder roles={pal[f.theme]} label="表紙写真を追加" />
 				)}
+				{f.image && <PhotoVignette filter={f.photoFilter} />}
 			</div>
 
 			{/* タイトル＋リード */}
@@ -700,19 +755,30 @@ export function TplQuiet({ f }: { f: Fields }) {
 				}}
 			>
 				{hasImg && f.image && (
-					<img
-						src={f.image}
-						alt=""
-						crossOrigin="anonymous"
+					<div
 						style={{
+							position: "relative",
 							width: 320,
 							height: 196,
-							objectFit: "cover",
-							objectPosition: focalObjectPosition(f.focalPoint),
 							marginBottom: 30,
-							filter: "saturate(0.96)",
+							overflow: "hidden",
 						}}
-					/>
+					>
+						<img
+							src={f.image}
+							alt=""
+							crossOrigin="anonymous"
+							style={{
+								width: "100%",
+								height: "100%",
+								objectFit: "cover",
+								objectPosition: focalObjectPosition(f.focalPoint),
+								// Quiet の素の状態はわずかに彩度を落とすのが既定
+								filter: photoFilterCss(f.photoFilter) ?? "saturate(0.96)",
+							}}
+						/>
+						<PhotoVignette filter={f.photoFilter} />
+					</div>
 				)}
 				<Kicker color={t.accent} style={{ marginBottom: 22 }}>
 					{f.category || "ESSAY"}&nbsp;&nbsp;·&nbsp;&nbsp;Vol.{issue}
