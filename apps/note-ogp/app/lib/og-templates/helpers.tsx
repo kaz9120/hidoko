@@ -1,6 +1,8 @@
 import {
 	type CSSProperties,
+	createContext,
 	type ReactNode,
+	useContext,
 	useLayoutEffect,
 	useRef,
 	useState,
@@ -236,6 +238,16 @@ export const TITLE_NOWRAP: CSSProperties = {
 	wordBreak: "keep-all",
 };
 
+/**
+ * AutoFitTitle が確定したフォントサイズ（1280×670 基準の px）を外へ通知する
+ * ための context。テンプレ実装（templates.tsx）には手を入れず、エディタ側が
+ * provider を被せるだけで確定サイズを受け取れる。provider が無い文脈
+ * （テンプレサムネ・縮小プレビュー）では何も通知しない。
+ */
+export const TitleFitContext = createContext<((px: number) => void) | null>(
+	null,
+);
+
 // タイトル自動フィット：指定の枠（幅・高さ）に収まるまでフォントを縮小。
 //   手動改行は尊重（自動では折り返さない）。実寸測定なので右余白が必ず残る。
 export function AutoFitTitle({
@@ -257,6 +269,7 @@ export function AutoFitTitle({
 }) {
 	const ref = useRef<HTMLDivElement | null>(null);
 	const [size, setSize] = useState(max);
+	const reportFit = useContext(TitleFitContext);
 	// lines は effect 内のコードからは読まないが、children として描画される
 	// 結果を scrollWidth/Height で測るため、lines が変われば再フィットさせたい。
 	// biome-ignore lint/correctness/useExhaustiveDependencies: lines 変更時に DOM 再測定が必要
@@ -276,7 +289,8 @@ export function AutoFitTitle({
 			el.style.fontSize = `${s}px`;
 		}
 		setSize(s);
-	}, [lines, width, maxH, max, min, step]);
+		reportFit?.(s);
+	}, [lines, width, maxH, max, min, step, reportFit]);
 	return (
 		<div ref={ref} style={{ ...style, width, fontSize: size, ...TITLE_NOWRAP }}>
 			{lines}
