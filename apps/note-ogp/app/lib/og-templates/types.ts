@@ -26,6 +26,29 @@ export type PaperStrength = "weak" | "medium";
 export type PhotoLayout = "full" | "edge" | "kakuhan";
 
 /**
+ * 写真の加工プリセット（『よはく。』の「写真を淡く加工して余白感を出す」、
+ * 『素人っぽく見えない〜』の「レタッチはプリセットに絞る」より）。
+ * CSS filter 文字列は photo.ts に集約し、スライダーは出さない。
+ * - none:     そのまま
+ * - awaku:    淡く（明度↑ 彩度↓）
+ * - kukkiri:  くっきり（コントラスト・彩度をひと押し）
+ * - mono:     モノクロ
+ * - vignette: ビネット（減彩 + 四隅を落とすオーバーレイ）
+ */
+export type PhotoFilter = "none" | "awaku" | "kukkiri" | "mono" | "vignette";
+
+/**
+ * 写真上のテキスト保護方式（Cover の全面配置が主対象）。
+ * 『デザインのミカタ』の素人見え 4 要素を踏まえ、帯は「キャンバス端まで・
+ * 不透明」を守る（半透明の帯・中途半端な長さの帯は作らない）。
+ * - scrim:   下からのグラデスクリム（現行）
+ * - band:    端まで届く不透明帯（テーマの base 色）
+ * - box:     タイトル背面の半透明ボックス
+ * - overlay: 全面カラーオーバーレイ（テーマ色連動・低不透明度）
+ */
+export type TextGuard = "scrim" | "band" | "box" | "overlay";
+
+/**
  * 写真の注視点（9 点グリッド）。object-position に変換してクロップ位置を
  * 追従させる。「写真の主役にスポットライトを当てる」ためのトリミング指定。
  */
@@ -96,6 +119,8 @@ export type Fields = {
 	focalPoint: FocalPoint;
 	/** edge 配置の左右入れ替え（false=写真が左 / true=写真が右） */
 	photoMirror: boolean;
+	photoFilter: PhotoFilter;
+	textGuard: TextGuard;
 };
 
 export type TemplateDef = {

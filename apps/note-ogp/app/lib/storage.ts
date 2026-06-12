@@ -7,14 +7,22 @@ import type {
 	PaletteId,
 	PaletteSelection,
 	PaperStrength,
+	PhotoFilter,
 	PhotoLayout,
 	PhotoPalette,
 	PhotoPaletteId,
 	TemplateId,
+	TextGuard,
 	TextureId,
 	ThemeMode,
 } from "./og-templates";
-import { DEFAULT_PALETTE_ID, FOCAL_POINTS, PALETTES } from "./og-templates";
+import {
+	DEFAULT_PALETTE_ID,
+	FOCAL_POINTS,
+	PALETTES,
+	PHOTO_FILTERS,
+	TEXT_GUARDS,
+} from "./og-templates";
 
 const STORAGE_KEY = "hidoko-note-ogp:v1";
 
@@ -44,6 +52,8 @@ export const DEFAULTS: Fields = {
 	photoLayout: "full",
 	focalPoint: "center",
 	photoMirror: false,
+	photoFilter: "none",
+	textGuard: "scrim",
 };
 
 const TEMPLATE_IDS = new Set<TemplateId>(["edition", "cover", "quiet"]);
@@ -55,6 +65,8 @@ const TEXTURE_IDS = new Set<TextureId>(["none", "paper", "gradient", "shape"]);
 const PAPER_STRENGTHS = new Set<PaperStrength>(["weak", "medium"]);
 const PHOTO_LAYOUT_IDS = new Set<PhotoLayout>(["full", "edge", "kakuhan"]);
 const FOCAL_POINT_IDS = new Set<FocalPoint>(FOCAL_POINTS);
+const PHOTO_FILTER_IDS = new Set<PhotoFilter>(PHOTO_FILTERS.map((p) => p.id));
+const TEXT_GUARD_IDS = new Set<TextGuard>(TEXT_GUARDS.map((g) => g.id));
 
 function pickEnum<T extends string>(
 	value: unknown,
@@ -177,6 +189,14 @@ export function loadState(): Fields {
 				DEFAULTS.focalPoint,
 			),
 			photoMirror: pickBool(parsed.photoMirror, DEFAULTS.photoMirror),
+			// 加工・保護キーを持たない既存データは「そのまま・スクリム」（現行の
+			// 見え）にフォールバック
+			photoFilter: pickEnum(
+				parsed.photoFilter,
+				PHOTO_FILTER_IDS,
+				DEFAULTS.photoFilter,
+			),
+			textGuard: pickEnum(parsed.textGuard, TEXT_GUARD_IDS, DEFAULTS.textGuard),
 		};
 	} catch {
 		return DEFAULTS;
