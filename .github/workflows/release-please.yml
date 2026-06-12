@@ -1,9 +1,20 @@
 name: Release Please
 
 # main に積まれた Conventional Commits からバージョン bump を自動算出し、
-# リリース PR を作成・更新する。リリース PR をマージすると package.json の
-# version と CHANGELOG.md が更新され、タグと GitHub Release が作られる。
+# リリース PR を作成・更新する。リリース PR は auto-merge を有効化し、
+# required checks (lint / typecheck) の通過後に自動でマージされる。
+# マージされると package.json の version と CHANGELOG.md が更新され、
+# タグと GitHub Release が作られる。
 # 設定は release-please-config.json / .release-please-manifest.json を参照。
+#
+# NOTE: GITHUB_TOKEN ではなく fine-grained PAT (RELEASE_PLEASE_TOKEN) を使う。
+# GITHUB_TOKEN が起こしたイベントはワークフローを起動しない (GitHub の再帰
+# 防止仕様) ため、GITHUB_TOKEN のままだと
+#   - リリース PR に pull_request トリガーの CI が走らず、auto-merge の
+#     required checks が永遠に満たされない
+#   - リリース PR マージ後の push で本ワークフローが走らず、タグと
+#     GitHub Release の作成が次の push まで宙に浮く
+# の 2 点が破綻する。PAT の権限は contents: write + pull-requests: write。
 on:
   push:
     branches:
@@ -17,15 +28,28 @@ permissions:
   # リリース PR に付くラベル (autorelease: pending 等) の操作
   issues: write
 
+# 連続 push でリリース PR の更新と auto-merge が競合しないよう直列化する。
+# cancel-in-progress にはしない (タグ作成の取りこぼしを防ぐ)。
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
 jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      # NOTE: GITHUB_TOKEN が作成した PR には pull_request トリガーの CI が
-      # 自動では走らない (GitHub の再帰防止仕様)。リリース PR の差分は
-      # version と CHANGELOG だけなので許容する。CI を回したい場合は
-      # リリース PR を close/reopen する。
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        id: release-please
         with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+      # リリース PR の差分は version と CHANGELOG だけなので、CI 通過を条件に
+      # 人間の確認なしでマージする。required checks は main の ruleset 側で
+      # 指定している。squash は ruleset の required_linear_history に合わせた。
+      - name: Enable auto-merge on release PR
+        if: steps.release-please.outputs.prs_created == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          PR_NUMBER: ${{ fromJSON(steps.release-please.outputs.pr).number }}
+        run: gh pr merge --auto --squash "$PR_NUMBER" --repo "${{ github.repository }}"
