@@ -38,7 +38,10 @@ export {
 export {
 	FOCAL_POINTS,
 	focalObjectPosition,
+	PHOTO_FILTERS,
 	PHOTO_LAYOUTS,
+	photoFilterCss,
+	TEXT_GUARDS,
 } from "./photo";
 export { TextureLayer } from "./texture";
 export { renderTitleLines, splitMerihari } from "./title-decoration";
@@ -51,11 +54,13 @@ export type {
 	PaletteId,
 	PaletteSelection,
 	PaperStrength,
+	PhotoFilter,
 	PhotoLayout,
 	PhotoPalette,
 	PhotoPaletteId,
 	TemplateDef,
 	TemplateId,
+	TextGuard,
 	TextureId,
 	ThemeMode,
 	TitleDecoration,

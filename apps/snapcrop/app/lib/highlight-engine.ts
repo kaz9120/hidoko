@@ -7,6 +7,7 @@
  * 下の文字が透ける。
  */
 
+import { initialZIndex } from "~/lib/annotation-z-order";
 import type { ImageMetrics } from "~/lib/crop-engine";
 import { DUPLICATE_OFFSET_PX } from "~/lib/rect-engine";
 
@@ -27,6 +28,8 @@ export type HighlightAnnotation = {
 	opacity: number;
 	thickness: HighlightThickness;
 	createdAt: number;
+	/** 種別横断の重なり順 (annotation-z-order.ts)。大きいほど前面。 */
+	zIndex: number;
 };
 
 /**
@@ -37,7 +40,7 @@ export type HighlightAnnotation = {
 export type HighlightAnnotationPatch = Partial<
 	Pick<
 		HighlightAnnotation,
-		"x1" | "y1" | "x2" | "y2" | "color" | "opacity" | "thickness"
+		"x1" | "y1" | "x2" | "y2" | "color" | "opacity" | "thickness" | "zIndex"
 	>
 >;
 
@@ -174,17 +177,23 @@ export function createHighlightAnnotation(args: {
 		opacity: args.defaults.opacity,
 		thickness: args.defaults.thickness,
 		createdAt: Date.now(),
+		zIndex: initialZIndex("highlight"),
 	};
 }
 
 /**
- * annotation を位置を変えずに複製して、新しい id / createdAt を持つコピーを
- * 返す。Alt+ドラッグ複製の開始時に使う。
+ * annotation を位置を変えずに複製して、新しい id / createdAt / zIndex を持つ
+ * コピーを返す。Alt+ドラッグ複製の開始時に使う。
  */
 export function cloneHighlightAnnotation(
 	source: HighlightAnnotation,
 ): HighlightAnnotation {
-	return { ...source, id: newId(), createdAt: Date.now() };
+	return {
+		...source,
+		id: newId(),
+		createdAt: Date.now(),
+		zIndex: initialZIndex("highlight"),
+	};
 }
 
 /**
@@ -209,7 +218,12 @@ export function duplicateHighlightAnnotation(
 			img,
 		);
 	}
-	return { ...moved, id: newId(), createdAt: Date.now() };
+	return {
+		...moved,
+		id: newId(),
+		createdAt: Date.now(),
+		zIndex: initialZIndex("highlight"),
+	};
 }
 
 function distToSegmentSq(p: Point, v: Point, w: Point): number {

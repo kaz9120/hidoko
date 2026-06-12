@@ -6,7 +6,8 @@ import type { Rect } from "~/lib/annotation-bounds";
 import { AnnotationMiniActions } from "./annotation-mini-actions";
 
 /**
- * 選択中の注釈近傍に浮かぶミニアクションバー (複製 / 削除)。種別を問わず
+ * 選択中の注釈近傍に浮かぶミニアクションバー (複製 / 前面へ / 背面へ / 削除)。
+ * 種別を問わず
  * 外接矩形 (bounds) を基準に配置する。stage 内に絶対配置されるが、バー自体は
  * CSS px 固定サイズなので zoom 倍率の影響を受けない。基本は注釈の上、上端で
  * 見切れるときは注釈の下、それも収まらないときは注釈の内側上へフォール
@@ -74,6 +75,10 @@ export const Default: Story = {
 		imageWidth: 480,
 		imageHeight: 280,
 		onDuplicate: noop,
+		onBringForward: noop,
+		onSendBackward: noop,
+		canBringForward: true,
+		canSendBackward: true,
 		onDelete: noop,
 	},
 };
@@ -90,6 +95,10 @@ export const NearTopEdge: Story = {
 		imageWidth: 480,
 		imageHeight: 280,
 		onDuplicate: noop,
+		onBringForward: noop,
+		onSendBackward: noop,
+		canBringForward: true,
+		canSendBackward: true,
 		onDelete: noop,
 	},
 };
@@ -106,6 +115,10 @@ export const FullBleed: Story = {
 		imageWidth: 480,
 		imageHeight: 280,
 		onDuplicate: noop,
+		onBringForward: noop,
+		onSendBackward: noop,
+		canBringForward: true,
+		canSendBackward: true,
 		onDelete: noop,
 	},
 };
@@ -122,6 +135,10 @@ export const NearRightEdge: Story = {
 		imageWidth: 480,
 		imageHeight: 280,
 		onDuplicate: noop,
+		onBringForward: noop,
+		onSendBackward: noop,
+		canBringForward: true,
+		canSendBackward: true,
 		onDelete: noop,
 	},
 };
@@ -138,6 +155,10 @@ export const FlatBounds: Story = {
 		imageWidth: 480,
 		imageHeight: 280,
 		onDuplicate: noop,
+		onBringForward: noop,
+		onSendBackward: noop,
+		canBringForward: true,
+		canSendBackward: true,
 		onDelete: noop,
 	},
 };
@@ -154,6 +175,30 @@ export const ZoomedOut: Story = {
 		imageWidth: 960,
 		imageHeight: 560,
 		onDuplicate: noop,
+		onBringForward: noop,
+		onSendBackward: noop,
+		canBringForward: true,
+		canSendBackward: true,
+		onDelete: noop,
+	},
+};
+
+/**
+ * 注釈が 1 つしかない (= 最前面かつ最背面) ときは、前面へ / 背面へ の両方が
+ * disable される。複製・削除はそのまま使える。
+ * @summary z 操作ボタンの disabled 状態
+ */
+export const ZOrderDisabled: Story = {
+	args: {
+		bounds: mkBounds({ x: 160, y: 100, width: 200, height: 120 }),
+		zoom: 1,
+		imageWidth: 480,
+		imageHeight: 280,
+		onDuplicate: noop,
+		onBringForward: noop,
+		onSendBackward: noop,
+		canBringForward: false,
+		canSendBackward: false,
 		onDelete: noop,
 	},
 };

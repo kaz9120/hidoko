@@ -6,6 +6,7 @@
  * する。
  */
 
+import { initialZIndex } from "~/lib/annotation-z-order";
 import type { ImageMetrics } from "~/lib/crop-engine";
 import { DUPLICATE_OFFSET_PX } from "~/lib/rect-engine";
 
@@ -33,6 +34,8 @@ export type TextAnnotation = {
 	color: string;
 	background: TextBackground;
 	createdAt: number;
+	/** 種別横断の重なり順 (annotation-z-order.ts)。大きいほど前面。 */
+	zIndex: number;
 };
 
 /**
@@ -53,6 +56,7 @@ export type TextAnnotationPatch = Partial<
 		| "italic"
 		| "color"
 		| "background"
+		| "zIndex"
 	>
 >;
 
@@ -202,6 +206,7 @@ export function createTextAnnotation(args: {
 		color: args.defaults.color,
 		background: args.defaults.background,
 		createdAt: Date.now(),
+		zIndex: initialZIndex("text"),
 	};
 }
 
@@ -318,7 +323,12 @@ export function moveText(
  * 返す。Alt+ドラッグ複製の開始時に使う。
  */
 export function cloneTextAnnotation(source: TextAnnotation): TextAnnotation {
-	return { ...source, id: newId(), createdAt: Date.now() };
+	return {
+		...source,
+		id: newId(),
+		createdAt: Date.now(),
+		zIndex: initialZIndex("text"),
+	};
 }
 
 /**
@@ -343,5 +353,10 @@ export function duplicateTextAnnotation(
 			img,
 		);
 	}
-	return { ...moved, id: newId(), createdAt: Date.now() };
+	return {
+		...moved,
+		id: newId(),
+		createdAt: Date.now(),
+		zIndex: initialZIndex("text"),
+	};
 }

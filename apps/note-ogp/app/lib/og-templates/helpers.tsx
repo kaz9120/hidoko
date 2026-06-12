@@ -15,7 +15,8 @@ import {
 	paletteForSelection,
 	resolveOgTheme,
 } from "./palettes";
-import type { Fields, FontMode, ThemeMode } from "./types";
+import { VIGNETTE_OVERLAY } from "./photo";
+import type { Fields, FontMode, PhotoFilter, ThemeMode } from "./types";
 
 // ─────────────────────────────────────────────────────────
 // 書体システム
@@ -229,6 +230,26 @@ export function PhotoPlaceholder({
 				{label}
 			</span>
 		</div>
+	);
+}
+
+/**
+ * ビネット用の四隅落としレイヤー。写真と同じボックス（overflow: hidden な
+ * コンテナ or フレーム直下）に absolute で重ねる。CSS filter 単体では
+ * 作れないので、radial-gradient の追加レイヤーで上品に落とす。
+ */
+export function PhotoVignette({ filter }: { filter: PhotoFilter }) {
+	if (filter !== "vignette") return null;
+	return (
+		<div
+			aria-hidden
+			style={{
+				position: "absolute",
+				inset: 0,
+				background: VIGNETTE_OVERLAY,
+				pointerEvents: "none",
+			}}
+		/>
 	);
 }
 

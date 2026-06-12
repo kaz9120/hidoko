@@ -63,6 +63,7 @@ const mkHighlight = (
 	opacity: 0.4,
 	thickness: "md",
 	createdAt: 0,
+	zIndex: 0,
 	...overrides,
 });
 

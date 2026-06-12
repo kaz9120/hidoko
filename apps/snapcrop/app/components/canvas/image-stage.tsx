@@ -1,4 +1,10 @@
-import { type RefObject, useCallback, useEffect, useMemo } from "react";
+import {
+	Fragment,
+	type RefObject,
+	useCallback,
+	useEffect,
+	useMemo,
+} from "react";
 import { AnnotationInteractionLayer } from "~/components/canvas/annotation-interaction-layer";
 import { AnnotationLayer } from "~/components/canvas/annotation-layer";
 import { AnnotationMiniActions } from "~/components/canvas/annotation-mini-actions";
@@ -23,8 +29,13 @@ import { useDuplicateAnnotation } from "~/hooks/use-duplicate-annotation";
 import { useHighlightEngine } from "~/hooks/use-highlight-engine";
 import { useRectEngine } from "~/hooks/use-rect-engine";
 import { useTextEngine } from "~/hooks/use-text-engine";
+import { useZOrderActions } from "~/hooks/use-z-order";
 import { annotationBounds } from "~/lib/annotation-bounds";
 import type { AnnotationHit } from "~/lib/annotation-hit-test";
+import {
+	groupAnnotationRuns,
+	sortAnnotationsByZ,
+} from "~/lib/annotation-z-order";
 
 export type ImageStageProps = {
 	image: LoadedImage;
@@ -40,12 +51,16 @@ export type ImageStageProps = {
  *
  * z-order (上に行くほど前):
  *   1. <img>                          画像本体 (pointer-events:none)
- *   2. <MosaicLayer>                  mosaic スタイルだけを canvas で焼く
- *   3. <AnnotationLayer>              SVG outline / fill (矩形)
- *   4. <ArrowLayer>                   矢印は常に矩形より前
- *   5. <TextLayer>                    テキストは常に矢印より前
- *   6. <HighlightLayer>               kind ごとのレイヤー z-order で最前
- *                                     (multiply 合成なので下は透けて見える)
+ *   2. 注釈レイヤー群                  全種別を zIndex 順 (annotation-z-order.ts)
+ *                                     に合流し、同種別が連続する区間 (run) ごと
+ *                                     に既存レイヤーを積む。z 操作をしていない
+ *                                     ドキュメントでは従来どおり
+ *                                     MosaicLayer → AnnotationLayer →
+ *                                     ArrowLayer → TextLayer → HighlightLayer
+ *                                     の 1 区間ずつになる。rect 区間内では
+ *                                     mosaic を canvas で下に、outline / fill
+ *                                     を SVG で上に重ねる (従来の v1 簡略化を
+ *                                     区間内で維持)
  *   7. <AnnotationInteractionLayer>   描画系ツール (crop 以外) のとき、stage
  *                                     全体の hit。全種別横断の hit test (#103)
  *                                     を行う (SelectionOverlay の下に置くことで
@@ -87,6 +102,7 @@ export function ImageStage({
 		deleteHighlight,
 	} = useSnapcrop();
 	const duplicateAnnotation = useDuplicateAnnotation();
+	const zOrderActions = useZOrderActions();
 
 	const imageMetrics = useMemo(
 		() => ({ naturalWidth: image.width, naturalHeight: image.height }),
@@ -131,6 +147,26 @@ export function ImageStage({
 			highlightEngineHandleRef.current = null;
 		};
 	}, [highlightEngineHandleRef, highlightEngine.handle]);
+
+	// 全種別を zIndex 順に合流し、同種別の連続区間 (run) ごとにレイヤーを積む。
+	// ドラッグ中は engine の rendered* (live 値) を使うが、zIndex は interaction
+	// で変わらないので並びは安定している。
+	const zOrdered = useMemo(
+		() =>
+			sortAnnotationsByZ({
+				annotations: rectEngine.renderedAnnotations,
+				arrows: arrowEngine.renderedArrows,
+				texts: textEngine.renderedTexts,
+				highlights: highlightEngine.renderedHighlights,
+			}),
+		[
+			rectEngine.renderedAnnotations,
+			arrowEngine.renderedArrows,
+			textEngine.renderedTexts,
+			highlightEngine.renderedHighlights,
+		],
+	);
+	const zRuns = useMemo(() => groupAnnotationRuns(zOrdered), [zOrdered]);
 
 	// stage 内の座標変換。<img> 要素を基準にして clientX/Y → 画像 px へ。
 	// interaction layer と selection overlay 双方で使う。画像ロード前や rect が
@@ -194,6 +230,14 @@ export function ImageStage({
 		!anyInteracting &&
 		!(selectedHit.kind === "text" && textEngine.editing?.id === selectedHit.id);
 
+	// z 操作ボタンの活性判定。最前面 / 最背面に達していたら disable する。
+	const selectedZPos = selectedHit
+		? zOrdered.findIndex((a) => a.id === selectedHit.id)
+		: -1;
+	const canBringForward =
+		selectedZPos >= 0 && selectedZPos < zOrdered.length - 1;
+	const canSendBackward = selectedZPos > 0;
+
 	const deleteSelected = (hit: AnnotationHit) => {
 		switch (hit.kind) {
 			case "rect":
@@ -220,34 +264,61 @@ export function ImageStage({
 				ref={imgRef}
 				src={image.src}
 			/>
-			<MosaicLayer
-				annotations={rectEngine.renderedAnnotations}
-				imageHeight={image.height}
-				imageSrc={image.src}
-				imageWidth={image.width}
-				imgRef={imgRef}
-			/>
-			<AnnotationLayer
-				annotations={rectEngine.renderedAnnotations}
-				imageHeight={image.height}
-				imageWidth={image.width}
-			/>
-			<ArrowLayer
-				arrows={arrowEngine.renderedArrows}
-				imageHeight={image.height}
-				imageWidth={image.width}
-			/>
-			<TextLayer
-				editingId={textEngine.editing?.id ?? null}
-				imageHeight={image.height}
-				imageWidth={image.width}
-				texts={textEngine.renderedTexts}
-			/>
-			<HighlightLayer
-				highlights={highlightEngine.renderedHighlights}
-				imageHeight={image.height}
-				imageWidth={image.width}
-			/>
+			{zRuns.map((run, i) => {
+				// run の分割は z 操作時にしか変わらないので index キーで十分
+				const key = `${run.kind}-${i}`;
+				switch (run.kind) {
+					case "rect":
+						return (
+							<Fragment key={key}>
+								{run.items.some((a) => a.style === "mosaic") && (
+									<MosaicLayer
+										annotations={run.items}
+										imageHeight={image.height}
+										imageSrc={image.src}
+										imageWidth={image.width}
+										imgRef={imgRef}
+									/>
+								)}
+								<AnnotationLayer
+									annotations={run.items}
+									imageHeight={image.height}
+									imageWidth={image.width}
+								/>
+							</Fragment>
+						);
+					case "arrow":
+						return (
+							<ArrowLayer
+								arrows={run.items}
+								imageHeight={image.height}
+								imageWidth={image.width}
+								key={key}
+							/>
+						);
+					case "text":
+						return (
+							<TextLayer
+								editingId={textEngine.editing?.id ?? null}
+								imageHeight={image.height}
+								imageWidth={image.width}
+								key={key}
+								texts={run.items}
+							/>
+						);
+					case "highlight":
+						return (
+							<HighlightLayer
+								highlights={run.items}
+								imageHeight={image.height}
+								imageWidth={image.width}
+								key={key}
+							/>
+						);
+					default:
+						return null;
+				}
+			})}
 			{/*
 			 * AnnotationInteractionLayer は SelectionOverlay の手前に置くと選択
 			 * ハンドルへのクリックが奪われるため、先に配置 (= 視覚的に下) する。
@@ -280,10 +351,14 @@ export function ImageStage({
 			{showMiniActions && (
 				<AnnotationMiniActions
 					bounds={annotationBounds(selectedHit)}
+					canBringForward={canBringForward}
+					canSendBackward={canSendBackward}
 					imageHeight={image.height}
 					imageWidth={image.width}
+					onBringForward={() => zOrderActions.bringForward(selectedHit.id)}
 					onDelete={() => deleteSelected(selectedHit)}
 					onDuplicate={() => duplicateAnnotation(selectedHit, imageMetrics)}
+					onSendBackward={() => zOrderActions.sendBackward(selectedHit.id)}
 					zoom={zoom}
 				/>
 			)}

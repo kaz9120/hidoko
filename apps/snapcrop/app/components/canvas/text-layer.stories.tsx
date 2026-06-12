@@ -52,6 +52,7 @@ const mkText = (
 	color: "#ef4444",
 	background: "none",
 	createdAt: Date.now(),
+	zIndex: 0,
 	...overrides,
 });
 

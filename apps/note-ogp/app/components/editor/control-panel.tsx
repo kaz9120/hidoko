@@ -31,6 +31,7 @@ import { ThemeToggle } from "../theme-toggle";
 import { ImageField } from "./image-field";
 import { PalettePicker } from "./palette-picker";
 import { PhotoLayoutField } from "./photo-layout-field";
+import { PhotoStyleField } from "./photo-style-field";
 import { SectionTitle } from "./section-title";
 import { TemplateThumb } from "./template-thumb";
 import { TextureField } from "./texture-field";
@@ -214,6 +215,7 @@ export function ControlPanel({
 					onChange={(v) => update({ image: v })}
 				/>
 				<PhotoLayoutField state={state} update={update} tpl={tpl} />
+				<PhotoStyleField state={state} update={update} tpl={tpl} />
 
 				<SectionTitle>内容</SectionTitle>
 				<Field className="mb-3.5">

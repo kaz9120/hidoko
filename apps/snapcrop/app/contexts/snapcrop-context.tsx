@@ -12,6 +12,7 @@ import {
 } from "react";
 import type { ViewportHandle } from "~/components/canvas/viewport";
 import type { CropData, CropEngineHandle } from "~/hooks/use-crop-engine";
+import { compareByZIndex } from "~/lib/annotation-z-order";
 import {
 	loadArrowDefaults,
 	saveArrowDefaults,
@@ -413,11 +414,11 @@ const initialState: State = {
 	highlightDefaults: DEFAULT_HIGHLIGHT_DEFAULTS,
 };
 
-/** annotations を createdAt 昇順 (古い順 = z-order 下) に保つユーティリティ。 */
+/** annotations を zIndex 昇順 (下 → 上) に保つユーティリティ。 */
 function sortAnnotations(
 	list: readonly RectAnnotation[],
 ): readonly RectAnnotation[] {
-	return [...list].sort((a, b) => a.createdAt - b.createdAt);
+	return [...list].sort(compareByZIndex);
 }
 
 function applyForward(
@@ -428,7 +429,10 @@ function applyForward(
 		case "rect.create":
 			return sortAnnotations([...annotations, op.annotation]);
 		case "rect.update":
-			return annotations.map((a) => (a.id === op.id ? op.next : a));
+			// zIndex の書き換え (z 操作) で並びが変わりうるので sort し直す
+			return sortAnnotations(
+				annotations.map((a) => (a.id === op.id ? op.next : a)),
+			);
 		case "rect.delete":
 			return annotations.filter((a) => a.id !== op.annotation.id);
 	}
@@ -442,17 +446,19 @@ function applyReverse(
 		case "rect.create":
 			return annotations.filter((a) => a.id !== op.annotation.id);
 		case "rect.update":
-			return annotations.map((a) => (a.id === op.id ? op.prev : a));
+			return sortAnnotations(
+				annotations.map((a) => (a.id === op.id ? op.prev : a)),
+			);
 		case "rect.delete":
 			return sortAnnotations([...annotations, op.annotation]);
 	}
 }
 
-/** arrows を createdAt 昇順 (古い順 = z-order 下) に保つユーティリティ。 */
+/** arrows を zIndex 昇順 (下 → 上) に保つユーティリティ。 */
 function sortArrows(
 	list: readonly ArrowAnnotation[],
 ): readonly ArrowAnnotation[] {
-	return [...list].sort((a, b) => a.createdAt - b.createdAt);
+	return [...list].sort(compareByZIndex);
 }
 
 function applyArrowForward(
@@ -463,7 +469,7 @@ function applyArrowForward(
 		case "arrow.create":
 			return sortArrows([...arrows, op.annotation]);
 		case "arrow.update":
-			return arrows.map((a) => (a.id === op.id ? op.next : a));
+			return sortArrows(arrows.map((a) => (a.id === op.id ? op.next : a)));
 		case "arrow.delete":
 			return arrows.filter((a) => a.id !== op.annotation.id);
 	}
@@ -477,15 +483,15 @@ function applyArrowReverse(
 		case "arrow.create":
 			return arrows.filter((a) => a.id !== op.annotation.id);
 		case "arrow.update":
-			return arrows.map((a) => (a.id === op.id ? op.prev : a));
+			return sortArrows(arrows.map((a) => (a.id === op.id ? op.prev : a)));
 		case "arrow.delete":
 			return sortArrows([...arrows, op.annotation]);
 	}
 }
 
-/** texts を createdAt 昇順 (古い順 = z-order 下) に保つユーティリティ。 */
+/** texts を zIndex 昇順 (下 → 上) に保つユーティリティ。 */
 function sortTexts(list: readonly TextAnnotation[]): readonly TextAnnotation[] {
-	return [...list].sort((a, b) => a.createdAt - b.createdAt);
+	return [...list].sort(compareByZIndex);
 }
 
 function applyTextForward(
@@ -496,7 +502,7 @@ function applyTextForward(
 		case "text.create":
 			return sortTexts([...texts, op.annotation]);
 		case "text.update":
-			return texts.map((t) => (t.id === op.id ? op.next : t));
+			return sortTexts(texts.map((t) => (t.id === op.id ? op.next : t)));
 		case "text.delete":
 			return texts.filter((t) => t.id !== op.annotation.id);
 	}
@@ -510,17 +516,17 @@ function applyTextReverse(
 		case "text.create":
 			return texts.filter((t) => t.id !== op.annotation.id);
 		case "text.update":
-			return texts.map((t) => (t.id === op.id ? op.prev : t));
+			return sortTexts(texts.map((t) => (t.id === op.id ? op.prev : t)));
 		case "text.delete":
 			return sortTexts([...texts, op.annotation]);
 	}
 }
 
-/** highlights を createdAt 昇順 (古い順 = z-order 下) に保つユーティリティ。 */
+/** highlights を zIndex 昇順 (下 → 上) に保つユーティリティ。 */
 function sortHighlights(
 	list: readonly HighlightAnnotation[],
 ): readonly HighlightAnnotation[] {
-	return [...list].sort((a, b) => a.createdAt - b.createdAt);
+	return [...list].sort(compareByZIndex);
 }
 
 function applyHighlightForward(
@@ -531,7 +537,9 @@ function applyHighlightForward(
 		case "highlight.create":
 			return sortHighlights([...highlights, op.annotation]);
 		case "highlight.update":
-			return highlights.map((a) => (a.id === op.id ? op.next : a));
+			return sortHighlights(
+				highlights.map((a) => (a.id === op.id ? op.next : a)),
+			);
 		case "highlight.delete":
 			return highlights.filter((a) => a.id !== op.annotation.id);
 	}
@@ -545,7 +553,9 @@ function applyHighlightReverse(
 		case "highlight.create":
 			return highlights.filter((a) => a.id !== op.annotation.id);
 		case "highlight.update":
-			return highlights.map((a) => (a.id === op.id ? op.prev : a));
+			return sortHighlights(
+				highlights.map((a) => (a.id === op.id ? op.prev : a)),
+			);
 		case "highlight.delete":
 			return sortHighlights([...highlights, op.annotation]);
 	}
@@ -575,7 +585,8 @@ function rectShallowEqual(a: RectAnnotation, b: RectAnnotation): boolean {
 		a.height === b.height &&
 		a.style === b.style &&
 		a.color === b.color &&
-		a.thickness === b.thickness
+		a.thickness === b.thickness &&
+		a.zIndex === b.zIndex
 	);
 }
 
@@ -590,7 +601,8 @@ function arrowShallowEqual(a: ArrowAnnotation, b: ArrowAnnotation): boolean {
 		a.endCap === b.endCap &&
 		a.color === b.color &&
 		a.thickness === b.thickness &&
-		a.style === b.style
+		a.style === b.style &&
+		a.zIndex === b.zIndex
 	);
 }
 
@@ -605,7 +617,8 @@ function textShallowEqual(a: TextAnnotation, b: TextAnnotation): boolean {
 		a.bold === b.bold &&
 		a.italic === b.italic &&
 		a.color === b.color &&
-		a.background === b.background
+		a.background === b.background &&
+		a.zIndex === b.zIndex
 	);
 }
 
@@ -620,7 +633,8 @@ function highlightShallowEqual(
 		a.y2 === b.y2 &&
 		a.color === b.color &&
 		a.opacity === b.opacity &&
-		a.thickness === b.thickness
+		a.thickness === b.thickness &&
+		a.zIndex === b.zIndex
 	);
 }
 
