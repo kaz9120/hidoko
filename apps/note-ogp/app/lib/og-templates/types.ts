@@ -18,6 +18,29 @@ export type TextureId = "none" | "paper" | "gradient" | "shape";
 export type PaperStrength = "weak" | "medium";
 
 /**
+ * 写真の配置型（書籍の「1 枚写真の基本形」より）。
+ * - full:    全面裁ち落とし（現行の Cover）
+ * - edge:    片側 2/3 を三方裁ち落とし＋反対側にテキスト面
+ * - kakuhan: 角版＋四周に地余白（額縁効果）
+ */
+export type PhotoLayout = "full" | "edge" | "kakuhan";
+
+/**
+ * 写真の注視点（9 点グリッド）。object-position に変換してクロップ位置を
+ * 追従させる。「写真の主役にスポットライトを当てる」ためのトリミング指定。
+ */
+export type FocalPoint =
+	| "top-left"
+	| "top"
+	| "top-right"
+	| "left"
+	| "center"
+	| "right"
+	| "bottom-left"
+	| "bottom"
+	| "bottom-right";
+
+/**
  * 配色の 3 ロール構造。
  * 参考書（『けっきょくは、よはく。』ほか）の「ベース 70% / サブ 25% /
  * アクセント 5%」に対応する。OGP 画像内の塗りはすべてこの 3 色から導出する。
@@ -69,6 +92,10 @@ export type Fields = {
 	image: string | null;
 	texture: TextureId;
 	paperStrength: PaperStrength;
+	photoLayout: PhotoLayout;
+	focalPoint: FocalPoint;
+	/** edge 配置の左右入れ替え（false=写真が左 / true=写真が右） */
+	photoMirror: boolean;
 };
 
 export type TemplateDef = {
