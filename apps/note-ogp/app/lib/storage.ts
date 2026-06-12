@@ -13,6 +13,7 @@ import type {
 	TemplateId,
 	TextureId,
 	ThemeMode,
+	TitleDecoration,
 } from "./og-templates";
 import { DEFAULT_PALETTE_ID, FOCAL_POINTS, PALETTES } from "./og-templates";
 
@@ -41,6 +42,7 @@ export const DEFAULTS: Fields = {
 	texture: "none",
 	paperStrength: "weak",
 	photoPalettes: null,
+	titleDecoration: "none",
 	photoLayout: "full",
 	focalPoint: "center",
 	photoMirror: false,
@@ -53,6 +55,12 @@ const FONT_MODES = new Set<FontMode>(["serif", "gothic", "hand"]);
 const COVER_TEXTS = new Set<CoverText>(["light", "dark"]);
 const TEXTURE_IDS = new Set<TextureId>(["none", "paper", "gradient", "shape"]);
 const PAPER_STRENGTHS = new Set<PaperStrength>(["weak", "medium"]);
+const TITLE_DECORATIONS = new Set<TitleDecoration>([
+	"none",
+	"merihari",
+	"zurashi",
+	"hanzure",
+]);
 const PHOTO_LAYOUT_IDS = new Set<PhotoLayout>(["full", "edge", "kakuhan"]);
 const FOCAL_POINT_IDS = new Set<FocalPoint>(FOCAL_POINTS);
 
@@ -165,6 +173,12 @@ export function loadState(): Fields {
 				DEFAULTS.paperStrength,
 			),
 			photoPalettes,
+			// 装飾キーを持たない既存データは「なし」（現行どおり）にフォールバック
+			titleDecoration: pickEnum(
+				parsed.titleDecoration,
+				TITLE_DECORATIONS,
+				DEFAULTS.titleDecoration,
+			),
 			// 配置・注視点キーを持たない既存データは全面・中央（現行の構図）に
 			photoLayout: pickEnum(
 				parsed.photoLayout,

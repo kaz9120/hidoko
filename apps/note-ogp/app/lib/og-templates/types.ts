@@ -16,6 +16,11 @@ export type PaletteId =
 /** 背景の質感。さじ加減は固定プリセット（不透明度の自由調整は出さない） */
 export type TextureId = "none" | "paper" | "gradient" | "shape";
 export type PaperStrength = "weak" | "medium";
+/**
+ * タイトルの装飾プリセット。自由なシャドウ・グラデ設定は出さない
+ * （参考書の「盛りすぎが安っぽさの典型」を構造的に防ぐ）。
+ */
+export type TitleDecoration = "none" | "merihari" | "zurashi" | "hanzure";
 
 /**
  * 写真の配置型（書籍の「1 枚写真の基本形」より）。
@@ -92,6 +97,7 @@ export type Fields = {
 	image: string | null;
 	texture: TextureId;
 	paperStrength: PaperStrength;
+	titleDecoration: TitleDecoration;
 	photoLayout: PhotoLayout;
 	focalPoint: FocalPoint;
 	/** edge 配置の左右入れ替え（false=写真が左 / true=写真が右） */
