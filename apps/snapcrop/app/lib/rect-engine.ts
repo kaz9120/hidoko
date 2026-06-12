@@ -230,8 +230,16 @@ export function createRectAnnotation(args: {
 	};
 }
 
-/** 複製時に元矩形からずらす距離 (画像 px)。 */
+/** 複製時に元注釈からずらす距離 (画像 px)。全種別の duplicate* で共有する。 */
 export const DUPLICATE_OFFSET_PX = 16;
+
+/**
+ * annotation を位置を変えずに複製して、新しい id / createdAt を持つコピーを
+ * 返す。Alt+ドラッグ複製の開始時 (コピーをその場に作ってドラッグへ繋ぐ) に使う。
+ */
+export function cloneRectAnnotation(source: RectAnnotation): RectAnnotation {
+	return { ...source, id: newId(), createdAt: Date.now() };
+}
 
 /**
  * annotation を複製して新しい id / createdAt を持つコピーを返す。位置は
@@ -263,13 +271,11 @@ export function duplicateRectAnnotation(
 		);
 	}
 	return {
-		...source,
-		id: newId(),
+		...cloneRectAnnotation(source),
 		x: placed.x,
 		y: placed.y,
 		width: placed.width,
 		height: placed.height,
-		createdAt: Date.now(),
 	};
 }
 
