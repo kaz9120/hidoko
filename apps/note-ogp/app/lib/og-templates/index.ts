@@ -43,6 +43,7 @@ export {
 	TEXT_GUARDS,
 } from "./photo";
 export { TextureLayer } from "./texture";
+export { renderTitleLines, splitMerihari } from "./title-decoration";
 export type {
 	CoverText,
 	Fields,
@@ -61,4 +62,5 @@ export type {
 	TextGuard,
 	TextureId,
 	ThemeMode,
+	TitleDecoration,
 } from "./types";
