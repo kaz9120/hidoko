@@ -26,6 +26,8 @@ const DEFAULT_FIELDS: Fields = {
 	photoLayout: "full",
 	focalPoint: "center",
 	photoMirror: false,
+	photoFilter: "none",
+	textGuard: "scrim",
 };
 
 // 淡い背景 × 淡い文字色の低コントラストなパレット（コントラスト警告の確認用）。
