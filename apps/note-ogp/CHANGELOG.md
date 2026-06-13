@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.8.0...note-ogp-v0.9.0) (2026-06-13)
+
+
+### Features
+
+* **note-ogp:** サイドパネルを折りたたみ、タイムライン実寸プレビューをトグル化する ([#156](https://github.com/kaz9120/hidoko/issues/156)) ([669b413](https://github.com/kaz9120/hidoko/commit/669b413de20b87835bbc36e16392efc3ab6fc49d))
+
 ## [0.8.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.7.0...note-ogp-v0.8.0) (2026-06-13)
 
 
