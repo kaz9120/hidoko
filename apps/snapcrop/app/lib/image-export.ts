@@ -14,6 +14,7 @@ import {
 	MOSAIC_PX,
 	OUTLINE_PX,
 	type RectAnnotation,
+	sketchyRectStrokePaths,
 } from "~/lib/rect-engine";
 import {
 	getTextRenderModel,
@@ -178,14 +179,36 @@ function drawAnnotations(
 	pixels: ImageData | null,
 ): void {
 	const prevAlpha = ctx.globalAlpha;
+	const prevLineCap = ctx.lineCap;
 	for (const ann of annotations) {
 		const x = ann.x - cropRect.x;
 		const y = ann.y - cropRect.y;
 		if (ann.style === "outline") {
 			ctx.strokeStyle = ann.color;
 			ctx.lineWidth = OUTLINE_PX[ann.thickness];
-			pathRoundRect(ctx, x, y, ann.width, ann.height, 1);
-			ctx.stroke();
+			if (ann.strokeStyle === "sketchy") {
+				// 手書き風はパス文字列が画像座標系なので translate して描く
+				// (arrow の drawArrows と同じ流儀)。round cap で辺の繋ぎ目が
+				// 直線端で割れないようにする。
+				const paths = sketchyRectStrokePaths({
+					x: ann.x,
+					y: ann.y,
+					width: ann.width,
+					height: ann.height,
+					seed: ann.seed,
+					strokeWidth: OUTLINE_PX[ann.thickness],
+				});
+				ctx.save();
+				ctx.translate(-cropRect.x, -cropRect.y);
+				ctx.lineCap = "round";
+				for (const d of paths) {
+					ctx.stroke(new Path2D(d));
+				}
+				ctx.restore();
+			} else {
+				pathRoundRect(ctx, x, y, ann.width, ann.height, 1);
+				ctx.stroke();
+			}
 		} else if (ann.style === "fill") {
 			ctx.fillStyle = ann.color;
 			ctx.globalAlpha = FILL_OPACITY;
@@ -208,6 +231,7 @@ function drawAnnotations(
 			);
 		}
 	}
+	ctx.lineCap = prevLineCap;
 }
 
 /**
@@ -343,6 +367,16 @@ function drawHighlights(
 		ctx.strokeStyle = m.color;
 		ctx.lineWidth = m.bandWidth;
 		ctx.globalAlpha = m.opacity;
+		if (m.sketchy) {
+			// パス文字列は画像座標系。SVG 側と同じ butt cap で描く。
+			ctx.save();
+			ctx.translate(-cropRect.x, -cropRect.y);
+			for (const d of m.sketchy.linePaths) {
+				ctx.stroke(new Path2D(d));
+			}
+			ctx.restore();
+			continue;
+		}
 		ctx.beginPath();
 		ctx.moveTo(m.from.x - cropRect.x, m.from.y - cropRect.y);
 		ctx.lineTo(m.to.x - cropRect.x, m.to.y - cropRect.y);

@@ -130,6 +130,8 @@ const RECT_FIXTURE: RectAnnotation = {
 	style: "outline",
 	color: "#ef4444",
 	thickness: "md",
+	strokeStyle: "clean",
+	seed: 0,
 	createdAt: 0,
 	zIndex: 0,
 };
@@ -179,6 +181,8 @@ const HIGHLIGHT_FIXTURE: HighlightAnnotation = {
 	color: "#facc15",
 	opacity: 0.4,
 	thickness: "md",
+	strokeStyle: "clean",
+	seed: 0,
 	createdAt: 3,
 	zIndex: 3,
 };

@@ -48,6 +48,8 @@ const mkRect = (overrides: Partial<RectAnnotation>): RectAnnotation => ({
 	style: "mosaic",
 	color: "#3b82f6",
 	thickness: "md",
+	strokeStyle: "clean",
+	seed: 0,
 	createdAt: 0,
 	zIndex: 0,
 	...overrides,

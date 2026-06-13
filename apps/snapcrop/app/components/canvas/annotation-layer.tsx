@@ -2,6 +2,7 @@ import {
 	FILL_OPACITY,
 	OUTLINE_PX,
 	type RectAnnotation,
+	sketchyRectStrokePaths,
 } from "~/lib/rect-engine";
 
 type AnnotationLayerProps = {
@@ -17,7 +18,8 @@ type AnnotationLayerProps = {
  *
  * viewBox を画像座標 (= naturalWidth × naturalHeight) で張るので、stroke-width
  * や rx をそのまま画像 px で指定できる。display は CSS の width:100% で zoom に
- * 追従する。
+ * 追従する。outline + sketchy は arrow-layer と同じく揺らぎ済みパスを描く
+ * (fill / mosaic は枠線がないので strokeStyle は無視する)。
  */
 export function AnnotationLayer({
 	annotations,
@@ -45,6 +47,31 @@ export function AnnotationLayer({
 							x={a.x}
 							y={a.y}
 						/>
+					);
+				}
+				if (a.strokeStyle === "sketchy") {
+					const strokeWidth = OUTLINE_PX[a.thickness];
+					const paths = sketchyRectStrokePaths({
+						x: a.x,
+						y: a.y,
+						width: a.width,
+						height: a.height,
+						seed: a.seed,
+						strokeWidth,
+					});
+					return (
+						<g key={a.id}>
+							{paths.map((d) => (
+								<path
+									d={d}
+									fill="none"
+									key={d}
+									stroke={a.color}
+									strokeLinecap="round"
+									strokeWidth={strokeWidth}
+								/>
+							))}
+						</g>
 					);
 				}
 				return (

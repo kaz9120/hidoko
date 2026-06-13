@@ -11,6 +11,7 @@ import {
 	HIGHLIGHT_MIN_OPACITY,
 	HIGHLIGHT_PRESET_COLORS,
 	type HighlightDefaults,
+	type HighlightStrokeStyle,
 	type HighlightThickness,
 } from "~/lib/highlight-engine";
 
@@ -20,6 +21,10 @@ const THICKNESSES: ReadonlySet<HighlightThickness> = new Set([
 	"sm",
 	"md",
 	"lg",
+]);
+const STROKE_STYLES: ReadonlySet<HighlightStrokeStyle> = new Set([
+	"clean",
+	"sketchy",
 ]);
 // マーカーは固定パレット仕様 (矩形のカスタム色とは違う)。プリセット外の値を
 // 復元すると swatch の選択表示と実際の描画色がズレるので、包含チェックで弾く。
@@ -55,10 +60,18 @@ export function loadHighlightDefaults(): HighlightDefaults {
 		) {
 			return DEFAULT_HIGHLIGHT_DEFAULTS;
 		}
+		// strokeStyle は後付け。欠落 / 不正値は他フィールドを生かしてデフォルトに倒す
+		const strokeStyleRaw = obj.strokeStyle;
+		const strokeStyle =
+			typeof strokeStyleRaw === "string" &&
+			STROKE_STYLES.has(strokeStyleRaw as HighlightStrokeStyle)
+				? (strokeStyleRaw as HighlightStrokeStyle)
+				: DEFAULT_HIGHLIGHT_DEFAULTS.strokeStyle;
 		return {
 			color,
 			opacity,
 			thickness: thickness as HighlightThickness,
+			strokeStyle,
 		};
 	} catch {
 		return DEFAULT_HIGHLIGHT_DEFAULTS;

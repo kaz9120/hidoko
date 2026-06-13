@@ -54,6 +54,7 @@ export const Default: Story = {
 			color: "#fde047",
 			opacity: 0.4,
 			thickness: "md",
+			strokeStyle: "clean",
 		},
 	},
 };
@@ -72,6 +73,7 @@ export const ThickOpaque: Story = {
 			color: "#f9a8d4",
 			opacity: 0.8,
 			thickness: "lg",
+			strokeStyle: "clean",
 		},
 	},
 };
@@ -89,6 +91,26 @@ export const Thin: Story = {
 			color: "#93c5fd",
 			opacity: 0.4,
 			thickness: "sm",
+			strokeStyle: "clean",
+		},
+	},
+};
+
+/**
+ * 手書き風 (`sketchy`) の太帯プレビュー。揺らぎが帯の縦方向にも出るので、
+ * 蛍光ペンを少しよれて引いたような印象になる。
+ * @summary sketchy プレビュー
+ */
+export const Sketchy: Story = {
+	args: {
+		previewHighlight: { x1: 28, y1: 132, x2: 420, y2: 132 },
+		imageWidth: IMAGE_WIDTH,
+		imageHeight: IMAGE_HEIGHT,
+		defaults: {
+			color: "#bef264",
+			opacity: 0.5,
+			thickness: "md",
+			strokeStyle: "sketchy",
 		},
 	},
 };

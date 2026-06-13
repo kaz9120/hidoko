@@ -14,8 +14,14 @@ import {
 	TooltipTrigger,
 } from "ui";
 import { RectColorSwatches } from "~/components/layout/rect-color-swatches";
+import { StrokeStyleIcon } from "~/components/layout/stroke-style-icon";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
-import type { RectDefaults, RectStyle, RectThickness } from "~/lib/rect-engine";
+import type {
+	RectDefaults,
+	RectStrokeStyle,
+	RectStyle,
+	RectThickness,
+} from "~/lib/rect-engine";
 
 const STYLE_OPTIONS: ReadonlyArray<{
 	id: RectStyle;
@@ -25,6 +31,14 @@ const STYLE_OPTIONS: ReadonlyArray<{
 	{ id: "outline", label: "枠線", icon: SquareIcon },
 	{ id: "fill", label: "塗り", icon: SquareStackIcon },
 	{ id: "mosaic", label: "モザイク", icon: Grid2X2Icon },
+];
+
+const STROKE_STYLE_OPTIONS: ReadonlyArray<{
+	id: RectStrokeStyle;
+	label: string;
+}> = [
+	{ id: "clean", label: "きっちり" },
+	{ id: "sketchy", label: "手書き" },
 ];
 
 const THICKNESS_OPTIONS: ReadonlyArray<{
@@ -69,14 +83,19 @@ export function RectToolbar() {
 		? (annotations.find((a) => a.id === selectedAnnotationId) ?? null)
 		: null;
 
-	const current: { style: RectStyle; color: string; thickness: RectThickness } =
-		selected
-			? {
-					style: selected.style,
-					color: selected.color,
-					thickness: selected.thickness,
-				}
-			: rectDefaults;
+	const current: {
+		style: RectStyle;
+		color: string;
+		thickness: RectThickness;
+		strokeStyle: RectStrokeStyle;
+	} = selected
+		? {
+				style: selected.style,
+				color: selected.color,
+				thickness: selected.thickness,
+				strokeStyle: selected.strokeStyle,
+			}
+		: rectDefaults;
 
 	const commit = (patch: Partial<RectDefaults>) => {
 		if (selected) {
@@ -89,6 +108,9 @@ export function RectToolbar() {
 	const colorDisabled = current.style === "mosaic";
 	const thicknessDisabled = current.style === "fill";
 	const thicknessLabel = current.style === "mosaic" ? "ブロック" : "太さ";
+	// 枠線スタイル (clean / sketchy) は outline だけに効く。fill / mosaic では
+	// 枠線が無いので、disable して「効かない」ことを UI でも見せる。
+	const strokeStyleDisabled = current.style !== "outline";
 
 	return (
 		<div
@@ -128,6 +150,31 @@ export function RectToolbar() {
 						</ToggleGroupItem>
 					);
 				})}
+			</ToggleGroup>
+
+			<Divider />
+
+			<ToggleGroup
+				aria-label="線の質感"
+				disabled={strokeStyleDisabled}
+				onValueChange={(next) => {
+					if (next) commit({ strokeStyle: next as RectStrokeStyle });
+				}}
+				type="single"
+				value={current.strokeStyle}
+				variant="outline"
+			>
+				{STROKE_STYLE_OPTIONS.map((opt) => (
+					<ToggleGroupItem
+						key={opt.id}
+						size="sm"
+						title={opt.label}
+						value={opt.id}
+					>
+						<StrokeStyleIcon style={opt.id} />
+						<span>{opt.label}</span>
+					</ToggleGroupItem>
+				))}
 			</ToggleGroup>
 
 			<Divider />
