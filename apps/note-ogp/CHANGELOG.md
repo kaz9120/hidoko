@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.7.0...note-ogp-v0.8.0) (2026-06-13)
+
+
+### Features
+
+* **note-ogp:** プロフィールを初回ダイアログとヘッダーチップに分離する ([#152](https://github.com/kaz9120/hidoko/issues/152)) ([24300c0](https://github.com/kaz9120/hidoko/commit/24300c08814001aca1f8a6121219b9607ffed8f3))
+
 ## [0.7.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.6.0...note-ogp-v0.7.0) (2026-06-13)
 
 
