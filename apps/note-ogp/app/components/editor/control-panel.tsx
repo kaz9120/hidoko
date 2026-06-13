@@ -86,6 +86,15 @@ export function ControlPanel({
 	const goPrev = () => setStep((s) => (s > 1 ? ((s - 1) as WizardStep) : s));
 	const goNext = () => setStep((s) => (s < 3 ? ((s + 1) as WizardStep) : s));
 
+	// 「リセット」は ③ 仕上げに置かれているが、リセット後は「新しい号を作る」
+	// 状態に戻すので、ウィザードも ① 台紙からやり直すのが自然 (Issue #167)。
+	// state.reset → setStep(1) の順で呼ぶ (step state は localStorage 永続化に
+	// 載っているので、setStep(1) で次のリロードでも Step 1 で開く)。
+	const handleReset = () => {
+		reset();
+		setStep(1);
+	};
+
 	return (
 		<aside className="flex h-full flex-col overflow-hidden border-l border-border bg-card">
 			<StepBar current={step} onSelect={setStep} />
@@ -101,7 +110,7 @@ export function ControlPanel({
 				onPrev={goPrev}
 				onNext={goNext}
 				onDownload={onDownload}
-				onReset={reset}
+				onReset={handleReset}
 				busy={busy}
 				canDownload={!!state.title}
 			/>
