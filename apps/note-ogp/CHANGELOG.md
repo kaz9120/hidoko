@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.9.0...note-ogp-v0.10.0) (2026-06-13)
+
+
+### Features
+
+* **note-ogp:** コントロールパネルを三段ウィザード化する（① 台紙 → ② 内容 → ③ 仕上げ） ([#158](https://github.com/kaz9120/hidoko/issues/158)) ([ae77bc1](https://github.com/kaz9120/hidoko/commit/ae77bc1c521c46b7e05556c93fc3fd1866f00fd0))
+
 ## [0.9.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.8.0...note-ogp-v0.9.0) (2026-06-13)
 
 
