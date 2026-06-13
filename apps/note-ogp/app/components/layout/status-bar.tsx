@@ -24,6 +24,7 @@ export function StatusBar({
 	scale,
 	titleFontSize,
 	lastSavedAt,
+	sidebarCollapsed = false,
 }: {
 	tpl: TemplateDef;
 	fields: Fields;
@@ -33,6 +34,11 @@ export function StatusBar({
 	titleFontSize: number | null;
 	/** 直近の自動保存時刻。初回マウント中は null。 */
 	lastSavedAt: Date | null;
+	/**
+	 * サイドパネルが折りたたまれているか (Issue #138)。true のときは右端に
+	 * 「⌘\\ でパネルを開く」のヒントを足す。
+	 */
+	sidebarCollapsed?: boolean;
 }) {
 	const titleLength = fields.title.length;
 	const lineCount = fields.title.split("\n").length;
@@ -62,6 +68,14 @@ export function StatusBar({
 			<span>
 				{lastSavedAt ? `保存 ${formatTime(lastSavedAt)}` : "保存待ち"}
 			</span>
+			{sidebarCollapsed && (
+				<>
+					<Sep />
+					<span className="hidden text-(--text-faint) md:inline">
+						⌘\ でパネルを開く
+					</span>
+				</>
+			)}
 		</footer>
 	);
 }

@@ -1,3 +1,4 @@
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { SiteFooter } from "~/components/layout/site-footer";
@@ -14,6 +15,10 @@ import {
 	isProfileBootstrapped,
 	markProfileBootstrapped,
 } from "~/lib/profile-storage";
+import {
+	loadSidebarCollapsed,
+	saveSidebarCollapsed,
+} from "~/lib/ui-state-storage";
 import { ControlPanel } from "./control-panel";
 import { Stage } from "./stage";
 
@@ -29,6 +34,9 @@ export function NoteOgpEditor() {
 	// 初回起動の文言を出す。チップから開いた時は intro = false。
 	const [profileDialogOpen, setProfileDialogOpen] = useState(false);
 	const [profileDialogIntro, setProfileDialogIntro] = useState(false);
+	// サイドパネル折りたたみ (Issue #138)。初回マウント後に localStorage から復元、
+	// ⌘\ で開閉、ステージ右端のハンドルでも開閉できる。
+	const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
 	// 初回マウントでプロフィール未確定なら、ダイアログを開いて intro を出す。
 	// `useEffect` は SSR を通さないので localStorage は安全に読める。
@@ -37,6 +45,32 @@ export function NoteOgpEditor() {
 			setProfileDialogIntro(true);
 			setProfileDialogOpen(true);
 		}
+		setSidebarCollapsed(loadSidebarCollapsed());
+	}, []);
+
+	useEffect(() => {
+		saveSidebarCollapsed(sidebarCollapsed);
+	}, [sidebarCollapsed]);
+
+	// ⌘\ または Ctrl+\ で開閉。フォーム要素にフォーカスがあるときは無視する。
+	useEffect(() => {
+		const onKey = (event: KeyboardEvent) => {
+			if (!(event.metaKey || event.ctrlKey)) return;
+			if (event.key !== "\\") return;
+			const target = event.target;
+			if (
+				target instanceof HTMLElement &&
+				(target.tagName === "INPUT" ||
+					target.tagName === "TEXTAREA" ||
+					target.isContentEditable)
+			) {
+				return;
+			}
+			event.preventDefault();
+			setSidebarCollapsed((c) => !c);
+		};
+		document.addEventListener("keydown", onKey);
+		return () => document.removeEventListener("keydown", onKey);
 	}, []);
 
 	const tpl = TEMPLATES.find((t) => t.id === state.templateId) ?? TEMPLATES[0];
@@ -89,22 +123,55 @@ export function NoteOgpEditor() {
 				profile={{ brand: state.brand, author: state.author }}
 				onProfileClick={handleProfileChipClick}
 			/>
-			<div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[minmax(0,1fr)_420px]">
-				<Stage
-					tpl={tpl}
-					fields={state}
-					frameRef={frameRef}
-					onScaleChange={setStageScale}
-					onTitleFontSizeChange={setTitleFontSize}
-				/>
-				<ControlPanel
-					state={state}
-					update={update}
-					reset={reset}
-					tpl={tpl}
-					onDownload={handleDownload}
-					busy={busy}
-				/>
+			<div
+				className={`grid min-h-0 flex-1 grid-cols-1 ${
+					sidebarCollapsed
+						? "md:grid-cols-[minmax(0,1fr)]"
+						: "md:grid-cols-[minmax(0,1fr)_420px]"
+				}`}
+			>
+				<div className="relative flex min-h-0 flex-col">
+					<Stage
+						tpl={tpl}
+						fields={state}
+						frameRef={frameRef}
+						onScaleChange={setStageScale}
+						onTitleFontSizeChange={setTitleFontSize}
+					/>
+					<button
+						type="button"
+						onClick={() => setSidebarCollapsed((c) => !c)}
+						className="absolute top-1/2 right-0 z-10 hidden h-12 w-3.5 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:border-primary/40 hover:text-foreground md:flex"
+						aria-label={
+							sidebarCollapsed ? "サイドパネルを開く" : "サイドパネルを閉じる"
+						}
+						title={`${sidebarCollapsed ? "開く" : "閉じる"} (⌘\\)`}
+					>
+						{sidebarCollapsed ? (
+							<ChevronLeftIcon
+								aria-hidden="true"
+								className="size-3"
+								strokeWidth={1.75}
+							/>
+						) : (
+							<ChevronRightIcon
+								aria-hidden="true"
+								className="size-3"
+								strokeWidth={1.75}
+							/>
+						)}
+					</button>
+				</div>
+				{!sidebarCollapsed && (
+					<ControlPanel
+						state={state}
+						update={update}
+						reset={reset}
+						tpl={tpl}
+						onDownload={handleDownload}
+						busy={busy}
+					/>
+				)}
 			</div>
 			<StatusBar
 				tpl={tpl}
@@ -112,6 +179,7 @@ export function NoteOgpEditor() {
 				scale={stageScale}
 				titleFontSize={titleFontSize}
 				lastSavedAt={lastSavedAt}
+				sidebarCollapsed={sidebarCollapsed}
 			/>
 			<SiteFooter />
 			<ProfileDialog

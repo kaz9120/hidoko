@@ -1,7 +1,9 @@
+import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { type RefObject, useEffect, useRef, useState } from "react";
 import { useFitScale } from "~/hooks/use-fit-scale";
 import type { Fields, TemplateDef } from "~/lib/og-templates";
 import { TitleFitContext } from "~/lib/og-templates";
+import { loadTimelineOpen, saveTimelineOpen } from "~/lib/ui-state-storage";
 import { TimelinePreview } from "./timeline-preview";
 
 /**
@@ -36,6 +38,15 @@ export function Stage({
 	const Comp = tpl.Comp;
 	// メインプレビュー内の AutoFitTitle が確定したフォントサイズ（1280px 基準）
 	const [titleFontSize, setTitleFontSize] = useState<number | null>(null);
+	// タイムライン実寸プレビューの開閉状態 (Issue #139)。既定は閉じで、
+	// チップで開閉する。状態は localStorage に永続化する。
+	const [timelineOpen, setTimelineOpen] = useState(false);
+	useEffect(() => {
+		setTimelineOpen(loadTimelineOpen());
+	}, []);
+	useEffect(() => {
+		saveTimelineOpen(timelineOpen);
+	}, [timelineOpen]);
 
 	// scale / titleFontSize の変化を親 (StatusBar 用) に伝える。
 	useEffect(() => {
@@ -73,12 +84,35 @@ export function Stage({
 						</div>
 					</div>
 				</div>
-				<div className="mb-auto max-w-full flex-shrink-0">
-					<TimelinePreview
-						tpl={tpl}
-						fields={fields}
-						titleFontSize={titleFontSize}
-					/>
+				<div className="mb-auto flex max-w-full flex-shrink-0 flex-col items-center gap-2">
+					<button
+						type="button"
+						onClick={() => setTimelineOpen((open) => !open)}
+						className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/80 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+						aria-expanded={timelineOpen}
+					>
+						{timelineOpen ? (
+							<ChevronDownIcon
+								aria-hidden="true"
+								className="size-3"
+								strokeWidth={1.75}
+							/>
+						) : (
+							<ChevronUpIcon
+								aria-hidden="true"
+								className="size-3"
+								strokeWidth={1.75}
+							/>
+						)}
+						タイムライン実寸を{timelineOpen ? "閉じる" : "確認"}
+					</button>
+					{timelineOpen && (
+						<TimelinePreview
+							tpl={tpl}
+							fields={fields}
+							titleFontSize={titleFontSize}
+						/>
+					)}
 				</div>
 			</div>
 		</section>
