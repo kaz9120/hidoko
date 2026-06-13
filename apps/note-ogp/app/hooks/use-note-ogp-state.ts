@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
 	computeNextIssue,
 	computeThisMonth,
@@ -17,13 +17,27 @@ export type NoteOgpStateHook = {
 	 * した vol + 1 が初期値に乗る (Issue #137)。
 	 */
 	recordExport: (issue: string) => void;
+	/**
+	 * 直近の自動保存（localStorage への永続化）が成功した時刻。初回マウント前は
+	 * null。StatusBar に「保存: 12:34」を出すための情報源 (Issue #134)。
+	 */
+	lastSavedAt: Date | null;
 };
 
 export function useNoteOgpState(): NoteOgpStateHook {
 	const [state, setState] = useState<Fields>(() => loadState());
+	const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+	// 初回マウントの saveState は state 復元と等価で「保存」ではないので、
+	// 2 回目以降の effect で初めて lastSavedAt を更新する。
+	const initialRender = useRef(true);
 
 	useEffect(() => {
 		saveState(state);
+		if (initialRender.current) {
+			initialRender.current = false;
+			return;
+		}
+		setLastSavedAt(new Date());
 	}, [state]);
 
 	// 写真が設定・差し替えされたら配色候補（馴染ませ / 引き立て）を抽出し直す。
@@ -61,5 +75,5 @@ export function useNoteOgpState(): NoteOgpStateHook {
 		saveLastIssue(issue);
 	}, []);
 
-	return { state, update, reset, recordExport };
+	return { state, update, reset, recordExport, lastSavedAt };
 }
