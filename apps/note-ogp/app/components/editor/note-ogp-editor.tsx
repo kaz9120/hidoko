@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 import { SiteFooter } from "~/components/layout/site-footer";
+import { SiteHeader } from "~/components/layout/site-header";
 import { useNoteOgpState } from "~/hooks/use-note-ogp-state";
 import { buildFileName, downloadPng } from "~/lib/download-png";
 import { TEMPLATES } from "~/lib/og-templates";
@@ -31,6 +32,7 @@ export function NoteOgpEditor() {
 
 	return (
 		<div className="flex min-h-screen flex-col bg-background md:h-screen">
+			<SiteHeader />
 			<div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[minmax(0,1fr)_420px]">
 				<Stage tpl={tpl} fields={state} frameRef={frameRef} />
 				<ControlPanel
