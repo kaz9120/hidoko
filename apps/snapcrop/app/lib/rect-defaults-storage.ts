@@ -30,12 +30,18 @@ export function loadRectDefaults(): RectDefaults {
 		const parsed: unknown = JSON.parse(raw);
 		if (!parsed || typeof parsed !== "object") return DEFAULT_RECT_DEFAULTS;
 		const obj = parsed as Record<string, unknown>;
-		const style = obj.style;
+		const rawStyle = obj.style;
 		const color = obj.color;
 		const thickness = obj.thickness;
-		if (typeof style !== "string" || !STYLES.has(style as RectStyle)) {
+		if (typeof rawStyle !== "string" || !STYLES.has(rawStyle as RectStyle)) {
 			return DEFAULT_RECT_DEFAULTS;
 		}
+		// 確定仕様で「塗り」(fill) は廃止された (Issue #146)。既存ユーザーが
+		// 直近で fill を選んでいた場合は outline に倒して読み戻す。型は互換の
+		// ために残しているが、UI に出さない以上は次の defaults 更新でも fill を
+		// 書き戻さない。
+		const style: RectStyle =
+			rawStyle === "fill" ? "outline" : (rawStyle as RectStyle);
 		if (typeof color !== "string" || !HEX_COLOR.test(color)) {
 			return DEFAULT_RECT_DEFAULTS;
 		}
@@ -54,7 +60,7 @@ export function loadRectDefaults(): RectDefaults {
 				? (strokeStyleRaw as RectStrokeStyle)
 				: DEFAULT_RECT_DEFAULTS.strokeStyle;
 		return {
-			style: style as RectStyle,
+			style,
 			color,
 			thickness: thickness as RectThickness,
 			strokeStyle,

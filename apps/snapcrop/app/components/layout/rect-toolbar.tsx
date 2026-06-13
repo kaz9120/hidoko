@@ -1,9 +1,4 @@
-import {
-	Grid2X2Icon,
-	SquareIcon,
-	SquareStackIcon,
-	Trash2Icon,
-} from "lucide-react";
+import { Grid2X2Icon, SquareIcon, Trash2Icon } from "lucide-react";
 import type { ReactNode } from "react";
 import {
 	Button,
@@ -23,13 +18,16 @@ import type {
 	RectThickness,
 } from "~/lib/rect-engine";
 
+// 確定仕様 (snapcrop 新デザイン 最終版 / FinalSpec) で「塗り」は廃止された
+// (隠す = モザイク・目立たせる = マーカーで吸収できるため)。UI からは選択肢を
+// 落とし、型 / 描画ロジックには互換のため残置している (既存データの fill は
+// rect-defaults-storage 側で outline に倒される)。
 const STYLE_OPTIONS: ReadonlyArray<{
 	id: RectStyle;
 	label: string;
 	icon: typeof SquareIcon;
 }> = [
 	{ id: "outline", label: "枠線", icon: SquareIcon },
-	{ id: "fill", label: "塗り", icon: SquareStackIcon },
 	{ id: "mosaic", label: "モザイク", icon: Grid2X2Icon },
 ];
 
@@ -56,8 +54,8 @@ const THICKNESS_OPTIONS: ReadonlyArray<{
  * rectDefaults を反映し、変更が次に描く矩形のデフォルトになる。
  *
  * style によって他コントロールの enable / disable が変わる:
- *   - fill   : thickness は disabled (ラベルは「太さ」のまま)
  *   - mosaic : color は disabled、thickness ラベルは「ブロック」
+ * (fill は確定仕様で廃止された — STYLE_OPTIONS の補足コメント参照)
  *
  * style / thickness のセグメント表示はクロップ側のアスペクト比と同じ ui の
  * ToggleGroup を使う (見た目を統一)。色スウォッチだけは円形 + ブランドカラー
@@ -106,7 +104,6 @@ export function RectToolbar() {
 	};
 
 	const colorDisabled = current.style === "mosaic";
-	const thicknessDisabled = current.style === "fill";
 	const thicknessLabel = current.style === "mosaic" ? "ブロック" : "太さ";
 	// 枠線スタイル (clean / sketchy) は outline だけに効く。fill / mosaic では
 	// 枠線が無いので、disable して「効かない」ことを UI でも見せる。
@@ -191,7 +188,6 @@ export function RectToolbar() {
 			<Label>{thicknessLabel}</Label>
 			<ToggleGroup
 				aria-label="太さ"
-				disabled={thicknessDisabled}
 				onValueChange={(next) => {
 					if (next) commit({ thickness: next as RectThickness });
 				}}
