@@ -1,4 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
+import {
+	computeNextIssue,
+	computeThisMonth,
+	saveLastIssue,
+} from "~/lib/issue-storage";
 import type { Fields } from "~/lib/og-templates";
 import { extractPhotoPalettes } from "~/lib/photo-palette";
 import { DEFAULTS, loadState, saveState } from "~/lib/storage";
@@ -7,6 +12,11 @@ export type NoteOgpStateHook = {
 	state: Fields;
 	update: (patch: Partial<Fields>) => void;
 	reset: () => void;
+	/**
+	 * PNG 書き出しが成功したことを記録する。次回 reset したときに、ここで記録
+	 * した vol + 1 が初期値に乗る (Issue #137)。
+	 */
+	recordExport: (issue: string) => void;
 };
 
 export function useNoteOgpState(): NoteOgpStateHook {
@@ -38,8 +48,18 @@ export function useNoteOgpState(): NoteOgpStateHook {
 	}, []);
 
 	const reset = useCallback(() => {
-		setState(DEFAULTS);
+		// 「新しい号を作る」操作なので、issue は前号 +1、date は今月で初期化する
+		// (Issue #137)。手で上書きした値は通常の保存ルートで残る。
+		setState({
+			...DEFAULTS,
+			issue: computeNextIssue(DEFAULTS.issue),
+			date: computeThisMonth(),
+		});
 	}, []);
 
-	return { state, update, reset };
+	const recordExport = useCallback((issue: string) => {
+		saveLastIssue(issue);
+	}, []);
+
+	return { state, update, reset, recordExport };
 }
