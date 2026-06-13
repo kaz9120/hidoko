@@ -168,6 +168,16 @@ type SnapcropContextValue = {
 	setStylePreset: (id: StylePresetId) => void;
 
 	/**
+	 * 図形 (矩形・矢印・テキスト) の色を一括で書き換える (Issue #145 / 色集約)。
+	 * 確定仕様では「色は変更頻度が低い」ためレール末尾の 1 箇所に集約する。
+	 * setRectDefaults / setArrowDefaults / setTextDefaults を内部で一斉に
+	 * 呼んで、defaults の color フィールドを揃える。
+	 */
+	setSharedFigureColor: (color: string) => void;
+	/** マーカーの色を更新する (図形色とは別の蛍光プリセット)。 */
+	setMarkerColor: (color: string) => void;
+
+	/**
 	 * キャンバスのズーム倍率 (1 = 100%)。実体は Viewport が onZoomChange で
 	 * 書き込む。ヘッダーの ZoomControl が % 表示のために購読する。
 	 */
@@ -1302,6 +1312,30 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 						state.highlightDefaults,
 						preset,
 					),
+				});
+			},
+
+			// 色集約 (Issue #145 Phase 1b)。図形 (rect / arrow / text) の
+			// defaults.color を 1 回の操作で揃える。Highlight は別パレットなので
+			// setMarkerColor が独立に扱う。
+			setSharedFigureColor: (color: string) => {
+				dispatch({
+					type: "SET_RECT_DEFAULTS",
+					defaults: { ...state.rectDefaults, color },
+				});
+				dispatch({
+					type: "SET_ARROW_DEFAULTS",
+					defaults: { ...state.arrowDefaults, color },
+				});
+				dispatch({
+					type: "SET_TEXT_DEFAULTS",
+					defaults: { ...state.textDefaults, color },
+				});
+			},
+			setMarkerColor: (color: string) => {
+				dispatch({
+					type: "SET_HIGHLIGHT_DEFAULTS",
+					defaults: { ...state.highlightDefaults, color },
 				});
 			},
 

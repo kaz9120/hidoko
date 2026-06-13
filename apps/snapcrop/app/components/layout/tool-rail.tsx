@@ -11,11 +11,14 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Toggle, Tooltip, TooltipContent, TooltipTrigger } from "ui";
+import { Popover, PopoverContent, PopoverTrigger } from "ui/components/popover";
 import {
 	type ActiveTool,
 	type StylePresetId,
 	useSnapcrop,
 } from "~/contexts/snapcrop-context";
+import { HIGHLIGHT_PRESET_COLORS } from "~/lib/highlight-engine";
+import { PRESET_COLORS } from "~/lib/rect-engine";
 import { STYLE_PRESET_ORDER, STYLE_PRESETS } from "~/lib/style-presets";
 
 type ToolDef = {
@@ -52,8 +55,17 @@ const STYLE_PRESET_ICONS: Record<StylePresetId, typeof CropIcon> = {
  * 集約は Phase 1b の別 PR で乗せる。
  */
 export function ToolRail() {
-	const { image, activeTool, setActiveTool, stylePreset, setStylePreset } =
-		useSnapcrop();
+	const {
+		image,
+		activeTool,
+		setActiveTool,
+		stylePreset,
+		setStylePreset,
+		rectDefaults,
+		highlightDefaults,
+		setSharedFigureColor,
+		setMarkerColor,
+	} = useSnapcrop();
 
 	if (!image) {
 		return null;
@@ -126,6 +138,80 @@ export function ToolRail() {
 					</Tooltip>
 				);
 			})}
+
+			<span aria-hidden="true" className="my-1.5 h-px w-6 shrink-0 bg-border" />
+
+			<Popover>
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<PopoverTrigger asChild>
+							<button
+								type="button"
+								aria-label="色を変える"
+								className="size-7 shrink-0 rounded-full border-2 border-border ring-offset-2 ring-offset-[var(--bg-overlay)] transition-shadow hover:ring-2 hover:ring-primary/40"
+								style={{ backgroundColor: rectDefaults.color }}
+							/>
+						</PopoverTrigger>
+					</TooltipTrigger>
+					<TooltipContent side="right">注釈の色</TooltipContent>
+				</Tooltip>
+				<PopoverContent side="right" align="end" className="w-56 p-3">
+					<div className="flex flex-col gap-3">
+						<ColorRow
+							title="図形・文字"
+							value={rectDefaults.color}
+							colors={PRESET_COLORS}
+							onChange={setSharedFigureColor}
+						/>
+						<ColorRow
+							title="マーカー"
+							value={highlightDefaults.color}
+							colors={HIGHLIGHT_PRESET_COLORS}
+							onChange={setMarkerColor}
+						/>
+						<p className="text-[10.5px] text-(--text-faint)">
+							保存されます。次に開いたときもこの色から始まります。
+						</p>
+					</div>
+				</PopoverContent>
+			</Popover>
 		</aside>
+	);
+}
+
+function ColorRow({
+	title,
+	value,
+	colors,
+	onChange,
+}: {
+	title: string;
+	value: string;
+	colors: readonly string[];
+	onChange: (color: string) => void;
+}) {
+	return (
+		<div className="flex flex-col gap-1.5">
+			<span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+				{title}
+			</span>
+			<div className="flex flex-wrap items-center gap-1.5">
+				{colors.map((c) => {
+					const active = c.toLowerCase() === value.toLowerCase();
+					return (
+						<button
+							key={c}
+							type="button"
+							aria-label={`色 ${c}`}
+							onClick={() => onChange(c)}
+							className={`size-5 shrink-0 rounded-full border ring-offset-1 ring-offset-(--popover) transition-all hover:scale-110 ${
+								active ? "ring-2 ring-foreground" : "border-border"
+							}`}
+							style={{ backgroundColor: c }}
+						/>
+					);
+				})}
+			</div>
+		</div>
 	);
 }
