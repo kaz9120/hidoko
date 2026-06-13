@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.6.0...snapcrop-v0.7.0) (2026-06-13)
+
+
+### Features
+
+* **snapcrop:** 矩形ツールから「塗り」スタイルの選択を廃止する ([#159](https://github.com/kaz9120/hidoko/issues/159)) ([56d52a1](https://github.com/kaz9120/hidoko/commit/56d52a124cab2a60375ef44abf939682d72243ae))
+
 ## [0.6.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.5.0...snapcrop-v0.6.0) (2026-06-13)
 
 
