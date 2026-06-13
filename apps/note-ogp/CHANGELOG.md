@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.5.0...note-ogp-v0.6.0) (2026-06-13)
+
+
+### Features
+
+* **note-ogp:** リセット時に vol と日付を自動補完する ([#150](https://github.com/kaz9120/hidoko/issues/150)) ([5fbd266](https://github.com/kaz9120/hidoko/commit/5fbd2663ee2e8a6c6aa4dffea0ac43963235c5ca))
+
 ## [0.5.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.4.0...note-ogp-v0.5.0) (2026-06-13)
 
 
