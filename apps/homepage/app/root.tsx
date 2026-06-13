@@ -7,7 +7,7 @@ import {
 	Scripts,
 	ScrollRestoration,
 } from "react-router";
-import { Toaster, TooltipProvider } from "ui";
+import { Analytics, Toaster, TooltipProvider } from "ui";
 import faviconUrl from "ui/assets/logo/mark-cream.svg?url";
 import type { Route } from "./+types/root";
 import "./globals.css";
@@ -29,6 +29,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 			</head>
 			<body>
 				{children}
+				<Analytics
+					gaId={import.meta.env.VITE_GA_ID}
+					clarityId={import.meta.env.VITE_CLARITY_ID}
+				/>
 				<ScrollRestoration />
 				<Scripts />
 			</body>
