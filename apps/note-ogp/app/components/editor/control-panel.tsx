@@ -307,6 +307,9 @@ export function ControlPanel({
 						placeholder="2026.05"
 						className="font-mono"
 					/>
+					<FieldDescription>
+						vol・日付は自動 — 書き出しごとに次号が初期値に乗る
+					</FieldDescription>
 				</Field>
 
 				<SectionTitle>ブランド・著者</SectionTitle>

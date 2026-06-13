@@ -8,7 +8,7 @@ import { ControlPanel } from "./control-panel";
 import { Stage } from "./stage";
 
 export function NoteOgpEditor() {
-	const { state, update, reset } = useNoteOgpState();
+	const { state, update, reset, recordExport } = useNoteOgpState();
 	const frameRef = useRef<HTMLDivElement | null>(null);
 	const [busy, setBusy] = useState(false);
 
@@ -20,6 +20,8 @@ export function NoteOgpEditor() {
 		try {
 			const fileName = buildFileName(state.title, state.issue);
 			await downloadPng(frameRef.current, fileName);
+			// 書き出しに成功した号を記録 (Issue #137)。次回 reset で +1 が乗る。
+			recordExport(state.issue);
 			toast.success("PNG をダウンロードしました", { description: fileName });
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
@@ -27,7 +29,7 @@ export function NoteOgpEditor() {
 		} finally {
 			setBusy(false);
 		}
-	}, [busy, state.title, state.issue]);
+	}, [busy, state.title, state.issue, recordExport]);
 
 	return (
 		<div className="flex min-h-screen flex-col bg-background md:h-screen">
