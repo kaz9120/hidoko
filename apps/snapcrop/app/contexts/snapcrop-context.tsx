@@ -44,6 +44,15 @@ import {
 	type RectAnnotationPatch,
 	type RectDefaults,
 } from "~/lib/rect-engine";
+import { loadStylePreset, saveStylePreset } from "~/lib/style-preset-storage";
+import {
+	applyPresetToArrowDefaults,
+	applyPresetToHighlightDefaults,
+	applyPresetToRectDefaults,
+	DEFAULT_STYLE_PRESET,
+	STYLE_PRESETS,
+	type StylePresetId,
+} from "~/lib/style-presets";
 import {
 	loadTextDefaults,
 	saveTextDefaults,
@@ -79,6 +88,7 @@ export type {
 	RectStyle,
 	RectThickness,
 } from "~/lib/rect-engine";
+export type { StylePresetId } from "~/lib/style-presets";
 export type {
 	TextAlign,
 	TextAnnotation,
@@ -148,6 +158,14 @@ type SnapcropContextValue = {
 
 	activeTool: ActiveTool;
 	setActiveTool: (tool: ActiveTool) => void;
+
+	/**
+	 * 現在選択中のスタイルプリセット (きっちり / 手書き / 強調 / やわらか)。
+	 * 各 XxxDefaults の上に乗る「テイスト」で、切り替えると一度に矢印・矩形・
+	 * マーカーの既定値 (太さ / 質感 / 矢頭) を束ねて差し替える (Issue #145)。
+	 */
+	stylePreset: StylePresetId;
+	setStylePreset: (id: StylePresetId) => void;
 
 	/**
 	 * キャンバスのズーム倍率 (1 = 100%)。実体は Viewport が onZoomChange で
@@ -1172,6 +1190,23 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 	const [zoom, setZoom] = useState(1);
 	const [cropAspectRatioId, setCropAspectRatioIdState] = useState("free");
 	const [cropIsPortrait, setCropIsPortraitState] = useState(false);
+	// 選択中のスタイルプリセット (Issue #145)。各 XxxDefaults とは独立に保存し、
+	// 切り替えると一度に矢印・矩形・マーカーの既定値を束ねて差し替える。
+	const [stylePreset, setStylePresetState] =
+		useState<StylePresetId>(DEFAULT_STYLE_PRESET);
+
+	// hydration を阻害しないよう、初回マウント後に localStorage から読み戻す。
+	useEffect(() => {
+		const restored = loadStylePreset();
+		if (restored !== DEFAULT_STYLE_PRESET) {
+			setStylePresetState(restored);
+		}
+	}, []);
+
+	// stylePreset 変化を localStorage に永続化
+	useEffect(() => {
+		saveStylePreset(stylePreset);
+	}, [stylePreset]);
 
 	// rectDefaults の変化を localStorage に書き出す。swatch クリック頻度なら
 	// 直接書きで十分 (debounce 不要)。
@@ -1245,6 +1280,30 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 
 			activeTool: state.activeTool,
 			setActiveTool: (tool) => dispatch({ type: "SET_ACTIVE_TOOL", tool }),
+
+			stylePreset,
+			setStylePreset: (id: StylePresetId) => {
+				setStylePresetState(id);
+				// プリセットに沿って各 XxxDefaults を上書きする。色や個別パッチは
+				// 保持したまま、テイスト系のフィールド (strokeStyle / thickness /
+				// 矢印の線形と端点キャップ / マーカーの不透明度) だけ差し替える。
+				const preset = STYLE_PRESETS[id];
+				dispatch({
+					type: "SET_RECT_DEFAULTS",
+					defaults: applyPresetToRectDefaults(state.rectDefaults, preset),
+				});
+				dispatch({
+					type: "SET_ARROW_DEFAULTS",
+					defaults: applyPresetToArrowDefaults(state.arrowDefaults, preset),
+				});
+				dispatch({
+					type: "SET_HIGHLIGHT_DEFAULTS",
+					defaults: applyPresetToHighlightDefaults(
+						state.highlightDefaults,
+						preset,
+					),
+				});
+			},
 
 			zoom,
 			setZoom,
@@ -1362,6 +1421,7 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 		cropAspectRatioId,
 		cropIsPortrait,
 		zoom,
+		stylePreset,
 	]);
 
 	return (

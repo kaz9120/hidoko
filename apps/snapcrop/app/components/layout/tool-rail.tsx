@@ -2,11 +2,21 @@ import {
 	CropIcon,
 	HighlighterIcon,
 	MoveUpRightIcon,
+	PencilIcon,
+	RulerIcon,
 	SquareIcon,
+	StarIcon,
 	TypeIcon,
+	WavesIcon,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Toggle, Tooltip, TooltipContent, TooltipTrigger } from "ui";
-import { type ActiveTool, useSnapcrop } from "~/contexts/snapcrop-context";
+import {
+	type ActiveTool,
+	type StylePresetId,
+	useSnapcrop,
+} from "~/contexts/snapcrop-context";
+import { STYLE_PRESET_ORDER, STYLE_PRESETS } from "~/lib/style-presets";
 
 type ToolDef = {
 	id: ActiveTool;
@@ -24,15 +34,39 @@ const TOOLS: ToolDef[] = [
 ];
 
 /**
+ * スタイルプリセットを視覚で区別するためのアイコン (Issue #145)。lucide に
+ * 「同じモチーフのテイスト違い 4 種」のような専用セットは無いため、各
+ * プリセットの世界観に近いアイコンを 1 つずつ選んだ。
+ */
+const STYLE_PRESET_ICONS: Record<StylePresetId, typeof CropIcon> = {
+	clean: RulerIcon,
+	sketch: PencilIcon,
+	emphasis: StarIcon,
+	soft: WavesIcon,
+};
+
+/**
  * キャンバス左端の編集ツール選択レール。画像があるときだけ表示する。
- * 将来 arrow / text 等のツールを追加するときは TOOLS を伸ばすだけ。
+ * 上から「ツール」→ 区切り →「スタイル」(Issue #145) の順で並べる
+ * (確定仕様: snapcrop 新デザイン 最終版 / RailAnatomy)。「色」のレール末尾
+ * 集約は Phase 1b の別 PR で乗せる。
  */
 export function ToolRail() {
-	const { image, activeTool, setActiveTool } = useSnapcrop();
+	const { image, activeTool, setActiveTool, stylePreset, setStylePreset } =
+		useSnapcrop();
 
 	if (!image) {
 		return null;
 	}
+
+	const handleStylePresetChange = (id: StylePresetId) => {
+		setStylePreset(id);
+		const preset = STYLE_PRESETS[id];
+		toast.success(`スタイル: ${preset.label}`, {
+			description: `${preset.hint} — 以降の図形に適用`,
+			duration: 2200,
+		});
+	};
 
 	return (
 		<aside
@@ -60,6 +94,34 @@ export function ToolRail() {
 						</TooltipTrigger>
 						<TooltipContent side="right">
 							{tool.label} ({tool.shortcut})
+						</TooltipContent>
+					</Tooltip>
+				);
+			})}
+
+			<span aria-hidden="true" className="my-1.5 h-px w-6 shrink-0 bg-border" />
+
+			{STYLE_PRESET_ORDER.map((id) => {
+				const preset = STYLE_PRESETS[id];
+				const Icon = STYLE_PRESET_ICONS[id];
+				const pressed = stylePreset === id;
+				return (
+					<Tooltip key={id}>
+						<TooltipTrigger asChild>
+							<Toggle
+								aria-label={`スタイル: ${preset.label}`}
+								onPressedChange={(next) => {
+									if (next) handleStylePresetChange(id);
+								}}
+								pressed={pressed}
+								size="sm"
+								variant="default"
+							>
+								<Icon strokeWidth={1.75} />
+							</Toggle>
+						</TooltipTrigger>
+						<TooltipContent side="right">
+							{preset.label} — {preset.hint}
 						</TooltipContent>
 					</Tooltip>
 				);
