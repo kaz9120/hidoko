@@ -1,4 +1,4 @@
-import { type RefObject, useRef, useState } from "react";
+import { type RefObject, useEffect, useRef, useState } from "react";
 import { useFitScale } from "~/hooks/use-fit-scale";
 import type { Fields, TemplateDef } from "~/lib/og-templates";
 import { TitleFitContext } from "~/lib/og-templates";
@@ -12,17 +12,24 @@ import { TimelinePreview } from "./timeline-preview";
  * 計測用 wrapper に `aspect-[1280/670]` を与えて幅基準でスケールを決める。
  *
  * メインプレビューの下に、note タイムライン実寸相当の縮小プレビューと
- * 可読性の警告（TimelinePreview）を常時表示する。タイトルの確定フォント
- * サイズは TitleFitContext 経由で AutoFitTitle から受け取る。
+ * 可読性の警告（TimelinePreview）を表示する。タイトルの確定フォントサイズは
+ * TitleFitContext 経由で AutoFitTitle から受け取り、`onTitleFontSizeChange`
+ * 経由で親 (StatusBar 用) にも通知する。`onScaleChange` も同様、StatusBar
+ * の表示倍率表示用。Issue #134 で「ステージ上部の常設テキスト」と
+ * 「% キャプション」は StatusBar に集約したので、ここでは描画しない。
  */
 export function Stage({
 	tpl,
 	fields,
 	frameRef,
+	onScaleChange,
+	onTitleFontSizeChange,
 }: {
 	tpl: TemplateDef;
 	fields: Fields;
 	frameRef: RefObject<HTMLDivElement | null>;
+	onScaleChange?: (scale: number) => void;
+	onTitleFontSizeChange?: (fontSize: number | null) => void;
 }) {
 	const wrapRef = useRef<HTMLDivElement | null>(null);
 	const scale = useFitScale(wrapRef, 1280, 670, "contain");
@@ -30,17 +37,16 @@ export function Stage({
 	// メインプレビュー内の AutoFitTitle が確定したフォントサイズ（1280px 基準）
 	const [titleFontSize, setTitleFontSize] = useState<number | null>(null);
 
+	// scale / titleFontSize の変化を親 (StatusBar 用) に伝える。
+	useEffect(() => {
+		onScaleChange?.(scale);
+	}, [scale, onScaleChange]);
+	useEffect(() => {
+		onTitleFontSizeChange?.(titleFontSize);
+	}, [titleFontSize, onTitleFontSizeChange]);
+
 	return (
 		<section className="note-ogp-stage-bg flex h-full flex-col border-b border-border md:border-r md:border-b-0">
-			<div className="flex flex-shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b border-border px-4 py-3 font-mono text-[12px] uppercase tracking-[0.22em] text-muted-foreground md:px-6 md:py-3.5">
-				<span className="flex items-center gap-2">
-					<span className="inline-block size-1.5 rounded-full bg-primary shadow-[0_0_12px_color-mix(in_oklab,var(--ember-400)_50%,transparent)]" />
-					note OGP　1280 × 670
-				</span>
-				<strong className="font-medium text-foreground">
-					{tpl.label}　·　{tpl.note}
-				</strong>
-			</div>
 			{/* justify-center ではなく上下の auto margin で中央寄せする —
 			    高さが足りず overflow-y-auto でスクロールになったときも
 			    先頭が切れずに届くようにするため */}
@@ -66,12 +72,6 @@ export function Stage({
 							</TitleFitContext.Provider>
 						</div>
 					</div>
-				</div>
-				<div className="flex-shrink-0 text-center font-mono text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
-					<b className="font-medium text-foreground/70">
-						{Math.round(scale * 100)}%
-					</b>
-					　·　書き出しは1280×670 PNG
 				</div>
 				<div className="mb-auto max-w-full flex-shrink-0">
 					<TimelinePreview

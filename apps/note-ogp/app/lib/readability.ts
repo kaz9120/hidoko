@@ -61,3 +61,39 @@ export function titleContrast(f: Fields): number | null {
 	const roles = paletteForSelection(f.palette, f.photoPalettes)[f.theme];
 	return contrastRatio(roles.sub, roles.base);
 }
+
+/**
+ * StatusBar の可読性インジケータが拾うサマリ。`level` は
+ * - `ok`: タイムラインで読める想定（フォントサイズ・コントラストとも閾値内）
+ * - `warn`: フォントサイズが閾値割れ寸前 or コントラスト低めの「気づき」レベル
+ * - `bad`: 明確に読めない（フォントサイズが大幅に閾値割れ）
+ * のいずれか。`reason` は短文（StatusBar の限られた幅に出す前提）。
+ *
+ * StatusBar 側は title が空 or titleFontSize が未確定なら呼ばずに「—」を出す。
+ */
+export type ReadabilityStatus = {
+	level: "ok" | "warn" | "bad";
+	reason: string;
+};
+
+export function getReadabilityStatus(
+	f: Fields,
+	titleFontSize: number | null,
+): ReadabilityStatus {
+	if (titleFontSize !== null && titleFontSize < TITLE_FONT_WARN_PX) {
+		const onTimeline = Math.round(titleFontSize * TIMELINE_SCALE);
+		const level = onTimeline <= 8 ? "bad" : "warn";
+		return {
+			level,
+			reason: `タイムラインで小さい — 1 行を短くする（${onTimeline}px）`,
+		};
+	}
+	const contrast = titleContrast(f);
+	if (contrast !== null && contrast < CONTRAST_WARN_RATIO) {
+		return {
+			level: "warn",
+			reason: `コントラスト低め ${contrast.toFixed(1)}:1`,
+		};
+	}
+	return { level: "ok", reason: "タイムラインで読める" };
+}
