@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.4.0...note-ogp-v0.5.0) (2026-06-13)
+
+
+### Features
+
+* **note-ogp:** アプリヘッダーを新設してロゴ・テーマ切替を移設する ([#141](https://github.com/kaz9120/hidoko/issues/141)) ([0be6b85](https://github.com/kaz9120/hidoko/commit/0be6b85d41fa04be9f17266217a4742a65ac1177))
+
 ## [0.4.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.3.0...note-ogp-v0.4.0) (2026-06-12)
 
 

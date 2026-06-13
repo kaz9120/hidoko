@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.4.0...snapcrop-v0.5.0) (2026-06-13)
+
+
+### Features
+
+* **snapcrop:** 手書き風スタイルを矩形とマーカーにも広げる ([#142](https://github.com/kaz9120/hidoko/issues/142)) ([af8665d](https://github.com/kaz9120/hidoko/commit/af8665dcbf5fbd07880a35108575ebb4fa02270d))
+
 ## [0.4.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.3.0...snapcrop-v0.4.0) (2026-06-12)
 
 
