@@ -1,9 +1,6 @@
 import { DownloadIcon } from "lucide-react";
-import { useTheme } from "next-themes";
-import { useEffect, useId, useState } from "react";
+import { useId } from "react";
 import { Button, ToggleGroup, ToggleGroupItem } from "ui";
-import logoCreamUrl from "ui/assets/logo/mark-cream.svg?url";
-import logoDarkUrl from "ui/assets/logo/mark-dark.svg?url";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -27,7 +24,6 @@ import type {
 	ThemeMode,
 } from "~/lib/og-templates";
 import { TEMPLATES } from "~/lib/og-templates";
-import { ThemeToggle } from "../theme-toggle";
 import { ExpressionField } from "./expression-field";
 import { ImageField } from "./image-field";
 import { PalettePicker } from "./palette-picker";
@@ -53,18 +49,6 @@ export function ControlPanel({
 	onDownload: () => void;
 	busy: boolean;
 }) {
-	const { resolvedTheme } = useTheme();
-	const [mounted, setMounted] = useState(false);
-
-	useEffect(() => {
-		setMounted(true);
-	}, []);
-
-	// hydration 前は dark 想定で描画してチラつきを抑える。tokens.css は
-	// dark が初期状態 (`:root` がダーク基準) なので整合する。
-	const logoUrl =
-		mounted && resolvedTheme === "light" ? logoCreamUrl : logoDarkUrl;
-
 	const titleId = useId();
 	const leadId = useId();
 	const categoryId = useId();
@@ -77,25 +61,7 @@ export function ControlPanel({
 	const titleLength = state.title.length;
 
 	return (
-		<aside className="flex h-full flex-col overflow-hidden bg-card">
-			<header className="flex-shrink-0 border-b border-border px-6 pt-5 pb-3.5">
-				<div className="mb-1 flex items-center gap-2.5">
-					<img alt="" aria-hidden="true" className="size-5" src={logoUrl} />
-					<span className="font-mono text-[12px] uppercase tracking-[0.22em] text-primary">
-						note OGP
-					</span>
-					<div className="ml-auto">
-						<ThemeToggle />
-					</div>
-				</div>
-				<h1 className="text-xl font-bold tracking-tight text-foreground">
-					アイキャッチ台紙
-				</h1>
-				<p className="mt-1 text-xs text-muted-foreground">
-					テンプレを選んで、文字を差し替える。書き出して終わり。
-				</p>
-			</header>
-
+		<aside className="flex h-full flex-col overflow-hidden border-l border-border bg-card">
 			<div className="flex-1 overflow-y-auto px-6 py-5">
 				<SectionTitle>テンプレート</SectionTitle>
 				<div className="mb-6 grid grid-cols-3 gap-2">
