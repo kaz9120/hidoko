@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.1](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.10.0...note-ogp-v0.10.1) (2026-06-13)
+
+
+### Bug Fixes
+
+* **note-ogp:** リセット後に三段ウィザードを Step 1 (台紙) に戻す ([#168](https://github.com/kaz9120/hidoko/issues/168)) ([bc2ba47](https://github.com/kaz9120/hidoko/commit/bc2ba47140edb5ae85c6bdbb71a50a6ff6512cc3))
+
 ## [0.10.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.9.0...note-ogp-v0.10.0) (2026-06-13)
 
 
