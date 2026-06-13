@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.7.0...snapcrop-v0.8.0) (2026-06-13)
+
+
+### Features
+
+* **snapcrop:** 画像未ロード時もツールレールを透過表示で残す ([#160](https://github.com/kaz9120/hidoko/issues/160)) ([78b942f](https://github.com/kaz9120/hidoko/commit/78b942fc5b2bd3494883d20d6be2d5c995bc22f1))
+
 ## [0.7.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.6.0...snapcrop-v0.7.0) (2026-06-13)
 
 
