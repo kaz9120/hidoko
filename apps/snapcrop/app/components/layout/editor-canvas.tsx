@@ -15,6 +15,7 @@ import { useFileDrop } from "~/hooks/use-file-drop";
 import { useHighlightShortcuts } from "~/hooks/use-highlight-shortcuts";
 import { useRectShortcuts } from "~/hooks/use-rect-shortcuts";
 import { useSelectAllShortcut } from "~/hooks/use-select-all-shortcut";
+import { useStylePresetShortcuts } from "~/hooks/use-style-preset-shortcuts";
 import { useTextShortcuts } from "~/hooks/use-text-shortcuts";
 import { useZOrderShortcuts } from "~/hooks/use-z-order-shortcuts";
 
@@ -47,6 +48,7 @@ export function EditorCanvas() {
 	useHighlightShortcuts();
 	useDuplicateShortcut();
 	useZOrderShortcuts();
+	useStylePresetShortcuts();
 
 	if (image) {
 		// 画像 src が変わったら engine を作り直すために key を付ける。
