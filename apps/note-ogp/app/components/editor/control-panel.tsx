@@ -54,9 +54,6 @@ export function ControlPanel({
 	const categoryId = useId();
 	const issueId = useId();
 	const dateId = useId();
-	const brandId = useId();
-	const authorId = useId();
-	const accountId = useId();
 
 	const titleLength = state.title.length;
 
@@ -276,77 +273,6 @@ export function ControlPanel({
 					<FieldDescription>
 						vol・日付は自動 — 書き出しごとに次号が初期値に乗る
 					</FieldDescription>
-				</Field>
-
-				<SectionTitle>ブランド・著者</SectionTitle>
-				<Field className="mb-3.5">
-					<FieldLabel
-						htmlFor={brandId}
-						className="font-mono text-[10px] uppercase tracking-[0.22em]"
-					>
-						ブランド表記
-					</FieldLabel>
-					<Input
-						id={brandId}
-						value={state.brand}
-						onChange={(e) => update({ brand: e.target.value })}
-						placeholder="焚き火を愛するエンジニア"
-					/>
-					<FieldDescription>マストヘッドに入る一言</FieldDescription>
-				</Field>
-				<div className="mb-3.5 grid grid-cols-2 gap-2.5">
-					<Field>
-						<FieldLabel
-							htmlFor={authorId}
-							className="font-mono text-[10px] uppercase tracking-[0.22em]"
-						>
-							名前
-						</FieldLabel>
-						<Input
-							id={authorId}
-							value={state.author}
-							onChange={(e) => update({ author: e.target.value })}
-							placeholder="山本一将"
-						/>
-					</Field>
-					<Field>
-						<FieldLabel
-							htmlFor={accountId}
-							className="font-mono text-[10px] uppercase tracking-[0.22em]"
-						>
-							アカウント
-						</FieldLabel>
-						<Input
-							id={accountId}
-							value={state.account}
-							onChange={(e) => update({ account: e.target.value })}
-							placeholder="@kyamamoto9120"
-							className="font-mono"
-						/>
-					</Field>
-				</div>
-
-				<SectionTitle>表示</SectionTitle>
-				<Field className="mb-3.5">
-					<FieldLabel className="font-mono text-[10px] uppercase tracking-[0.22em]">
-						炎マーク
-					</FieldLabel>
-					<ToggleGroup
-						type="single"
-						variant="outline"
-						value={state.showMark ? "on" : "off"}
-						onValueChange={(v) => {
-							if (v) update({ showMark: v === "on" });
-						}}
-						className="w-full"
-					>
-						<ToggleGroupItem value="on" className="flex-1">
-							表示
-						</ToggleGroupItem>
-						<ToggleGroupItem value="off" className="flex-1">
-							非表示
-						</ToggleGroupItem>
-					</ToggleGroup>
 				</Field>
 			</div>
 
