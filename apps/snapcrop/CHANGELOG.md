@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.5.0...snapcrop-v0.6.0) (2026-06-13)
+
+
+### Features
+
+* **snapcrop:** スタイルプリセット 4 種をツールレールに導入する ([#153](https://github.com/kaz9120/hidoko/issues/153)) ([405644b](https://github.com/kaz9120/hidoko/commit/405644b64d2e13037639174d20fafa0deccd868e))
+
 ## [0.5.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.4.0...snapcrop-v0.5.0) (2026-06-13)
 
 
