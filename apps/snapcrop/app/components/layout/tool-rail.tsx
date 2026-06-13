@@ -55,9 +55,10 @@ export function ToolRail() {
 	const { image, activeTool, setActiveTool, stylePreset, setStylePreset } =
 		useSnapcrop();
 
-	if (!image) {
-		return null;
-	}
+	// 画像が未ロードのときは「ツール無効」を視覚で伝えるために透過 + 操作不可で
+	// 残す (確定仕様: snapcrop 新デザイン 最終版 / FinalEmpty)。Issue #148。
+	// 完全に return null すると EmptyHero と左端の空白が同居して落ち着かない。
+	const disabled = !image;
 
 	const handleStylePresetChange = (id: StylePresetId) => {
 		setStylePreset(id);
@@ -71,7 +72,10 @@ export function ToolRail() {
 	return (
 		<aside
 			aria-label="編集ツール"
-			className="flex w-11 shrink-0 flex-col items-center gap-1 border-border border-r bg-[var(--bg-overlay)] py-2"
+			aria-disabled={disabled}
+			className={`flex w-11 shrink-0 flex-col items-center gap-1 border-border border-r bg-[var(--bg-overlay)] py-2 transition-opacity ${
+				disabled ? "pointer-events-none opacity-40" : ""
+			}`}
 		>
 			{TOOLS.map((tool) => {
 				const Icon = tool.icon;
