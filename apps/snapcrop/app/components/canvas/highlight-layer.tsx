@@ -42,7 +42,8 @@ export function HighlightLayer({
 /**
  * マーカー 1 本ぶんの SVG 描画。線分 + 帯幅 (butt cap = ペン先の四角い端)。
  * 形状計算は highlight-engine の getHighlightRenderModel に集約していて、
- * canvas エクスポート (image-export) と同じ見た目になる。
+ * canvas エクスポート (image-export) と同じ見た目になる。手書き風 (sketchy)
+ * のときはモデルが返す揺らぎ済みパスを strokeWidth = bandWidth で描く。
  */
 export function HighlightShape({
 	highlight,
@@ -50,6 +51,23 @@ export function HighlightShape({
 	highlight: HighlightAnnotation;
 }) {
 	const model = getHighlightRenderModel(highlight);
+	if (model.sketchy) {
+		return (
+			<g style={{ mixBlendMode: "multiply" }}>
+				{model.sketchy.linePaths.map((d) => (
+					<path
+						d={d}
+						fill="none"
+						key={d}
+						stroke={model.color}
+						strokeLinecap="butt"
+						strokeOpacity={model.opacity}
+						strokeWidth={model.bandWidth}
+					/>
+				))}
+			</g>
+		);
+	}
 	return (
 		<line
 			stroke={model.color}

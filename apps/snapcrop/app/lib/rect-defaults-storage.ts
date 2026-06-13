@@ -7,6 +7,7 @@
 import {
 	DEFAULT_RECT_DEFAULTS,
 	type RectDefaults,
+	type RectStrokeStyle,
 	type RectStyle,
 	type RectThickness,
 } from "~/lib/rect-engine";
@@ -15,6 +16,10 @@ const STORAGE_KEY = "snapcrop.rect.defaults";
 
 const STYLES: ReadonlySet<RectStyle> = new Set(["outline", "fill", "mosaic"]);
 const THICKNESSES: ReadonlySet<RectThickness> = new Set(["sm", "md", "lg"]);
+const STROKE_STYLES: ReadonlySet<RectStrokeStyle> = new Set([
+	"clean",
+	"sketchy",
+]);
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 
 export function loadRectDefaults(): RectDefaults {
@@ -40,10 +45,19 @@ export function loadRectDefaults(): RectDefaults {
 		) {
 			return DEFAULT_RECT_DEFAULTS;
 		}
+		// strokeStyle は後付けフィールドなので、欠落 (旧フォーマット) や不正値は
+		// 他のフィールドを生かしたままデフォルトに倒す (arrow-defaults-storage の style と同じ流儀)
+		const strokeStyleRaw = obj.strokeStyle;
+		const strokeStyle =
+			typeof strokeStyleRaw === "string" &&
+			STROKE_STYLES.has(strokeStyleRaw as RectStrokeStyle)
+				? (strokeStyleRaw as RectStrokeStyle)
+				: DEFAULT_RECT_DEFAULTS.strokeStyle;
 		return {
 			style: style as RectStyle,
 			color,
 			thickness: thickness as RectThickness,
+			strokeStyle,
 		};
 	} catch {
 		return DEFAULT_RECT_DEFAULTS;

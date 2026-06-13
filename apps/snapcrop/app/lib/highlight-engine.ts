@@ -9,12 +9,15 @@
 
 import { initialZIndex } from "~/lib/annotation-z-order";
 import type { ImageMetrics } from "~/lib/crop-engine";
+import { sketchyLinePaths } from "~/lib/hand-drawn";
 import { DUPLICATE_OFFSET_PX } from "~/lib/rect-engine";
 
 export type { ImageMetrics };
 
 export type HighlightThickness = "sm" | "md" | "lg";
 export type HighlightEndpoint = "start" | "end";
+/** マーカーの質感。clean = 直線の帯、sketchy = 手書き風に揺らいだ帯。 */
+export type HighlightStrokeStyle = "clean" | "sketchy";
 
 export type HighlightAnnotation = {
 	id: string;
@@ -27,6 +30,14 @@ export type HighlightAnnotation = {
 	/** 0–1。multiply 合成と組み合わせて「下が透ける」濃度を決める。 */
 	opacity: number;
 	thickness: HighlightThickness;
+	/**
+	 * 帯の質感。arrow-engine の ArrowAnnotation.style / rect-engine の
+	 * RectAnnotation.strokeStyle と同じ概念。マーカーは「線分 + 帯幅」だけ
+	 * なので衝突する既存フィールドはないが、矩形と命名を揃える。
+	 */
+	strokeStyle: HighlightStrokeStyle;
+	/** 手書き風の揺らぎを決める乱数 seed。作成時に 1 度だけ採番し、以後は不変。 */
+	seed: number;
 	createdAt: number;
 	/** 種別横断の重なり順 (annotation-z-order.ts)。大きいほど前面。 */
 	zIndex: number;
@@ -34,13 +45,21 @@ export type HighlightAnnotation = {
 
 /**
  * updateHighlight で書き換えてよいフィールドだけを切り出した patch 型。
- * id / kind / createdAt は不変なので含めない (arrow-engine.ts の
+ * id / kind / createdAt / seed は不変なので含めない (arrow-engine.ts の
  * ArrowAnnotationPatch と同じ理由)。
  */
 export type HighlightAnnotationPatch = Partial<
 	Pick<
 		HighlightAnnotation,
-		"x1" | "y1" | "x2" | "y2" | "color" | "opacity" | "thickness" | "zIndex"
+		| "x1"
+		| "y1"
+		| "x2"
+		| "y2"
+		| "color"
+		| "opacity"
+		| "thickness"
+		| "strokeStyle"
+		| "zIndex"
 	>
 >;
 
@@ -48,6 +67,7 @@ export type HighlightDefaults = {
 	color: string;
 	opacity: number;
 	thickness: HighlightThickness;
+	strokeStyle: HighlightStrokeStyle;
 };
 
 /** マーカー帯の太さ。文字 1 行を覆える程度を md とする。 */
@@ -77,6 +97,7 @@ export const DEFAULT_HIGHLIGHT_DEFAULTS: HighlightDefaults = {
 	color: HIGHLIGHT_PRESET_COLORS[0],
 	opacity: 0.4,
 	thickness: "md",
+	strokeStyle: "clean",
 };
 
 export const MIN_HIGHLIGHT_LENGTH = 8;
@@ -159,12 +180,22 @@ function newId(): string {
 	return `highlight_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
+/**
+ * 手書き風の揺らぎに使う seed の採番。arrow-engine.ts の newArrowSeed と
+ * 同じ流儀。値そのものに意味はなく、32bit 整数に収まればよい。
+ */
+export function newHighlightSeed(): number {
+	return Math.floor(Math.random() * 0x7fffffff);
+}
+
 export function createHighlightAnnotation(args: {
 	x1: number;
 	y1: number;
 	x2: number;
 	y2: number;
 	defaults: HighlightDefaults;
+	/** 省略時は新規採番。プレビューと同じ形を保ちたいときに指定する。 */
+	seed?: number;
 }): HighlightAnnotation {
 	return {
 		id: newId(),
@@ -176,6 +207,8 @@ export function createHighlightAnnotation(args: {
 		color: args.defaults.color,
 		opacity: args.defaults.opacity,
 		thickness: args.defaults.thickness,
+		strokeStyle: args.defaults.strokeStyle,
+		seed: args.seed ?? newHighlightSeed(),
 		createdAt: Date.now(),
 		zIndex: initialZIndex("highlight"),
 	};
@@ -264,7 +297,9 @@ export function hitTestHighlight(
 /**
  * SVG レイヤー (highlight-layer.tsx) と canvas エクスポート (image-export.ts)
  * が同じ見た目を共有するための描画モデル。線分 + 帯幅 + 色 + 不透明度に
- * 分解する。両者とも multiply 合成・butt cap で描くこと。
+ * 分解する。両者とも multiply 合成・butt cap で描くこと。手書き風 (sketchy)
+ * のときは sketchy に揺らぎ済みのパス文字列が入り、from / to の代わりに
+ * これを strokeWidth = bandWidth で描く。
  */
 export type HighlightRenderModel = {
 	from: Point;
@@ -272,16 +307,34 @@ export type HighlightRenderModel = {
 	bandWidth: number;
 	color: string;
 	opacity: number;
+	sketchy: { linePaths: string[] } | null;
 };
 
 export function getHighlightRenderModel(
 	h: HighlightAnnotation,
 ): HighlightRenderModel {
+	const from = { x: h.x1, y: h.y1 };
+	const to = { x: h.x2, y: h.y2 };
+	const bandWidth = HIGHLIGHT_BAND_PX[h.thickness];
 	return {
-		from: { x: h.x1, y: h.y1 },
-		to: { x: h.x2, y: h.y2 },
-		bandWidth: HIGHLIGHT_BAND_PX[h.thickness],
+		from,
+		to,
+		bandWidth,
 		color: h.color,
 		opacity: h.opacity,
+		sketchy:
+			h.strokeStyle === "sketchy"
+				? {
+						linePaths: sketchyLinePaths({
+							from,
+							to,
+							control: null,
+							seed: h.seed,
+							// 帯幅の 12% を揺らぎ幅にする。bandWidth が大きいので、線の
+							// 揺らぎ (arrow と同じ 0.35 比) ではなく小さめに抑える。
+							amplitude: Math.max(1.5, bandWidth * 0.12),
+						}),
+					}
+				: null,
 	};
 }

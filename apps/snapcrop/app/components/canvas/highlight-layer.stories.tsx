@@ -56,6 +56,8 @@ const mkHighlight = (
 	color: "#fde047",
 	opacity: 0.4,
 	thickness: "md",
+	strokeStyle: "clean",
+	seed: 0,
 	createdAt: Date.now(),
 	zIndex: 0,
 	...overrides,

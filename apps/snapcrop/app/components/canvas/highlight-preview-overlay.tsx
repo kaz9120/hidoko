@@ -40,6 +40,11 @@ export function HighlightPreviewOverlay({
 					color: defaults.color,
 					opacity: defaults.opacity,
 					thickness: defaults.thickness,
+					strokeStyle: defaults.strokeStyle,
+					// プレビュー専用なので seed は固定でよい (ドラッグ中、線分の長さ
+					// が変わるたびに揺らぎの「種」だけ変わると見た目が不安定になる)。
+					// commit 後は new seed が採番される。
+					seed: 0,
 					createdAt: 0,
 					zIndex: 0,
 				}}

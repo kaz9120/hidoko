@@ -106,6 +106,7 @@ export const Selected: Story = {
 				color: HIGHLIGHT_PRESET_COLORS[2],
 				opacity: 0.6,
 				thickness: "md",
+				strokeStyle: "clean",
 			}}
 			selected={true}
 			withDelete
@@ -132,6 +133,7 @@ export const ThickPink: Story = {
 				color: HIGHLIGHT_PRESET_COLORS[4],
 				opacity: 0.4,
 				thickness: "lg",
+				strokeStyle: "clean",
 			}}
 			selected={false}
 		/>

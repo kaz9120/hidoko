@@ -9,11 +9,14 @@ import {
 	type ResizeHandle,
 	resizeRect,
 } from "~/lib/crop-engine";
+import { sketchyLinePaths } from "~/lib/hand-drawn";
 
 export type { ImageMetrics, ResizeHandle };
 
 export type RectStyle = "outline" | "fill" | "mosaic";
 export type RectThickness = "sm" | "md" | "lg";
+/** 線の質感。clean = きっちりした幾何線、sketchy = 手書き風の揺らぎ線。 */
+export type RectStrokeStyle = "clean" | "sketchy";
 
 export type RectAnnotation = {
 	id: string;
@@ -25,6 +28,18 @@ export type RectAnnotation = {
 	style: RectStyle;
 	color: string;
 	thickness: RectThickness;
+	/**
+	 * 枠線の質感。outline スタイルの矩形にのみ効く。fill / mosaic では描画上
+	 * 無視される (枠線が無いので)。arrow-engine の ArrowAnnotation.style と
+	 * 同じ概念を、矩形側では既存の `style` (outline/fill/mosaic) と衝突しない
+	 * よう `strokeStyle` 名で持つ。
+	 */
+	strokeStyle: RectStrokeStyle;
+	/**
+	 * 手書き風の揺らぎを決める乱数 seed。作成時に 1 度だけ採番し、以後は
+	 * 不変 (移動 / リサイズ / undo / redo / 再描画で形が変わらない)。
+	 */
+	seed: number;
 	createdAt: number;
 	/** 種別横断の重なり順 (annotation-z-order.ts)。大きいほど前面。 */
 	zIndex: number;
@@ -36,11 +51,20 @@ export type Annotation = RectAnnotation;
  * updateAnnotation で書き換えてよいフィールドだけを切り出した patch 型。
  * id / kind / createdAt は不変なので含めない (履歴オペレーションの同一性が
  * 崩れないようにする)。zIndex は z 操作 (前面へ / 背面へ) が書き換える。
+ * seed も不変 (見た目が描き直しで揺れないようにするため)。
  */
 export type RectAnnotationPatch = Partial<
 	Pick<
 		RectAnnotation,
-		"x" | "y" | "width" | "height" | "style" | "color" | "thickness" | "zIndex"
+		| "x"
+		| "y"
+		| "width"
+		| "height"
+		| "style"
+		| "color"
+		| "thickness"
+		| "strokeStyle"
+		| "zIndex"
 	>
 >;
 
@@ -48,6 +72,7 @@ export type RectDefaults = {
 	style: RectStyle;
 	color: string;
 	thickness: RectThickness;
+	strokeStyle: RectStrokeStyle;
 };
 
 export const OUTLINE_PX: Record<RectThickness, number> = {
@@ -75,12 +100,14 @@ export const DEFAULT_RECT_DEFAULTS: RectDefaults = {
 	style: "outline",
 	color: "#ef4444",
 	thickness: "md",
+	strokeStyle: "clean",
 };
 
 export const FILL_OPACITY = 0.85;
 export const MIN_RECT_SIZE = 4;
 
 type Rect = { x: number; y: number; width: number; height: number };
+type Point = { x: number; y: number };
 
 /** rect を画像内に収め、最小サイズ MIN_RECT_SIZE を満たすよう調整する。 */
 export function clampRectInImage(rect: Rect, img: ImageMetrics): Rect {
@@ -212,12 +239,23 @@ function newId(): string {
 	return `rect_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
+/**
+ * 手書き風の揺らぎに使う seed の採番。arrow-engine.ts の newArrowSeed と
+ * 同じ流儀。描画開始時 (beginDraw) に呼ぶことで、プレビューと commit 後の
+ * 矩形が同じ形になる。値そのものに意味はなく、32bit 整数に収まればよい。
+ */
+export function newRectSeed(): number {
+	return Math.floor(Math.random() * 0x7fffffff);
+}
+
 export function createRectAnnotation(args: {
 	x: number;
 	y: number;
 	width: number;
 	height: number;
 	defaults: RectDefaults;
+	/** 省略時は新規採番。プレビューと同じ形を保ちたいときに指定する。 */
+	seed?: number;
 }): RectAnnotation {
 	return {
 		id: newId(),
@@ -229,6 +267,8 @@ export function createRectAnnotation(args: {
 		style: args.defaults.style,
 		color: args.defaults.color,
 		thickness: args.defaults.thickness,
+		strokeStyle: args.defaults.strokeStyle,
+		seed: args.seed ?? newRectSeed(),
 		createdAt: Date.now(),
 		zIndex: initialZIndex("rect"),
 	};
@@ -308,4 +348,48 @@ export function hitTest(
 		}
 	}
 	return null;
+}
+
+/**
+ * outline + sketchy の矩形を「4 辺 × 2 パス」の揺らぎ stroke パスに分解する。
+ * 各辺で別系列の seed を使い、辺ごとに「なぞり直した」密度ムラを出す。
+ * fill="none" stroke で描く想定。SVG / canvas で同じ d 文字列を共有するので、
+ * 画面と書き出しの見た目がジオメトリレベルで一致する (arrow-engine の
+ * buildSketchyRender と同じ思想)。
+ */
+export function sketchyRectStrokePaths(args: {
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+	seed: number;
+	strokeWidth: number;
+}): string[] {
+	const { x, y, width, height, seed, strokeWidth } = args;
+	// 短辺が小さいほど揺らぎは控えめに。線幅にも追従させる。
+	const span = Math.min(width, height);
+	const amplitude = Math.min(
+		Math.max(1.25, strokeWidth * 0.45),
+		Math.max(1.5, span * 0.06),
+	);
+	const corners: Array<{ from: Point; to: Point }> = [
+		{ from: { x, y }, to: { x: x + width, y } },
+		{ from: { x: x + width, y }, to: { x: x + width, y: y + height } },
+		{ from: { x: x + width, y: y + height }, to: { x, y: y + height } },
+		{ from: { x, y: y + height }, to: { x, y } },
+	];
+	const paths: string[] = [];
+	for (let i = 0; i < corners.length; i++) {
+		const { from, to } = corners[i];
+		// 辺ごとに seed をずらして別系列の揺らぎを与える
+		const edgePaths = sketchyLinePaths({
+			from,
+			to,
+			control: null,
+			seed: seed + (i + 1) * 6151,
+			amplitude,
+		});
+		paths.push(...edgePaths);
+	}
+	return paths;
 }

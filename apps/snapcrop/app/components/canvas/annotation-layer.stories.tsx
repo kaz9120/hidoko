@@ -46,6 +46,8 @@ const mkRect = (
 	style: "outline",
 	color: "#ef4444",
 	thickness: "md",
+	strokeStyle: "clean",
+	seed: 0,
 	createdAt: Date.now(),
 	zIndex: 0,
 	...overrides,

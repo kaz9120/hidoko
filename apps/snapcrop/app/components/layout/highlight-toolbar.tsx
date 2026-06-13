@@ -10,12 +10,14 @@ import {
 } from "ui";
 import { Slider } from "ui/components/slider";
 import { ColorSwatches } from "~/components/layout/color-swatches";
+import { StrokeStyleIcon } from "~/components/layout/stroke-style-icon";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 import {
 	HIGHLIGHT_MAX_OPACITY,
 	HIGHLIGHT_MIN_OPACITY,
 	HIGHLIGHT_PRESET_COLORS,
 	type HighlightDefaults,
+	type HighlightStrokeStyle,
 	type HighlightThickness,
 } from "~/lib/highlight-engine";
 
@@ -27,6 +29,14 @@ const THICKNESS_OPTIONS: ReadonlyArray<{
 	{ id: "sm", label: "細", barHeight: 3 },
 	{ id: "md", label: "中", barHeight: 5 },
 	{ id: "lg", label: "太", barHeight: 8 },
+];
+
+const STROKE_STYLE_OPTIONS: ReadonlyArray<{
+	id: HighlightStrokeStyle;
+	label: string;
+}> = [
+	{ id: "clean", label: "きっちり" },
+	{ id: "sketchy", label: "手書き" },
 ];
 
 /**
@@ -64,6 +74,7 @@ export function HighlightToolbar() {
 				color: selected.color,
 				opacity: selected.opacity,
 				thickness: selected.thickness,
+				strokeStyle: selected.strokeStyle,
 			}
 		: highlightDefaults;
 
@@ -130,6 +141,30 @@ export function HighlightToolbarView({
 				onChange={(color) => onCommit({ color })}
 				value={current.color}
 			/>
+
+			<Divider />
+
+			<ToggleGroup
+				aria-label="線の質感"
+				onValueChange={(next) => {
+					if (next) onCommit({ strokeStyle: next as HighlightStrokeStyle });
+				}}
+				type="single"
+				value={current.strokeStyle}
+				variant="outline"
+			>
+				{STROKE_STYLE_OPTIONS.map((opt) => (
+					<ToggleGroupItem
+						key={opt.id}
+						size="sm"
+						title={opt.label}
+						value={opt.id}
+					>
+						<StrokeStyleIcon style={opt.id} />
+						<span>{opt.label}</span>
+					</ToggleGroupItem>
+				))}
+			</ToggleGroup>
 
 			<Divider />
 
