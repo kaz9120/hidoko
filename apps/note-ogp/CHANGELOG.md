@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.6.0...note-ogp-v0.7.0) (2026-06-13)
+
+
+### Features
+
+* **note-ogp:** 画面下端にステータスバーを新設してステージ上の常設テキストを撤去する ([#149](https://github.com/kaz9120/hidoko/issues/149)) ([fb07b34](https://github.com/kaz9120/hidoko/commit/fb07b34655a604e81ae4aeec279a1cfc4f4cbd87))
+
 ## [0.6.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.5.0...note-ogp-v0.6.0) (2026-06-13)
 
 
