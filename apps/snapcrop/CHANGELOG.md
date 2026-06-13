@@ -5,6 +5,7 @@
 
 ### Features
 
+* **snapcrop:** ツールレール末尾に色集約ポップオーバーを追加する ([#161](https://github.com/kaz9120/hidoko/issues/161)) ([472983a](https://github.com/kaz9120/hidoko/commit/472983a9ae7d20b9ad483455464579eb3971f5a8))
 * **snapcrop:** 画像未ロード時もツールレールを透過表示で残す ([#160](https://github.com/kaz9120/hidoko/issues/160)) ([78b942f](https://github.com/kaz9120/hidoko/commit/78b942fc5b2bd3494883d20d6be2d5c995bc22f1))
 
 ## [0.7.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.6.0...snapcrop-v0.7.0) (2026-06-13)
