@@ -102,8 +102,13 @@ export type UseRectEngineResult = {
  * 初めて context (= 履歴) に commit する。
  */
 export function useRectEngine(image: ImageMetrics): UseRectEngineResult {
-	const { annotations, rectDefaults, createAnnotation, updateAnnotation } =
-		useSnapcrop();
+	const {
+		activeTool,
+		annotations,
+		rectDefaults,
+		createAnnotation,
+		updateAnnotation,
+	} = useSnapcrop();
 
 	// interaction は表示にも使うので state で持つ (毎回 re-render する)。
 	// ただし副作用 (createAnnotation / updateAnnotation) を setState updater 内で
@@ -115,8 +120,15 @@ export function useRectEngine(image: ImageMetrics): UseRectEngineResult {
 
 	const imageRef = useRef(image);
 	imageRef.current = image;
-	const rectDefaultsRef = useRef(rectDefaults);
-	rectDefaultsRef.current = rectDefaults;
+	// mosaic ツール選択中は新規描画の style を強制的に "mosaic" にする
+	// (Issue #146 のモザイク独立化)。矩形ツールでは style: "outline" 専用
+	// (PR #159 で「塗り」は UI から廃止済み)。
+	const effectiveRectDefaults: typeof rectDefaults =
+		activeTool === "mosaic"
+			? { ...rectDefaults, style: "mosaic" }
+			: { ...rectDefaults, style: "outline" };
+	const rectDefaultsRef = useRef(effectiveRectDefaults);
+	rectDefaultsRef.current = effectiveRectDefaults;
 
 	const beginDraw = useCallback((startImg: ImagePoint, constrain = false) => {
 		setInteraction({

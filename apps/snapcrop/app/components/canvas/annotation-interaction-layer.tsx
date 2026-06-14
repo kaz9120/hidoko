@@ -24,7 +24,11 @@ type ImagePoint = { x: number; y: number };
 
 type Drag =
 	| { kind: "move"; tool: DrawingTool; pointerId: number }
-	| { kind: "draw"; tool: "rect" | "arrow" | "highlight"; pointerId: number }
+	| {
+			kind: "draw";
+			tool: "rect" | "arrow" | "highlight" | "mosaic";
+			pointerId: number;
+	  }
 	| {
 			kind: "pending-create";
 			pointerId: number;
@@ -132,6 +136,7 @@ export function AnnotationInteractionLayer({
 	) => {
 		switch (tool) {
 			case "rect":
+			case "mosaic":
 				rectEngine.updateInteraction(pt, constrain);
 				return;
 			case "arrow":
@@ -149,6 +154,7 @@ export function AnnotationInteractionLayer({
 	const endMove = (tool: DrawingTool) => {
 		switch (tool) {
 			case "rect":
+			case "mosaic":
 				rectEngine.endInteraction();
 				return;
 			case "arrow":
@@ -247,6 +253,11 @@ export function AnnotationInteractionLayer({
 		e.currentTarget.setPointerCapture(e.pointerId);
 		switch (activeTool) {
 			case "rect":
+			case "mosaic":
+				// モザイクは独立ツール (Issue #146) だが、内部の data 構造は
+				// 当面 RectAnnotation.style === "mosaic" のままなので、矩形と
+				// 同じ engine で描画する。new annotation の style は
+				// use-rect-engine 側で activeTool に応じて mosaic に倒す。
 				rectEngine.beginDraw(pt, e.shiftKey);
 				return;
 			case "arrow":

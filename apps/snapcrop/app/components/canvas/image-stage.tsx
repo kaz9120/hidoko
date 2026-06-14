@@ -362,15 +362,16 @@ export function ImageStage({
 					zoom={zoom}
 				/>
 			)}
-			{rectEngine.previewRect && activeTool === "rect" && (
-				<RectPreviewOverlay
-					color={rectDefaults.color}
-					imageHeight={image.height}
-					imageWidth={image.width}
-					previewRect={rectEngine.previewRect}
-					thickness={rectDefaults.thickness}
-				/>
-			)}
+			{rectEngine.previewRect &&
+				(activeTool === "rect" || activeTool === "mosaic") && (
+					<RectPreviewOverlay
+						color={rectDefaults.color}
+						imageHeight={image.height}
+						imageWidth={image.width}
+						previewRect={rectEngine.previewRect}
+						thickness={rectDefaults.thickness}
+					/>
+				)}
 			{selectedArrowRendered && (
 				<ArrowSelectionOverlay
 					arrow={selectedArrowRendered}

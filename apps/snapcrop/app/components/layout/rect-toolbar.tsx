@@ -1,4 +1,4 @@
-import { Grid2X2Icon, SquareIcon, Trash2Icon } from "lucide-react";
+import { Trash2Icon } from "lucide-react";
 import type { ReactNode } from "react";
 import {
 	Button,
@@ -14,22 +14,14 @@ import { useSnapcrop } from "~/contexts/snapcrop-context";
 import type {
 	RectDefaults,
 	RectStrokeStyle,
-	RectStyle,
 	RectThickness,
 } from "~/lib/rect-engine";
 
-// 確定仕様 (snapcrop 新デザイン 最終版 / FinalSpec) で「塗り」は廃止された
-// (隠す = モザイク・目立たせる = マーカーで吸収できるため)。UI からは選択肢を
-// 落とし、型 / 描画ロジックには互換のため残置している (既存データの fill は
-// rect-defaults-storage 側で outline に倒される)。
-const STYLE_OPTIONS: ReadonlyArray<{
-	id: RectStyle;
-	label: string;
-	icon: typeof SquareIcon;
-}> = [
-	{ id: "outline", label: "枠線", icon: SquareIcon },
-	{ id: "mosaic", label: "モザイク", icon: Grid2X2Icon },
-];
+// 確定仕様 (snapcrop 新デザイン 最終版 / FinalSpec) の段階導入:
+//   - PR #159 で「塗り」スタイルを廃止
+//   - 本 PR でモザイクを独立ツール (activeTool === "mosaic") に分離
+// これで矩形ツールは「枠線専用」となり、スタイルセグメントは UI から消える。
+// モザイク選択中の操作は MosaicToolbar が引き取る。
 
 const STROKE_STYLE_OPTIONS: ReadonlyArray<{
 	id: RectStrokeStyle;
@@ -53,10 +45,7 @@ const THICKNESS_OPTIONS: ReadonlyArray<{
  * プロパティを反映し変更も矩形に書き戻す。selection なしのときは
  * rectDefaults を反映し、変更が次に描く矩形のデフォルトになる。
  *
- * style によって他コントロールの enable / disable が変わる:
- *   - mosaic : color は disabled、thickness ラベルは「ブロック」
- * (fill は確定仕様で廃止された — STYLE_OPTIONS の補足コメント参照)
- *
+ * 矩形は「枠線専用」(Issue #146 で塗り廃止 + モザイク独立化)。
  * style / thickness のセグメント表示はクロップ側のアスペクト比と同じ ui の
  * ToggleGroup を使う (見た目を統一)。色スウォッチだけは円形 + ブランドカラー
  * の都合で自前。
@@ -82,13 +71,11 @@ export function RectToolbar() {
 		: null;
 
 	const current: {
-		style: RectStyle;
 		color: string;
 		thickness: RectThickness;
 		strokeStyle: RectStrokeStyle;
 	} = selected
 		? {
-				style: selected.style,
 				color: selected.color,
 				thickness: selected.thickness,
 				strokeStyle: selected.strokeStyle,
@@ -102,12 +89,6 @@ export function RectToolbar() {
 			setRectDefaults({ ...rectDefaults, ...patch });
 		}
 	};
-
-	const colorDisabled = current.style === "mosaic";
-	const thicknessLabel = current.style === "mosaic" ? "ブロック" : "太さ";
-	// 枠線スタイル (clean / sketchy) は outline だけに効く。fill / mosaic では
-	// 枠線が無いので、disable して「効かない」ことを UI でも見せる。
-	const strokeStyleDisabled = current.style !== "outline";
 
 	return (
 		<div
@@ -125,35 +106,7 @@ export function RectToolbar() {
 			<Divider />
 
 			<ToggleGroup
-				aria-label="矩形スタイル"
-				onValueChange={(next) => {
-					if (next) commit({ style: next as RectStyle });
-				}}
-				type="single"
-				value={current.style}
-				variant="outline"
-			>
-				{STYLE_OPTIONS.map((opt) => {
-					const Icon = opt.icon;
-					return (
-						<ToggleGroupItem
-							key={opt.id}
-							size="sm"
-							title={opt.label}
-							value={opt.id}
-						>
-							<Icon strokeWidth={1.75} />
-							<span>{opt.label}</span>
-						</ToggleGroupItem>
-					);
-				})}
-			</ToggleGroup>
-
-			<Divider />
-
-			<ToggleGroup
 				aria-label="線の質感"
-				disabled={strokeStyleDisabled}
 				onValueChange={(next) => {
 					if (next) commit({ strokeStyle: next as RectStrokeStyle });
 				}}
@@ -178,14 +131,14 @@ export function RectToolbar() {
 
 			<Label>色</Label>
 			<RectColorSwatches
-				disabled={colorDisabled}
+				disabled={false}
 				onChange={(color) => commit({ color })}
 				value={current.color}
 			/>
 
 			<Divider />
 
-			<Label>{thicknessLabel}</Label>
+			<Label>太さ</Label>
 			<ToggleGroup
 				aria-label="太さ"
 				onValueChange={(next) => {
