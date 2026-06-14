@@ -1,0 +1,39 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "hidoko-id",
+	"compatibility_date": "2026-05-06",
+	"main": "./workers/app.ts",
+	"assets": {
+		"directory": "./build/client",
+		"binding": "ASSETS",
+		"not_found_handling": "single-page-application",
+		// Worker を先に通すことで、/api/* と /verify を Worker が掴めるようにする。
+		// 静的アセットへの素朴な GET（/、/assets/...）は env.ASSETS.fetch にフォールスルー。
+		"run_worker_first": true
+	},
+	"observability": {
+		"enabled": true
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "hidoko-id",
+			// ローカル開発では未指定でも Miniflare が SQLite を立てる。
+			// 本番デプロイ前に `wrangler d1 create hidoko-id` で取れた ID で置き換える。
+			"database_id": "00000000-0000-0000-0000-000000000000",
+			"migrations_dir": "migrations"
+		}
+	],
+	"vars": {
+		// カンマ区切りの first-party オリジン許可リスト。?return_to= の検証に使う。
+		// 本番では同等の値を Cloudflare Dashboard で上書きする想定。
+		"FIRST_PARTY_ORIGINS": "http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:5177,http://localhost:8788,https://snapcrop.y-kaz.com,https://note-ogp.y-kaz.com,https://futari-no-yotei.y-kaz.com,https://y-kaz.com",
+		// Cookie の Domain 属性に使う共通ドメイン。空文字列なら属性なし（host-only cookie）。
+		// 本番では ".y-kaz.com" を入れて全 first-party アプリでセッションを共有する。
+		"SESSION_COOKIE_DOMAIN": "",
+		// dev で Cloudflare Email Service の送信先が未設定のとき、トークンを console に出す。
+		"EMAIL_DEV_LOG": "true",
+		// 検証メール内リンクを組み立てるベース URL。空ならリクエストの origin を使う。
+		"PUBLIC_BASE_URL": ""
+	}
+}

@@ -8,6 +8,7 @@
 	"plugins": ["node-workspace"],
 	"packages": {
 		"apps/futari-no-yotei": {},
+		"apps/hidoko-id": {},
 		"apps/homepage": {},
 		"apps/note-ogp": {},
 		"apps/snapcrop": {},
