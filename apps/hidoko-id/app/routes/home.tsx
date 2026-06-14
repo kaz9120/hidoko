@@ -1,3 +1,15 @@
+import { type LoaderFunctionArgs, redirect } from "react-router";
+
+export async function clientLoader({ request }: LoaderFunctionArgs) {
+	// ?return_to を引き継いで /signin に送る。トップに直接来た人へのデフォルト導線。
+	const url = new URL(request.url);
+	const returnTo = url.searchParams.get("return_to");
+	const target = returnTo
+		? `/signin?return_to=${encodeURIComponent(returnTo)}`
+		: "/signin";
+	throw redirect(target);
+}
+
 export function meta() {
 	return [
 		{ title: "アカウント" },
@@ -5,13 +17,6 @@ export function meta() {
 	];
 }
 
-// 認証画面は後続のコミットで足す。今はスケルトンの index ページのみ。
 export default function Home() {
-	return (
-		<main className="min-h-dvh bg-[var(--bg)] p-8 text-[var(--text)]">
-			<p className="font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--text-faint)]">
-				HIDOKO-ID / SKELETON
-			</p>
-		</main>
-	);
+	return null;
 }
