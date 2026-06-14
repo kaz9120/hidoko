@@ -12,6 +12,11 @@ const SCRIMS: Array<{ id: Scrim; label: string; aria: string }> = [
 	{ id: "c", label: "◎", aria: "中央" },
 ];
 
+/**
+ * スクリム方向の 8 方向 + AUTO トグル。副次 UI なので primary アクセント
+ * (ember) は使わず、bg-secondary (= --bg-overlay) と border-strong の
+ * インセットリングで「沈み込み」を出して選択状態を表す。
+ */
 export function ScrimToggle({
 	value,
 	onChange,
@@ -31,9 +36,11 @@ export function ScrimToggle({
 						aria-pressed={active}
 						onClick={() => onChange(s.id)}
 						className={cn(
-							"flex-1 cursor-pointer border-border border-l px-2 py-2 text-sm transition-colors first:border-l-0",
+							"flex-1 cursor-pointer border-border border-l px-2 py-2 text-sm outline-none transition-colors first:border-l-0",
+							"focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
+							"active:bg-accent/60",
 							active
-								? "bg-primary/15 text-primary"
+								? "bg-secondary text-secondary-foreground shadow-[inset_0_0_0_1px_var(--border-strong)]"
 								: "text-foreground hover:bg-accent/40",
 						)}
 					>
