@@ -1,0 +1,70 @@
+@import "tailwindcss" source(".");
+@source "../../../packages/ui/src";
+@import "ui/tokens.css";
+@import "ui/styles.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+	}
+	body {
+		@apply bg-background text-foreground;
+		font-family: var(--font-sans);
+	}
+}
+
+/* サインインのデスクトップで使うフルブリードヒーロー背景。
+   下から ember-400 のほのかな放射が立ち上がる「夜の机に、ひとつの灯」のメタファ。 */
+.hidoko-id-hero-bg {
+	background:
+		radial-gradient(
+			ellipse at 50% 100%,
+			color-mix(in oklab, var(--ember-400) 10%, transparent) 0%,
+			transparent 55%
+		),
+		var(--bg);
+}
+
+/* サインアップ左パネルなど、カード裏の「燃える夜」面に使う subtle なテクスチャ。 */
+.hidoko-id-brand-panel-bg {
+	background:
+		radial-gradient(
+			ellipse at 30% 110%,
+			color-mix(in oklab, var(--ember-400) 8%, transparent) 0%,
+			transparent 60%
+		),
+		var(--bg-raised);
+}
+
+/* フォームカード：背景を半透明にして backdrop-blur で hero の embers を透かす。 */
+.hidoko-id-form-card {
+	background: color-mix(in oklab, var(--bg-raised) 78%, transparent);
+	backdrop-filter: blur(14px);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-xl);
+	box-shadow: var(--shadow-pop);
+}
+
+/* リダイレクト loader の ember pulse / spin。tokens.css に同名キーフレームが無いため定義。 */
+@keyframes hidoko-id-ember-pulse {
+	0%,
+	100% {
+		opacity: 0.55;
+	}
+	50% {
+		opacity: 1;
+	}
+}
+@keyframes hidoko-id-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+.hidoko-id-spin {
+	animation: hidoko-id-spin 1.2s linear infinite;
+}
+.hidoko-id-pulse {
+	animation: hidoko-id-ember-pulse 2.4s ease-in-out infinite;
+}
