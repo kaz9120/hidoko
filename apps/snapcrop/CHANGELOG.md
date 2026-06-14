@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.9.0...snapcrop-v0.10.0) (2026-06-14)
+
+
+### Features
+
+* **snapcrop:** モザイクを独立ツールに分離する (UI 上の分離フェーズ) ([#173](https://github.com/kaz9120/hidoko/issues/173)) ([04a6ded](https://github.com/kaz9120/hidoko/commit/04a6ded38a8ae849f296a3920da72cdc348a81e3))
+
 ## [0.9.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.8.0...snapcrop-v0.9.0) (2026-06-14)
 
 
