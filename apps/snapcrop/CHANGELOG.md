@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.8.0...snapcrop-v0.9.0) (2026-06-14)
+
+
+### Features
+
+* **snapcrop:** スタイルプリセットを数字キー 1〜4 で切り替えるショートカットを追加する ([#171](https://github.com/kaz9120/hidoko/issues/171)) ([9bdd290](https://github.com/kaz9120/hidoko/commit/9bdd290d2ee776194768612763839059b7462a6d))
+
 ## [0.8.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.7.0...snapcrop-v0.8.0) (2026-06-13)
 
 
