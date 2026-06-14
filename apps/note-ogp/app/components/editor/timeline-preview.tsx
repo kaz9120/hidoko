@@ -1,30 +1,14 @@
-import type { Fields, TemplateDef } from "~/lib/og-templates";
-import {
-	FRAME_HEIGHT,
-	FRAME_WIDTH,
-	TIMELINE_CARD_WIDTH,
-	TIMELINE_SCALE,
-} from "~/lib/readability";
+import type { Fields } from "~/lib/og-templates";
+import { Cover, FRAME_HEIGHT, FRAME_WIDTH } from "~/lib/og-templates";
 
 /**
- * note タイムライン実寸相当の縮小プレビュー。メインプレビューと同じテンプレ
- * 描画を 343px 幅（モバイルのタイムラインでカード画像が占める幅）に縮小する。
- *
- * 可読性の警告（フォントサイズ閾値割れ / コントラスト低め）は #134 で
- * StatusBar に一本化されたので、ここでは表示しない (#139)。
- *
- * @param titleFontSize 互換のため受け取るが、現状の描画では使わない。
+ * note タイムライン実寸相当の縮小プレビュー。Cover v3 を 343px 幅
+ * （モバイルのタイムラインでカード画像が占める幅）に縮小する。
  */
-export function TimelinePreview({
-	tpl,
-	fields,
-}: {
-	tpl: TemplateDef;
-	fields: Fields;
-	/** 旧 API 互換のため受け取る。現状の描画では使用しない。 */
-	titleFontSize?: number | null;
-}) {
-	const Comp = tpl.Comp;
+const TIMELINE_CARD_WIDTH = 343;
+const TIMELINE_SCALE = TIMELINE_CARD_WIDTH / FRAME_WIDTH;
+
+export function TimelinePreview({ fields }: { fields: Fields }) {
 	const cardHeight = Math.round(
 		TIMELINE_CARD_WIDTH * (FRAME_HEIGHT / FRAME_WIDTH),
 	);
@@ -54,7 +38,7 @@ export function TimelinePreview({
 						transformOrigin: "top left",
 					}}
 				>
-					<Comp f={fields} />
+					<Cover f={fields} />
 				</div>
 			</div>
 		</div>

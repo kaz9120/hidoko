@@ -1,154 +1,83 @@
-import type { ComponentType } from "react";
-
-export type ThemeMode = "light" | "dark";
-export type FontMode = "serif" | "gothic" | "hand";
-export type CoverText = "light" | "dark";
-export type TemplateId = "edition" | "cover" | "quiet";
-export type PaletteId =
-	| "takibi"
-	| "koke"
-	| "geppaku"
-	| "tetsusabi"
-	| "suna"
-	| "sumi"
-	| "aikin"
-	| "budou";
-/** 背景の質感。さじ加減は固定プリセット（不透明度の自由調整は出さない） */
-export type TextureId = "none" | "paper" | "gradient" | "shape";
-export type PaperStrength = "weak" | "medium";
-/**
- * タイトルの装飾プリセット。自由なシャドウ・グラデ設定は出さない
- * （参考書の「盛りすぎが安っぽさの典型」を構造的に防ぐ）。
- */
-export type TitleDecoration = "none" | "merihari" | "zurashi" | "hanzure";
+// note-ogp v3 — 写真フルブリードを土台に固定し、号ごとに変えるのは
+// 「タイトルの居場所」「号数の身振り」「スクリムの方向」のみとする。
+// 旧 templateId / palette / photoLayout 系はすべて廃止。
 
 /**
- * 余白量のプリセット。外余白とタイトル周りの逃しを係数でまとめて変える。
- * タイト＝勢い・密度、ゆったり＝上品・高級感。連続スライダーは出さない。
+ * タイトルの居場所（写真の暗部に文字を逃がす 6 パターン）。
+ * - bl: 左下（標準。視線の流れ上「最後に来る」）
+ * - br: 右下（左に被写体があるとき）
+ * - tl: 左上ワードマーク下（写真の下が忙しいとき）
+ * - center: 中央（強い被写体／対称な構図）
+ * - rcol: 右コラム（縦長の文字組み・雑誌的）
+ * - topwide: 上に横長（1 行の長いタイトル）
  */
-export type Spacing = "tight" | "normal" | "loose";
+export type TitleSlot = "bl" | "br" | "tl" | "center" | "rcol" | "topwide";
 
 /**
- * ジャンプ率（タイトル : リード : メタ情報のサイズ比）のプリセット。
- * 控えめ＝しっとり、強め＝インパクト。タイトルは最大値側の基準が動くだけで、
- * AutoFitTitle の自動縮小ロジックはそのまま。
+ * 号数の身振り 5 種。N1 Corner が標準。N5 Watermark は節目号専用ルール。
  */
-export type JumpRate = "low" | "normal" | "high";
+export type NumberTreatment =
+	| "corner"
+	| "vertical"
+	| "written"
+	| "plate"
+	| "watermark";
 
-/**
- * 写真の配置型（書籍の「1 枚写真の基本形」より）。
- * - full:    全面裁ち落とし（現行の Cover）
- * - edge:    片側 2/3 を三方裁ち落とし＋反対側にテキスト面
- * - kakuhan: 角版＋四周に地余白（額縁効果）
- */
-export type PhotoLayout = "full" | "edge" | "kakuhan";
+/** N1 Corner / N4 Plate のときの配置コーナー */
+export type NumberCorner = "tr" | "br" | "bl";
+/** N2 Vertical のときの走らせる側 */
+export type NumberSide = "left" | "right";
 
-/**
- * 写真の加工プリセット（『よはく。』の「写真を淡く加工して余白感を出す」、
- * 『素人っぽく見えない〜』の「レタッチはプリセットに絞る」より）。
- * CSS filter 文字列は photo.ts に集約し、スライダーは出さない。
- * - none:     そのまま
- * - awaku:    淡く（明度↑ 彩度↓）
- * - kukkiri:  くっきり（コントラスト・彩度をひと押し）
- * - mono:     モノクロ
- * - vignette: ビネット（減彩 + 四隅を落とすオーバーレイ）
- */
-export type PhotoFilter = "none" | "awaku" | "kukkiri" | "mono" | "vignette";
-
-/**
- * 写真上のテキスト保護方式（Cover の全面配置が主対象）。
- * 『デザインのミカタ』の素人見え 4 要素を踏まえ、帯は「キャンバス端まで・
- * 不透明」を守る（半透明の帯・中途半端な長さの帯は作らない）。
- * - scrim:   下からのグラデスクリム（現行）
- * - band:    端まで届く不透明帯（テーマの base 色）
- * - box:     タイトル背面の半透明ボックス
- * - overlay: 全面カラーオーバーレイ（テーマ色連動・低不透明度）
- */
-export type TextGuard = "scrim" | "band" | "box" | "overlay";
-
-/**
- * 写真の注視点（9 点グリッド）。object-position に変換してクロップ位置を
- * 追従させる。「写真の主役にスポットライトを当てる」ためのトリミング指定。
- */
-export type FocalPoint =
-	| "top-left"
-	| "top"
-	| "top-right"
-	| "left"
-	| "center"
-	| "right"
-	| "bottom-left"
-	| "bottom"
-	| "bottom-right";
-
-/**
- * 配色の 3 ロール構造。
- * 参考書（『けっきょくは、よはく。』ほか）の「ベース 70% / サブ 25% /
- * アクセント 5%」に対応する。OGP 画像内の塗りはすべてこの 3 色から導出する。
- */
-export type OgRoles = {
-	/** ベース（≈70%）— 背景 */
-	base: string;
-	/** サブ（≈25%）— 文字 */
-	sub: string;
-	/** アクセント（≈5%）— 差し色 */
-	accent: string;
+export type NumberOpts = {
+	/** corner / plate のときの配置コーナー（タイトル位置に応じて自動切替） */
+	corner?: NumberCorner;
+	/** vertical のときの左右 */
+	side?: NumberSide;
+	/** written のときの絶対位置（左・下からの px） */
+	position?: { left: number; bottom: number };
 };
 
-/** 写真から抽出した動的パレットの id。プリセットの PaletteId とは重ならない */
-export type PhotoPaletteId = "photo-najimase" | "photo-hikitate";
-
-/** パレット選択値。プリセット or 写真由来の動的パレット */
-export type PaletteSelection = PaletteId | PhotoPaletteId;
+/**
+ * 写真の上に重ねる暗部の方向。
+ * "auto" は titleSlot から推定する（lb=左下が暗い、など）。
+ */
+export type Scrim =
+	| "auto"
+	| "lb"
+	| "rb"
+	| "lt"
+	| "rt"
+	| "t"
+	| "b"
+	| "l"
+	| "r"
+	| "c"
+	| "none";
 
 /**
- * 写真から抽出した動的パレット。プリセット（OgPalette）と同じ
- * 3 ロール × ライト / ダーク構造を持ち、色値ごと localStorage に保存される
- * （写真本体はサイズ超過で保存されないことがあるため、独立して持つ）。
+ * v3 の Fields。写真は前提（image）。テキスト系・連載情報・身振りに収束。
  */
-export type PhotoPalette = {
-	id: PhotoPaletteId;
-	label: string;
-	light: OgRoles;
-	dark: OgRoles;
-};
-
 export type Fields = {
-	templateId: TemplateId;
-	theme: ThemeMode;
-	palette: PaletteSelection;
-	/** 写真から抽出した配色候補。写真未設定なら null */
-	photoPalettes: PhotoPalette[] | null;
-	fontMode: FontMode;
-	coverText: CoverText;
+	// 内容
 	title: string;
 	lead: string;
-	category: string;
 	issue: string;
 	date: string;
+	category: string;
+
+	// プロジェクト（連載の固定情報）
 	brand: string;
 	author: string;
 	account: string;
 	showMark: boolean;
-	image: string | null;
-	texture: TextureId;
-	paperStrength: PaperStrength;
-	titleDecoration: TitleDecoration;
-	photoLayout: PhotoLayout;
-	focalPoint: FocalPoint;
-	/** edge 配置の左右入れ替え（false=写真が左 / true=写真が右） */
-	photoMirror: boolean;
-	photoFilter: PhotoFilter;
-	textGuard: TextGuard;
-	spacing: Spacing;
-	jumpRate: JumpRate;
-};
 
-export type TemplateDef = {
-	id: TemplateId;
-	label: string;
-	note: string;
-	/** true=主役, "opt"=任意, false=このテンプレでは未使用 */
-	useImage: boolean | "opt";
-	Comp: ComponentType<{ f: Fields }>;
+	// 写真
+	image: string | null;
+
+	// 身振り
+	titleSlot: TitleSlot;
+	numberTreatment: NumberTreatment;
+	numberOpts: NumberOpts;
+	scrim: Scrim;
+	showLead: boolean;
 };

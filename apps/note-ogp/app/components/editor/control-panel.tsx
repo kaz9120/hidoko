@@ -1,6 +1,6 @@
-import { ArrowLeftIcon, ArrowRightIcon, DownloadIcon } from "lucide-react";
-import { useEffect, useId, useState } from "react";
-import { Button, ToggleGroup, ToggleGroupItem } from "ui";
+import { DownloadIcon, TriangleAlertIcon } from "lucide-react";
+import { useId } from "react";
+import { Button } from "ui";
 import {
 	Accordion,
 	AccordionContent,
@@ -21,260 +21,82 @@ import {
 import { Field, FieldDescription, FieldLabel } from "ui/components/field";
 import { Input } from "ui/components/input";
 import { Textarea } from "ui/components/textarea";
-import type {
-	CoverText,
-	Fields,
-	FontMode,
-	TemplateDef,
-	TemplateId,
-	ThemeMode,
-} from "~/lib/og-templates";
-import { TEMPLATES } from "~/lib/og-templates";
-import {
-	loadWizardStep,
-	saveWizardStep,
-	type WizardStep,
-} from "~/lib/wizard-storage";
-import { ExpressionField } from "./expression-field";
+import type { Fields, NumberTreatment, TitleSlot } from "~/lib/og-templates";
+import { pickNumberCorner } from "~/lib/og-templates";
 import { ImageField } from "./image-field";
-import { PalettePicker } from "./palette-picker";
-import { PhotoLayoutField } from "./photo-layout-field";
-import { PhotoStyleField } from "./photo-style-field";
+import { NumberTreatmentTiles } from "./number-treatment-tiles";
+import { ScrimToggle } from "./scrim-toggle";
 import { SectionTitle } from "./section-title";
-import { TemplateThumb } from "./template-thumb";
-import { TextureField } from "./texture-field";
-import { TitleDecorationField } from "./title-decoration-field";
-
-const STEPS: Array<{ id: WizardStep; label: string; description: string }> = [
-	{ id: 1, label: "台紙", description: "テンプレートを選ぶ" },
-	{ id: 2, label: "内容", description: "文字と画像を入れる" },
-	{ id: 3, label: "仕上げ", description: "テーマ・書体・質感を整える" },
-];
+import { TitleSlotTiles } from "./title-slot-tiles";
 
 /**
- * ControlPanel を 3 ステップ（① 台紙 → ② 内容 → ③ 仕上げ）に再構成した
- * 三段ウィザード (Issue #136)。パネル上部に StepBar、フッターにステップ移動
- * ボタン (「戻る」/「次へ」)、③ にだけ PNG ダウンロード・リセットを置く。
+ * v3 の ControlPanel。「写真を主役に、タイトルの居場所と号数の見せ方を選ぶ」
+ * の単一フロー。旧の三段ウィザード（台紙 → 内容 → 仕上げ）は廃止。
  *
- * ステップ間を移動しても入力は保持される（現行の自動保存）。現在のステップ
- * 位置も localStorage で保存され、リロード後も同じステップに戻る。
+ * 並び順：写真 → 内容 → タイトルの居場所 → 号数の身振り → スクリム / リード
+ * 表示 → プロジェクト（連載の固定情報・accordion）。
  */
 export function ControlPanel({
 	state,
 	update,
 	reset,
-	tpl,
 	onDownload,
 	busy,
 }: {
 	state: Fields;
 	update: (patch: Partial<Fields>) => void;
 	reset: () => void;
-	tpl: TemplateDef;
 	onDownload: () => void;
 	busy: boolean;
 }) {
-	const [step, setStep] = useState<WizardStep>(1);
-
-	useEffect(() => {
-		setStep(loadWizardStep());
-	}, []);
-	useEffect(() => {
-		saveWizardStep(step);
-	}, [step]);
-
-	const goPrev = () => setStep((s) => (s > 1 ? ((s - 1) as WizardStep) : s));
-	const goNext = () => setStep((s) => (s < 3 ? ((s + 1) as WizardStep) : s));
-
-	// 「リセット」は ③ 仕上げに置かれているが、リセット後は「新しい号を作る」
-	// 状態に戻すので、ウィザードも ① 台紙からやり直すのが自然 (Issue #167)。
-	// state.reset → setStep(1) の順で呼ぶ (step state は localStorage 永続化に
-	// 載っているので、setStep(1) で次のリロードでも Step 1 で開く)。
-	const handleReset = () => {
-		reset();
-		setStep(1);
-	};
-
 	return (
-		<aside className="flex h-full flex-col overflow-hidden border-l border-border bg-card">
-			<StepBar current={step} onSelect={setStep} />
-
+		<aside className="flex h-full flex-col overflow-hidden border-border border-l bg-card">
+			<PanelHeader />
 			<div className="flex-1 overflow-y-auto px-6 py-5">
-				{step === 1 && <Step1Mat state={state} update={update} />}
-				{step === 2 && <Step2Content state={state} update={update} tpl={tpl} />}
-				{step === 3 && <Step3Finish state={state} update={update} tpl={tpl} />}
+				<PhotoSection state={state} update={update} />
+				<ContentSection state={state} update={update} />
+				<TitleSlotSection state={state} update={update} />
+				<NumberTreatmentSection state={state} update={update} />
+				<FinishSection state={state} update={update} />
+				<ProjectSection state={state} update={update} />
 			</div>
-
-			<WizardFooter
-				step={step}
-				onPrev={goPrev}
-				onNext={goNext}
+			<PanelFooter
 				onDownload={onDownload}
-				onReset={handleReset}
 				busy={busy}
 				canDownload={!!state.title}
+				onReset={reset}
 			/>
 		</aside>
 	);
 }
 
-function StepBar({
-	current,
-	onSelect,
-}: {
-	current: WizardStep;
-	onSelect: (step: WizardStep) => void;
-}) {
+function PanelHeader() {
 	return (
-		<div className="flex-shrink-0 border-b border-border bg-card px-4 py-3">
-			<div
-				aria-label="入力ステップ"
-				className="flex items-center gap-1"
-				role="tablist"
-			>
-				{STEPS.map((s, i) => {
-					const active = current === s.id;
-					return (
-						<button
-							key={s.id}
-							type="button"
-							role="tab"
-							aria-selected={active}
-							onClick={() => onSelect(s.id)}
-							className={`flex flex-1 items-center gap-2 rounded-md border px-2.5 py-1.5 text-left transition-colors ${
-								active
-									? "border-primary/40 bg-primary/10 text-foreground"
-									: "border-border bg-transparent text-muted-foreground hover:border-primary/30 hover:text-foreground"
-							}`}
-						>
-							<span
-								className={`font-mono text-[11px] ${
-									active ? "text-primary" : "text-(--text-faint)"
-								}`}
-							>
-								{String(i + 1).padStart(2, "0")}
-							</span>
-							<span className="text-xs font-medium">{s.label}</span>
-						</button>
-					);
-				})}
+		<header className="flex-shrink-0 border-border border-b bg-card px-6 pt-5 pb-4">
+			<div className="mb-1.5 flex items-center gap-2">
+				<span
+					aria-hidden="true"
+					className="inline-block size-1.5 rounded-[1px] bg-primary"
+				/>
+				<span className="font-mono text-[11px] uppercase tracking-[0.22em] text-primary">
+					note OGP
+				</span>
+				<span className="ml-auto font-mono text-[10px] uppercase tracking-[0.22em] text-(--text-faint)">
+					v3 · foundation
+				</span>
 			</div>
-		</div>
+			<h2 className="text-base font-bold text-foreground leading-tight">
+				アイキャッチを作る
+			</h2>
+			<p className="mt-0.5 text-xs text-muted-foreground leading-[1.55]">
+				写真を主役に、タイトルの居場所と号数の見せ方を選ぶ。
+			</p>
+		</header>
 	);
 }
 
-function WizardFooter({
-	step,
-	onPrev,
-	onNext,
-	onDownload,
-	onReset,
-	busy,
-	canDownload,
-}: {
-	step: WizardStep;
-	onPrev: () => void;
-	onNext: () => void;
-	onDownload: () => void;
-	onReset: () => void;
-	busy: boolean;
-	canDownload: boolean;
-}) {
-	if (step === 3) {
-		return (
-			<footer className="flex flex-shrink-0 flex-col gap-2 border-t border-border bg-card px-6 pt-4 pb-5">
-				<Button
-					type="button"
-					size="lg"
-					onClick={onDownload}
-					disabled={busy || !canDownload}
-					className="w-full justify-between"
-				>
-					<span className="flex items-center gap-2">
-						<DownloadIcon className="size-4" strokeWidth={1.75} />
-						{busy ? "書き出し中…" : "PNG をダウンロード"}
-					</span>
-					<span className="font-mono text-[10px] tracking-[0.22em] opacity-70">
-						1280 × 670
-					</span>
-				</Button>
-				<div className="flex gap-2">
-					<Button
-						type="button"
-						variant="outline"
-						onClick={onPrev}
-						className="flex-1 justify-center font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground"
-					>
-						<ArrowLeftIcon
-							aria-hidden="true"
-							className="size-3.5"
-							strokeWidth={1.75}
-						/>
-						戻る
-					</Button>
-					<AlertDialog>
-						<AlertDialogTrigger asChild>
-							<Button
-								type="button"
-								variant="outline"
-								className="flex-1 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground"
-							>
-								リセット
-							</Button>
-						</AlertDialogTrigger>
-						<AlertDialogContent>
-							<AlertDialogHeader>
-								<AlertDialogTitle>入力内容をリセットする</AlertDialogTitle>
-								<AlertDialogDescription>
-									タイトル・リード・著者などの入力をすべて初期値に戻す。元には戻せない。
-								</AlertDialogDescription>
-							</AlertDialogHeader>
-							<AlertDialogFooter>
-								<AlertDialogCancel>キャンセル</AlertDialogCancel>
-								<AlertDialogAction onClick={onReset}>
-									リセット
-								</AlertDialogAction>
-							</AlertDialogFooter>
-						</AlertDialogContent>
-					</AlertDialog>
-				</div>
-			</footer>
-		);
-	}
-	return (
-		<footer className="flex flex-shrink-0 items-center justify-between gap-2 border-t border-border bg-card px-6 pt-4 pb-5">
-			<Button
-				type="button"
-				variant="outline"
-				onClick={onPrev}
-				disabled={step === 1}
-				className="font-mono text-[11px] tracking-[0.16em] text-muted-foreground"
-			>
-				<ArrowLeftIcon
-					aria-hidden="true"
-					className="size-3.5"
-					strokeWidth={1.75}
-				/>
-				戻る
-			</Button>
-			<Button
-				type="button"
-				onClick={onNext}
-				className="font-mono text-[11px] tracking-[0.16em]"
-			>
-				次へ
-				<ArrowRightIcon
-					aria-hidden="true"
-					className="size-3.5"
-					strokeWidth={1.75}
-				/>
-			</Button>
-		</footer>
-	);
-}
-
-// ── Step 1: 台紙 ──────────────────────────────────────
-function Step1Mat({
+// ── 写真 ──────────────────────────────────────────────
+function PhotoSection({
 	state,
 	update,
 }: {
@@ -283,38 +105,31 @@ function Step1Mat({
 }) {
 	return (
 		<>
-			<SectionTitle>テンプレート</SectionTitle>
-			<p className="mb-3 text-xs text-muted-foreground">
-				迷ったら 01。あとから変えても入力は残る。
-			</p>
-			<div className="mb-2 grid grid-cols-3 gap-2">
-				{TEMPLATES.map((t) => (
-					<TemplateThumb
-						key={t.id}
-						tpl={t}
-						fields={state}
-						active={t.id === state.templateId}
-						onClick={() => update({ templateId: t.id as TemplateId })}
-					/>
-				))}
-			</div>
+			<SectionTitle>写真</SectionTitle>
+			<Field className="mb-3.5">
+				<ImageField
+					value={state.image}
+					onChange={(v) => update({ image: v })}
+				/>
+				<FieldDescription>
+					写真の <span className="text-muted-foreground font-medium">暗部</span>{" "}
+					を見て、次の「タイトルの居場所」を選ぶ
+				</FieldDescription>
+			</Field>
 		</>
 	);
 }
 
-// ── Step 2: 内容 ──────────────────────────────────────
-function Step2Content({
+// ── 内容 ──────────────────────────────────────────────
+function ContentSection({
 	state,
 	update,
-	tpl,
 }: {
 	state: Fields;
 	update: (patch: Partial<Fields>) => void;
-	tpl: TemplateDef;
 }) {
 	const titleId = useId();
 	const leadId = useId();
-	const categoryId = useId();
 	const issueId = useId();
 	const dateId = useId();
 	const titleLength = state.title.length;
@@ -336,10 +151,9 @@ function Step2Content({
 					placeholder={"夜更けに\nコードを書く理由"}
 				/>
 				<FieldDescription>
-					{titleLength}文字　·　Enterで改行（自動折り返しなし）
+					{titleLength}文字　·　Enter で改行（自動折り返しなし）
 				</FieldDescription>
 			</Field>
-
 			<Field className="mb-3.5">
 				<FieldLabel
 					htmlFor={leadId}
@@ -354,25 +168,8 @@ function Step2Content({
 					rows={2}
 					placeholder="一行で添える、温度のある説明。"
 				/>
-				<FieldDescription>補足の一文</FieldDescription>
 			</Field>
-
-			<div className="mb-3.5 grid grid-cols-2 gap-2.5">
-				<Field>
-					<FieldLabel
-						htmlFor={categoryId}
-						className="font-mono text-[10px] uppercase tracking-[0.22em]"
-					>
-						カテゴリ
-					</FieldLabel>
-					<Input
-						id={categoryId}
-						value={state.category}
-						onChange={(e) => update({ category: e.target.value })}
-						placeholder="ESSAY"
-						className="font-mono"
-					/>
-				</Field>
+			<div className="mb-1 grid grid-cols-2 gap-2.5">
 				<Field>
 					<FieldLabel
 						htmlFor={issueId}
@@ -386,187 +183,337 @@ function Step2Content({
 						onChange={(e) =>
 							update({ issue: e.target.value.replace(/[^\d]/g, "") })
 						}
-						placeholder="013"
+						placeholder="014"
 						inputMode="numeric"
 						className="font-mono"
 					/>
 				</Field>
-			</div>
-
-			<Field className="mb-3.5">
-				<FieldLabel
-					htmlFor={dateId}
-					className="font-mono text-[10px] uppercase tracking-[0.22em]"
-				>
-					日付
-				</FieldLabel>
-				<Input
-					id={dateId}
-					value={state.date}
-					onChange={(e) => update({ date: e.target.value })}
-					placeholder="2026.05"
-					className="font-mono"
-				/>
-				<FieldDescription>
-					vol・日付は自動 — 書き出しごとに次号が初期値に乗る
-				</FieldDescription>
-			</Field>
-
-			{(tpl.useImage === true || tpl.useImage === "opt") && (
-				<>
-					<SectionTitle annotation={<ImageHint useImage={tpl.useImage} />}>
-						画像
-					</SectionTitle>
-					<ImageField
-						value={state.image}
-						onChange={(v) => update({ image: v })}
+				<Field>
+					<FieldLabel
+						htmlFor={dateId}
+						className="font-mono text-[10px] uppercase tracking-[0.22em]"
+					>
+						日付
+					</FieldLabel>
+					<Input
+						id={dateId}
+						value={state.date}
+						onChange={(e) => update({ date: e.target.value })}
+						placeholder="2026.06"
+						className="font-mono"
 					/>
-					<PhotoLayoutField state={state} update={update} tpl={tpl} />
-					<PhotoStyleField state={state} update={update} tpl={tpl} />
-				</>
-			)}
+				</Field>
+			</div>
 		</>
 	);
 }
 
-// ── Step 3: 仕上げ ────────────────────────────────────
-function Step3Finish({
+// ── タイトルの居場所 ──────────────────────────────────
+function TitleSlotSection({
 	state,
 	update,
-	tpl,
 }: {
 	state: Fields;
 	update: (patch: Partial<Fields>) => void;
-	tpl: TemplateDef;
 }) {
 	return (
 		<>
-			<SectionTitle>仕上げ</SectionTitle>
-			<Field className="mb-3.5">
-				<FieldLabel className="font-mono text-[10px] uppercase tracking-[0.22em]">
-					テーマ
-				</FieldLabel>
-				<ToggleGroup
-					type="single"
-					variant="outline"
-					value={state.theme}
-					onValueChange={(v) => {
-						if (v) update({ theme: v as ThemeMode });
-					}}
-					className="w-full"
-				>
-					<ToggleGroupItem value="dark" className="flex-1">
-						ダーク
-					</ToggleGroupItem>
-					<ToggleGroupItem value="light" className="flex-1">
-						ライト
-					</ToggleGroupItem>
-				</ToggleGroup>
-			</Field>
-
-			<Field className="mb-3.5">
-				<FieldLabel className="font-mono text-[10px] uppercase tracking-[0.22em]">
-					カラーパレット
-				</FieldLabel>
-				<PalettePicker
-					value={state.palette}
-					theme={state.theme}
-					photoPalettes={state.photoPalettes}
-					onChange={(palette) => update({ palette })}
-				/>
-				<FieldDescription>
-					{state.photoPalettes
-						? "ベース・文字・差し色の3色セット。上段は写真から抽出した提案"
-						: "ベース・文字・差し色の3色セット"}
-				</FieldDescription>
-			</Field>
-
-			<Field className="mb-3.5">
-				<FieldLabel className="font-mono text-[10px] uppercase tracking-[0.22em]">
-					タイトルの書体
-				</FieldLabel>
-				<ToggleGroup
-					type="single"
-					variant="outline"
-					value={state.fontMode}
-					onValueChange={(v) => {
-						if (v) update({ fontMode: v as FontMode });
-					}}
-					className="w-full"
-				>
-					<ToggleGroupItem value="serif" className="flex-1">
-						明朝
-					</ToggleGroupItem>
-					<ToggleGroupItem value="gothic" className="flex-1">
-						ゴシック
-					</ToggleGroupItem>
-					<ToggleGroupItem value="hand" className="flex-1">
-						手書き
-					</ToggleGroupItem>
-				</ToggleGroup>
-				<FieldDescription>切り替わるのはタイトルだけ</FieldDescription>
-			</Field>
-
-			{tpl.id === "cover" && state.photoLayout === "full" && (
-				<Field className="mb-3.5">
-					<FieldLabel className="font-mono text-[10px] uppercase tracking-[0.22em]">
-						表紙の文字色
-					</FieldLabel>
-					<ToggleGroup
-						type="single"
-						variant="outline"
-						value={state.coverText}
-						onValueChange={(v) => {
-							if (v) update({ coverText: v as CoverText });
-						}}
-						className="w-full"
-					>
-						<ToggleGroupItem value="light" className="flex-1">
-							白文字
-						</ToggleGroupItem>
-						<ToggleGroupItem value="dark" className="flex-1">
-							黒文字
-						</ToggleGroupItem>
-					</ToggleGroup>
-					<FieldDescription>画像の明るさに合わせて</FieldDescription>
-				</Field>
-			)}
-
-			<Accordion type="multiple" className="mt-2">
-				<AccordionItem value="texture-decoration">
-					<AccordionTrigger className="font-mono text-[11px] uppercase tracking-[0.18em]">
-						質感と装飾
-					</AccordionTrigger>
-					<AccordionContent className="pt-2">
-						<TextureField
-							state={state}
-							update={update}
-							unused={tpl.useImage === true && state.photoLayout === "full"}
-						/>
-						<TitleDecorationField state={state} update={update} />
-					</AccordionContent>
-				</AccordionItem>
-				<AccordionItem value="text-rhythm">
-					<AccordionTrigger className="font-mono text-[11px] uppercase tracking-[0.18em]">
-						文字組（余白・ジャンプ率）
-					</AccordionTrigger>
-					<AccordionContent className="pt-2">
-						<ExpressionField state={state} update={update} />
-					</AccordionContent>
-				</AccordionItem>
-			</Accordion>
+			<SectionTitle>タイトルの居場所</SectionTitle>
+			<p className="mb-3 text-xs text-muted-foreground leading-relaxed">
+				写真の <span className="text-foreground font-medium">暗部</span>{" "}
+				に文字を置く。被写体が右なら左下（S1）、左なら右下（S2）。
+			</p>
+			<TitleSlotTiles
+				state={state}
+				onSelect={(slot: TitleSlot) =>
+					// N1 Corner / N4 Plate を使っているとき、新しいタイトル位置に応じて
+					// 号数のコーナーも追従させる（古い corner が残ってタイトルとぶつかる
+					// のを避ける）。N2/N3/N5 は corner を見ないので無害。
+					update({
+						titleSlot: slot,
+						numberOpts: {
+							...state.numberOpts,
+							corner: pickNumberCorner(slot),
+						},
+					})
+				}
+			/>
 		</>
 	);
 }
 
-function ImageHint({ useImage }: { useImage: TemplateDef["useImage"] }) {
-	if (useImage === true) {
-		return <span className="text-primary">·主役</span>;
-	}
-	if (useImage === "opt") {
-		return <span className="text-muted-foreground">·任意</span>;
-	}
+// ── 号数の身振り ──────────────────────────────────────
+function NumberTreatmentSection({
+	state,
+	update,
+}: {
+	state: Fields;
+	update: (patch: Partial<Fields>) => void;
+}) {
+	const handleSelect = (treatment: NumberTreatment) => {
+		update({
+			numberTreatment: treatment,
+			numberOpts: {
+				corner: pickNumberCorner(state.titleSlot),
+				side: "right",
+				position: { left: 56, bottom: 92 },
+			},
+		});
+	};
 	return (
-		<span className="text-muted-foreground/70">·このテンプレでは未使用</span>
+		<>
+			<SectionTitle>号数の身振り</SectionTitle>
+			<p className="mb-3 text-xs text-muted-foreground leading-relaxed">
+				基本は <span className="text-foreground font-medium">N1 Corner</span>
+				。雑誌的に押し出したいときだけ別の身振りを使う。
+			</p>
+			<NumberTreatmentTiles state={state} onSelect={handleSelect} />
+			{state.numberTreatment === "watermark" && (
+				<p className="mt-3 flex items-start gap-1.5 text-xs leading-relaxed text-(--warning)">
+					<TriangleAlertIcon
+						aria-hidden="true"
+						className="mt-0.5 size-3.5 flex-shrink-0"
+						strokeWidth={1.75}
+					/>
+					<span>
+						<span className="font-medium">N5 Watermark は節目号専用。</span>{" "}
+						通常号で使うと声が大きすぎる。
+					</span>
+				</p>
+			)}
+		</>
+	);
+}
+
+// ── スクリム / リード表示 ─────────────────────────────
+function FinishSection({
+	state,
+	update,
+}: {
+	state: Fields;
+	update: (patch: Partial<Fields>) => void;
+}) {
+	return (
+		<>
+			<Field className="mt-5 mb-3.5">
+				<FieldLabel className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em]">
+					スクリムの方向
+					{state.scrim === "auto" && (
+						<span className="inline-flex items-center gap-1 rounded-[2px] border border-primary/40 px-1.5 py-px font-mono text-[9px] uppercase tracking-[0.22em] text-primary">
+							タイトルから推定
+						</span>
+					)}
+				</FieldLabel>
+				<ScrimToggle
+					value={state.scrim}
+					onChange={(scrim) => update({ scrim })}
+				/>
+				<FieldDescription>
+					写真の上に重ねる暗部の方向。AUTO のままで足りることが多い。
+				</FieldDescription>
+			</Field>
+			<Field className="mb-1">
+				<FieldLabel className="font-mono text-[10px] uppercase tracking-[0.22em]">
+					リード文の表示
+				</FieldLabel>
+				<div className="flex overflow-hidden rounded-md border border-border bg-input">
+					<button
+						type="button"
+						aria-pressed={state.showLead}
+						onClick={() => update({ showLead: true })}
+						className={
+							state.showLead
+								? "flex-1 cursor-pointer bg-primary/15 px-2 py-2 text-sm text-primary"
+								: "flex-1 cursor-pointer px-2 py-2 text-sm text-foreground hover:bg-accent/40"
+						}
+					>
+						表示
+					</button>
+					<button
+						type="button"
+						aria-pressed={!state.showLead}
+						onClick={() => update({ showLead: false })}
+						className={
+							!state.showLead
+								? "flex-1 cursor-pointer border-border border-l bg-primary/15 px-2 py-2 text-sm text-primary"
+								: "flex-1 cursor-pointer border-border border-l px-2 py-2 text-sm text-foreground hover:bg-accent/40"
+						}
+					>
+						非表示
+					</button>
+				</div>
+			</Field>
+		</>
+	);
+}
+
+// ── プロジェクト（連載の固定情報）──────────────────
+function ProjectSection({
+	state,
+	update,
+}: {
+	state: Fields;
+	update: (patch: Partial<Fields>) => void;
+}) {
+	const brandId = useId();
+	const authorId = useId();
+	const accountId = useId();
+	const categoryId = useId();
+	return (
+		<Accordion type="single" collapsible className="mt-5">
+			<AccordionItem value="project">
+				<AccordionTrigger className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+					プロジェクト（連載の固定情報）
+				</AccordionTrigger>
+				<AccordionContent className="pt-2">
+					<Field className="mb-3.5">
+						<FieldLabel
+							htmlFor={brandId}
+							className="font-mono text-[10px] uppercase tracking-[0.22em]"
+						>
+							ブランド表記
+						</FieldLabel>
+						<Input
+							id={brandId}
+							value={state.brand}
+							onChange={(e) => update({ brand: e.target.value })}
+						/>
+					</Field>
+					<div className="mb-3.5 grid grid-cols-2 gap-2.5">
+						<Field>
+							<FieldLabel
+								htmlFor={authorId}
+								className="font-mono text-[10px] uppercase tracking-[0.22em]"
+							>
+								名前
+							</FieldLabel>
+							<Input
+								id={authorId}
+								value={state.author}
+								onChange={(e) => update({ author: e.target.value })}
+							/>
+						</Field>
+						<Field>
+							<FieldLabel
+								htmlFor={accountId}
+								className="font-mono text-[10px] uppercase tracking-[0.22em]"
+							>
+								アカウント
+							</FieldLabel>
+							<Input
+								id={accountId}
+								value={state.account}
+								onChange={(e) => update({ account: e.target.value })}
+								className="font-mono"
+							/>
+						</Field>
+					</div>
+					<Field className="mb-3.5">
+						<FieldLabel
+							htmlFor={categoryId}
+							className="font-mono text-[10px] uppercase tracking-[0.22em]"
+						>
+							カテゴリ（任意）
+						</FieldLabel>
+						<Input
+							id={categoryId}
+							value={state.category}
+							onChange={(e) => update({ category: e.target.value })}
+							placeholder="ESSAY"
+							className="font-mono"
+						/>
+						<FieldDescription>
+							v3 では基本表示しない。N4 Plate を選んだときだけ補足情報に使う。
+						</FieldDescription>
+					</Field>
+					<Field>
+						<FieldLabel className="font-mono text-[10px] uppercase tracking-[0.22em]">
+							炎マーク
+						</FieldLabel>
+						<div className="flex overflow-hidden rounded-md border border-border bg-input">
+							<button
+								type="button"
+								aria-pressed={state.showMark}
+								onClick={() => update({ showMark: true })}
+								className={
+									state.showMark
+										? "flex-1 cursor-pointer bg-primary/15 px-2 py-2 text-sm text-primary"
+										: "flex-1 cursor-pointer px-2 py-2 text-sm text-foreground hover:bg-accent/40"
+								}
+							>
+								表示
+							</button>
+							<button
+								type="button"
+								aria-pressed={!state.showMark}
+								onClick={() => update({ showMark: false })}
+								className={
+									!state.showMark
+										? "flex-1 cursor-pointer border-border border-l bg-primary/15 px-2 py-2 text-sm text-primary"
+										: "flex-1 cursor-pointer border-border border-l px-2 py-2 text-sm text-foreground hover:bg-accent/40"
+								}
+							>
+								非表示
+							</button>
+						</div>
+					</Field>
+				</AccordionContent>
+			</AccordionItem>
+		</Accordion>
+	);
+}
+
+function PanelFooter({
+	onDownload,
+	busy,
+	canDownload,
+	onReset,
+}: {
+	onDownload: () => void;
+	busy: boolean;
+	canDownload: boolean;
+	onReset: () => void;
+}) {
+	return (
+		<footer className="flex flex-shrink-0 flex-col gap-2 border-border border-t bg-card px-6 pt-4 pb-5">
+			<Button
+				type="button"
+				size="lg"
+				onClick={onDownload}
+				disabled={busy || !canDownload}
+				className="w-full justify-between"
+			>
+				<span className="flex items-center gap-2">
+					<DownloadIcon className="size-4" strokeWidth={1.75} />
+					{busy ? "書き出し中…" : "PNG をダウンロード"}
+				</span>
+				<span className="font-mono text-[10px] uppercase tracking-[0.22em] opacity-70">
+					1280 × 670
+				</span>
+			</Button>
+			<AlertDialog>
+				<AlertDialogTrigger asChild>
+					<Button
+						type="button"
+						variant="outline"
+						className="w-full justify-center font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground"
+					>
+						リセット
+					</Button>
+				</AlertDialogTrigger>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>入力内容をリセットする</AlertDialogTitle>
+						<AlertDialogDescription>
+							タイトル・リード・著者などの入力をすべて初期値に戻す。元には戻せない。
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>キャンセル</AlertDialogCancel>
+						<AlertDialogAction onClick={onReset}>リセット</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+		</footer>
 	);
 }
