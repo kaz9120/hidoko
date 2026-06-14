@@ -113,6 +113,20 @@ function pickNumberOpts(value: unknown): Fields["numberOpts"] {
 	return opts;
 }
 
+/**
+ * localStorage に v3 の state が保存済みかを確認する。useNoteOgpState 初期化時
+ * に「これは初回起動か？」を判定するために使う（DEFAULTS の date を当月に
+ * 差し替えるかどうかの分岐に効く）。
+ */
+export function hasStoredState(): boolean {
+	if (typeof window === "undefined") return false;
+	try {
+		return window.localStorage.getItem(STORAGE_KEY) !== null;
+	} catch {
+		return false;
+	}
+}
+
 export function loadState(): Fields {
 	if (typeof window === "undefined") return DEFAULTS;
 	try {

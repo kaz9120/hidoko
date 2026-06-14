@@ -5,7 +5,7 @@ import {
 	saveLastIssue,
 } from "~/lib/issue-storage";
 import type { Fields } from "~/lib/og-templates";
-import { DEFAULTS, loadState, saveState } from "~/lib/storage";
+import { DEFAULTS, hasStoredState, loadState, saveState } from "~/lib/storage";
 
 export type NoteOgpStateHook = {
 	state: Fields;
@@ -38,6 +38,19 @@ export function useNoteOgpState(): NoteOgpStateHook {
 		}
 		setLastSavedAt(new Date());
 	}, [state]);
+
+	// 初回起動（localStorage 未登録）のときは、DEFAULTS の固定 date ではなく
+	// 当月で立ち上げる。DEFAULTS.date を `new Date()` 由来にすると prerender で
+	// 焼き込まれた古い月が出てしまうため、SSR では DEFAULTS を保ち、クライアント
+	// マウント後にだけ当月で上書きする。
+	useEffect(() => {
+		if (hasStoredState()) return;
+		setState((s) => ({
+			...s,
+			issue: computeNextIssue(DEFAULTS.issue),
+			date: computeThisMonth(),
+		}));
+	}, []);
 
 	const update = useCallback((patch: Partial<Fields>) => {
 		setState((s) => ({ ...s, ...patch }));
