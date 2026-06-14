@@ -70,9 +70,8 @@ const THICKNESS_OPTIONS: ReadonlyArray<{
  *   - 編集途中 (dirty) で閉じようとしたら「変更を破棄しますか?」を
  *     AlertDialog で確認する。dirty でなければ即座に閉じる
  *
- * 選択コントロールは RectToolbar と同じ見た目に揃える: スタイルと太さは
- * ToggleGroup、色は円形スウォッチ。mosaic では色が、fill では太さが意味を
- * 持たないため disable する (RectToolbar と同じ規則)。
+ * 選択コントロールは「スタイルと太さは ToggleGroup、色は円形スウォッチ」で
+ * 統一。mosaic では色が、fill では太さが意味を持たないため disable する。
  */
 export function SettingsDialog() {
 	const { rectDefaults, setRectDefaults } = useSnapcrop();
