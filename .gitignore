@@ -44,6 +44,8 @@ Thumbs.db
 .wrangler/
 .dev.vars
 .dev.vars.*
+# wrangler types で自動生成される。ローカルでは `bun run typegen` が走るたびに更新される
+worker-configuration.d.ts
 
 # AI tools (per-machine local config)
 .claude/settings.local.json
