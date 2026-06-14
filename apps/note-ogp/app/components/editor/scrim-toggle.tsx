@@ -36,7 +36,9 @@ export function ScrimToggle({
 						aria-pressed={active}
 						onClick={() => onChange(s.id)}
 						className={cn(
-							"flex-1 cursor-pointer border-border border-l px-2 py-2 text-sm transition-colors first:border-l-0",
+							"flex-1 cursor-pointer border-border border-l px-2 py-2 text-sm outline-none transition-colors first:border-l-0",
+							"focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
+							"active:bg-accent/60",
 							active
 								? "bg-secondary text-secondary-foreground shadow-[inset_0_0_0_1px_var(--border-strong)]"
 								: "text-foreground hover:bg-accent/40",
