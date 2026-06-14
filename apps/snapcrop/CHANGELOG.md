@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.10.0...snapcrop-v0.11.0) (2026-06-14)
+
+
+### Features
+
+* **snapcrop:** 矢印選択時のフローティングツールバーを試験導入 ([#174](https://github.com/kaz9120/hidoko/issues/174)) ([2f48e64](https://github.com/kaz9120/hidoko/commit/2f48e64f2bbddb0d6b46f184b5e8b3f845ef4e1c))
+
 ## [0.10.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.9.0...snapcrop-v0.10.0) (2026-06-14)
 
 
