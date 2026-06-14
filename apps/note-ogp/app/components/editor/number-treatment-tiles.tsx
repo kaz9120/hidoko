@@ -77,7 +77,7 @@ function Tile({
 			className={cn(
 				"relative aspect-[1280/670] cursor-pointer overflow-hidden rounded-md border bg-muted p-0 transition-colors",
 				active
-					? "border-primary shadow-[0_0_0_1px_var(--primary),0_4px_16px_color-mix(in_oklab,var(--ember-400)_15%,transparent)]"
+					? "border-primary shadow-[var(--glow-ember)]"
 					: "border-border hover:border-muted-foreground/60",
 			)}
 			aria-pressed={active}
