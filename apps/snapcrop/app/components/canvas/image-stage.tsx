@@ -8,6 +8,7 @@ import {
 import { AnnotationInteractionLayer } from "~/components/canvas/annotation-interaction-layer";
 import { AnnotationLayer } from "~/components/canvas/annotation-layer";
 import { AnnotationMiniActions } from "~/components/canvas/annotation-mini-actions";
+import { ArrowFloatingToolbar } from "~/components/canvas/arrow-floating-toolbar";
 import { ArrowLayer } from "~/components/canvas/arrow-layer";
 import { ArrowPreviewOverlay } from "~/components/canvas/arrow-preview-overlay";
 import { ArrowSelectionOverlay } from "~/components/canvas/arrow-selection-overlay";
@@ -98,6 +99,7 @@ export function ImageStage({
 		highlightEngineHandleRef,
 		deleteAnnotation,
 		deleteArrow,
+		updateArrow,
 		deleteText,
 		deleteHighlight,
 	} = useSnapcrop();
@@ -225,10 +227,14 @@ export function ImageStage({
 		arrowEngine.isInteracting ||
 		textEngine.isInteracting ||
 		highlightEngine.isInteracting;
+	// 矢印選択時はフローティングツールバー (#147 Phase 3) が複製・z 順・削除を
+	// 内包するため、AnnotationMiniActions は描画しない (重なり回避)。
 	const showMiniActions =
 		selectedHit !== null &&
 		!anyInteracting &&
+		selectedHit.kind !== "arrow" &&
 		!(selectedHit.kind === "text" && textEngine.editing?.id === selectedHit.id);
+	const showArrowFloating = selectedArrowRendered !== null && !anyInteracting;
 
 	// z 操作ボタンの活性判定。最前面 / 最背面に達していたら disable する。
 	const selectedZPos = selectedHit
@@ -379,6 +385,30 @@ export function ImageStage({
 					getImagePoint={getImagePoint}
 					imageHeight={image.height}
 					imageWidth={image.width}
+					zoom={zoom}
+				/>
+			)}
+			{selectedArrowRendered && (
+				<ArrowFloatingToolbar
+					arrow={selectedArrowRendered}
+					canBringForward={canBringForward}
+					canSendBackward={canSendBackward}
+					imageHeight={image.height}
+					imageWidth={image.width}
+					onBringForward={() =>
+						zOrderActions.bringForward(selectedArrowRendered.id)
+					}
+					onDelete={() => deleteArrow(selectedArrowRendered.id)}
+					onDuplicate={() =>
+						duplicateAnnotation(selectedArrowRendered, imageMetrics)
+					}
+					onSendBackward={() =>
+						zOrderActions.sendBackward(selectedArrowRendered.id)
+					}
+					onThicknessChange={(thickness) =>
+						updateArrow(selectedArrowRendered.id, { thickness })
+					}
+					visible={showArrowFloating}
 					zoom={zoom}
 				/>
 			)}
