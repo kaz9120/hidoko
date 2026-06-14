@@ -41,7 +41,7 @@ type Story = StoryObj<typeof meta>;
 /**
  * 初期表示は歯車アイコンのボタンだけ。クリックすると矩形デフォルト値の
  * 編集フォームが開く。スタイルを mosaic にすると色が、fill にすると太さが
- * disable される (RectToolbar と同じ規則)。値を変えてから外タップ / Esc を
+ * disable される。値を変えてから外タップ / Esc を
  * 試すと破棄確認が出る挙動も Storybook 上で確認できる。
  * @summary 設定ボタン (クリックでダイアログが開く)
  */

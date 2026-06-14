@@ -235,9 +235,8 @@ export function ImageStage({
 		arrowEngine.isInteracting ||
 		textEngine.isInteracting ||
 		highlightEngine.isInteracting;
-	// 全種別がフローティングツールバー (#147 Phase 3) を持つようになり、旧
-	// AnnotationMiniActions は撤去した。テキスト編集中はインライン入力に
-	// 集中させたいのでフローティングも隠す。
+	// 全種別がフローティングツールバー (#147 Phase 3) を持つ。テキスト編集中は
+	// インライン入力に集中させたいのでフローティングも隠す。
 	const isTextEditingSelected =
 		selectedTextRendered !== null &&
 		textEngine.editing?.id === selectedTextRendered.id;
