@@ -7,20 +7,22 @@ import {
 } from "react";
 import { AnnotationInteractionLayer } from "~/components/canvas/annotation-interaction-layer";
 import { AnnotationLayer } from "~/components/canvas/annotation-layer";
-import { AnnotationMiniActions } from "~/components/canvas/annotation-mini-actions";
 import { ArrowFloatingToolbar } from "~/components/canvas/arrow-floating-toolbar";
 import { ArrowLayer } from "~/components/canvas/arrow-layer";
 import { ArrowPreviewOverlay } from "~/components/canvas/arrow-preview-overlay";
 import { ArrowSelectionOverlay } from "~/components/canvas/arrow-selection-overlay";
 import { CropFrame } from "~/components/canvas/crop-frame";
 import { DimensionHud } from "~/components/canvas/dimension-hud";
+import { HighlightFloatingToolbar } from "~/components/canvas/highlight-floating-toolbar";
 import { HighlightLayer } from "~/components/canvas/highlight-layer";
 import { HighlightPreviewOverlay } from "~/components/canvas/highlight-preview-overlay";
 import { HighlightSelectionOverlay } from "~/components/canvas/highlight-selection-overlay";
 import { MosaicLayer } from "~/components/canvas/mosaic-layer";
+import { RectFloatingToolbar } from "~/components/canvas/rect-floating-toolbar";
 import { RectPreviewOverlay } from "~/components/canvas/rect-preview-overlay";
 import { RectSelectionOverlay } from "~/components/canvas/rect-selection-overlay";
 import { TextEditorOverlay } from "~/components/canvas/text-editor-overlay";
+import { TextFloatingToolbar } from "~/components/canvas/text-floating-toolbar";
 import { TextLayer } from "~/components/canvas/text-layer";
 import { TextSelectionOverlay } from "~/components/canvas/text-selection-overlay";
 import { type LoadedImage, useSnapcrop } from "~/contexts/snapcrop-context";
@@ -31,7 +33,6 @@ import { useHighlightEngine } from "~/hooks/use-highlight-engine";
 import { useRectEngine } from "~/hooks/use-rect-engine";
 import { useTextEngine } from "~/hooks/use-text-engine";
 import { useZOrderActions } from "~/hooks/use-z-order";
-import { annotationBounds } from "~/lib/annotation-bounds";
 import type { AnnotationHit } from "~/lib/annotation-hit-test";
 import {
 	groupAnnotationRuns,
@@ -68,7 +69,11 @@ export type ImageStageProps = {
  *                                     handle クリックを奪わない)
  *   8. 各種 SelectionOverlay          選択中の注釈の種別に応じて 1 つだけ表示
  *                                     (ring + handle。handle のみ events:auto)
- *   9. <AnnotationMiniActions>        選択注釈近傍の複製 / 削除バー (種別不問。interaction 中は非表示)
+ *   9. 各種 FloatingToolbar           選択中の注釈に貼り付くフローティング
+ *                                     ツールバー (#147 Phase 3)。種別固有の編集
+ *                                     UI + 共通アクション (複製・z 順・削除) を
+ *                                     持つ。interaction 中とテキストのインライン
+ *                                     編集中は非表示
  *  10. 各種 PreviewOverlay            drawing 中のプレビュー (activeTool のものだけ)。
  *                                     テキストは preview の代わりにインライン編集の
  *                                     <TextEditorOverlay> が「まだ commit されて
@@ -98,10 +103,13 @@ export function ImageStage({
 		highlightDefaults,
 		highlightEngineHandleRef,
 		deleteAnnotation,
+		updateAnnotation,
 		deleteArrow,
 		updateArrow,
 		deleteText,
+		updateText,
 		deleteHighlight,
+		updateHighlight,
 	} = useSnapcrop();
 	const duplicateAnnotation = useDuplicateAnnotation();
 	const zOrderActions = useZOrderActions();
@@ -214,9 +222,9 @@ export function ImageStage({
 			) ?? null)
 		: null;
 
-	// ミニアクションバー (複製 / 削除) の基準。種別を問わず選択中の注釈 1 つに
-	// 出す。ドラッグ・リサイズ中とテキストのインライン編集中は操作の邪魔に
-	// なるので隠す。
+	// z 操作の活性判定で使う「種別を問わない選択中の注釈 1 つ」。フローティング
+	// ツールバー (#147 Phase 3) は種別ごとに別コンポーネントだが、前面へ / 背面へ
+	// の disable 判定は zOrdered の中での位置で決まるので種別横断で計算する。
 	const selectedHit: AnnotationHit | null =
 		selectedRendered ??
 		selectedArrowRendered ??
@@ -227,14 +235,18 @@ export function ImageStage({
 		arrowEngine.isInteracting ||
 		textEngine.isInteracting ||
 		highlightEngine.isInteracting;
-	// 矢印選択時はフローティングツールバー (#147 Phase 3) が複製・z 順・削除を
-	// 内包するため、AnnotationMiniActions は描画しない (重なり回避)。
-	const showMiniActions =
-		selectedHit !== null &&
-		!anyInteracting &&
-		selectedHit.kind !== "arrow" &&
-		!(selectedHit.kind === "text" && textEngine.editing?.id === selectedHit.id);
+	// 全種別がフローティングツールバー (#147 Phase 3) を持つようになり、旧
+	// AnnotationMiniActions は撤去した。テキスト編集中はインライン入力に
+	// 集中させたいのでフローティングも隠す。
+	const isTextEditingSelected =
+		selectedTextRendered !== null &&
+		textEngine.editing?.id === selectedTextRendered.id;
 	const showArrowFloating = selectedArrowRendered !== null && !anyInteracting;
+	const showRectFloating = selectedRendered !== null && !anyInteracting;
+	const showTextFloating =
+		selectedTextRendered !== null && !anyInteracting && !isTextEditingSelected;
+	const showHighlightFloating =
+		selectedHighlightRendered !== null && !anyInteracting;
 
 	// z 操作ボタンの活性判定。最前面 / 最背面に達していたら disable する。
 	const selectedZPos = selectedHit
@@ -243,23 +255,6 @@ export function ImageStage({
 	const canBringForward =
 		selectedZPos >= 0 && selectedZPos < zOrdered.length - 1;
 	const canSendBackward = selectedZPos > 0;
-
-	const deleteSelected = (hit: AnnotationHit) => {
-		switch (hit.kind) {
-			case "rect":
-				deleteAnnotation(hit.id);
-				return;
-			case "arrow":
-				deleteArrow(hit.id);
-				return;
-			case "text":
-				deleteText(hit.id);
-				return;
-			case "highlight":
-				deleteHighlight(hit.id);
-				return;
-		}
-	};
 
 	return (
 		<>
@@ -354,17 +349,23 @@ export function ImageStage({
 					zoom={zoom}
 				/>
 			)}
-			{showMiniActions && (
-				<AnnotationMiniActions
-					bounds={annotationBounds(selectedHit)}
+			{selectedRendered && (
+				<RectFloatingToolbar
 					canBringForward={canBringForward}
 					canSendBackward={canSendBackward}
 					imageHeight={image.height}
 					imageWidth={image.width}
-					onBringForward={() => zOrderActions.bringForward(selectedHit.id)}
-					onDelete={() => deleteSelected(selectedHit)}
-					onDuplicate={() => duplicateAnnotation(selectedHit, imageMetrics)}
-					onSendBackward={() => zOrderActions.sendBackward(selectedHit.id)}
+					onBringForward={() => zOrderActions.bringForward(selectedRendered.id)}
+					onDelete={() => deleteAnnotation(selectedRendered.id)}
+					onDuplicate={() =>
+						duplicateAnnotation(selectedRendered, imageMetrics)
+					}
+					onSendBackward={() => zOrderActions.sendBackward(selectedRendered.id)}
+					onThicknessChange={(thickness) =>
+						updateAnnotation(selectedRendered.id, { thickness })
+					}
+					rect={selectedRendered}
+					visible={showRectFloating}
 					zoom={zoom}
 				/>
 			)}
@@ -424,6 +425,34 @@ export function ImageStage({
 				textEngine.editing?.id !== selectedTextRendered.id && (
 					<TextSelectionOverlay text={selectedTextRendered} zoom={zoom} />
 				)}
+			{selectedTextRendered && (
+				<TextFloatingToolbar
+					canBringForward={canBringForward}
+					canSendBackward={canSendBackward}
+					imageHeight={image.height}
+					imageWidth={image.width}
+					onAlignChange={(align) =>
+						updateText(selectedTextRendered.id, { align })
+					}
+					onBoldToggle={(bold) => updateText(selectedTextRendered.id, { bold })}
+					onBringForward={() =>
+						zOrderActions.bringForward(selectedTextRendered.id)
+					}
+					onDelete={() => deleteText(selectedTextRendered.id)}
+					onDuplicate={() =>
+						duplicateAnnotation(selectedTextRendered, imageMetrics)
+					}
+					onItalicToggle={(italic) =>
+						updateText(selectedTextRendered.id, { italic })
+					}
+					onSendBackward={() =>
+						zOrderActions.sendBackward(selectedTextRendered.id)
+					}
+					text={selectedTextRendered}
+					visible={showTextFloating}
+					zoom={zoom}
+				/>
+			)}
 			{activeTool === "text" && textEngine.editing && (
 				<TextEditorOverlay
 					defaults={textDefaults}
@@ -443,6 +472,30 @@ export function ImageStage({
 					highlight={selectedHighlightRendered}
 					imageHeight={image.height}
 					imageWidth={image.width}
+					zoom={zoom}
+				/>
+			)}
+			{selectedHighlightRendered && (
+				<HighlightFloatingToolbar
+					canBringForward={canBringForward}
+					canSendBackward={canSendBackward}
+					highlight={selectedHighlightRendered}
+					imageHeight={image.height}
+					imageWidth={image.width}
+					onBringForward={() =>
+						zOrderActions.bringForward(selectedHighlightRendered.id)
+					}
+					onDelete={() => deleteHighlight(selectedHighlightRendered.id)}
+					onDuplicate={() =>
+						duplicateAnnotation(selectedHighlightRendered, imageMetrics)
+					}
+					onSendBackward={() =>
+						zOrderActions.sendBackward(selectedHighlightRendered.id)
+					}
+					onThicknessChange={(thickness) =>
+						updateHighlight(selectedHighlightRendered.id, { thickness })
+					}
+					visible={showHighlightFloating}
 					zoom={zoom}
 				/>
 			)}

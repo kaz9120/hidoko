@@ -2,27 +2,26 @@ import { ToggleGroup, ToggleGroupItem } from "ui";
 import { FloatingToolbar } from "~/components/canvas/floating-toolbar";
 import { FloatingToolbarActions } from "~/components/canvas/floating-toolbar-actions";
 import { annotationBounds } from "~/lib/annotation-bounds";
-import type { ArrowAnnotation, ArrowThickness } from "~/lib/arrow-engine";
+import type { RectAnnotation, RectThickness } from "~/lib/rect-engine";
 
 const THICKNESS_OPTIONS: ReadonlyArray<{
-	id: ArrowThickness;
-	label: string;
+	id: RectThickness;
 	barHeight: number;
 }> = [
-	{ id: "sm", label: "細", barHeight: 1.5 },
-	{ id: "md", label: "中", barHeight: 3 },
-	{ id: "lg", label: "太", barHeight: 6 },
+	{ id: "sm", barHeight: 1 },
+	{ id: "md", barHeight: 2.5 },
+	{ id: "lg", barHeight: 5 },
 ];
 
 type Props = {
-	arrow: ArrowAnnotation;
+	rect: RectAnnotation;
 	zoom: number;
 	imageWidth: number;
 	imageHeight: number;
 	visible: boolean;
 	canBringForward: boolean;
 	canSendBackward: boolean;
-	onThicknessChange: (thickness: ArrowThickness) => void;
+	onThicknessChange: (thickness: RectThickness) => void;
 	onDuplicate: () => void;
 	onBringForward: () => void;
 	onSendBackward: () => void;
@@ -30,13 +29,15 @@ type Props = {
 };
 
 /**
- * 矢印選択中に bbox 上辺に貼り付くフローティングツールバー (確定仕様 Phase 3 / #147)。
- * 「太さ + 共通アクション (複製・z 順・削除)」を持つ。色・線形・キャップは
- * 後続 PR で順次フローティングへ引き取る。AnnotationMiniActions と位置が
- * 競合するため、矢印選択時は MiniActions の描画を抑止する。
+ * 矩形選択中のフローティングツールバー (#147 Phase 3)。
+ *
+ * モザイクは独立ツール化 (#146 / PR #173) されたので、ここでは outline 限定の
+ * 「枠線の太さ + 共通アクション」を持つ。色は色レール集約 (#145) 済みなので
+ * フローティングには含めない。質感 (clean / sketchy) はスタイルプリセット
+ * (#145) で決まるためフローティングからは省く。
  */
-export function ArrowFloatingToolbar({
-	arrow,
+export function RectFloatingToolbar({
+	rect,
 	zoom,
 	imageWidth,
 	imageHeight,
@@ -51,27 +52,27 @@ export function ArrowFloatingToolbar({
 }: Props) {
 	return (
 		<FloatingToolbar
-			bbox={annotationBounds(arrow)}
+			bbox={annotationBounds(rect)}
 			imageHeight={imageHeight}
 			imageWidth={imageWidth}
 			visible={visible}
 			zoom={zoom}
 		>
 			<ToggleGroup
-				aria-label="太さ"
+				aria-label="枠線の太さ"
 				onValueChange={(next) => {
-					if (next) onThicknessChange(next as ArrowThickness);
+					if (next) onThicknessChange(next as RectThickness);
 				}}
 				type="single"
-				value={arrow.thickness}
+				value={rect.thickness}
 				variant="outline"
 			>
 				{THICKNESS_OPTIONS.map((opt) => (
 					<ToggleGroupItem
-						aria-label={`太さ: ${opt.label}`}
+						aria-label={`太さ: ${opt.id}`}
 						key={opt.id}
 						size="sm"
-						title={`太さ: ${opt.label}`}
+						title={`太さ: ${opt.id}`}
 						value={opt.id}
 					>
 						<span
