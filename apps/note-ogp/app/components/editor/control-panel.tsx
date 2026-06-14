@@ -225,7 +225,18 @@ function TitleSlotSection({
 			</p>
 			<TitleSlotTiles
 				state={state}
-				onSelect={(slot: TitleSlot) => update({ titleSlot: slot })}
+				onSelect={(slot: TitleSlot) =>
+					// N1 Corner / N4 Plate を使っているとき、新しいタイトル位置に応じて
+					// 号数のコーナーも追従させる（古い corner が残ってタイトルとぶつかる
+					// のを避ける）。N2/N3/N5 は corner を見ないので無害。
+					update({
+						titleSlot: slot,
+						numberOpts: {
+							...state.numberOpts,
+							corner: pickNumberCorner(slot),
+						},
+					})
+				}
 			/>
 		</>
 	);
