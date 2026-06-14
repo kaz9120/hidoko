@@ -1,86 +1,68 @@
 import type {
-	CoverText,
 	Fields,
-	FocalPoint,
-	FontMode,
-	JumpRate,
-	OgRoles,
-	PaletteId,
-	PaletteSelection,
-	PaperStrength,
-	PhotoFilter,
-	PhotoLayout,
-	PhotoPalette,
-	PhotoPaletteId,
-	Spacing,
-	TemplateId,
-	TextGuard,
-	TextureId,
-	ThemeMode,
-	TitleDecoration,
+	NumberCorner,
+	NumberSide,
+	NumberTreatment,
+	Scrim,
+	TitleSlot,
 } from "./og-templates";
-import {
-	DEFAULT_PALETTE_ID,
-	FOCAL_POINTS,
-	PALETTES,
-	PHOTO_FILTERS,
-	TEXT_GUARDS,
-} from "./og-templates";
-
-const STORAGE_KEY = "hidoko-note-ogp:v1";
 
 // localStorage は 5MB が一般的な上限。dataURL がそれを超えると quota error で
 // 全フィールドの保存に失敗するので、画像のサイズが大きすぎる場合は保存対象から外す。
 const MAX_IMAGE_BYTES = 1_500_000;
 
+// v3 で shape が大きく変わったため、保存キーも :v3 に切る。旧キー (:v1) は
+// 自然に放置 — DEFAULTS で安全に立ち上がる。
+const STORAGE_KEY = "hidoko-note-ogp:v3";
+
 export const DEFAULTS: Fields = {
-	templateId: "edition",
-	theme: "light",
-	palette: DEFAULT_PALETTE_ID,
-	fontMode: "serif",
-	coverText: "light",
-	title: "夜更けにコードを書く理由",
-	lead: "",
-	category: "ESSAY",
+	title: "夜更けに\nコードを書く理由",
+	lead: "手の動きを邪魔しない、夜の道具立てについて。",
 	issue: "013",
 	date: "2026.05",
+	category: "ESSAY",
 	brand: "焚き火を愛するエンジニア",
 	author: "山本一将",
 	account: "@kyamamoto9120",
 	showMark: true,
 	image: null,
-	texture: "none",
-	paperStrength: "weak",
-	photoPalettes: null,
-	titleDecoration: "none",
-	photoLayout: "full",
-	focalPoint: "center",
-	photoMirror: false,
-	photoFilter: "none",
-	textGuard: "scrim",
-	spacing: "normal",
-	jumpRate: "normal",
+	titleSlot: "bl",
+	numberTreatment: "corner",
+	numberOpts: { corner: "tr" },
+	scrim: "auto",
+	showLead: true,
 };
 
-const TEMPLATE_IDS = new Set<TemplateId>(["edition", "cover", "quiet"]);
-const THEMES = new Set<ThemeMode>(["light", "dark"]);
-const PALETTE_IDS = new Set<PaletteId>(PALETTES.map((p) => p.id));
-const FONT_MODES = new Set<FontMode>(["serif", "gothic", "hand"]);
-const COVER_TEXTS = new Set<CoverText>(["light", "dark"]);
-const TEXTURE_IDS = new Set<TextureId>(["none", "paper", "gradient", "shape"]);
-const PAPER_STRENGTHS = new Set<PaperStrength>(["weak", "medium"]);
-const TITLE_DECORATIONS = new Set<TitleDecoration>([
-	"none",
-	"merihari",
-	"zurashi",
-	"hanzure",
+const TITLE_SLOTS = new Set<TitleSlot>([
+	"bl",
+	"br",
+	"tl",
+	"center",
+	"rcol",
+	"topwide",
 ]);
-const PHOTO_LAYOUT_IDS = new Set<PhotoLayout>(["full", "edge", "kakuhan"]);
-const FOCAL_POINT_IDS = new Set<FocalPoint>(FOCAL_POINTS);
-const PHOTO_FILTER_IDS = new Set<PhotoFilter>(PHOTO_FILTERS.map((p) => p.id));
-const TEXT_GUARD_IDS = new Set<TextGuard>(TEXT_GUARDS.map((g) => g.id));
-const SPACING_IDS = new Set<Spacing>(["tight", "normal", "loose"]);
-const JUMP_RATE_IDS = new Set<JumpRate>(["low", "normal", "high"]);
+const NUMBER_TREATMENTS = new Set<NumberTreatment>([
+	"corner",
+	"vertical",
+	"written",
+	"plate",
+	"watermark",
+]);
+const NUMBER_CORNERS = new Set<NumberCorner>(["tr", "br", "bl"]);
+const NUMBER_SIDES = new Set<NumberSide>(["left", "right"]);
+const SCRIMS = new Set<Scrim>([
+	"auto",
+	"lb",
+	"rb",
+	"lt",
+	"rt",
+	"t",
+	"b",
+	"l",
+	"r",
+	"c",
+	"none",
+]);
 
 function pickEnum<T extends string>(
 	value: unknown,
@@ -106,48 +88,29 @@ function pickImage(value: unknown): string | null {
 	return value;
 }
 
-const PHOTO_PALETTE_IDS = new Set<PhotoPaletteId>([
-	"photo-najimase",
-	"photo-hikitate",
-]);
-const HEX_RE = /^#[0-9a-f]{6}$/i;
-
-function pickRoles(value: unknown): OgRoles | null {
-	if (typeof value !== "object" || value === null) return null;
+function pickNumberOpts(value: unknown): Fields["numberOpts"] {
+	if (typeof value !== "object" || value === null) return DEFAULTS.numberOpts;
 	const v = value as Record<string, unknown>;
-	const hex = (x: unknown): x is string =>
-		typeof x === "string" && HEX_RE.test(x);
-	if (!hex(v.base) || !hex(v.sub) || !hex(v.accent)) return null;
-	return { base: v.base, sub: v.sub, accent: v.accent };
-}
-
-/**
- * 写真由来パレットの復元。写真本体（dataURL）はサイズ超過で保存されないことが
- * あるため、パレットは色値ごと独立して保存・復元する。1 件でも壊れていたら
- * 全体を捨てる（候補が中途半端に欠けた状態を作らない）。
- */
-function pickPhotoPalettes(value: unknown): PhotoPalette[] | null {
-	if (!Array.isArray(value) || value.length === 0) return null;
-	const result: PhotoPalette[] = [];
-	const seen = new Set<PhotoPaletteId>();
-	for (const item of value) {
-		if (typeof item !== "object" || item === null) return null;
-		const v = item as Record<string, unknown>;
-		const id = v.id;
-		if (
-			typeof id !== "string" ||
-			!PHOTO_PALETTE_IDS.has(id as PhotoPaletteId) ||
-			seen.has(id as PhotoPaletteId)
-		) {
-			return null;
-		}
-		const light = pickRoles(v.light);
-		const dark = pickRoles(v.dark);
-		if (!light || !dark || typeof v.label !== "string") return null;
-		seen.add(id as PhotoPaletteId);
-		result.push({ id: id as PhotoPaletteId, label: v.label, light, dark });
+	const opts: Fields["numberOpts"] = {};
+	if (
+		typeof v.corner === "string" &&
+		NUMBER_CORNERS.has(v.corner as NumberCorner)
+	) {
+		opts.corner = v.corner as NumberCorner;
 	}
-	return result;
+	if (typeof v.side === "string" && NUMBER_SIDES.has(v.side as NumberSide)) {
+		opts.side = v.side as NumberSide;
+	}
+	if (
+		typeof v.position === "object" &&
+		v.position !== null &&
+		Number.isFinite((v.position as Record<string, unknown>).left) &&
+		Number.isFinite((v.position as Record<string, unknown>).bottom)
+	) {
+		const p = v.position as Record<string, number>;
+		opts.position = { left: p.left, bottom: p.bottom };
+	}
+	return opts;
 }
 
 export function loadState(): Fields {
@@ -156,71 +119,26 @@ export function loadState(): Fields {
 		const raw = window.localStorage.getItem(STORAGE_KEY);
 		if (!raw) return DEFAULTS;
 		const parsed = JSON.parse(raw) as Record<string, unknown>;
-		const photoPalettes = pickPhotoPalettes(parsed.photoPalettes);
-		// 選択可能なパレット = プリセット + 復元できた写真由来パレット
-		const selectable = new Set<PaletteSelection>([
-			...PALETTE_IDS,
-			...(photoPalettes?.map((p) => p.id) ?? []),
-		]);
 		return {
-			templateId: pickEnum(
-				parsed.templateId,
-				TEMPLATE_IDS,
-				DEFAULTS.templateId,
-			),
-			theme: pickEnum(parsed.theme, THEMES, DEFAULTS.theme),
-			// パレットキーを持たない既存データは焚き火（現行配色）にフォールバック
-			palette: pickEnum(parsed.palette, selectable, DEFAULTS.palette),
-			fontMode: pickEnum(parsed.fontMode, FONT_MODES, DEFAULTS.fontMode),
-			coverText: pickEnum(parsed.coverText, COVER_TEXTS, DEFAULTS.coverText),
 			title: pickString(parsed.title, DEFAULTS.title),
 			lead: pickString(parsed.lead, DEFAULTS.lead),
-			category: pickString(parsed.category, DEFAULTS.category),
 			issue: pickString(parsed.issue, DEFAULTS.issue),
 			date: pickString(parsed.date, DEFAULTS.date),
+			category: pickString(parsed.category, DEFAULTS.category),
 			brand: pickString(parsed.brand, DEFAULTS.brand),
 			author: pickString(parsed.author, DEFAULTS.author),
 			account: pickString(parsed.account, DEFAULTS.account),
 			showMark: pickBool(parsed.showMark, DEFAULTS.showMark),
 			image: pickImage(parsed.image),
-			// 質感キーを持たない既存データは「なし」（現行の単色ベタ）にフォールバック
-			texture: pickEnum(parsed.texture, TEXTURE_IDS, DEFAULTS.texture),
-			paperStrength: pickEnum(
-				parsed.paperStrength,
-				PAPER_STRENGTHS,
-				DEFAULTS.paperStrength,
+			titleSlot: pickEnum(parsed.titleSlot, TITLE_SLOTS, DEFAULTS.titleSlot),
+			numberTreatment: pickEnum(
+				parsed.numberTreatment,
+				NUMBER_TREATMENTS,
+				DEFAULTS.numberTreatment,
 			),
-			photoPalettes,
-			// 装飾キーを持たない既存データは「なし」（現行どおり）にフォールバック
-			titleDecoration: pickEnum(
-				parsed.titleDecoration,
-				TITLE_DECORATIONS,
-				DEFAULTS.titleDecoration,
-			),
-			// 配置・注視点キーを持たない既存データは全面・中央（現行の構図）に
-			photoLayout: pickEnum(
-				parsed.photoLayout,
-				PHOTO_LAYOUT_IDS,
-				DEFAULTS.photoLayout,
-			),
-			focalPoint: pickEnum(
-				parsed.focalPoint,
-				FOCAL_POINT_IDS,
-				DEFAULTS.focalPoint,
-			),
-			photoMirror: pickBool(parsed.photoMirror, DEFAULTS.photoMirror),
-			// 加工・保護キーを持たない既存データは「そのまま・スクリム」（現行の
-			// 見え）にフォールバック
-			photoFilter: pickEnum(
-				parsed.photoFilter,
-				PHOTO_FILTER_IDS,
-				DEFAULTS.photoFilter,
-			),
-			textGuard: pickEnum(parsed.textGuard, TEXT_GUARD_IDS, DEFAULTS.textGuard),
-			// 余白・ジャンプ率キーを持たない既存データは「標準」（現行と同一の
-			// 見た目）にフォールバック
-			spacing: pickEnum(parsed.spacing, SPACING_IDS, DEFAULTS.spacing),
-			jumpRate: pickEnum(parsed.jumpRate, JUMP_RATE_IDS, DEFAULTS.jumpRate),
+			numberOpts: pickNumberOpts(parsed.numberOpts),
+			scrim: pickEnum(parsed.scrim, SCRIMS, DEFAULTS.scrim),
+			showLead: pickBool(parsed.showLead, DEFAULTS.showLead),
 		};
 	} catch {
 		return DEFAULTS;

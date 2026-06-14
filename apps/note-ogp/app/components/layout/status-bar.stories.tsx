@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { TEMPLATES } from "~/lib/og-templates";
 import { DEFAULTS } from "~/lib/storage";
 
 import { StatusBar } from "./status-bar";
@@ -8,9 +7,9 @@ import { StatusBar } from "./status-bar";
 /**
  * note-ogp 画面下端のステータスバー。snapcrop の `status-bar.tsx` と同じ
  * 「下端 24px / `bg-card/50` の地」を踏襲し、note-ogp 固有の情報（出力寸法
- * 1280×670 固定・表示倍率・テンプレ名・タイトルの文字数 / 可読性 / 自動保存
- * 時刻）に組み替えている。Stage 上に常設していた寸法ラベルと % キャプションを
- * 撤去し、この 1 箇所に集約する。
+ * 1280×670 固定・表示倍率・タイトル位置と号数の身振り・タイトルの文字数 /
+ * 可読性 / 自動保存時刻）に組み替えている。Stage 上に常設していた寸法ラベルと
+ * % キャプションを撤去し、この 1 箇所に集約する。
  *
  * @summary 画面下端のステータスバー
  */
@@ -26,18 +25,15 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-const TPL = TEMPLATES[0];
-
 /**
  * 初期値のフィールドで、まだ保存も発火していない初回マウント直後の状態。
  * 可読性インジケータは未確定（タイトルは入っているが titleFontSize がまだ
- * 計測されていない）ので、サイズ閾値ではなくコントラストだけが効く。
+ * 計測されていない）ので、サイズ閾値はまだ効かず、OK のドットだけが点く。
  *
  * @summary 初回マウント直後
  */
 export const Default: Story = {
 	args: {
-		tpl: TPL,
 		fields: DEFAULTS,
 		scale: 0.5,
 		titleFontSize: null,
@@ -53,7 +49,6 @@ export const Default: Story = {
  */
 export const Saved: Story = {
 	args: {
-		tpl: TPL,
 		fields: DEFAULTS,
 		scale: 0.42,
 		titleFontSize: 88,
@@ -69,7 +64,6 @@ export const Saved: Story = {
  */
 export const ReadabilityWarn: Story = {
 	args: {
-		tpl: TPL,
 		fields: {
 			...DEFAULTS,
 			title:

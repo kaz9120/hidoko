@@ -10,7 +10,6 @@ import {
 } from "~/components/profile/profile-dialog";
 import { useNoteOgpState } from "~/hooks/use-note-ogp-state";
 import { buildFileName, downloadPng } from "~/lib/download-png";
-import { TEMPLATES } from "~/lib/og-templates";
 import {
 	isProfileBootstrapped,
 	markProfileBootstrapped,
@@ -39,7 +38,6 @@ export function NoteOgpEditor() {
 	const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
 	// 初回マウントでプロフィール未確定なら、ダイアログを開いて intro を出す。
-	// `useEffect` は SSR を通さないので localStorage は安全に読める。
 	useEffect(() => {
 		if (!isProfileBootstrapped()) {
 			setProfileDialogIntro(true);
@@ -73,15 +71,12 @@ export function NoteOgpEditor() {
 		return () => document.removeEventListener("keydown", onKey);
 	}, []);
 
-	const tpl = TEMPLATES.find((t) => t.id === state.templateId) ?? TEMPLATES[0];
-
 	const handleDownload = useCallback(async () => {
 		if (!frameRef.current || busy) return;
 		setBusy(true);
 		try {
 			const fileName = buildFileName(state.title, state.issue);
 			await downloadPng(frameRef.current, fileName);
-			// 書き出しに成功した号を記録 (Issue #137)。次回 reset で +1 が乗る。
 			recordExport(state.issue);
 			toast.success("PNG をダウンロードしました", { description: fileName });
 		} catch (error) {
@@ -104,8 +99,6 @@ export function NoteOgpEditor() {
 	};
 
 	const handleProfileCancel = () => {
-		// 初回ダイアログをキャンセルしても再表示で煩わせない (Issue #135 のメモ:
-		// ユーザーが一度見たならその意思決定は尊重する)。
 		markProfileBootstrapped();
 		setProfileDialogOpen(false);
 	};
@@ -127,12 +120,11 @@ export function NoteOgpEditor() {
 				className={`grid min-h-0 flex-1 grid-cols-1 ${
 					sidebarCollapsed
 						? "md:grid-cols-[minmax(0,1fr)]"
-						: "md:grid-cols-[minmax(0,1fr)_420px]"
+						: "md:grid-cols-[minmax(0,1fr)_440px]"
 				}`}
 			>
 				<div className="relative flex min-h-0 flex-col">
 					<Stage
-						tpl={tpl}
 						fields={state}
 						frameRef={frameRef}
 						onScaleChange={setStageScale}
@@ -167,14 +159,12 @@ export function NoteOgpEditor() {
 						state={state}
 						update={update}
 						reset={reset}
-						tpl={tpl}
 						onDownload={handleDownload}
 						busy={busy}
 					/>
 				)}
 			</div>
 			<StatusBar
-				tpl={tpl}
 				fields={state}
 				scale={stageScale}
 				titleFontSize={titleFontSize}
