@@ -109,7 +109,13 @@ export type LoadedImage = {
 	fileName: string;
 };
 
-export type ActiveTool = "crop" | "rect" | "arrow" | "text" | "highlight";
+export type ActiveTool =
+	| "crop"
+	| "rect"
+	| "arrow"
+	| "text"
+	| "highlight"
+	| "mosaic";
 
 /**
  * 矩形ツールのキーボード操作 (Esc キャンセル, Space pan 抑制) が、
