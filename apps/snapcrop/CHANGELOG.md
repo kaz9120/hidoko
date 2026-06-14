@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.11.0...snapcrop-v0.12.0) (2026-06-14)
+
+
+### Features
+
+* **snapcrop:** 全種別にフローティングツールバーを展開し旧 MiniActions を退役 ([#177](https://github.com/kaz9120/hidoko/issues/177)) ([6c4773d](https://github.com/kaz9120/hidoko/commit/6c4773d091c5633c16d6eb18dfa9a29437495ecd))
+
 ## [0.11.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.10.0...snapcrop-v0.11.0) (2026-06-14)
 
 
