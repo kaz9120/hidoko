@@ -2,6 +2,12 @@
 // 「タイトルの居場所」「号数の身振り」「スクリムの方向」のみとする。
 // 旧 templateId / palette / photoLayout 系はすべて廃止。
 
+// ─────────────────────────────────────────────────────────
+// 列挙値は配列を単一ソースにし、型と runtime validator の両方を
+// ここから派生させる。次に値を増やしたとき片方だけ忘れて loadState()
+// が静かにフォールバックする事故を防ぐため。
+// ─────────────────────────────────────────────────────────
+
 /**
  * タイトルの居場所（写真の暗部に文字を逃がす 6 パターン）。
  * - bl: 左下（標準。視線の流れ上「最後に来る」）
@@ -11,22 +17,35 @@
  * - rcol: 右コラム（縦長の文字組み・雑誌的）
  * - topwide: 上に横長（1 行の長いタイトル）
  */
-export type TitleSlot = "bl" | "br" | "tl" | "center" | "rcol" | "topwide";
+export const TITLE_SLOTS = [
+	"bl",
+	"br",
+	"tl",
+	"center",
+	"rcol",
+	"topwide",
+] as const;
+export type TitleSlot = (typeof TITLE_SLOTS)[number];
 
 /**
  * 号数の身振り 5 種。N1 Corner が標準。N5 Watermark は節目号専用ルール。
  */
-export type NumberTreatment =
-	| "corner"
-	| "vertical"
-	| "written"
-	| "plate"
-	| "watermark";
+export const NUMBER_TREATMENTS = [
+	"corner",
+	"vertical",
+	"written",
+	"plate",
+	"watermark",
+] as const;
+export type NumberTreatment = (typeof NUMBER_TREATMENTS)[number];
 
 /** N1 Corner / N4 Plate のときの配置コーナー */
-export type NumberCorner = "tr" | "br" | "bl";
+export const NUMBER_CORNERS = ["tr", "br", "bl"] as const;
+export type NumberCorner = (typeof NUMBER_CORNERS)[number];
+
 /** N2 Vertical のときの走らせる側 */
-export type NumberSide = "left" | "right";
+export const NUMBER_SIDES = ["left", "right"] as const;
+export type NumberSide = (typeof NUMBER_SIDES)[number];
 
 export type NumberOpts = {
 	/** corner / plate のときの配置コーナー（タイトル位置に応じて自動切替） */
@@ -41,18 +60,20 @@ export type NumberOpts = {
  * 写真の上に重ねる暗部の方向。
  * "auto" は titleSlot から推定する（lb=左下が暗い、など）。
  */
-export type Scrim =
-	| "auto"
-	| "lb"
-	| "rb"
-	| "lt"
-	| "rt"
-	| "t"
-	| "b"
-	| "l"
-	| "r"
-	| "c"
-	| "none";
+export const SCRIMS = [
+	"auto",
+	"lb",
+	"rb",
+	"lt",
+	"rt",
+	"t",
+	"b",
+	"l",
+	"r",
+	"c",
+	"none",
+] as const;
+export type Scrim = (typeof SCRIMS)[number];
 
 /**
  * v3 の Fields。写真は前提（image）。テキスト系・連載情報・身振りに収束。
