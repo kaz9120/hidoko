@@ -1,10 +1,4 @@
-import {
-	type CSSProperties,
-	type ReactNode,
-	useLayoutEffect,
-	useRef,
-	useState,
-} from "react";
+import { type CSSProperties, useLayoutEffect, useRef, useState } from "react";
 import type {
 	Fields,
 	NumberCorner,
@@ -787,13 +781,10 @@ function AutoFitTitle({
 		onMeasured?.(s);
 	}, [text, width, maxH, max, min, step, onMeasured]);
 
-	const lines: ReactNode = (text || "").split("\n").map((line, i) => (
-		// 改行は手動指定どおりに保持する（自動折り返しなし）。
-		// 並び替えはないので index キーで安定。
-		// biome-ignore lint/suspicious/noArrayIndexKey: stable order
-		<div key={i}>{line || " "}</div>
-	));
-
+	// 改行は手動指定どおりに保持する（自動折り返しなし）。
+	// TITLE_NOWRAP の whiteSpace: "pre" が \n をそのままレンダリングに反映
+	// するので、行ごとに <div> を作る必要はない（先頭行の編集で後続行の
+	// key が全部ずれて React の差分が不安定になるのを避ける）。
 	return (
 		<div
 			ref={ref}
@@ -805,7 +796,7 @@ function AutoFitTitle({
 				...TITLE_NOWRAP,
 			}}
 		>
-			{lines}
+			{text || " "}
 		</div>
 	);
 }

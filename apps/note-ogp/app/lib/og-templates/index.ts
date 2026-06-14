@@ -15,3 +15,10 @@ export type {
 	Scrim,
 	TitleSlot,
 } from "./types";
+export {
+	NUMBER_CORNERS,
+	NUMBER_SIDES,
+	NUMBER_TREATMENTS,
+	SCRIMS,
+	TITLE_SLOTS,
+} from "./types";

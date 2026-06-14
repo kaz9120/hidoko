@@ -6,6 +6,13 @@ import type {
 	Scrim,
 	TitleSlot,
 } from "./og-templates";
+import {
+	NUMBER_CORNERS as NUMBER_CORNER_VALUES,
+	NUMBER_SIDES as NUMBER_SIDE_VALUES,
+	NUMBER_TREATMENTS as NUMBER_TREATMENT_VALUES,
+	SCRIMS as SCRIM_VALUES,
+	TITLE_SLOTS as TITLE_SLOT_VALUES,
+} from "./og-templates";
 
 // localStorage は 5MB が一般的な上限。dataURL がそれを超えると quota error で
 // 全フィールドの保存に失敗するので、画像のサイズが大きすぎる場合は保存対象から外す。
@@ -33,36 +40,13 @@ export const DEFAULTS: Fields = {
 	showLead: true,
 };
 
-const TITLE_SLOTS = new Set<TitleSlot>([
-	"bl",
-	"br",
-	"tl",
-	"center",
-	"rcol",
-	"topwide",
-]);
-const NUMBER_TREATMENTS = new Set<NumberTreatment>([
-	"corner",
-	"vertical",
-	"written",
-	"plate",
-	"watermark",
-]);
-const NUMBER_CORNERS = new Set<NumberCorner>(["tr", "br", "bl"]);
-const NUMBER_SIDES = new Set<NumberSide>(["left", "right"]);
-const SCRIMS = new Set<Scrim>([
-	"auto",
-	"lb",
-	"rb",
-	"lt",
-	"rt",
-	"t",
-	"b",
-	"l",
-	"r",
-	"c",
-	"none",
-]);
+// types.ts の const 配列を runtime validator に流用する。値を増やしたら
+// types.ts 1 箇所だけ更新すれば、Set もこれを通して自動で拡張される。
+const TITLE_SLOTS = new Set<TitleSlot>(TITLE_SLOT_VALUES);
+const NUMBER_TREATMENTS = new Set<NumberTreatment>(NUMBER_TREATMENT_VALUES);
+const NUMBER_CORNERS = new Set<NumberCorner>(NUMBER_CORNER_VALUES);
+const NUMBER_SIDES = new Set<NumberSide>(NUMBER_SIDE_VALUES);
+const SCRIMS = new Set<Scrim>(SCRIM_VALUES);
 
 function pickEnum<T extends string>(
 	value: unknown,
