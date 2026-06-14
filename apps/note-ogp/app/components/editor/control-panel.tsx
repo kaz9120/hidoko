@@ -323,7 +323,7 @@ function FinishSection({
 						onClick={() => update({ showLead: true })}
 						className={
 							state.showLead
-								? "flex-1 cursor-pointer bg-primary/15 px-2 py-2 text-sm text-primary"
+								? "flex-1 cursor-pointer bg-secondary px-2 py-2 text-sm text-secondary-foreground shadow-[inset_0_0_0_1px_var(--border-strong)]"
 								: "flex-1 cursor-pointer px-2 py-2 text-sm text-foreground hover:bg-accent/40"
 						}
 					>
@@ -335,7 +335,7 @@ function FinishSection({
 						onClick={() => update({ showLead: false })}
 						className={
 							!state.showLead
-								? "flex-1 cursor-pointer border-border border-l bg-primary/15 px-2 py-2 text-sm text-primary"
+								? "flex-1 cursor-pointer border-border border-l bg-secondary px-2 py-2 text-sm text-secondary-foreground shadow-[inset_0_0_0_1px_var(--border-strong)]"
 								: "flex-1 cursor-pointer border-border border-l px-2 py-2 text-sm text-foreground hover:bg-accent/40"
 						}
 					>
@@ -437,7 +437,7 @@ function ProjectSection({
 								onClick={() => update({ showMark: true })}
 								className={
 									state.showMark
-										? "flex-1 cursor-pointer bg-primary/15 px-2 py-2 text-sm text-primary"
+										? "flex-1 cursor-pointer bg-secondary px-2 py-2 text-sm text-secondary-foreground shadow-[inset_0_0_0_1px_var(--border-strong)]"
 										: "flex-1 cursor-pointer px-2 py-2 text-sm text-foreground hover:bg-accent/40"
 								}
 							>
@@ -449,7 +449,7 @@ function ProjectSection({
 								onClick={() => update({ showMark: false })}
 								className={
 									!state.showMark
-										? "flex-1 cursor-pointer border-border border-l bg-primary/15 px-2 py-2 text-sm text-primary"
+										? "flex-1 cursor-pointer border-border border-l bg-secondary px-2 py-2 text-sm text-secondary-foreground shadow-[inset_0_0_0_1px_var(--border-strong)]"
 										: "flex-1 cursor-pointer border-border border-l px-2 py-2 text-sm text-foreground hover:bg-accent/40"
 								}
 							>
