@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.10.1...note-ogp-v0.11.0) (2026-06-14)
+
+
+### Features
+
+* **note-ogp:** 写真フルブリード前提の v3 へ刷新する ([#181](https://github.com/kaz9120/hidoko/issues/181)) ([8d4cb60](https://github.com/kaz9120/hidoko/commit/8d4cb60e6f2b97c0ee3a6869b613d4f31a6c8c74))
+
 ## [0.10.1](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.10.0...note-ogp-v0.10.1) (2026-06-13)
 
 
