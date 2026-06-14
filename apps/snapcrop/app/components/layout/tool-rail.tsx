@@ -117,15 +117,16 @@ export function ToolRail() {
 
 			<span aria-hidden="true" className="my-1.5 h-px w-6 shrink-0 bg-border" />
 
-			{STYLE_PRESET_ORDER.map((id) => {
+			{STYLE_PRESET_ORDER.map((id, i) => {
 				const preset = STYLE_PRESETS[id];
 				const Icon = STYLE_PRESET_ICONS[id];
 				const pressed = stylePreset === id;
+				const shortcut = String(i + 1);
 				return (
 					<Tooltip key={id}>
 						<TooltipTrigger asChild>
 							<Toggle
-								aria-label={`スタイル: ${preset.label}`}
+								aria-label={`スタイル: ${preset.label} (${shortcut})`}
 								onPressedChange={(next) => {
 									if (next) handleStylePresetChange(id);
 								}}
@@ -137,7 +138,7 @@ export function ToolRail() {
 							</Toggle>
 						</TooltipTrigger>
 						<TooltipContent side="right">
-							{preset.label} — {preset.hint}
+							{preset.label} ({shortcut}) — {preset.hint}
 						</TooltipContent>
 					</Tooltip>
 				);
