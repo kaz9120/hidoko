@@ -32,8 +32,8 @@ type Props = {
 /**
  * 矢印選択中に bbox 上辺に貼り付くフローティングツールバー (確定仕様 Phase 3 / #147)。
  * 「太さ + 共通アクション (複製・z 順・削除)」を持つ。色・線形・キャップは
- * 後続 PR で順次フローティングへ引き取る。AnnotationMiniActions と位置が
- * 競合するため、矢印選択時は MiniActions の描画を抑止する。
+ * 変更頻度・幅の都合で画面上端の ArrowToolbar には残さず、defaults 編集側
+ * (= 次に描く矢印) でだけ触る方針。
  */
 export function ArrowFloatingToolbar({
 	arrow,

@@ -5,7 +5,6 @@ import {
 	BanIcon,
 	BoldIcon,
 	ItalicIcon,
-	Trash2Icon,
 } from "lucide-react";
 import {
 	type ChangeEvent,
@@ -15,14 +14,7 @@ import {
 	useRef,
 	useState,
 } from "react";
-import {
-	Button,
-	ToggleGroup,
-	ToggleGroupItem,
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "ui";
+import { ToggleGroup, ToggleGroupItem } from "ui";
 import { ColorSwatches } from "~/components/layout/color-swatches";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 import {
@@ -65,58 +57,30 @@ const BACKGROUND_OPTIONS: ReadonlyArray<{
 ];
 
 /**
- * テキストツール選択中だけ現れる 38px の context row。arrow-toolbar.tsx の
- * 先例に揃える: selection があればそのテキストのプロパティを反映し変更も
- * テキストに書き戻す。selection なしのときは textDefaults を反映し、変更が
- * 次に作るテキストのデフォルトになる。
+ * テキストツール選択中だけ現れる 38px の context row。「次に作るテキストの
+ * デフォルト」を編集する。選択中のテキストのプロパティ編集は bbox 近傍の
+ * フローティング (TextFloatingToolbar / #147 Phase 3) に集約されているので
+ * こちらには出てこない。
  *
  * コントロールは「フォント (ゴシック / 明朝 / 等幅)・サイズ (px 入力)・寄せ
  * (左 / 中央 / 右)・太字 / 斜体・色・背景 (なし / 白 / 黒)」。色は矩形・矢印と
  * 共通のプリセット 6 色 (ColorSwatches)。
  */
 export function TextToolbar() {
-	const {
-		image,
-		activeTool,
-		texts,
-		selectedAnnotationId,
-		deleteText,
-		textDefaults,
-		setTextDefaults,
-		updateText,
-	} = useSnapcrop();
+	const { image, activeTool, texts, textDefaults, setTextDefaults } =
+		useSnapcrop();
 
 	if (!image || activeTool !== "text") {
 		return null;
 	}
 
-	const selected = selectedAnnotationId
-		? (texts.find((t) => t.id === selectedAnnotationId) ?? null)
-		: null;
-
-	const current: TextDefaults = selected
-		? {
-				fontFamily: selected.fontFamily,
-				fontSize: selected.fontSize,
-				align: selected.align,
-				bold: selected.bold,
-				italic: selected.italic,
-				color: selected.color,
-				background: selected.background,
-			}
-		: textDefaults;
-
 	const commit = (patch: Partial<TextDefaults>) => {
-		if (selected) {
-			updateText(selected.id, patch);
-		} else {
-			setTextDefaults({ ...textDefaults, ...patch });
-		}
+		setTextDefaults({ ...textDefaults, ...patch });
 	};
 
 	const styleValue: string[] = [
-		...(current.bold ? ["bold"] : []),
-		...(current.italic ? ["italic"] : []),
+		...(textDefaults.bold ? ["bold"] : []),
+		...(textDefaults.italic ? ["italic"] : []),
 	];
 
 	return (
@@ -125,12 +89,8 @@ export function TextToolbar() {
 			className="flex h-[38px] shrink-0 items-center gap-2.5 border-border border-b bg-[var(--bg-overlay)] px-3.5"
 			role="toolbar"
 		>
-			<span
-				className={`font-mono text-[10px] tracking-[0.08em] uppercase ${
-					selected ? "text-[var(--accent)]" : "text-muted-foreground"
-				}`}
-			>
-				{selected ? "選択中" : "テキスト"}
+			<span className="font-mono text-[10px] text-muted-foreground tracking-[0.08em] uppercase">
+				テキスト
 			</span>
 			<Divider />
 
@@ -140,7 +100,7 @@ export function TextToolbar() {
 					if (next) commit({ fontFamily: next as TextFontFamily });
 				}}
 				type="single"
-				value={current.fontFamily}
+				value={textDefaults.fontFamily}
 				variant="outline"
 			>
 				{FONT_OPTIONS.map((opt) => (
@@ -158,7 +118,7 @@ export function TextToolbar() {
 			<Label>サイズ</Label>
 			<FontSizeField
 				onCommit={(size) => commit({ fontSize: size })}
-				value={current.fontSize}
+				value={textDefaults.fontSize}
 			/>
 
 			<Divider />
@@ -169,7 +129,7 @@ export function TextToolbar() {
 					if (next) commit({ align: next as TextAlign });
 				}}
 				type="single"
-				value={current.align}
+				value={textDefaults.align}
 				variant="outline"
 			>
 				{ALIGN_OPTIONS.map((opt) => {
@@ -212,7 +172,7 @@ export function TextToolbar() {
 			<Label>色</Label>
 			<ColorSwatches
 				onChange={(color) => commit({ color })}
-				value={current.color}
+				value={textDefaults.color}
 			/>
 
 			<Divider />
@@ -224,7 +184,7 @@ export function TextToolbar() {
 					if (next) commit({ background: next as TextBackground });
 				}}
 				type="single"
-				value={current.background}
+				value={textDefaults.background}
 				variant="outline"
 			>
 				{BACKGROUND_OPTIONS.map((opt) => (
@@ -254,22 +214,6 @@ export function TextToolbar() {
 			<span className="font-mono text-[10px] text-muted-foreground tracking-[0.04em]">
 				{texts.length} 個のテキスト
 			</span>
-
-			{selected && (
-				<Tooltip>
-					<TooltipTrigger asChild>
-						<Button
-							aria-label="選択中のテキストを削除"
-							onClick={() => deleteText(selected.id)}
-							size="icon-sm"
-							variant="ghost"
-						>
-							<Trash2Icon strokeWidth={1.75} />
-						</Button>
-					</TooltipTrigger>
-					<TooltipContent>削除 (⌫)</TooltipContent>
-				</Tooltip>
-			)}
 		</div>
 	);
 }

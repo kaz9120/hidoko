@@ -9,15 +9,14 @@ import { PRESET_COLORS } from "~/lib/rect-engine";
 import { ArrowToolbarView } from "./arrow-toolbar";
 
 /**
- * 矢印ツール選択中だけ現れる 38px の context row。線形 (直線 / 曲線)、
- * 始点・終点の端点スタイル (なし / 矢印 / 丸)、色スウォッチ (矩形と共通の
- * プリセット 6 色)、太さ 3 段階を選ぶ。矢印が選択されているときはその矢印の
- * プロパティを書き換え、未選択のときは「次に描く矢印のデフォルト」を
- * 書き換える (rect-toolbar と同じ規約)。
+ * 矢印ツール選択中だけ現れる 38px の context row。「次に描く矢印のデフォルト」
+ * を編集する。選択中の矢印のプロパティ編集は bbox 近傍のフローティング
+ * (ArrowFloatingToolbar / #147 Phase 3) に集約されているのでこちらには
+ * 出てこない。
  *
  * 実装は context 接続の `ArrowToolbar` と props 駆動の `ArrowToolbarView` に
  * 分かれている (ZoomControl / StatusBar の先例)。story は view を直接使い、
- * 表示状態・選択状態・操作の反映を確認する。
+ * 表示状態・操作の反映を確認する。
  *
  * @summary 矢印アノテーション用のサブツールバー
  */
@@ -48,9 +47,7 @@ type Story = StoryObj<typeof meta>;
 /** トグルや色の変更が即座に反映される stateful なラッパー。 */
 function StatefulToolbar(props: {
 	initial: ArrowDefaults;
-	selected: boolean;
 	arrowCount: number;
-	withDelete?: boolean;
 }) {
 	const [current, setCurrent] = useState<ArrowDefaults>(props.initial);
 	return (
@@ -58,59 +55,22 @@ function StatefulToolbar(props: {
 			arrowCount={props.arrowCount}
 			current={current}
 			onCommit={(patch) => setCurrent((prev) => ({ ...prev, ...patch }))}
-			onDelete={props.withDelete ? () => {} : undefined}
-			selected={props.selected}
 		/>
 	);
 }
 
 /**
- * 未選択時。arrowDefaults (次に描く矢印のデフォルト) を表示・編集する。
- * トグルをクリックすると選択状態が切り替わる。
- * @summary 未選択 (デフォルト編集)
+ * デフォルト表示。arrowDefaults (次に描く矢印のデフォルト) を編集する。
+ * @summary デフォルト編集
  */
 export const Default: Story = {
 	args: {
 		current: DEFAULT_ARROW_DEFAULTS,
-		selected: false,
 		arrowCount: 0,
 		onCommit: () => {},
 	},
 	render: () => (
-		<StatefulToolbar
-			arrowCount={0}
-			initial={DEFAULT_ARROW_DEFAULTS}
-			selected={false}
-		/>
-	),
-};
-
-/**
- * 矢印を選択しているとき。ラベルが accent 色の「選択中」になり、右端に
- * 削除ボタンが出る。値は選択中の矢印のプロパティを反映する。
- * @summary 選択中 (曲線・始点丸)
- */
-export const Selected: Story = {
-	args: {
-		current: DEFAULT_ARROW_DEFAULTS,
-		selected: true,
-		arrowCount: 3,
-		onCommit: () => {},
-	},
-	render: () => (
-		<StatefulToolbar
-			arrowCount={3}
-			initial={{
-				line: "curve",
-				startCap: "dot",
-				endCap: "arrow",
-				color: PRESET_COLORS[2],
-				thickness: "md",
-				style: "clean",
-			}}
-			selected={true}
-			withDelete
-		/>
+		<StatefulToolbar arrowCount={0} initial={DEFAULT_ARROW_DEFAULTS} />
 	),
 };
 
@@ -122,7 +82,6 @@ export const Selected: Story = {
 export const ThickBlue: Story = {
 	args: {
 		current: DEFAULT_ARROW_DEFAULTS,
-		selected: false,
 		arrowCount: 1,
 		onCommit: () => {},
 	},
@@ -137,7 +96,6 @@ export const ThickBlue: Story = {
 				thickness: "lg",
 				style: "clean",
 			}}
-			selected={false}
 		/>
 	),
 };
@@ -150,7 +108,6 @@ export const ThickBlue: Story = {
 export const SketchyStyle: Story = {
 	args: {
 		current: DEFAULT_ARROW_DEFAULTS,
-		selected: false,
 		arrowCount: 2,
 		onCommit: () => {},
 	},
@@ -158,7 +115,6 @@ export const SketchyStyle: Story = {
 		<StatefulToolbar
 			arrowCount={2}
 			initial={{ ...DEFAULT_ARROW_DEFAULTS, style: "sketchy" }}
-			selected={false}
 		/>
 	),
 };

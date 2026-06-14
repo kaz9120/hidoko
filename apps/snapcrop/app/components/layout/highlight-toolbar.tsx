@@ -1,13 +1,5 @@
-import { Trash2Icon } from "lucide-react";
 import type { ReactNode } from "react";
-import {
-	Button,
-	ToggleGroup,
-	ToggleGroupItem,
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "ui";
+import { ToggleGroup, ToggleGroupItem } from "ui";
 import { Slider } from "ui/components/slider";
 import { ColorSwatches } from "~/components/layout/color-swatches";
 import { StrokeStyleIcon } from "~/components/layout/stroke-style-icon";
@@ -40,12 +32,12 @@ const STROKE_STYLE_OPTIONS: ReadonlyArray<{
 ];
 
 /**
- * マーカーツール選択中だけ現れる 38px の context row。arrow-toolbar.tsx の
- * 先例に揃える: selection があればそのハイライトのプロパティを反映し変更も
- * ハイライトに書き戻す。selection なしのときは highlightDefaults を反映し、
- * 変更が次に引くハイライトのデフォルトになる。
+ * マーカーツール選択中だけ現れる 38px の context row。「次に引くマーカーの
+ * デフォルト」を編集する。選択中のマーカーのプロパティ編集は bbox 近傍の
+ * フローティング (HighlightFloatingToolbar / #147 Phase 3) に集約されているので
+ * こちらには出てこない。
  *
- * コントロールは「色 (蛍光 5 色)・不透明度スライダー・太さ 3 段階」。
+ * コントロールは「色 (蛍光 5 色)・線の質感・不透明度スライダー・太さ 3 段階」。
  * 色は矩形・矢印の共通プリセットとは別の蛍光パレット
  * (HIGHLIGHT_PRESET_COLORS) を ColorSwatches に差し替えて使う。
  */
@@ -54,56 +46,31 @@ export function HighlightToolbar() {
 		image,
 		activeTool,
 		highlights,
-		selectedAnnotationId,
-		deleteHighlight,
 		highlightDefaults,
 		setHighlightDefaults,
-		updateHighlight,
 	} = useSnapcrop();
 
 	if (!image || activeTool !== "highlight") {
 		return null;
 	}
 
-	const selected = selectedAnnotationId
-		? (highlights.find((h) => h.id === selectedAnnotationId) ?? null)
-		: null;
-
-	const current: HighlightDefaults = selected
-		? {
-				color: selected.color,
-				opacity: selected.opacity,
-				thickness: selected.thickness,
-				strokeStyle: selected.strokeStyle,
-			}
-		: highlightDefaults;
-
-	const commit = (patch: Partial<HighlightDefaults>, batchKey?: string) => {
-		if (selected) {
-			updateHighlight(selected.id, patch, batchKey ? { batchKey } : undefined);
-		} else {
-			setHighlightDefaults({ ...highlightDefaults, ...patch });
-		}
+	const commit = (patch: Partial<HighlightDefaults>) => {
+		setHighlightDefaults({ ...highlightDefaults, ...patch });
 	};
 
 	return (
 		<HighlightToolbarView
-			current={current}
+			current={highlightDefaults}
 			highlightCount={highlights.length}
 			onCommit={commit}
-			onDelete={selected ? () => deleteHighlight(selected.id) : undefined}
-			selected={selected !== null}
 		/>
 	);
 }
 
 export type HighlightToolbarViewProps = {
 	current: HighlightDefaults;
-	/** true なら「選択中」表示になり、onDelete の削除ボタンが出る。 */
-	selected: boolean;
 	highlightCount: number;
-	onCommit: (patch: Partial<HighlightDefaults>, batchKey?: string) => void;
-	onDelete?: () => void;
+	onCommit: (patch: Partial<HighlightDefaults>) => void;
 };
 
 /**
@@ -113,10 +80,8 @@ export type HighlightToolbarViewProps = {
  */
 export function HighlightToolbarView({
 	current,
-	selected,
 	highlightCount,
 	onCommit,
-	onDelete,
 }: HighlightToolbarViewProps) {
 	const opacityPercent = Math.round(current.opacity * 100);
 
@@ -126,12 +91,8 @@ export function HighlightToolbarView({
 			className="flex h-[38px] shrink-0 items-center gap-2.5 border-border border-b bg-[var(--bg-overlay)] px-3.5"
 			role="toolbar"
 		>
-			<span
-				className={`font-mono text-[10px] tracking-[0.08em] uppercase ${
-					selected ? "text-[var(--accent)]" : "text-muted-foreground"
-				}`}
-			>
-				{selected ? "選択中" : "マーカー"}
+			<span className="font-mono text-[10px] text-muted-foreground tracking-[0.08em] uppercase">
+				マーカー
 			</span>
 			<Divider />
 
@@ -175,8 +136,7 @@ export function HighlightToolbarView({
 				max={HIGHLIGHT_MAX_OPACITY * 100}
 				min={HIGHLIGHT_MIN_OPACITY * 100}
 				onValueChange={([next]) => {
-					// スライダードラッグ中の連続変更は 1 履歴にまとめる
-					onCommit({ opacity: next / 100 }, "opacity");
+					onCommit({ opacity: next / 100 });
 				}}
 				step={5}
 				value={[opacityPercent]}
@@ -218,22 +178,6 @@ export function HighlightToolbarView({
 			<span className="font-mono text-[10px] text-muted-foreground tracking-[0.04em]">
 				{highlightCount} 本のマーカー
 			</span>
-
-			{selected && onDelete && (
-				<Tooltip>
-					<TooltipTrigger asChild>
-						<Button
-							aria-label="選択中のマーカーを削除"
-							onClick={onDelete}
-							size="icon-sm"
-							variant="ghost"
-						>
-							<Trash2Icon strokeWidth={1.75} />
-						</Button>
-					</TooltipTrigger>
-					<TooltipContent>削除 (⌫)</TooltipContent>
-				</Tooltip>
-			)}
 		</div>
 	);
 }

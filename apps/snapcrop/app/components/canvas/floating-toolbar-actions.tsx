@@ -18,8 +18,7 @@ type Props = {
 /**
  * フローティングツールバー (#147 Phase 3) の右端に積む共通アクション群。
  * 種別ごとの編集 UI のあとに区切り線 + 複製 / 前面へ / 背面へ / 削除を並べる。
- * 旧 AnnotationMiniActions と同じ役割を担う (位置競合回避のため、フローティング
- * 表示時は MiniActions の描画を抑止する)。
+ * 種別を問わず同じ操作を出したいので、各種 *FloatingToolbar から共通で呼ぶ。
  */
 export function FloatingToolbarActions({
 	canBringForward,

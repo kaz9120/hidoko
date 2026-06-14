@@ -5,17 +5,9 @@ import {
 	CircleIcon,
 	MoveUpRightIcon,
 	SplineIcon,
-	Trash2Icon,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import {
-	Button,
-	ToggleGroup,
-	ToggleGroupItem,
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "ui";
+import { ToggleGroup, ToggleGroupItem } from "ui";
 import { ColorSwatches } from "~/components/layout/color-swatches";
 import { StrokeStyleIcon } from "~/components/layout/stroke-style-icon";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
@@ -70,71 +62,38 @@ function capIcon(side: "start" | "end", style: ArrowCapStyle) {
 }
 
 /**
- * 矢印ツール選択中だけ現れる 38px の context row。rect-toolbar.tsx の先例に
- * 揃える: selection があればその矢印のプロパティを反映し変更も矢印に書き戻す。
- * selection なしのときは arrowDefaults を反映し、変更が次に描く矢印の
- * デフォルトになる。
+ * 矢印ツール選択中だけ現れる 38px の context row。「次に描く矢印のデフォルト」を
+ * 編集する。選択中の矢印のプロパティ編集は bbox 近傍のフローティング
+ * (ArrowFloatingToolbar / #147 Phase 3) に集約されているのでこちらには出てこない。
  *
- * コントロールは「線形 (直線 / 曲線)・始点キャップ・終点キャップ・色・太さ」。
+ * コントロールは「線形 (直線 / 曲線)・線の質感・始終キャップ・色・太さ」。
  * 色は矩形と共通のプリセット 6 色 (ColorSwatches)。
  */
 export function ArrowToolbar() {
-	const {
-		image,
-		activeTool,
-		arrows,
-		selectedAnnotationId,
-		deleteArrow,
-		arrowDefaults,
-		setArrowDefaults,
-		updateArrow,
-	} = useSnapcrop();
+	const { image, activeTool, arrows, arrowDefaults, setArrowDefaults } =
+		useSnapcrop();
 
 	if (!image || activeTool !== "arrow") {
 		return null;
 	}
 
-	const selected = selectedAnnotationId
-		? (arrows.find((a) => a.id === selectedAnnotationId) ?? null)
-		: null;
-
-	const current: ArrowDefaults = selected
-		? {
-				line: selected.line,
-				startCap: selected.startCap,
-				endCap: selected.endCap,
-				color: selected.color,
-				thickness: selected.thickness,
-				style: selected.style,
-			}
-		: arrowDefaults;
-
 	const commit = (patch: Partial<ArrowDefaults>) => {
-		if (selected) {
-			updateArrow(selected.id, patch);
-		} else {
-			setArrowDefaults({ ...arrowDefaults, ...patch });
-		}
+		setArrowDefaults({ ...arrowDefaults, ...patch });
 	};
 
 	return (
 		<ArrowToolbarView
 			arrowCount={arrows.length}
-			current={current}
+			current={arrowDefaults}
 			onCommit={commit}
-			onDelete={selected ? () => deleteArrow(selected.id) : undefined}
-			selected={selected !== null}
 		/>
 	);
 }
 
 export type ArrowToolbarViewProps = {
 	current: ArrowDefaults;
-	/** true なら「選択中」表示になり、onDelete の削除ボタンが出る。 */
-	selected: boolean;
 	arrowCount: number;
 	onCommit: (patch: Partial<ArrowDefaults>) => void;
-	onDelete?: () => void;
 };
 
 /**
@@ -144,10 +103,8 @@ export type ArrowToolbarViewProps = {
  */
 export function ArrowToolbarView({
 	current,
-	selected,
 	arrowCount,
 	onCommit,
-	onDelete,
 }: ArrowToolbarViewProps) {
 	return (
 		<div
@@ -155,12 +112,8 @@ export function ArrowToolbarView({
 			className="flex h-[38px] shrink-0 items-center gap-2.5 border-border border-b bg-[var(--bg-overlay)] px-3.5"
 			role="toolbar"
 		>
-			<span
-				className={`font-mono text-[10px] tracking-[0.08em] uppercase ${
-					selected ? "text-[var(--accent)]" : "text-muted-foreground"
-				}`}
-			>
-				{selected ? "選択中" : "矢印"}
+			<span className="font-mono text-[10px] text-muted-foreground tracking-[0.08em] uppercase">
+				矢印
 			</span>
 			<Divider />
 
@@ -308,22 +261,6 @@ export function ArrowToolbarView({
 			<span className="font-mono text-[10px] text-muted-foreground tracking-[0.04em]">
 				{arrowCount} 本の矢印
 			</span>
-
-			{selected && onDelete && (
-				<Tooltip>
-					<TooltipTrigger asChild>
-						<Button
-							aria-label="選択中の矢印を削除"
-							onClick={onDelete}
-							size="icon-sm"
-							variant="ghost"
-						>
-							<Trash2Icon strokeWidth={1.75} />
-						</Button>
-					</TooltipTrigger>
-					<TooltipContent>削除 (⌫)</TooltipContent>
-				</Tooltip>
-			)}
 		</div>
 	);
 }

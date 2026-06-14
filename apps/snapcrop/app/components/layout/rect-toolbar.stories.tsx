@@ -6,14 +6,10 @@ import { SnapcropProvider } from "~/contexts/snapcrop-context";
 import { RectToolbar } from "./rect-toolbar";
 
 /**
- * 矩形ツール選択中だけ現れる 38px の context row。スタイル (枠線 / 塗り /
- * モザイク)、色スウォッチ、太さ (またはモザイクのブロックサイズ) を選ぶ。
- * 矩形が選択されているときはその矩形のプロパティを書き換え、未選択のときは
- * 「次に描く矩形のデフォルト」を書き換える。
- *
- * スタイルによって他コントロールの有効/無効が連動する:
- *   - fill   : 太さ disabled
- *   - mosaic : 色 disabled、太さラベルが「ブロック」に変わる
+ * 矩形ツール選択中だけ現れる 38px の context row。線の質感・色・太さで
+ * 「次に描く矩形のデフォルト」を編集する。選択中の矩形のプロパティ編集は
+ * bbox 近傍のフローティング (RectFloatingToolbar / #147 Phase 3) に集約されて
+ * いるので、こちらには出てこない。
  *
  * 実装は `image` が `null` または `activeTool !== "rect"` のとき null を
  * 返すので、Storybook の empty 状態では何も描画されない。
