@@ -34,8 +34,18 @@ export default {
 			return env.ASSETS.fetch(request);
 		} catch (err) {
 			console.error("[hidoko-id] unhandled error", err);
+			// DEBUG (PR #207): preview Worker のログが Dashboard 側で取れなかったため、
+			// 500 の原因切り分け用に一時的に例外詳細をレスポンスに含める。
+			// 切り分け完了後に元の `{ok:false,error:"internal error"}` のみに revert する。
+			const name = err instanceof Error ? err.name : "Unknown";
+			const message = err instanceof Error ? err.message : String(err);
+			const stack = err instanceof Error ? err.stack : undefined;
 			return new Response(
-				JSON.stringify({ ok: false, error: "internal error" }),
+				JSON.stringify({
+					ok: false,
+					error: "internal error",
+					debug: { name, message, stack },
+				}),
 				{
 					status: 500,
 					headers: { "Content-Type": "application/json; charset=utf-8" },
