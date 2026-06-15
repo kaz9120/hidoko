@@ -11,6 +11,7 @@
 		"./styles.css": "./src/styles.css",
 		"./tokens.css": "./src/tokens.css",
 		"./fonts.css": "./src/fonts.css",
+		"./motion.css": "./src/motion.css",
 		"./embers": {
 			"types": "./src/embers.d.ts",
 			"default": "./src/embers.js"
