@@ -1,5 +1,12 @@
 # hidoko-id
 
+## [0.3.0](https://github.com/kaz9120/hidoko/compare/hidoko-id-v0.2.0...hidoko-id-v0.3.0) (2026-06-15)
+
+
+### Features
+
+* **hidoko-id:** 検証メールを Email Service binding で本番送信する ([#207](https://github.com/kaz9120/hidoko/issues/207)) ([659a337](https://github.com/kaz9120/hidoko/commit/659a3371e4732fbda90a5fcf507a0e8321cf78ee))
+
 ## [0.2.0](https://github.com/kaz9120/hidoko/compare/hidoko-id-v0.1.0...hidoko-id-v0.2.0) (2026-06-15)
 
 
