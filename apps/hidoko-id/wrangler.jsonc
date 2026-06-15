@@ -25,16 +25,20 @@
 			"migrations_dir": "migrations"
 		}
 	],
+	// ここに書く `vars` は本番の値。`wrangler deploy` で本番 Worker の設定に
+	// そのまま反映される（Dashboard で手で上書きしない方針）。dev は
+	// `.dev.vars`（.gitignore 済み）で同じキーを上書きする。dev 用テンプレは
+	// `.dev.vars.example` を見る。
 	"vars": {
-		// カンマ区切りの first-party オリジン許可リスト。?return_to= の検証に使う。
-		// 本番では同等の値を Cloudflare Dashboard で上書きする想定。
-		"FIRST_PARTY_ORIGINS": "http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:5177,http://localhost:8788,https://snapcrop.y-kaz.com,https://note-ogp.y-kaz.com,https://futari-no-yotei.y-kaz.com,https://y-kaz.com",
-		// Cookie の Domain 属性に使う共通ドメイン。空文字列なら属性なし（host-only cookie）。
-		// 本番では ".y-kaz.com" を入れて全 first-party アプリでセッションを共有する。
-		"SESSION_COOKIE_DOMAIN": "",
-		// dev で Cloudflare Email Service の送信先が未設定のとき、トークンを console に出す。
-		"EMAIL_DEV_LOG": "true",
-		// 検証メール内リンクを組み立てるベース URL。空ならリクエストの origin を使う。
-		"PUBLIC_BASE_URL": ""
+		// ?return_to= の検証に使うファーストパーティオリジン許可リスト。
+		// origin 単位の完全一致でしか通さない。
+		"FIRST_PARTY_ORIGINS": "https://y-kaz.com,https://snapcrop.y-kaz.com,https://note-ogp.y-kaz.com,https://futari-no-yotei.y-kaz.com",
+		// セッション cookie の Domain 属性。すべての first-party アプリで
+		// hidoko_session を共有するために親ドメインを指定する。
+		"SESSION_COOKIE_DOMAIN": ".y-kaz.com",
+		// 検証メール内リンクを組み立てるベース URL。
+		"PUBLIC_BASE_URL": "https://id.y-kaz.com",
+		// 本番では sender が設定済みなので dev fallback を切る。
+		"EMAIL_DEV_LOG": "false"
 	}
 }
