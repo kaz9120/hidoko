@@ -142,9 +142,11 @@ export const Default: Story = {
 };
 
 /**
- * 枠が stage 上端に張り付いていて、HUD の通常位置 (枠の外側上) に置けないケース。
- * FloatingToolbar の flip ロジックで枠の内側下に反転して描画される。
- * @summary 上端付近では下へ反転
+ * 枠が stage 上端に張り付いているケース。クロップ HUD は forceTop=true を
+ * 渡しているので flip ロジックが効かず、bbox 上辺の外側にそのまま出る。
+ * 実機では viewport 側に topReserved の余白があるので画面外には出ない
+ * (story では stage の上に切れる)。
+ * @summary 上端でも常に上に出る (forceTop)
  */
 export const NearTop: Story = {
 	args: {

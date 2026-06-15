@@ -27,6 +27,7 @@ export function FloatingToolbar({
 	imageWidth,
 	imageHeight,
 	zoom,
+	forceTop = false,
 	children,
 }: {
 	visible: boolean;
@@ -34,16 +35,22 @@ export function FloatingToolbar({
 	imageWidth: number;
 	imageHeight: number;
 	zoom: number;
+	/**
+	 * true のとき bbox.y による下辺反転を抑止し、常に bbox 上辺の外側に置く。
+	 * 親側 (viewport) が HUD 用の固定余白を確保しているケース (クロップ HUD)
+	 * で使う: bbox.y = 0 でも親の padding 内に収まるため反転不要。
+	 */
+	forceTop?: boolean;
 	children: ReactNode;
 }) {
 	if (!visible) return null;
 
 	// bbox 上辺アンカー・左揃え (確定仕様 FinalSelectionCatalog)。
 	// 画面上に余白が無さそうなら下辺に反転する: zoom 後の画素換算で 56px (バー高 38 + 余白)
-	// 確保できないなら下辺へ。
+	// 確保できないなら下辺へ。forceTop=true のときは反転を抑止する。
 	const ARM = 12; // バーと bbox の隙間 (px、画面座標)
 	const GAP_PX = 56;
-	const flip = bbox.y * zoom < GAP_PX;
+	const flip = !forceTop && bbox.y * zoom < GAP_PX;
 	// 親 (selection overlay 内) の絶対座標系は「画像座標系を zoom 倍した画素」。
 	// AnnotationLayer などと同じく left/top を画像座標で書ける環境を前提とする。
 	const left = `${(bbox.x / imageWidth) * 100}%`;

@@ -103,6 +103,7 @@ export function CropFloatingToolbar({
 	return (
 		<FloatingToolbar
 			bbox={cropRect}
+			forceTop
 			imageHeight={imageHeight}
 			imageWidth={imageWidth}
 			visible={visible}
