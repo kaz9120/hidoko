@@ -25,6 +25,17 @@
 			"migrations_dir": "migrations"
 		}
 	],
+	// Cloudflare Email Service の送信バインディング。送信元アドレスは
+	// `no-reply@id.y-kaz.com`。ドメインの onboarding と SPF/DKIM の検証は
+	// Cloudflare ダッシュボード / `wrangler email sending enable id.y-kaz.com`
+	// 側で行う。ローカル dev では binding は実機接続しないため、
+	// `.dev.vars` の `EMAIL_DEV_LOG=true` で console + SPA フォールバックに切り替える。
+	"send_email": [
+		{
+			"name": "EMAIL",
+			"allowed_sender_addresses": ["no-reply@id.y-kaz.com"]
+		}
+	],
 	// ここに書く `vars` は本番の値。`wrangler deploy` で本番 Worker の設定に
 	// そのまま反映される（Dashboard で手で上書きしない方針）。dev は
 	// `.dev.vars`（.gitignore 済み）で同じキーを上書きする。dev 用テンプレは

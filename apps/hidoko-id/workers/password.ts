@@ -1,9 +1,12 @@
-// Workers の Web Crypto で動くパスワードハッシュ。PBKDF2-SHA256 / 600,000 iter
-// （OWASP 2024 推奨）。スライス 2 で argon2id か scrypt に乗り換えるオプションを残す。
+// Workers の Web Crypto で動くパスワードハッシュ。PBKDF2-SHA256。
+// workerd ランタイムは CPU 時間圧迫 / DoS 対策で PBKDF2 iterations を 100,000 に
+// 上限制限しているため、OWASP 2024 推奨（600,000）はそのまま使えない。
+// 100,000 は OWASP 2021 推奨（120,000）も下回るため、argon2id / scrypt への
+// 移行を別 issue で追跡する。
 //
 // 保存形式: `pbkdf2$<iterations>$<base64url salt>$<base64url hash>`
 
-const ITERATIONS = 600_000;
+const ITERATIONS = 100_000;
 const SALT_BYTES = 16;
 const KEY_BITS = 256;
 

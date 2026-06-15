@@ -5,80 +5,67 @@ interface VerificationEmail {
 	verifyUrl: string;
 }
 
+const FROM_ADDRESS = "no-reply@id.y-kaz.com";
+const SUBJECT = "アカウント確認のご案内";
+
 /**
- * dev では sender が未設定なケースが多いので、その場合は console に出して呼び出し側に
- * URL を返せるようにする（/verify-email 画面に表示）。prod は Cloudflare Email Service
- * バインディング EMAIL を使う。Email Service 周りの DNS/Routes 設定は別 PR で。
+ * 本番では Cloudflare Email Service の send_email binding で送信する。
+ * dev は EMAIL_DEV_LOG=true で console + SPA フォールバック（/verify-email
+ * の DEV ONLY ブロックに検証 URL を返す）に切り替える。
  */
 export async function sendVerificationEmail(
 	env: Env,
 	mail: VerificationEmail,
 ): Promise<{ sent: boolean; devUrl?: string }> {
-	if (env.EMAIL && typeof env.EMAIL.send === "function") {
-		// MIME を作る。EmailMessage 相当のオブジェクトは Email Service ランタイムが提供する
-		// グローバルだが、型を絞ると依存が増えるので緩く渡す。
-		const message = buildMimeMessage({
-			from: "no-reply@id.y-kaz.com",
-			to: mail.to,
-			subject: "アカウント確認のご案内",
-			body: verificationBody(mail.verifyUrl),
-		});
-		await env.EMAIL.send(message);
-		return { sent: true };
-	}
 	if (env.EMAIL_DEV_LOG === "true") {
 		console.warn(
-			"[hidoko-id] EMAIL binding が未設定。検証 URL を SPA に返してフォールバックする",
+			"[hidoko-id] EMAIL_DEV_LOG=true: 検証 URL を SPA に返してフォールバックする",
 			{ to: mail.to, verifyUrl: mail.verifyUrl },
 		);
 		return { sent: false, devUrl: mail.verifyUrl };
 	}
-	throw new Error("EMAIL binding がなく EMAIL_DEV_LOG も無効");
+
+	await env.EMAIL.send({
+		to: mail.to,
+		from: FROM_ADDRESS,
+		subject: SUBJECT,
+		text: verificationText(mail.verifyUrl),
+		html: verificationHtml(mail.verifyUrl),
+	});
+	return { sent: true };
 }
 
-function verificationBody(verifyUrl: string): string {
+function verificationText(verifyUrl: string): string {
 	return [
-		"アカウント作成リクエストを受け付けた",
+		"アカウント作成リクエストを受け付けた。",
 		"",
 		"以下のリンクを開くと、メールアドレスの確認が完了する。",
-		"リンクは 24 時間で失効する",
+		"リンクは 24 時間で失効する。",
 		"",
 		verifyUrl,
 		"",
-		"このメールに心当たりがない場合は、無視して問題ない",
+		"このメールに心当たりがない場合は、無視して問題ない。",
 	].join("\n");
 }
 
-function buildMimeMessage(args: {
-	from: string;
-	to: string;
-	subject: string;
-	body: string;
-}): string {
-	const boundary = `boundary-${crypto.randomUUID()}`;
+function verificationHtml(verifyUrl: string): string {
+	const safeUrl = escapeHtml(verifyUrl);
 	return [
-		`From: ${args.from}`,
-		`To: ${args.to}`,
-		`Subject: ${encodeRfc2047(args.subject)}`,
-		"MIME-Version: 1.0",
-		`Content-Type: multipart/alternative; boundary="${boundary}"`,
-		"",
-		`--${boundary}`,
-		"Content-Type: text/plain; charset=UTF-8",
-		"Content-Transfer-Encoding: 8bit",
-		"",
-		args.body,
-		"",
-		`--${boundary}--`,
-		"",
-	].join("\r\n");
+		"<!doctype html>",
+		'<html lang="ja"><body>',
+		"<p>アカウント作成リクエストを受け付けた。</p>",
+		"<p>以下のリンクを開くと、メールアドレスの確認が完了する。リンクは 24 時間で失効する。</p>",
+		`<p><a href="${safeUrl}">${safeUrl}</a></p>`,
+		"<p>このメールに心当たりがない場合は、無視して問題ない。</p>",
+		"</body></html>",
+	].join("\n");
 }
 
-function encodeRfc2047(value: string): string {
-	// 単純な UTF-8 base64 エンコード。subject 内の非 ASCII を扱うため。
-	const encoder = new TextEncoder();
-	const bytes = encoder.encode(value);
-	let binary = "";
-	for (const b of bytes) binary += String.fromCharCode(b);
-	return `=?UTF-8?B?${btoa(binary)}?=`;
+function escapeHtml(value: string): string {
+	return value
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;")
+		.replace(/'/g, "&#39;");
 }

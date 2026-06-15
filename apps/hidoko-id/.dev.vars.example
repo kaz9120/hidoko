@@ -13,5 +13,7 @@ SESSION_COOKIE_DOMAIN=
 # 検証メール内リンクのベース URL。空ならリクエストの origin を使う。
 PUBLIC_BASE_URL=
 
-# sender 未設定のローカルでは検証 URL を console + 画面下 DEV ONLY ブロックに出す。
+# Cloudflare Email Service の send_email binding はローカル dev では実機接続しないため、
+# 検証 URL を console + 画面下 DEV ONLY ブロックに返すフォールバックに切り替える。
+# 本番では wrangler.jsonc の vars 側で false にしている。
 EMAIL_DEV_LOG=true
