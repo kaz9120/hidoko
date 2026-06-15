@@ -44,6 +44,7 @@ Thumbs.db
 .wrangler/
 .dev.vars
 .dev.vars.*
+!.dev.vars.example
 # wrangler types で自動生成される。ローカルでは `bun run typegen` が走るたびに更新される
 worker-configuration.d.ts
 

@@ -1,0 +1,17 @@
+# ローカル開発で wrangler.jsonc の vars を上書きするためのテンプレ。
+# `cp .dev.vars.example .dev.vars` してから `bun --filter hidoko-id dev` を立ち上げる。
+# .dev.vars は .gitignore 済み（root .gitignore の `.dev.vars` / `.dev.vars.*`）。
+
+# 開発用 first-party オリジン許可リスト。Vite が立てる 5173-5177 と
+# wrangler dev の 8787、それから本番アプリのオリジン（テスト時にも踏めるよう）。
+FIRST_PARTY_ORIGINS=http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:5177,http://localhost:8787,https://snapcrop.y-kaz.com,https://note-ogp.y-kaz.com,https://futari-no-yotei.y-kaz.com,https://y-kaz.com
+
+# ローカルでは parent domain を共有しないので空に戻す。
+# 空のとき Secure フラグも付けない（http://localhost で使えるように）。
+SESSION_COOKIE_DOMAIN=
+
+# 検証メール内リンクのベース URL。空ならリクエストの origin を使う。
+PUBLIC_BASE_URL=
+
+# sender 未設定のローカルでは検証 URL を console + 画面下 DEV ONLY ブロックに出す。
+EMAIL_DEV_LOG=true
