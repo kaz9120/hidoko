@@ -1,4 +1,3 @@
-import { CropToolbar } from "~/components/layout/crop-toolbar";
 import { EditorCanvas } from "~/components/layout/editor-canvas";
 import { SiteFooter } from "~/components/layout/site-footer";
 import { SiteHeader } from "~/components/layout/site-header";
@@ -21,7 +20,6 @@ export default function Home() {
 		<SnapcropProvider>
 			<div className="flex h-screen flex-col">
 				<SiteHeader />
-				<CropToolbar />
 				<EditorCanvas />
 				<StatusBar />
 				<SiteFooter />
