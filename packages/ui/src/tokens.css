@@ -155,10 +155,21 @@
   --width-wide:    1240px;
   --width-app:     1440px;
 
-  --duration-fast: 120ms;
-  --duration:      200ms;
-  --duration-slow: 360ms;
-  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* ─── 動き ─── */
+  /* 反応は速く、余韻はゆっくり。階段を 6 段で揃える。
+   * 個々の用途は DESIGN.md「Motion」を参照。 */
+  --duration-instant: 75ms;    /* タップ即応・focus 表示開始 */
+  --duration-fast:    120ms;   /* hover の色変化・ツールチップ */
+  --duration:         200ms;   /* 熾火グロー・状態切り替え */
+  --duration-slow:    360ms;   /* サイドパネル・モーダル開閉 */
+  --duration-relax:   560ms;   /* レイアウトシフト・ページ遷移 */
+  --duration-breath:  3600ms;  /* 呼吸する ambient ループ */
+
+  /* イージングは 4 曲線。線形は使わない。spring の bounce も使わない。 */
+  --ease:        cubic-bezier(0.2,  0.8,  0.2,  1);     /* 標準 */
+  --ease-ember:  cubic-bezier(0.16, 0.84, 0.24, 1);     /* 余韻・熾火（hover / focus） */
+  --ease-breath: cubic-bezier(0.45, 0.05, 0.55, 0.95);  /* 呼吸 */
+  --ease-settle: cubic-bezier(0.34, 1.12, 0.32, 1);     /* 着地・微 over-shoot */
 }
 
 /* ─── ライトモード（サブ） ─── */

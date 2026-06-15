@@ -12,9 +12,10 @@ packages/ui/
 │   ├── mark-cream.svg     # 紙 / クリーム背景用 (favicon / ライト UI)
 │   └── mark-dark.svg      # 夜 / ダーク背景用
 └── src/
-    ├── tokens.css         # 全 CSS 変数 (色 / タイポ / 余白 / 角丸 / 影 / chart)
+    ├── tokens.css         # 全 CSS 変数 (色 / タイポ / 余白 / 角丸 / 影 / chart / 動き)
     ├── fonts.css          # Inter / LINE Seed JP / JetBrains Mono の @font-face
     ├── styles.css         # tokens.css → shadcn CSS 変数のブリッジ
+    ├── motion.css         # .hi-motion-* ユーティリティ (opt-in)
     ├── embers.js          # <hi-embers> Web Component (火の粉アニメ)
     ├── embers.d.ts
     ├── components/        # shadcn/ui の React コンポーネント
@@ -73,6 +74,18 @@ import "ui/embers";
 属性: `density` (粒数, デフォルト 50) / `wind` (横流れ, デフォルト 0) / `hue` (色相シフト, デフォルト 0) / `glow` (背景グロー on/off)。
 
 親に `position: relative` 必須。1 画面 1 つまで。詳細運用は [DESIGN.md](../../DESIGN.md) の Depth & Elevation 節。
+
+### モーション語彙 (opt-in)
+
+動きの 5 つの語彙 (`.hi-motion-glow` / `breath` / `smoke` / `settle` / `sweep`) と、ページ遷移 (`.hi-motion-page-out` / `page-in`)、View Transitions API ルール、`prefers-reduced-motion` 対応をまとめた `motion.css` を opt-in で提供している。アプリ側で必要なら globals.css に追加する:
+
+```css
+@import "ui/tokens.css";
+@import "ui/styles.css";
+@import "ui/motion.css";
+```
+
+トークン (`--duration-*` / `--ease-*`) は `tokens.css` 側に最初から入っているので、Tailwind の arbitrary value (`duration-[var(--duration-instant)]` `ease-[var(--ease-ember)]`) で個別に使う場合は `motion.css` を読み込まなくてよい。詳細は [DESIGN.md](../../DESIGN.md) の Motion 節。
 
 ## コンポーネント追加
 
