@@ -50,18 +50,15 @@ type Props = {
 	onAspectRatioIdChange: (id: string) => void;
 	isPortrait: boolean;
 	onPortraitChange: (portrait: boolean) => void;
-	zoom: number;
-	imageWidth: number;
-	imageHeight: number;
-	visible: boolean;
 };
 
 /**
- * クロップ枠に貼り付くフローティングツールバー (#147 Phase 3)。
- * 既存の 2 段目 CropToolbar が抱えていた「比率 / 向き / W×H」を選択枠上辺の
- * HUD に引き取り、ツールバー領域そのものを撤去する。中央寄せ・全画面・
- * リセットなどの補助アクションは ⌘A 等のショートカットに任せて UI からは
- * 省く (シンプル路線)。
+ * クロップ HUD (#147 Phase 3 / 上部固定版)。比率 8 種、縦横反転、W×H 数値入力を
+ * 描画領域の上部中央に固定で出す。共通 FloatingToolbar の上部固定スタイルに
+ * 乗っているので、画像位置に関係なく常に同じ場所に見える。
+ *
+ * 補助アクション (中央寄せ・全画面・リセット) は ⌘A 等のショートカットに
+ * 任せて UI からは省く。確定/× も live update のため不要。
  */
 export function CropFloatingToolbar({
 	cropRect,
@@ -70,10 +67,6 @@ export function CropFloatingToolbar({
 	onAspectRatioIdChange,
 	isPortrait,
 	onPortraitChange,
-	zoom,
-	imageWidth,
-	imageHeight,
-	visible,
 }: Props) {
 	const cropWidth = Math.round(cropRect.width);
 	const cropHeight = Math.round(cropRect.height);
@@ -101,14 +94,7 @@ export function CropFloatingToolbar({
 	};
 
 	return (
-		<FloatingToolbar
-			bbox={cropRect}
-			forceTop
-			imageHeight={imageHeight}
-			imageWidth={imageWidth}
-			visible={visible}
-			zoom={zoom}
-		>
+		<FloatingToolbar>
 			<ToggleGroup
 				aria-label="アスペクト比"
 				onValueChange={handleAspectChange}

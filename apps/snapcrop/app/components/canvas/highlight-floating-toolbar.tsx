@@ -1,7 +1,6 @@
 import { ToggleGroup, ToggleGroupItem } from "ui";
 import { FloatingToolbar } from "~/components/canvas/floating-toolbar";
 import { FloatingToolbarActions } from "~/components/canvas/floating-toolbar-actions";
-import { annotationBounds } from "~/lib/annotation-bounds";
 import type {
 	HighlightAnnotation,
 	HighlightThickness,
@@ -19,10 +18,6 @@ const THICKNESS_OPTIONS: ReadonlyArray<{
 
 type Props = {
 	highlight: HighlightAnnotation;
-	zoom: number;
-	imageWidth: number;
-	imageHeight: number;
-	visible: boolean;
 	canBringForward: boolean;
 	canSendBackward: boolean;
 	onThicknessChange: (thickness: HighlightThickness) => void;
@@ -33,17 +28,13 @@ type Props = {
 };
 
 /**
- * マーカー選択中のフローティングツールバー (#147 Phase 3)。
+ * マーカー選択中のフローティングツールバー (#147 Phase 3 / 上部固定版)。
  * 「帯の太さ + 共通アクション」を持つ。色は色レール集約 (#145) 済み、
  * 質感 (clean / sketchy) はスタイルプリセット (#145) で決まるためフローティング
  * からは省く。
  */
 export function HighlightFloatingToolbar({
 	highlight,
-	zoom,
-	imageWidth,
-	imageHeight,
-	visible,
 	canBringForward,
 	canSendBackward,
 	onThicknessChange,
@@ -53,13 +44,7 @@ export function HighlightFloatingToolbar({
 	onDelete,
 }: Props) {
 	return (
-		<FloatingToolbar
-			bbox={annotationBounds(highlight)}
-			imageHeight={imageHeight}
-			imageWidth={imageWidth}
-			visible={visible}
-			zoom={zoom}
-		>
+		<FloatingToolbar>
 			<ToggleGroup
 				aria-label="帯の太さ"
 				onValueChange={(next) => {
