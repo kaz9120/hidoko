@@ -18,9 +18,10 @@
 		{
 			"binding": "DB",
 			"database_name": "hidoko-id",
-			// ローカル開発では未指定でも Miniflare が SQLite を立てる。
-			// 本番デプロイ前に `wrangler d1 create hidoko-id` で取れた ID で置き換える。
-			"database_id": "00000000-0000-0000-0000-000000000000",
+			// `wrangler d1 create hidoko-id` で発行された本番 ID。
+			// ローカル開発では Miniflare が同名のローカル SQLite を別途立てるため、
+			// 開発用にこの ID を差し替える必要はない。
+			"database_id": "1da0431e-8c09-468c-9c1a-bfa5fcd69ca2",
 			"migrations_dir": "migrations"
 		}
 	],
