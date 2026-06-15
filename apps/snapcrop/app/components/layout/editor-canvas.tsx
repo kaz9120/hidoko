@@ -60,6 +60,13 @@ export function EditorCanvas() {
 	return <EmptyHero isDragging={isDragging} />;
 }
 
+/**
+ * クロップ HUD が枠の外側上に出るための余白 (px)。HUD の高さ (約 44) と arm (12)、
+ * 上端からの余裕を含めて確保する。crop モード時のみ viewport の topReserved に
+ * 渡し、fit zoom を縮めて画像の上に HUD 用の空気を空ける。
+ */
+const CROP_HUD_TOP_RESERVED = 64;
+
 function ImageCanvas({
 	image,
 	isDragging,
@@ -69,7 +76,8 @@ function ImageCanvas({
 }) {
 	// zoom / viewportRef は context 持ち。ヘッダーの ZoomControl が % 表示と
 	// fit / 拡縮の操作で参照するため、ここで Viewport と結線する。
-	const { cropperRef, setCropData, zoom, setZoom, viewportRef } = useSnapcrop();
+	const { activeTool, cropperRef, setCropData, zoom, setZoom, viewportRef } =
+		useSnapcrop();
 	const imgRef = useRef<HTMLImageElement | null>(null);
 
 	const imageMetrics = useMemo(
@@ -107,6 +115,7 @@ function ImageCanvas({
 					image={{ width: image.width, height: image.height }}
 					onZoomChange={setZoom}
 					ref={viewportRef}
+					topReserved={activeTool === "crop" ? CROP_HUD_TOP_RESERVED : 0}
 					zoom={zoom}
 				>
 					<ImageStage

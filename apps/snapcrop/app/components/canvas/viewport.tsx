@@ -24,6 +24,13 @@ export type ViewportProps = {
 	zoom: number;
 	onZoomChange: (zoom: number) => void;
 	children: ReactNode;
+	/**
+	 * 上端に確保する固定余白 (px)。クロップ HUD など、画像の外側上に貼り付く
+	 * フローティング要素のための空間を空ける用途。fit zoom 計算も同じ値で
+	 * 縮められ、wrapper には padding-top として効いて画像位置が下にずれる。
+	 * 省略時は 0 (= 通常の fit_padding で上下均等な余白)。
+	 */
+	topReserved?: number;
 };
 
 const MAX_ZOOM = 8;
@@ -39,9 +46,12 @@ export const ZOOM_STEP = 1.25;
 function computeFitZoom(
 	container: { w: number; h: number },
 	img: { w: number; h: number },
+	topReserved: number,
 ): number {
 	const availW = Math.max(0, container.w - FIT_PADDING * 2);
-	const availH = Math.max(0, container.h - FIT_PADDING * 2);
+	// 上端は topReserved (HUD 用) を独立に確保し、下端は通常の FIT_PADDING のまま。
+	// topReserved が大きいと画像が下にずれて上に余白が空く。
+	const availH = Math.max(0, container.h - topReserved - FIT_PADDING);
 	if (availW <= 0 || availH <= 0 || img.w <= 0 || img.h <= 0) return 1;
 	return Math.min(availW / img.w, availH / img.h, 1);
 }
@@ -53,7 +63,10 @@ function computeFitZoom(
  * children は画像 stage を絶対配置で埋めるコンポーネント。
  */
 export const Viewport = forwardRef<ViewportHandle, ViewportProps>(
-	function Viewport({ image, zoom, onZoomChange, children }, ref) {
+	function Viewport(
+		{ image, zoom, onZoomChange, children, topReserved = 0 },
+		ref,
+	) {
 		const scrollerRef = useRef<HTMLDivElement>(null);
 		// Space 押下中フラグ。render では子レイヤーの pointer-events を止めるのに
 		// 使う (pan をツール操作より優先し、cursor も grab に切り替えるため)。
@@ -72,10 +85,11 @@ export const Viewport = forwardRef<ViewportHandle, ViewportProps>(
 			const fit = computeFitZoom(
 				{ w: el.clientWidth, h: el.clientHeight },
 				{ w: image.width, h: image.height },
+				topReserved,
 			);
 			fitZoomRef.current = fit;
 			return fit;
-		}, [image.width, image.height]);
+		}, [image.width, image.height, topReserved]);
 
 		const applyZoomAt = useCallback(
 			(
@@ -307,6 +321,10 @@ export const Viewport = forwardRef<ViewportHandle, ViewportProps>(
 						// scrollLeft = 0 から右にしか動けず、画像左端 / 上端まで届かない。
 						alignItems: "safe center",
 						justifyContent: "safe center",
+						// topReserved を padding として効かせて画像を下にずらし、上に
+						// HUD 用の余白を空ける。fit zoom 側も同じ値で縮められているので、
+						// 画像が表示領域からはみ出すことはない。
+						paddingTop: topReserved,
 						// Space 押下中は子レイヤー (crop / rect) のヒットを止めて pan を
 						// 優先する。cursor も scroller 側の grab / grabbing が効く。
 						pointerEvents: spacePressed ? "none" : undefined,
