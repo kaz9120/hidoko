@@ -1,7 +1,6 @@
 import { ToggleGroup, ToggleGroupItem } from "ui";
 import { FloatingToolbar } from "~/components/canvas/floating-toolbar";
 import { FloatingToolbarActions } from "~/components/canvas/floating-toolbar-actions";
-import { annotationBounds } from "~/lib/annotation-bounds";
 import type { RectAnnotation, RectThickness } from "~/lib/rect-engine";
 
 const THICKNESS_OPTIONS: ReadonlyArray<{
@@ -15,10 +14,6 @@ const THICKNESS_OPTIONS: ReadonlyArray<{
 
 type Props = {
 	rect: RectAnnotation;
-	zoom: number;
-	imageWidth: number;
-	imageHeight: number;
-	visible: boolean;
 	canBringForward: boolean;
 	canSendBackward: boolean;
 	onThicknessChange: (thickness: RectThickness) => void;
@@ -29,7 +24,7 @@ type Props = {
 };
 
 /**
- * 矩形選択中のフローティングツールバー (#147 Phase 3)。
+ * 矩形選択中のフローティングツールバー (#147 Phase 3 / 上部固定版)。
  *
  * モザイクは独立ツール化 (#146 / PR #173) されたので、ここでは outline 限定の
  * 「枠線の太さ + 共通アクション」を持つ。色は色レール集約 (#145) 済みなので
@@ -38,10 +33,6 @@ type Props = {
  */
 export function RectFloatingToolbar({
 	rect,
-	zoom,
-	imageWidth,
-	imageHeight,
-	visible,
 	canBringForward,
 	canSendBackward,
 	onThicknessChange,
@@ -51,13 +42,7 @@ export function RectFloatingToolbar({
 	onDelete,
 }: Props) {
 	return (
-		<FloatingToolbar
-			bbox={annotationBounds(rect)}
-			imageHeight={imageHeight}
-			imageWidth={imageWidth}
-			visible={visible}
-			zoom={zoom}
-		>
+		<FloatingToolbar>
 			<ToggleGroup
 				aria-label="枠線の太さ"
 				onValueChange={(next) => {

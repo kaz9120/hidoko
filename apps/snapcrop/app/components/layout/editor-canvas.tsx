@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { ImageStage } from "~/components/canvas/image-stage";
 import { Viewport } from "~/components/canvas/viewport";
 import { EmptyHero } from "~/components/layout/empty-hero";
+import { SelectionToolbar } from "~/components/layout/selection-toolbar";
 import { ToolRail } from "~/components/layout/tool-rail";
 import { type LoadedImage, useSnapcrop } from "~/contexts/snapcrop-context";
 import { useArrowShortcuts } from "~/hooks/use-arrow-shortcuts";
@@ -116,6 +117,7 @@ function ImageCanvas({
 						zoom={zoom}
 					/>
 				</Viewport>
+				<SelectionToolbar />
 				{isDragging && <DropOverlay />}
 			</div>
 		</section>

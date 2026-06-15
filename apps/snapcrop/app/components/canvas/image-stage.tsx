@@ -13,27 +13,21 @@ import { ArrowPreviewOverlay } from "~/components/canvas/arrow-preview-overlay";
 import { ArrowSelectionOverlay } from "~/components/canvas/arrow-selection-overlay";
 import { CropFrame } from "~/components/canvas/crop-frame";
 import { DimensionHud } from "~/components/canvas/dimension-hud";
-import { HighlightFloatingToolbar } from "~/components/canvas/highlight-floating-toolbar";
 import { HighlightLayer } from "~/components/canvas/highlight-layer";
 import { HighlightPreviewOverlay } from "~/components/canvas/highlight-preview-overlay";
 import { HighlightSelectionOverlay } from "~/components/canvas/highlight-selection-overlay";
 import { MosaicLayer } from "~/components/canvas/mosaic-layer";
-import { RectFloatingToolbar } from "~/components/canvas/rect-floating-toolbar";
 import { RectPreviewOverlay } from "~/components/canvas/rect-preview-overlay";
 import { RectSelectionOverlay } from "~/components/canvas/rect-selection-overlay";
 import { TextEditorOverlay } from "~/components/canvas/text-editor-overlay";
-import { TextFloatingToolbar } from "~/components/canvas/text-floating-toolbar";
 import { TextLayer } from "~/components/canvas/text-layer";
 import { TextSelectionOverlay } from "~/components/canvas/text-selection-overlay";
 import { type LoadedImage, useSnapcrop } from "~/contexts/snapcrop-context";
 import { useArrowEngine } from "~/hooks/use-arrow-engine";
 import type { UseCropEngineResult } from "~/hooks/use-crop-engine";
-import { useDuplicateAnnotation } from "~/hooks/use-duplicate-annotation";
 import { useHighlightEngine } from "~/hooks/use-highlight-engine";
 import { useRectEngine } from "~/hooks/use-rect-engine";
 import { useTextEngine } from "~/hooks/use-text-engine";
-import { useZOrderActions } from "~/hooks/use-z-order";
-import type { AnnotationHit } from "~/lib/annotation-hit-test";
 import {
 	groupAnnotationRuns,
 	sortAnnotationsByZ,
@@ -102,17 +96,7 @@ export function ImageStage({
 		highlights,
 		highlightDefaults,
 		highlightEngineHandleRef,
-		deleteAnnotation,
-		updateAnnotation,
-		deleteArrow,
-		updateArrow,
-		deleteText,
-		updateText,
-		deleteHighlight,
-		updateHighlight,
 	} = useSnapcrop();
-	const duplicateAnnotation = useDuplicateAnnotation();
-	const zOrderActions = useZOrderActions();
 
 	const imageMetrics = useMemo(
 		() => ({ naturalWidth: image.width, naturalHeight: image.height }),
@@ -222,39 +206,6 @@ export function ImageStage({
 			) ?? null)
 		: null;
 
-	// z 操作の活性判定で使う「種別を問わない選択中の注釈 1 つ」。フローティング
-	// ツールバー (#147 Phase 3) は種別ごとに別コンポーネントだが、前面へ / 背面へ
-	// の disable 判定は zOrdered の中での位置で決まるので種別横断で計算する。
-	const selectedHit: AnnotationHit | null =
-		selectedRendered ??
-		selectedArrowRendered ??
-		selectedTextRendered ??
-		selectedHighlightRendered;
-	const anyInteracting =
-		rectEngine.isInteracting ||
-		arrowEngine.isInteracting ||
-		textEngine.isInteracting ||
-		highlightEngine.isInteracting;
-	// 全種別がフローティングツールバー (#147 Phase 3) を持つ。テキスト編集中は
-	// インライン入力に集中させたいのでフローティングも隠す。
-	const isTextEditingSelected =
-		selectedTextRendered !== null &&
-		textEngine.editing?.id === selectedTextRendered.id;
-	const showArrowFloating = selectedArrowRendered !== null && !anyInteracting;
-	const showRectFloating = selectedRendered !== null && !anyInteracting;
-	const showTextFloating =
-		selectedTextRendered !== null && !anyInteracting && !isTextEditingSelected;
-	const showHighlightFloating =
-		selectedHighlightRendered !== null && !anyInteracting;
-
-	// z 操作ボタンの活性判定。最前面 / 最背面に達していたら disable する。
-	const selectedZPos = selectedHit
-		? zOrdered.findIndex((a) => a.id === selectedHit.id)
-		: -1;
-	const canBringForward =
-		selectedZPos >= 0 && selectedZPos < zOrdered.length - 1;
-	const canSendBackward = selectedZPos > 0;
-
 	return (
 		<>
 			<img
@@ -348,26 +299,6 @@ export function ImageStage({
 					zoom={zoom}
 				/>
 			)}
-			{selectedRendered && (
-				<RectFloatingToolbar
-					canBringForward={canBringForward}
-					canSendBackward={canSendBackward}
-					imageHeight={image.height}
-					imageWidth={image.width}
-					onBringForward={() => zOrderActions.bringForward(selectedRendered.id)}
-					onDelete={() => deleteAnnotation(selectedRendered.id)}
-					onDuplicate={() =>
-						duplicateAnnotation(selectedRendered, imageMetrics)
-					}
-					onSendBackward={() => zOrderActions.sendBackward(selectedRendered.id)}
-					onThicknessChange={(thickness) =>
-						updateAnnotation(selectedRendered.id, { thickness })
-					}
-					rect={selectedRendered}
-					visible={showRectFloating}
-					zoom={zoom}
-				/>
-			)}
 			{rectEngine.previewRect &&
 				(activeTool === "rect" || activeTool === "mosaic") && (
 					<RectPreviewOverlay
@@ -388,30 +319,6 @@ export function ImageStage({
 					zoom={zoom}
 				/>
 			)}
-			{selectedArrowRendered && (
-				<ArrowFloatingToolbar
-					arrow={selectedArrowRendered}
-					canBringForward={canBringForward}
-					canSendBackward={canSendBackward}
-					imageHeight={image.height}
-					imageWidth={image.width}
-					onBringForward={() =>
-						zOrderActions.bringForward(selectedArrowRendered.id)
-					}
-					onDelete={() => deleteArrow(selectedArrowRendered.id)}
-					onDuplicate={() =>
-						duplicateAnnotation(selectedArrowRendered, imageMetrics)
-					}
-					onSendBackward={() =>
-						zOrderActions.sendBackward(selectedArrowRendered.id)
-					}
-					onThicknessChange={(thickness) =>
-						updateArrow(selectedArrowRendered.id, { thickness })
-					}
-					visible={showArrowFloating}
-					zoom={zoom}
-				/>
-			)}
 			{arrowEngine.previewArrow && activeTool === "arrow" && (
 				<ArrowPreviewOverlay
 					defaults={arrowDefaults}
@@ -424,34 +331,6 @@ export function ImageStage({
 				textEngine.editing?.id !== selectedTextRendered.id && (
 					<TextSelectionOverlay text={selectedTextRendered} zoom={zoom} />
 				)}
-			{selectedTextRendered && (
-				<TextFloatingToolbar
-					canBringForward={canBringForward}
-					canSendBackward={canSendBackward}
-					imageHeight={image.height}
-					imageWidth={image.width}
-					onAlignChange={(align) =>
-						updateText(selectedTextRendered.id, { align })
-					}
-					onBoldToggle={(bold) => updateText(selectedTextRendered.id, { bold })}
-					onBringForward={() =>
-						zOrderActions.bringForward(selectedTextRendered.id)
-					}
-					onDelete={() => deleteText(selectedTextRendered.id)}
-					onDuplicate={() =>
-						duplicateAnnotation(selectedTextRendered, imageMetrics)
-					}
-					onItalicToggle={(italic) =>
-						updateText(selectedTextRendered.id, { italic })
-					}
-					onSendBackward={() =>
-						zOrderActions.sendBackward(selectedTextRendered.id)
-					}
-					text={selectedTextRendered}
-					visible={showTextFloating}
-					zoom={zoom}
-				/>
-			)}
 			{activeTool === "text" && textEngine.editing && (
 				<TextEditorOverlay
 					defaults={textDefaults}
@@ -471,30 +350,6 @@ export function ImageStage({
 					highlight={selectedHighlightRendered}
 					imageHeight={image.height}
 					imageWidth={image.width}
-					zoom={zoom}
-				/>
-			)}
-			{selectedHighlightRendered && (
-				<HighlightFloatingToolbar
-					canBringForward={canBringForward}
-					canSendBackward={canSendBackward}
-					highlight={selectedHighlightRendered}
-					imageHeight={image.height}
-					imageWidth={image.width}
-					onBringForward={() =>
-						zOrderActions.bringForward(selectedHighlightRendered.id)
-					}
-					onDelete={() => deleteHighlight(selectedHighlightRendered.id)}
-					onDuplicate={() =>
-						duplicateAnnotation(selectedHighlightRendered, imageMetrics)
-					}
-					onSendBackward={() =>
-						zOrderActions.sendBackward(selectedHighlightRendered.id)
-					}
-					onThicknessChange={(thickness) =>
-						updateHighlight(selectedHighlightRendered.id, { thickness })
-					}
-					visible={showHighlightFloating}
 					zoom={zoom}
 				/>
 			)}

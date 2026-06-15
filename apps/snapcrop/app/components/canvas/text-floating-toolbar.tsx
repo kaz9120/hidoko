@@ -8,7 +8,6 @@ import {
 import { Toggle, ToggleGroup, ToggleGroupItem } from "ui";
 import { FloatingToolbar } from "~/components/canvas/floating-toolbar";
 import { FloatingToolbarActions } from "~/components/canvas/floating-toolbar-actions";
-import { annotationBounds } from "~/lib/annotation-bounds";
 import type { TextAlign, TextAnnotation } from "~/lib/text-engine";
 
 const ALIGN_OPTIONS: ReadonlyArray<{
@@ -23,10 +22,6 @@ const ALIGN_OPTIONS: ReadonlyArray<{
 
 type Props = {
 	text: TextAnnotation;
-	zoom: number;
-	imageWidth: number;
-	imageHeight: number;
-	visible: boolean;
 	canBringForward: boolean;
 	canSendBackward: boolean;
 	onAlignChange: (align: TextAlign) => void;
@@ -39,17 +34,13 @@ type Props = {
 };
 
 /**
- * テキスト選択中のフローティングツールバー (#147 Phase 3)。
+ * テキスト選択中のフローティングツールバー (#147 Phase 3 / 上部固定版)。
  * 「寄せ + 太字 / 斜体 + 共通アクション」を持つ。色は色レール集約 (#145) 済み。
  * 確定仕様だとサイズも入る予定だが、まずは寄せ・太字・斜体で運用し、サイズ
  * 等の追加は後続 PR で行う。
  */
 export function TextFloatingToolbar({
 	text,
-	zoom,
-	imageWidth,
-	imageHeight,
-	visible,
 	canBringForward,
 	canSendBackward,
 	onAlignChange,
@@ -61,13 +52,7 @@ export function TextFloatingToolbar({
 	onDelete,
 }: Props) {
 	return (
-		<FloatingToolbar
-			bbox={annotationBounds(text)}
-			imageHeight={imageHeight}
-			imageWidth={imageWidth}
-			visible={visible}
-			zoom={zoom}
-		>
+		<FloatingToolbar>
 			<ToggleGroup
 				aria-label="寄せ"
 				onValueChange={(next) => {

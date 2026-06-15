@@ -196,7 +196,7 @@ type SnapcropContextValue = {
 	viewportRef: RefObject<ViewportHandle | null>;
 
 	/**
-	 * クロップツールの UI 状態。CropToolbar が読み書きする。画像差し替えで
+	 * クロップツールの UI 状態。CropFloatingToolbar が読み書きする。画像差し替えで
 	 * 自動的に "free" / 横向き にリセットされる (画像ごとに比率を選び直す前提)。
 	 */
 	cropAspectRatioId: string;
