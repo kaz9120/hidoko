@@ -11,6 +11,7 @@ import { ArrowFloatingToolbar } from "~/components/canvas/arrow-floating-toolbar
 import { ArrowLayer } from "~/components/canvas/arrow-layer";
 import { ArrowPreviewOverlay } from "~/components/canvas/arrow-preview-overlay";
 import { ArrowSelectionOverlay } from "~/components/canvas/arrow-selection-overlay";
+import { CropFloatingToolbar } from "~/components/canvas/crop-floating-toolbar";
 import { CropFrame } from "~/components/canvas/crop-frame";
 import { DimensionHud } from "~/components/canvas/dimension-hud";
 import { HighlightFloatingToolbar } from "~/components/canvas/highlight-floating-toolbar";
@@ -110,6 +111,11 @@ export function ImageStage({
 		updateText,
 		deleteHighlight,
 		updateHighlight,
+		cropperRef,
+		cropAspectRatioId,
+		setCropAspectRatioId,
+		cropIsPortrait,
+		setCropIsPortrait,
 	} = useSnapcrop();
 	const duplicateAnnotation = useDuplicateAnnotation();
 	const zOrderActions = useZOrderActions();
@@ -512,6 +518,20 @@ export function ImageStage({
 					imageHeight={image.height}
 					imageWidth={image.width}
 					rect={cropEngine.cropRect}
+					zoom={zoom}
+				/>
+			)}
+			{activeTool === "crop" && cropEngine.cropRect && (
+				<CropFloatingToolbar
+					aspectRatioId={cropAspectRatioId}
+					cropRect={cropEngine.cropRect}
+					cropperRef={cropperRef}
+					imageHeight={image.height}
+					imageWidth={image.width}
+					isPortrait={cropIsPortrait}
+					onAspectRatioIdChange={setCropAspectRatioId}
+					onPortraitChange={setCropIsPortrait}
+					visible={true}
 					zoom={zoom}
 				/>
 			)}
