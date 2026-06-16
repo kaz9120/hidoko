@@ -10,6 +10,11 @@ export default [
 	route("reset/sent", "routes/reset.sent.tsx"),
 	route("reset/new", "routes/reset.new.tsx"),
 	route("reset/done", "routes/reset.done.tsx"),
+	// アカウント設定はレイアウト + Outlet でネストする。
+	route("account", "routes/account.tsx", [
+		index("routes/account._index.tsx"),
+		route("sessions", "routes/account.sessions.tsx"),
+	]),
 	// 注：/verify?token=… は workers/app.ts が掴むので SPA route には載せない。
 	// /oauth/return は次スライスで OAuth プロバイダに繋ぐためのプレースホルダ。
 	route("oauth/return", "routes/oauth.return.tsx"),

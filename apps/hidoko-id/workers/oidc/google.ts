@@ -219,7 +219,7 @@ export async function handleGoogleCallback(
 		});
 	}
 
-	const { cookie } = await createSession(env, userId);
+	const { cookie } = await createSession(env, userId, request);
 
 	let redirectTo = "/";
 	if (claimed.return_to && isAllowedReturnTo(env, claimed.return_to)) {

@@ -90,7 +90,7 @@ export async function handleSignin(
 		);
 	}
 
-	const { cookie } = await createSession(env, user.id);
+	const { cookie } = await createSession(env, user.id, request);
 
 	// return_to の検証：allowlist 外なら /oauth/return を経由しない
 	const requestedReturnTo = body.returnTo ?? null;
