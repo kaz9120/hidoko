@@ -1,5 +1,12 @@
 # hidoko-id
 
+## [0.6.0](https://github.com/kaz9120/hidoko/compare/hidoko-id-v0.5.0...hidoko-id-v0.6.0) (2026-06-16)
+
+
+### Features
+
+* **hidoko-id:** サインインの選択肢に Google OIDC を加える ([#216](https://github.com/kaz9120/hidoko/issues/216)) ([082d632](https://github.com/kaz9120/hidoko/commit/082d6326088a5ab61fb058dd02cd2a98b1392050))
+
 ## [0.5.0](https://github.com/kaz9120/hidoko/compare/hidoko-id-v0.4.0...hidoko-id-v0.5.0) (2026-06-16)
 
 
