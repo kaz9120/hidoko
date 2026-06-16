@@ -3,6 +3,7 @@
 // 次スライスで /oauth/{authorize,token,register} を @cloudflare/workers-oauth-provider に
 // 渡すため、ここで OAuth ハンドラを差し込むポイントを残してある。
 
+import { handleResetConfirm, handleResetRequest } from "./routes/reset";
 import { handleSignin } from "./routes/signin";
 import { handleSignout } from "./routes/signout";
 import { handleSignup } from "./routes/signup";
@@ -23,6 +24,12 @@ export default {
 			}
 			if (path === "/api/signout" && request.method === "POST") {
 				return await handleSignout(request, env);
+			}
+			if (path === "/api/reset/request" && request.method === "POST") {
+				return await handleResetRequest(request, env);
+			}
+			if (path === "/api/reset/confirm" && request.method === "POST") {
+				return await handleResetConfirm(request, env);
 			}
 			if (path === "/verify" && request.method === "GET") {
 				return await handleVerify(request, env);
