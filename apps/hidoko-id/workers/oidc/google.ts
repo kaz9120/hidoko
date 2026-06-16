@@ -19,7 +19,15 @@ import type { Env } from "../types";
 
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
+// OIDC で MUST な iss クレームの想定値。Google は両方の表記を返しうる。
+const GOOGLE_ID_TOKEN_ISSUERS = [
+	"https://accounts.google.com",
+	"accounts.google.com",
+];
 const STATE_TTL_MS = 10 * 60 * 1000;
+const TOKEN_FETCH_TIMEOUT_MS = 10_000;
+// exp 比較のクロックスキュー許容。トークン発行から callback 到着までの差を吸収。
+const ID_TOKEN_EXP_SKEW_SEC = 5;
 
 // パスワードを持たない（Google だけで作られた）ユーザーの sentinel ハッシュ。
 // verifyPassword はこの prefix を未知のアルゴリズムとして false を返すので、
@@ -28,6 +36,9 @@ const STATE_TTL_MS = 10 * 60 * 1000;
 const EXTERNAL_ONLY_PASSWORD_HASH = "external$google";
 
 interface IdTokenClaims {
+	iss?: string;
+	aud?: string | string[];
+	exp?: number;
 	sub?: string;
 	email?: string;
 	email_verified?: boolean;
@@ -39,7 +50,9 @@ export async function handleGoogleStart(
 	request: Request,
 	env: Env,
 ): Promise<Response> {
-	if (!env.GOOGLE_CLIENT_ID) {
+	// CLIENT_SECRET も start で見ておく。片方だけ設定で進めるとユーザーは Google 同意
+	// 画面まで進んでから callback で失敗する。早めに止めた方が UX が良い。
+	if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
 		return redirectToSignin(request, "oidc_not_configured");
 	}
 
@@ -111,17 +124,26 @@ export async function handleGoogleCallback(
 	const baseUrl = env.PUBLIC_BASE_URL || new URL(request.url).origin;
 	const redirectUri = `${baseUrl}/oauth/callback/google`;
 
-	const tokenRes = await fetch(GOOGLE_TOKEN_URL, {
-		method: "POST",
-		headers: { "Content-Type": "application/x-www-form-urlencoded" },
-		body: new URLSearchParams({
-			code,
-			client_id: env.GOOGLE_CLIENT_ID,
-			client_secret: env.GOOGLE_CLIENT_SECRET,
-			redirect_uri: redirectUri,
-			grant_type: "authorization_code",
-		}),
-	});
+	// AbortSignal.timeout で、ネットワーク停滞時に永遠にぶら下がらないように。
+	// Cloudflare Workers の fetch は標準の AbortSignal をサポート。
+	let tokenRes: Response;
+	try {
+		tokenRes = await fetch(GOOGLE_TOKEN_URL, {
+			method: "POST",
+			headers: { "Content-Type": "application/x-www-form-urlencoded" },
+			body: new URLSearchParams({
+				code,
+				client_id: env.GOOGLE_CLIENT_ID,
+				client_secret: env.GOOGLE_CLIENT_SECRET,
+				redirect_uri: redirectUri,
+				grant_type: "authorization_code",
+			}),
+			signal: AbortSignal.timeout(TOKEN_FETCH_TIMEOUT_MS),
+		});
+	} catch (err) {
+		console.error("[hidoko-id] google token exchange fetch failed", err);
+		return redirectToSignin(request, "token_exchange_failed");
+	}
 
 	if (!tokenRes.ok) {
 		console.error(
@@ -144,6 +166,27 @@ export async function handleGoogleCallback(
 		return redirectToSignin(request, "invalid_id_token");
 	}
 
+	// OIDC Core 1.0 §3.1.3.7 で MUST。iss/aud/exp の論理検証は署名検証とは独立した
+	// 必須チェック（TLS で署名検証を代替しても、これらの代替にはならない）。
+	if (!claims.iss || !GOOGLE_ID_TOKEN_ISSUERS.includes(claims.iss)) {
+		return redirectToSignin(request, "invalid_issuer");
+	}
+	const audList = Array.isArray(claims.aud)
+		? claims.aud
+		: claims.aud
+			? [claims.aud]
+			: [];
+	if (!audList.includes(env.GOOGLE_CLIENT_ID)) {
+		return redirectToSignin(request, "invalid_audience");
+	}
+	const nowSec = Math.floor(Date.now() / 1000);
+	if (
+		typeof claims.exp !== "number" ||
+		claims.exp + ID_TOKEN_EXP_SKEW_SEC < nowSec
+	) {
+		return redirectToSignin(request, "id_token_expired");
+	}
+
 	if (claims.nonce !== claimed.nonce) {
 		return redirectToSignin(request, "nonce_mismatch");
 	}
@@ -152,11 +195,29 @@ export async function handleGoogleCallback(
 	const emailVerified = claims.email_verified === true;
 	const providerUserId = claims.sub;
 
-	const userId = await findOrCreateUser(env, {
-		email,
-		emailVerified,
-		providerUserId,
-	});
+	// 既に provider_user_id で紐付け済みなら、そのユーザーをそのまま使う（過去に確立
+	// 済みの結びつき）。新規発行や email ベースの linking は emailVerified を必須に。
+	const linked = await env.DB.prepare(
+		"SELECT user_id FROM identities WHERE provider = 'google' AND provider_user_id = ?",
+	)
+		.bind(providerUserId)
+		.first<{ user_id: string }>();
+
+	let userId: string;
+	if (linked) {
+		userId = linked.user_id;
+	} else {
+		if (!emailVerified) {
+			// Google 側で email 所有を確認していないと、未検証メールで既存ユーザーに
+			// 紐付けるアカウント乗っ取り経路ができる。新規作成も含めて拒否する。
+			return redirectToSignin(request, "email_not_verified");
+		}
+		userId = await createOrLinkByEmail(env, {
+			email,
+			emailVerified,
+			providerUserId,
+		});
+	}
 
 	const { cookie } = await createSession(env, userId);
 
@@ -173,26 +234,18 @@ export async function handleGoogleCallback(
 }
 
 /**
- * Google sub と email から既存ユーザー／identity を引いて、なければ新規作成。
- * 順位:
- *   1. (provider, provider_user_id) で identities に既に紐付けがあればそのユーザー
- *   2. 同じメールの users があれば account linking して既存ユーザーを返す
- *   3. それ以外は新規 user + identities を作る（Google 経由なので Google が
- *      verified を返したら即 email_verified=1）
+ * email を起点に既存ユーザーへ identity を紐付ける、なければ新規作成する。
+ * 呼び出し側で `provider_user_id` 経由の既存紐付け確認と `emailVerified` の必須化を
+ * 済ませてから入ってくる前提（順位 1 と email_verified ゲートはこの関数の外）。
+ *   1. 同じメールの users があれば account linking して既存ユーザーを返す
+ *   2. それ以外は新規 user + identities を作る（Google が verified を返した値が
+ *      そのまま users.email_verified に乗る）
  */
-async function findOrCreateUser(
+async function createOrLinkByEmail(
 	env: Env,
 	args: { email: string; emailVerified: boolean; providerUserId: string },
 ): Promise<string> {
 	const t = now();
-
-	const linked = await env.DB.prepare(
-		"SELECT user_id FROM identities WHERE provider = 'google' AND provider_user_id = ?",
-	)
-		.bind(args.providerUserId)
-		.first<{ user_id: string }>();
-
-	if (linked) return linked.user_id;
 
 	const existing = await env.DB.prepare(
 		"SELECT id, email_verified FROM users WHERE email = ?",

@@ -9,7 +9,12 @@ const MESSAGES: Record<string, string> = {
 	token_exchange_failed: "Google との連携に失敗した。時間をおいてやり直す",
 	missing_id_token: "Google からの情報が足りなかった。もう一度やり直す",
 	invalid_id_token: "Google からの情報を解釈できなかった",
+	invalid_issuer: "Google からの情報の発行元を確認できなかった",
+	invalid_audience: "Google からの情報の宛先が一致しなかった",
+	id_token_expired: "Google からの情報の有効期限が切れていた。やり直す",
 	nonce_mismatch: "サインイン情報が一致しなかった。最初からやり直す",
+	email_not_verified:
+		"Google でメールアドレスの確認が済んでいない。Google で確認してから戻る",
 	oauth_access_denied: "Google でのサインインがキャンセルされた",
 };
 
