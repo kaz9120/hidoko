@@ -1,5 +1,12 @@
 # hidoko-id
 
+## [0.7.0](https://github.com/kaz9120/hidoko/compare/hidoko-id-v0.6.1...hidoko-id-v0.7.0) (2026-06-16)
+
+
+### Features
+
+* **hidoko-id:** /account を新設してプロフィール表示とセッション管理を出す ([#221](https://github.com/kaz9120/hidoko/issues/221)) ([8fd7922](https://github.com/kaz9120/hidoko/commit/8fd7922939cf408f815eb154f3390e7fbf9cdbf7)), closes [#204](https://github.com/kaz9120/hidoko/issues/204)
+
 ## [0.6.1](https://github.com/kaz9120/hidoko/compare/hidoko-id-v0.6.0...hidoko-id-v0.6.1) (2026-06-16)
 
 
