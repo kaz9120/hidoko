@@ -1,5 +1,12 @@
 # hidoko-id
 
+## [0.4.0](https://github.com/kaz9120/hidoko/compare/hidoko-id-v0.3.1...hidoko-id-v0.4.0) (2026-06-16)
+
+
+### Features
+
+* **hidoko-id:** パスワードハッシュを scrypt に移行し、旧 PBKDF2 を透過 rehash する ([#212](https://github.com/kaz9120/hidoko/issues/212)) ([66b357e](https://github.com/kaz9120/hidoko/commit/66b357e0ceba6553c30351db81bd2a84898d8a15)), closes [#208](https://github.com/kaz9120/hidoko/issues/208)
+
 ## [0.3.1](https://github.com/kaz9120/hidoko/compare/hidoko-id-v0.3.0...hidoko-id-v0.3.1) (2026-06-16)
 
 
