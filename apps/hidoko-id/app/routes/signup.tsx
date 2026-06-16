@@ -4,6 +4,7 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { Checkbox } from "ui/components/checkbox";
 import { AuthButton } from "~/components/auth-button";
 import { AuthField, AuthInput } from "~/components/auth-input";
+import { GoogleGIcon } from "~/components/google-g-icon";
 import { LogoMark } from "~/components/logo-mark";
 import { Mark } from "~/components/mark";
 import { ApiError, signup } from "~/lib/auth-api";
@@ -33,6 +34,10 @@ export default function SignupRoute() {
 	const [submitting, setSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [isWide, setIsWide] = useState(false);
+
+	const googleStartHref = returnTo
+		? `/oauth/start/google?return_to=${encodeURIComponent(returnTo)}`
+		: "/oauth/start/google";
 
 	useEffect(() => {
 		const mql = window.matchMedia("(min-width: 1024px)");
@@ -92,11 +97,13 @@ export default function SignupRoute() {
 			<AuthButton
 				type="button"
 				variant="secondary"
-				disabled
-				className="w-full"
-				title="次のスライスで対応"
+				className="w-full gap-2.5"
+				onClick={() => {
+					window.location.href = googleStartHref;
+				}}
 			>
-				Google で作成（近日対応）
+				<GoogleGIcon />
+				Google で作成
 			</AuthButton>
 
 			<div className="flex items-center gap-3.5">

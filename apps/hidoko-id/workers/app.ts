@@ -3,6 +3,7 @@
 // 次スライスで /oauth/{authorize,token,register} を @cloudflare/workers-oauth-provider に
 // 渡すため、ここで OAuth ハンドラを差し込むポイントを残してある。
 
+import { handleGoogleCallback, handleGoogleStart } from "./oidc/google";
 import { handleResetConfirm, handleResetRequest } from "./routes/reset";
 import { handleSignin } from "./routes/signin";
 import { handleSignout } from "./routes/signout";
@@ -33,6 +34,12 @@ export default {
 			}
 			if (path === "/verify" && request.method === "GET") {
 				return await handleVerify(request, env);
+			}
+			if (path === "/oauth/start/google" && request.method === "GET") {
+				return await handleGoogleStart(request, env);
+			}
+			if (path === "/oauth/callback/google" && request.method === "GET") {
+				return await handleGoogleCallback(request, env);
 			}
 
 			// 次スライスの予約地：/oauth/{authorize,token,register} と /.well-known/* を

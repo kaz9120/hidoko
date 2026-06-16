@@ -8,11 +8,18 @@ type VarKeys =
 	| "FIRST_PARTY_ORIGINS"
 	| "SESSION_COOKIE_DOMAIN"
 	| "PUBLIC_BASE_URL"
-	| "EMAIL_DEV_LOG";
+	| "EMAIL_DEV_LOG"
+	| "GOOGLE_CLIENT_ID";
 
 export interface Env extends Omit<Cloudflare.Env, VarKeys> {
 	FIRST_PARTY_ORIGINS: string;
 	SESSION_COOKIE_DOMAIN: string;
 	PUBLIC_BASE_URL: string;
 	EMAIL_DEV_LOG: string;
+	// Google OIDC のクライアント ID。dev は `.dev.vars`、本番は wrangler.jsonc の
+	// vars に書く（公開情報なので secret にしない）。secret は別管理。
+	GOOGLE_CLIENT_ID: string;
+	// Google OIDC の client_secret。本番は `wrangler secret put GOOGLE_CLIENT_SECRET`、
+	// dev は `.dev.vars` に入れる。両方とも未設定だと OIDC start で 503 相当に倒す。
+	GOOGLE_CLIENT_SECRET: string;
 }
