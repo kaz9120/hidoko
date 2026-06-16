@@ -4,6 +4,12 @@
 // 渡すため、ここで OAuth ハンドラを差し込むポイントを残してある。
 
 import { handleGoogleCallback, handleGoogleStart } from "./oidc/google";
+import {
+	handleListSessions,
+	handleMe,
+	handleRevokeOtherSessions,
+	handleRevokeSession,
+} from "./routes/account";
 import { handleResetConfirm, handleResetRequest } from "./routes/reset";
 import { handleSignin } from "./routes/signin";
 import { handleSignout } from "./routes/signout";
@@ -40,6 +46,20 @@ export default {
 			}
 			if (path === "/oauth/callback/google" && request.method === "GET") {
 				return await handleGoogleCallback(request, env);
+			}
+			if (path === "/api/me" && request.method === "GET") {
+				return await handleMe(request, env);
+			}
+			if (path === "/api/sessions" && request.method === "GET") {
+				return await handleListSessions(request, env);
+			}
+			if (path === "/api/sessions/revoke-others" && request.method === "POST") {
+				return await handleRevokeOtherSessions(request, env);
+			}
+			// /api/sessions/:id/revoke
+			const revokeMatch = path.match(/^\/api\/sessions\/([^/]+)\/revoke$/);
+			if (revokeMatch && request.method === "POST") {
+				return await handleRevokeSession(request, env, revokeMatch[1]);
 			}
 
 			// 次スライスの予約地：/oauth/{authorize,token,register} と /.well-known/* を

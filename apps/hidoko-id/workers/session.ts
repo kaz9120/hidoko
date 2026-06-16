@@ -8,6 +8,8 @@ export interface SessionUser {
 	id: string;
 	email: string;
 	emailVerified: boolean;
+	displayName: string | null;
+	avatarUrl: string | null;
 }
 
 interface SessionRow {
@@ -17,20 +19,41 @@ interface SessionRow {
 }
 
 /**
+ * リクエストから user_agent と IP を取り出す（保存時の追加情報用）。
+ * Cloudflare 経由なら CF-Connecting-IP が真の IP。dev のみ X-Forwarded-For 等にフォールバック。
+ */
+function extractClientMeta(request: Request): {
+	userAgent: string | null;
+	ip: string | null;
+} {
+	const userAgent = request.headers.get("user-agent") || null;
+	const ip =
+		request.headers.get("cf-connecting-ip") ||
+		request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+		null;
+	return { userAgent, ip };
+}
+
+/**
  * 新しいセッションを発行し、cookie 用の文字列も返す。
  * セッション ID は乱数を SHA-256 ハッシュしたものを DB に保存し、cookie には平文を載せる。
  */
 export async function createSession(
 	env: Env,
 	userId: string,
+	request?: Request,
 ): Promise<{ token: string; cookie: string }> {
 	const token = `${newId()}.${crypto.randomUUID().replace(/-/g, "")}`;
 	const id = await sha256Hex(token);
-	const expiresAt = now() + SESSION_TTL_MS;
+	const t = now();
+	const expiresAt = t + SESSION_TTL_MS;
+	const meta = request
+		? extractClientMeta(request)
+		: { userAgent: null, ip: null };
 	await env.DB.prepare(
-		"INSERT INTO sessions (id, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)",
+		"INSERT INTO sessions (id, user_id, created_at, expires_at, user_agent, ip, last_seen_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
 	)
-		.bind(id, userId, now(), expiresAt)
+		.bind(id, userId, t, expiresAt, meta.userAgent, meta.ip, t)
 		.run();
 	const cookie = serializeSessionCookie(env, token, expiresAt);
 	return { token, cookie };
@@ -84,7 +107,11 @@ export function readSessionToken(request: Request): string | null {
 	return null;
 }
 
-/** トークンから現在のセッション・ユーザーを引く。期限切れなら null。 */
+/**
+ * トークンから現在のセッション・ユーザーを引く。期限切れなら null。
+ * 読み出すついでに last_seen_at をたまに更新したいが、毎リクエスト書き込みは
+ * D1 負荷になるので 5 分以上経っている時だけ touch する。
+ */
 export async function loadSession(
 	env: Env,
 	token: string | null,
@@ -92,27 +119,50 @@ export async function loadSession(
 	if (!token) return null;
 	const id = await sha256Hex(token);
 	const row = await env.DB.prepare(
-		"SELECT id, user_id, expires_at FROM sessions WHERE id = ?",
+		"SELECT id, user_id, expires_at, last_seen_at FROM sessions WHERE id = ?",
 	)
 		.bind(id)
-		.first<SessionRow>();
+		.first<SessionRow & { last_seen_at: number | null }>();
 	if (!row) return null;
-	if (row.expires_at < now()) {
+	const t = now();
+	if (row.expires_at < t) {
 		// 期限切れはここで掃除する
 		await env.DB.prepare("DELETE FROM sessions WHERE id = ?").bind(id).run();
 		return null;
 	}
 	const user = await env.DB.prepare(
-		"SELECT id, email, email_verified FROM users WHERE id = ?",
+		"SELECT id, email, email_verified, display_name, avatar_url FROM users WHERE id = ?",
 	)
 		.bind(row.user_id)
-		.first<{ id: string; email: string; email_verified: number }>();
+		.first<{
+			id: string;
+			email: string;
+			email_verified: number;
+			display_name: string | null;
+			avatar_url: string | null;
+		}>();
 	if (!user) return null;
+	// 5 分以上経っていれば last_seen_at を更新（書き込み頻度の節約）。
+	if (!row.last_seen_at || t - row.last_seen_at > 5 * 60 * 1000) {
+		await env.DB.prepare("UPDATE sessions SET last_seen_at = ? WHERE id = ?")
+			.bind(t, id)
+			.run();
+	}
 	return {
 		id: user.id,
 		email: user.email,
 		emailVerified: user.email_verified === 1,
+		displayName: user.display_name,
+		avatarUrl: user.avatar_url,
 	};
+}
+
+/** 現在のセッションの sha256 ID（自セッションを判別したいときに使う）。 */
+export async function currentSessionId(
+	token: string | null,
+): Promise<string | null> {
+	if (!token) return null;
+	return sha256Hex(token);
 }
 
 /** セッションを失効させる（サインアウト）。 */
