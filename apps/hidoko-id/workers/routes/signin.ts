@@ -1,6 +1,12 @@
-import { verifyPassword } from "../password";
+import {
+	DUMMY_PASSWORD_HASH,
+	hashPassword,
+	needsRehash,
+	verifyPassword,
+} from "../password";
 import { isAllowedReturnTo } from "../return-to";
 import { createSession } from "../session";
+import { now } from "../tokens";
 import type { Env } from "../types";
 import { jsonError, jsonOk, readJson } from "./helpers";
 
@@ -40,8 +46,8 @@ export async function handleSignin(
 
 	// メール／パスワードどちらが違ったかは漏らさない（design のエラー文言とも一致）。
 	if (!user) {
-		// タイミング攻撃緩和：ハッシュ計算を 1 回走らせて時間を揃える。
-		await verifyPassword(password, "pbkdf2$1000$AAAA$AAAA");
+		// タイミング攻撃緩和：ハッシュ計算を 1 回走らせて応答時間を揃える。
+		await verifyPassword(password, DUMMY_PASSWORD_HASH);
 		return jsonError(
 			401,
 			"メールまたはパスワードが違う",
@@ -56,6 +62,21 @@ export async function handleSignin(
 			"メールまたはパスワードが違う",
 			"invalid_credentials",
 		);
+	}
+
+	// 旧形式（pbkdf2）や弱いパラメータの scrypt は、認証成功時に現行アルゴリズムへ
+	// 透過マイグレーションする。失敗してもサインインは続行する（次回もう一度試す）。
+	if (needsRehash(user.password_hash)) {
+		try {
+			const newHash = await hashPassword(password);
+			await env.DB.prepare(
+				"UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?",
+			)
+				.bind(newHash, now(), user.id)
+				.run();
+		} catch (err) {
+			console.error("[hidoko-id] password rehash failed", err);
+		}
 	}
 
 	if (user.email_verified !== 1) {
