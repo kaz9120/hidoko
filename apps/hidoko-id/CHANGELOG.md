@@ -1,5 +1,12 @@
 # hidoko-id
 
+## [0.5.0](https://github.com/kaz9120/hidoko/compare/hidoko-id-v0.4.0...hidoko-id-v0.5.0) (2026-06-16)
+
+
+### Features
+
+* **hidoko-id:** パスワード再設定 4 ステップを実装する ([#213](https://github.com/kaz9120/hidoko/issues/213)) ([f425f2e](https://github.com/kaz9120/hidoko/commit/f425f2ed1a9546e0d3575db67f8858a6fc6be744))
+
 ## [0.4.0](https://github.com/kaz9120/hidoko/compare/hidoko-id-v0.3.1...hidoko-id-v0.4.0) (2026-06-16)
 
 
