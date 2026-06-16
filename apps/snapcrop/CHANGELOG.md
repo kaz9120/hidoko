@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.13.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.12.1...snapcrop-v0.13.0) (2026-06-16)
+
+
+### Features
+
+* **analytics:** アクセス解析 (GA4 + Microsoft Clarity) の共通コンポーネントを全 app に組み込む ([#170](https://github.com/kaz9120/hidoko/issues/170)) ([93ad6b1](https://github.com/kaz9120/hidoko/commit/93ad6b1e247d0ee2abe2a44dd873cf3f7c01f394))
+* **snapcrop:** プラポリにアクセス解析 (GA4 + Microsoft Clarity) を追記する ([#210](https://github.com/kaz9120/hidoko/issues/210)) ([4dc4013](https://github.com/kaz9120/hidoko/commit/4dc40133af622d40f83111505921133a084fa70f))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ui bumped to 0.3.0
+
 ## [0.12.1](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.12.0...snapcrop-v0.12.1) (2026-06-15)
 
 

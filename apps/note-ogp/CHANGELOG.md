@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.12.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.11.1...note-ogp-v0.12.0) (2026-06-16)
+
+
+### Features
+
+* **analytics:** アクセス解析 (GA4 + Microsoft Clarity) の共通コンポーネントを全 app に組み込む ([#170](https://github.com/kaz9120/hidoko/issues/170)) ([93ad6b1](https://github.com/kaz9120/hidoko/commit/93ad6b1e247d0ee2abe2a44dd873cf3f7c01f394))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ui bumped to 0.3.0
+
 ## [0.11.1](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.11.0...note-ogp-v0.11.1) (2026-06-15)
 
 
