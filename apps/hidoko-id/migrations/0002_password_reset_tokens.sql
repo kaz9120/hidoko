@@ -15,3 +15,9 @@ CREATE TABLE IF NOT EXISTS password_reset_tokens (
 
 CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_user
   ON password_reset_tokens (user_id);
+
+-- 1 ユーザーにつき有効な未使用トークンは常に最大 1 件。並行リクエストで複数
+-- 作られても、DB レベルで弾く（partial unique index）。
+CREATE UNIQUE INDEX IF NOT EXISTS uq_password_reset_tokens_user_active
+  ON password_reset_tokens (user_id)
+  WHERE used_at IS NULL;

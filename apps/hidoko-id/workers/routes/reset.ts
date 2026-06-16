@@ -46,29 +46,35 @@ export async function handleResetRequest(
 	let devResetUrl: string | undefined;
 
 	if (user) {
-		// 既存の未使用トークンは捨てる（メール内リンクは常に「最新の 1 つ」だけ有効）。
-		await env.DB.prepare(
-			"DELETE FROM password_reset_tokens WHERE user_id = ? AND used_at IS NULL",
-		)
-			.bind(user.id)
-			.run();
-
 		const token = randomToken();
 		const tokenHash = await sha256Hex(token);
-		await env.DB.prepare(
-			"INSERT INTO password_reset_tokens (token_hash, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)",
-		)
-			.bind(tokenHash, user.id, t, t + RESET_TTL_MS)
-			.run();
+
+		// 既存の未使用トークンの破棄と新規発行を 1 トランザクションで。partial unique
+		// index（uq_password_reset_tokens_user_active）が belt-and-suspenders として、
+		// 同時実行で 2 本走った場合の二重 INSERT も DB レベルで弾く。
+		await env.DB.batch([
+			env.DB.prepare(
+				"DELETE FROM password_reset_tokens WHERE user_id = ? AND used_at IS NULL",
+			).bind(user.id),
+			env.DB.prepare(
+				"INSERT INTO password_reset_tokens (token_hash, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)",
+			).bind(tokenHash, user.id, t, t + RESET_TTL_MS),
+		]);
 
 		const baseUrl = env.PUBLIC_BASE_URL || new URL(request.url).origin;
 		const resetUrl = `${baseUrl}/reset/new?token=${encodeURIComponent(token)}`;
 
-		const sendResult = await sendPasswordResetEmail(env, {
-			to: email,
-			resetUrl,
-		});
-		devResetUrl = sendResult.devUrl;
+		// メール送信失敗はログだけ残してクライアントには成功を返す。enumeration 防止の
+		// 要件上、ユーザー存在時と非存在時で外向きの挙動を揃える。
+		try {
+			const sendResult = await sendPasswordResetEmail(env, {
+				to: email,
+				resetUrl,
+			});
+			devResetUrl = sendResult.devUrl;
+		} catch (err) {
+			console.error("[hidoko-id] password reset email send failed", err);
+		}
 	} else {
 		// ユーザー不在時もダミー sha256 を 1 回走らせて応答時間を揃える。
 		await sha256Hex(`reset:${email}:${newId()}`);
@@ -110,13 +116,21 @@ export async function handleResetConfirm(
 	}
 
 	const tokenHash = await sha256Hex(token);
-	const row = await env.DB.prepare(
-		"SELECT user_id, expires_at, used_at FROM password_reset_tokens WHERE token_hash = ?",
-	)
-		.bind(tokenHash)
-		.first<{ user_id: string; expires_at: number; used_at: number | null }>();
+	// 新パスワードのハッシュ化はトークン消費の前に走らせる。CPU 時間は scrypt が
+	// 一番重いので、無効トークンならハッシュ化分は無駄になるが、TOCTOU 回避を
+	// 優先する。
+	const passwordHash = await hashPassword(password);
+	const t = now();
 
-	if (!row || row.used_at != null || row.expires_at < now()) {
+	// トークン消費を 1 つの原子的 UPDATE にして TOCTOU を防ぐ。
+	// 同時リクエストが 2 本来ても、用件を満たすのは 1 本だけ。
+	const claimed = await env.DB.prepare(
+		"UPDATE password_reset_tokens SET used_at = ? WHERE token_hash = ? AND used_at IS NULL AND expires_at >= ? RETURNING user_id",
+	)
+		.bind(t, tokenHash, t)
+		.first<{ user_id: string }>();
+
+	if (!claimed) {
 		return jsonError(
 			410,
 			"このリンクは使えない。最初からやり直す",
@@ -124,18 +138,15 @@ export async function handleResetConfirm(
 		);
 	}
 
-	const passwordHash = await hashPassword(password);
-	const t = now();
-	// パスワード更新、トークン消費、既存セッション全削除を 1 トランザクションで。
+	// 確保したトークンの user に対してパスワード更新と既存セッションの全削除。
 	// 他端末からは強制サインアウトされる（design の Done 条件）。
 	await env.DB.batch([
 		env.DB.prepare(
 			"UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?",
-		).bind(passwordHash, t, row.user_id),
-		env.DB.prepare(
-			"UPDATE password_reset_tokens SET used_at = ? WHERE token_hash = ?",
-		).bind(t, tokenHash),
-		env.DB.prepare("DELETE FROM sessions WHERE user_id = ?").bind(row.user_id),
+		).bind(passwordHash, t, claimed.user_id),
+		env.DB.prepare("DELETE FROM sessions WHERE user_id = ?").bind(
+			claimed.user_id,
+		),
 	]);
 
 	return jsonOk({});

@@ -15,10 +15,29 @@ export function meta() {
 
 const RESEND_COOLDOWN_SEC = 60;
 
+/**
+ * `?dev_reset_url=` は dev fallback で API から返ってきたものをそのまま付け回す
+ * 仕様だが、検証なしで href に入れると `?dev_reset_url=https://evil` などで
+ * 任意 URL を画面に出せてしまう。同一オリジン + `/reset/new?token=` 形式のみ採用する。
+ */
+function safeDevResetUrl(raw: string | null): string | null {
+	if (!raw) return null;
+	if (typeof window === "undefined") return null;
+	try {
+		const u = new URL(raw, window.location.origin);
+		if (u.origin !== window.location.origin) return null;
+		if (u.pathname !== "/reset/new") return null;
+		if (!u.searchParams.get("token")) return null;
+		return u.toString();
+	} catch {
+		return null;
+	}
+}
+
 export default function ResetSentRoute() {
 	const [params, setParams] = useSearchParams();
 	const email = params.get("email") ?? "";
-	const devResetUrl = params.get("dev_reset_url");
+	const devResetUrl = safeDevResetUrl(params.get("dev_reset_url"));
 
 	const [cooldown, setCooldown] = useState(RESEND_COOLDOWN_SEC);
 	const [resending, setResending] = useState(false);
