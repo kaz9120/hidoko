@@ -12,10 +12,10 @@ export function meta() {
 
 export default function Privacy() {
 	return (
-		<LegalPage lastUpdated="2026-06-10" title="プライバシーポリシー">
+		<LegalPage lastUpdated="2026-06-16" title="プライバシーポリシー">
 			<LegalSection heading="基本方針">
 				<p>
-					snapcrop（以下「本サービス」）は、画像の切り抜き・加工をブラウザだけで完結させることを目的としたツールです。運営者（@kyamamoto9120）は、利用者の情報を集めること自体を目的とせず、本サービスの提供に必要な最小限の範囲でのみ情報を扱います。
+					snapcrop（以下「本サービス」）は、画像の切り抜き・加工をブラウザだけで完結させることを目的としたツールです。運営者（@kyamamoto9120）は、利用者の情報を集めること自体を目的とせず、本サービスの提供と改善に必要な最小限の範囲でのみ情報を扱います。
 				</p>
 			</LegalSection>
 
@@ -26,6 +26,10 @@ export default function Privacy() {
 				</p>
 				<p>
 					スクリーンキャプチャやクリップボードの読み取りは、利用者自身の操作とブラウザの許可があった場合にのみ行います。
+				</p>
+				<p>
+					後述の Microsoft Clarity
+					によるセッション記録についても、マスキング強度を最大設定（strict）で動作させており、編集中の画像や注釈テキストは記録に含まれません。
 				</p>
 			</LegalSection>
 
@@ -41,25 +45,79 @@ export default function Privacy() {
 				<p>これらはブラウザのサイトデータ削除機能でいつでも削除できます。</p>
 			</LegalSection>
 
-			<LegalSection heading="外部サービス">
+			<LegalSection heading="外部サービスへの情報送信">
 				<p>
-					本サービスは Web フォントを Google Fonts
-					から読み込みます。このため、ページ表示時に利用者のブラウザから Google
-					のサーバーへリクエスト（IP アドレス等を含む）が送信されます。詳細は
-					Google のプライバシーポリシーを参照してください。
+					本サービスは、提供と改善のために以下の外部サービスを利用します。改正電気通信事業法の外部送信規律にもとづき、送信先・送信される情報・利用目的を一覧します。
 				</p>
-				<p>
-					本サービスは Cloudflare
-					上でホスティングされています。配信基盤の性質上、Cloudflare
-					側でアクセスに関する技術的なログが記録されることがありますが、運営者がこれを個人の特定に利用することはありません。
-				</p>
-				<p>
-					現時点でアクセス解析ツールは導入していません。将来導入する場合は、本ポリシーを更新してお知らせします。
-				</p>
+				<div className="space-y-5">
+					<ServiceDisclosure
+						info="閲覧したページの URL とタイトル、リファラー、ブラウザ情報（User Agent・言語・画面サイズ）、IP アドレス（Google 側で匿名化処理されます）、ページ滞在時間などの操作情報"
+						name="Google Analytics 4（GA4）"
+						policyHref="https://policies.google.com/privacy"
+						purpose="サイト全体の利用状況の把握とサービス改善"
+						recipient="Google LLC（米国）"
+					/>
+					<ServiceDisclosure
+						info="閲覧したページの URL とタイトル、リファラー、ブラウザ情報（User Agent・言語・画面サイズ）、IP アドレス、クリックやスクロールなどの操作情報、セッション記録（ただし strict マスキング設定により、編集中の画像や入力テキストは伏字となり記録されません）"
+						name="Microsoft Clarity"
+						policyHref="https://privacy.microsoft.com/ja-jp/privacystatement"
+						purpose="画面内の操作パターンの把握と UI 改善"
+						recipient="Microsoft Corporation（米国）"
+					/>
+					<ServiceDisclosure
+						info="ページ表示時のフォントリクエスト（IP アドレス・User Agent を含む）"
+						name="Google Fonts"
+						policyHref="https://policies.google.com/privacy"
+						purpose="Web フォント（Inter・Noto Sans JP・JetBrains Mono）の配信"
+						recipient="Google LLC（米国）"
+					/>
+					<ServiceDisclosure
+						info="配信に伴うアクセスログ（IP アドレス・User Agent・リクエストパス）"
+						name="Cloudflare"
+						policyHref="https://www.cloudflare.com/ja-jp/privacypolicy/"
+						purpose="本サービスのホスティングおよび配信"
+						recipient="Cloudflare, Inc.（米国）"
+					/>
+				</div>
 			</LegalSection>
 
 			<LegalSection heading="Cookie">
-				<p>本サービス自身が Cookie を発行・利用することはありません。</p>
+				<p>
+					本サービス自身が独自の Cookie
+					を発行することはありません。ただし、上記のうち Google Analytics 4 と
+					Microsoft Clarity が、利用状況の計測のためにブラウザへ次の Cookie
+					を保存します。
+				</p>
+				<ul className="list-disc space-y-1 pl-5">
+					<li>
+						<code className="font-mono text-xs">_ga</code>,{" "}
+						<code className="font-mono text-xs">_ga_*</code> ─ Google Analytics
+						4 の利用者識別とセッション状態（保存期間は最長 2 年）
+					</li>
+					<li>
+						<code className="font-mono text-xs">_clck</code>,{" "}
+						<code className="font-mono text-xs">_clsk</code> ほか ─ Microsoft
+						Clarity の利用者識別とセッション情報（保存期間は最長 1 年）
+					</li>
+				</ul>
+				<p>これらはブラウザのサイトデータ削除機能でいつでも削除できます。</p>
+			</LegalSection>
+
+			<LegalSection heading="オプトアウト">
+				<p>
+					Google Analytics 4 による計測を停止したい場合は、Google が提供する{" "}
+					<a
+						className="underline underline-offset-2"
+						href="https://tools.google.com/dlpage/gaoptout"
+						rel="noreferrer"
+						target="_blank"
+					>
+						Google アナリティクス オプトアウト アドオン
+					</a>{" "}
+					をブラウザにインストールしてください。Microsoft Clarity
+					の計測を停止したい場合は、ブラウザの「トラッキング防止」機能を有効にするか、上記の
+					Cookie をブロックしてください。
+				</p>
 			</LegalSection>
 
 			<LegalSection heading="お問い合わせ">
@@ -83,5 +141,44 @@ export default function Privacy() {
 				</p>
 			</LegalSection>
 		</LegalPage>
+	);
+}
+
+function ServiceDisclosure({
+	name,
+	recipient,
+	info,
+	purpose,
+	policyHref,
+}: {
+	name: string;
+	recipient: string;
+	info: string;
+	purpose: string;
+	policyHref: string;
+}) {
+	return (
+		<div>
+			<h3 className="font-semibold text-foreground">{name}</h3>
+			<dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+				<dt className="font-medium text-foreground">送信先</dt>
+				<dd>{recipient}</dd>
+				<dt className="font-medium text-foreground">送信される情報</dt>
+				<dd>{info}</dd>
+				<dt className="font-medium text-foreground">利用目的</dt>
+				<dd>{purpose}</dd>
+				<dt className="font-medium text-foreground">プライバシーポリシー</dt>
+				<dd className="break-all">
+					<a
+						className="underline underline-offset-2"
+						href={policyHref}
+						rel="noreferrer"
+						target="_blank"
+					>
+						{policyHref}
+					</a>
+				</dd>
+			</dl>
+		</div>
 	);
 }
