@@ -82,3 +82,35 @@ export function signup(req: SignupRequest): Promise<SignupResponse> {
 export function signin(req: SigninRequest): Promise<SigninResponse> {
 	return postJson<SigninResponse>("/api/signin", req);
 }
+
+export interface ResetRequestBody {
+	email: string;
+}
+
+export interface ResetRequestResponse {
+	ok: true;
+	email: string;
+	// dev fallback。本番では返らない。
+	devResetUrl?: string;
+}
+
+export interface ResetConfirmBody {
+	token: string;
+	password: string;
+}
+
+export interface ResetConfirmResponse {
+	ok: true;
+}
+
+export function resetRequest(
+	req: ResetRequestBody,
+): Promise<ResetRequestResponse> {
+	return postJson<ResetRequestResponse>("/api/reset/request", req);
+}
+
+export function resetConfirm(
+	req: ResetConfirmBody,
+): Promise<ResetConfirmResponse> {
+	return postJson<ResetConfirmResponse>("/api/reset/confirm", req);
+}

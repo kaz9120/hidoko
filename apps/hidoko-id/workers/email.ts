@@ -5,8 +5,14 @@ interface VerificationEmail {
 	verifyUrl: string;
 }
 
+interface PasswordResetEmail {
+	to: string;
+	resetUrl: string;
+}
+
 const FROM_ADDRESS = "no-reply@id.y-kaz.com";
 const SUBJECT = "アカウント確認のご案内";
+const PASSWORD_RESET_SUBJECT = "アカウントパスワードの再設定";
 
 /**
  * 本番では Cloudflare Email Service の send_email binding で送信する。
@@ -57,6 +63,58 @@ function verificationHtml(verifyUrl: string): string {
 		"<p>以下のリンクを開くと、メールアドレスの確認が完了する。リンクは 24 時間で失効する。</p>",
 		`<p><a href="${safeUrl}">${safeUrl}</a></p>`,
 		"<p>このメールに心当たりがない場合は、無視して問題ない。</p>",
+		"</body></html>",
+	].join("\n");
+}
+
+/**
+ * パスワード再設定リンクを送る。dev fallback の挙動は検証メールと同じ。
+ */
+export async function sendPasswordResetEmail(
+	env: Env,
+	mail: PasswordResetEmail,
+): Promise<{ sent: boolean; devUrl?: string }> {
+	if (env.EMAIL_DEV_LOG === "true") {
+		console.warn(
+			"[hidoko-id] EMAIL_DEV_LOG=true: 再設定 URL を SPA に返してフォールバックする",
+			{ to: mail.to, resetUrl: mail.resetUrl },
+		);
+		return { sent: false, devUrl: mail.resetUrl };
+	}
+
+	await env.EMAIL.send({
+		to: mail.to,
+		from: FROM_ADDRESS,
+		subject: PASSWORD_RESET_SUBJECT,
+		text: passwordResetText(mail.resetUrl),
+		html: passwordResetHtml(mail.resetUrl),
+	});
+	return { sent: true };
+}
+
+function passwordResetText(resetUrl: string): string {
+	return [
+		"パスワード再設定の申請を受け付けた。",
+		"",
+		"以下のリンクを開くと、新しいパスワードを設定できる。",
+		"リンクは 24 時間で失効する。",
+		"",
+		resetUrl,
+		"",
+		"このメールに心当たりがない場合は、無視して問題ない。",
+		"申請者がそのまま諦めれば、パスワードは変わらないまま。",
+	].join("\n");
+}
+
+function passwordResetHtml(resetUrl: string): string {
+	const safeUrl = escapeHtml(resetUrl);
+	return [
+		"<!doctype html>",
+		'<html lang="ja"><body>',
+		"<p>パスワード再設定の申請を受け付けた。</p>",
+		"<p>以下のリンクを開くと、新しいパスワードを設定できる。リンクは 24 時間で失効する。</p>",
+		`<p><a href="${safeUrl}">${safeUrl}</a></p>`,
+		"<p>このメールに心当たりがない場合は、無視して問題ない。申請者がそのまま諦めれば、パスワードは変わらないまま。</p>",
 		"</body></html>",
 	].join("\n");
 }
