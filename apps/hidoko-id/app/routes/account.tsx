@@ -10,6 +10,7 @@ import {
 	redirect,
 	useLoaderData,
 	useNavigate,
+	useSearchParams,
 } from "react-router";
 import { AccountNav } from "~/components/account-nav";
 import { AuthButton } from "~/components/auth-button";
@@ -17,6 +18,25 @@ import { LogoMark } from "~/components/logo-mark";
 import { Mark } from "~/components/mark";
 import { fetchMe, type MeResponse, signout } from "~/lib/account-api";
 import { ApiError } from "~/lib/auth-api";
+
+const EMAIL_CHANGE_BANNER: Record<
+	string,
+	{ tone: "moss" | "rust"; text: string }
+> = {
+	ok: { tone: "moss", text: "メールアドレスを変更した" },
+	expired: {
+		tone: "rust",
+		text: "確認リンクの有効期限が切れていた。やり直す",
+	},
+	taken: {
+		tone: "rust",
+		text: "そのメールは別のアカウントで使われている",
+	},
+	missing_token: {
+		tone: "rust",
+		text: "確認リンクの形式が不正",
+	},
+};
 
 export function meta() {
 	return [
@@ -48,6 +68,11 @@ export default function AccountLayout() {
 	const { user } = useLoaderData() as LoaderData;
 	const navigate = useNavigate();
 	const [signingOut, setSigningOut] = useState(false);
+	const [searchParams] = useSearchParams();
+	const emailChange = searchParams.get("email_change");
+	const emailChangeBanner = emailChange
+		? EMAIL_CHANGE_BANNER[emailChange]
+		: null;
 
 	async function onSignout() {
 		setSigningOut(true);
@@ -86,6 +111,20 @@ export default function AccountLayout() {
 					</div>
 				</div>
 			</header>
+
+			{emailChangeBanner ? (
+				<div className="mx-auto max-w-[1080px] px-8 pt-6">
+					<div
+						className={`rounded-md border px-3.5 py-2.5 text-[13px] ${
+							emailChangeBanner.tone === "moss"
+								? "border-[color-mix(in_oklab,var(--moss)_35%,transparent)] bg-[color-mix(in_oklab,var(--moss)_14%,transparent)] text-[#b9c79a]"
+								: "border-[color-mix(in_oklab,var(--rust)_35%,transparent)] bg-[color-mix(in_oklab,var(--rust)_14%,transparent)] text-[var(--rust)]"
+						}`}
+					>
+						{emailChangeBanner.text}
+					</div>
+				</div>
+			) : null}
 
 			<div className="mx-auto grid max-w-[1080px] grid-cols-[220px_1fr] gap-10 px-8 py-10">
 				<aside className="border-r border-[var(--border-subtle)] pr-6">

@@ -13,11 +13,11 @@ interface NavItem {
 
 const NAV: readonly NavItem[] = [
 	{ label: "プロフィール", to: "/account" },
-	{ label: "メール・パスワード", soon: "次のフェーズで対応" },
+	{ label: "メール・パスワード", to: "/account/credentials" },
 	{ label: "接続済みアプリ", soon: "OAuth プロバイダ実装後" },
 	{ label: "接続済み MCP", soon: "OAuth プロバイダ実装後" },
 	{ label: "セッション", to: "/account/sessions" },
-	{ label: "危険な操作", soon: "次のフェーズで対応" },
+	{ label: "危険な操作", to: "/account/danger" },
 ];
 
 export function AccountNav() {
