@@ -1,5 +1,12 @@
 # hidoko-id
 
+## [0.8.0](https://github.com/kaz9120/hidoko/compare/hidoko-id-v0.7.0...hidoko-id-v0.8.0) (2026-06-16)
+
+
+### Features
+
+* **hidoko-id:** /account にプロフィール編集とメール・パスワード変更と削除を足す ([#222](https://github.com/kaz9120/hidoko/issues/222)) ([16a9f65](https://github.com/kaz9120/hidoko/commit/16a9f650effcaf15e382444d41e82bd6c227ae47)), closes [#204](https://github.com/kaz9120/hidoko/issues/204)
+
 ## [0.7.0](https://github.com/kaz9120/hidoko/compare/hidoko-id-v0.6.1...hidoko-id-v0.7.0) (2026-06-16)
 
 
