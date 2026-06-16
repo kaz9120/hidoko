@@ -5,9 +5,11 @@ import { AuthButton } from "~/components/auth-button";
 import { AuthField, AuthInput } from "~/components/auth-input";
 import { Divider } from "~/components/divider";
 import { Embers } from "~/components/embers";
+import { GoogleGIcon } from "~/components/google-g-icon";
 import { LogoMark } from "~/components/logo-mark";
 import { Mark } from "~/components/mark";
 import { ApiError, signin } from "~/lib/auth-api";
+import { oauthErrorMessage } from "~/lib/oauth-errors";
 
 export function meta() {
 	return [
@@ -28,12 +30,19 @@ export default function SigninRoute() {
 	const initialEmail = params.get("email") ?? "";
 	const justVerified = params.get("verified") === "1";
 	const returnTo = params.get("return_to") ?? "";
+	const oauthError = params.get("oauth_error");
 
 	const [email, setEmail] = useState(initialEmail);
 	const [password, setPassword] = useState("");
 	const [submitting, setSubmitting] = useState(false);
-	const [error, setError] = useState<string | null>(null);
+	const [error, setError] = useState<string | null>(
+		oauthError ? oauthErrorMessage(oauthError) : null,
+	);
 	const [isWide, setIsWide] = useState(false);
+
+	const googleStartHref = returnTo
+		? `/oauth/start/google?return_to=${encodeURIComponent(returnTo)}`
+		: "/oauth/start/google";
 
 	useEffect(() => {
 		const mql = window.matchMedia("(min-width: 1024px)");
@@ -139,11 +148,13 @@ export default function SigninRoute() {
 			<AuthButton
 				type="button"
 				variant="secondary"
-				disabled
-				className="w-full"
-				title="次のスライスで対応"
+				className="w-full gap-2.5"
+				onClick={() => {
+					window.location.href = googleStartHref;
+				}}
 			>
-				Google で続行（近日対応）
+				<GoogleGIcon />
+				Google で続行
 			</AuthButton>
 		</form>
 	);

@@ -50,6 +50,10 @@
 		// 検証メール内リンクを組み立てるベース URL。
 		"PUBLIC_BASE_URL": "https://id.y-kaz.com",
 		// 本番では sender が設定済みなので dev fallback を切る。
-		"EMAIL_DEV_LOG": "false"
+		"EMAIL_DEV_LOG": "false",
+		// Google OIDC のクライアント ID。Google Cloud Console で作った Web 用クライアントの
+		// `client_id` をここに入れる。空のままだと /oauth/start/google は signin に
+		// `oauth_error=oidc_not_configured` で戻す。client_secret は wrangler secret put で。
+		"GOOGLE_CLIENT_ID": ""
 	}
 }

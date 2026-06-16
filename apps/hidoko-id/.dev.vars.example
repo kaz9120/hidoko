@@ -17,3 +17,11 @@ PUBLIC_BASE_URL=
 # 検証 URL を console + 画面下 DEV ONLY ブロックに返すフォールバックに切り替える。
 # 本番では wrangler.jsonc の vars 側で false にしている。
 EMAIL_DEV_LOG=true
+
+# Google OIDC のクライアント ID と secret。Google Cloud Console で Web 用 OAuth
+# 2.0 クライアントを作って取得する。リダイレクト URI には
+# `http://localhost:8787/oauth/callback/google` を登録しておくと dev で踏める。
+# 両方とも空のままだと /oauth/start/google は signin に
+# `oauth_error=oidc_not_configured` で戻すので、フローを試せない（コードは動く）。
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
