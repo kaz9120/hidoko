@@ -5,16 +5,21 @@
 
 import { handleGoogleCallback, handleGoogleStart } from "./oidc/google";
 import {
+	handleChangePassword,
+	handleDeleteAccount,
 	handleListSessions,
 	handleMe,
+	handleRequestEmailChange,
 	handleRevokeOtherSessions,
 	handleRevokeSession,
+	handleUpdateProfile,
 } from "./routes/account";
 import { handleResetConfirm, handleResetRequest } from "./routes/reset";
 import { handleSignin } from "./routes/signin";
 import { handleSignout } from "./routes/signout";
 import { handleSignup } from "./routes/signup";
 import { handleVerify } from "./routes/verify";
+import { handleVerifyEmailChange } from "./routes/verify-email-change";
 import type { Env } from "./types";
 
 export default {
@@ -60,6 +65,21 @@ export default {
 			const revokeMatch = path.match(/^\/api\/sessions\/([^/]+)\/revoke$/);
 			if (revokeMatch && request.method === "POST") {
 				return await handleRevokeSession(request, env, revokeMatch[1]);
+			}
+			if (path === "/api/account" && request.method === "PATCH") {
+				return await handleUpdateProfile(request, env);
+			}
+			if (path === "/api/account/password" && request.method === "POST") {
+				return await handleChangePassword(request, env);
+			}
+			if (path === "/api/account/email" && request.method === "POST") {
+				return await handleRequestEmailChange(request, env);
+			}
+			if (path === "/api/account" && request.method === "DELETE") {
+				return await handleDeleteAccount(request, env);
+			}
+			if (path === "/verify-email-change" && request.method === "GET") {
+				return await handleVerifyEmailChange(request, env);
 			}
 
 			// 次スライスの予約地：/oauth/{authorize,token,register} と /.well-known/* を

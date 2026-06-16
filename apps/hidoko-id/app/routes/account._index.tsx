@@ -1,8 +1,8 @@
 // /account のデフォルト画面（プロフィール）。phase 1 は読み取りのみ。
 // 表示名・アバターの編集は phase 2 で /account/profile に切り出す前提。
 
-import { CheckCircle, Mail, User } from "lucide-react";
-import { useOutletContext } from "react-router";
+import { ArrowUpRight, CheckCircle, Mail, User } from "lucide-react";
+import { Link, useOutletContext } from "react-router";
 import { Mark } from "~/components/mark";
 import type { AccountContext } from "./account";
 
@@ -18,14 +18,23 @@ export default function AccountProfileRoute() {
 
 	return (
 		<div className="flex flex-col gap-7">
-			<header>
-				<Mark tone="ember">プロフィール</Mark>
-				<h1 className="mt-2 mb-1 font-medium text-[22px] text-[var(--text-strong)] tracking-[-0.01em]">
-					あなたのアカウント
-				</h1>
-				<p className="m-0 text-[13px] text-[var(--text-muted)] leading-[1.7]">
-					表示名・アバターの編集は次のフェーズで対応する
-				</p>
+			<header className="flex items-start justify-between gap-4">
+				<div>
+					<Mark tone="ember">プロフィール</Mark>
+					<h1 className="mt-2 mb-1 font-medium text-[22px] text-[var(--text-strong)] tracking-[-0.01em]">
+						あなたのアカウント
+					</h1>
+					<p className="m-0 text-[13px] text-[var(--text-muted)] leading-[1.7]">
+						表示名・アバターは編集できる
+					</p>
+				</div>
+				<Link
+					to="/account/profile"
+					className="inline-flex items-center gap-1 self-center font-medium text-[13px] text-[var(--ember-400)] hover:text-[var(--ember-300)]"
+				>
+					編集
+					<ArrowUpRight aria-hidden className="size-3.5" />
+				</Link>
 			</header>
 
 			<dl className="grid grid-cols-[140px_1fr] gap-x-6 gap-y-3 text-[14px]">

@@ -87,3 +87,71 @@ export async function signout(): Promise<void> {
 		throw new ApiError(res.status, "サインアウトに失敗");
 	}
 }
+
+export interface UpdateProfileBody {
+	displayName: string | null;
+	avatarUrl: string | null;
+}
+
+export async function updateProfile(
+	body: UpdateProfileBody,
+): Promise<MeResponse> {
+	const res = await fetch("/api/account", {
+		method: "PATCH",
+		headers: { "Content-Type": "application/json" },
+		credentials: "same-origin",
+		body: JSON.stringify(body),
+	});
+	return readJsonOk<MeResponse>(res);
+}
+
+export interface ChangePasswordBody {
+	currentPassword?: string;
+	newPassword: string;
+}
+
+export async function changePassword(body: ChangePasswordBody): Promise<void> {
+	const res = await fetch("/api/account/password", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		credentials: "same-origin",
+		body: JSON.stringify(body),
+	});
+	await readJsonOk<{ ok: true }>(res);
+}
+
+export interface RequestEmailChangeBody {
+	newEmail: string;
+}
+
+export interface RequestEmailChangeResponse {
+	ok: true;
+	newEmail: string;
+	devVerifyUrl?: string;
+}
+
+export async function requestEmailChange(
+	body: RequestEmailChangeBody,
+): Promise<RequestEmailChangeResponse> {
+	const res = await fetch("/api/account/email", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		credentials: "same-origin",
+		body: JSON.stringify(body),
+	});
+	return readJsonOk<RequestEmailChangeResponse>(res);
+}
+
+export interface DeleteAccountBody {
+	confirmEmail: string;
+}
+
+export async function deleteAccount(body: DeleteAccountBody): Promise<void> {
+	const res = await fetch("/api/account", {
+		method: "DELETE",
+		headers: { "Content-Type": "application/json" },
+		credentials: "same-origin",
+		body: JSON.stringify(body),
+	});
+	await readJsonOk<{ ok: true }>(res);
+}

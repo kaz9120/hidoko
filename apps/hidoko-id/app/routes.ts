@@ -13,7 +13,10 @@ export default [
 	// アカウント設定はレイアウト + Outlet でネストする。
 	route("account", "routes/account.tsx", [
 		index("routes/account._index.tsx"),
+		route("profile", "routes/account.profile.tsx"),
+		route("credentials", "routes/account.credentials.tsx"),
 		route("sessions", "routes/account.sessions.tsx"),
+		route("danger", "routes/account.danger.tsx"),
 	]),
 	// 注：/verify?token=… は workers/app.ts が掴むので SPA route には載せない。
 	// /oauth/return は次スライスで OAuth プロバイダに繋ぐためのプレースホルダ。
