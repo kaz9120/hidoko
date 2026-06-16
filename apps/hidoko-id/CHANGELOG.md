@@ -1,5 +1,12 @@
 # hidoko-id
 
+## [0.6.1](https://github.com/kaz9120/hidoko/compare/hidoko-id-v0.6.0...hidoko-id-v0.6.1) (2026-06-16)
+
+
+### Bug Fixes
+
+* **hidoko-id:** サインインの Google OIDC を OIDC Core 仕様に揃え、乗っ取り経路を塞ぐ ([#220](https://github.com/kaz9120/hidoko/issues/220)) ([7ca4b9f](https://github.com/kaz9120/hidoko/commit/7ca4b9fe404df517411e993194da2fc6cc934f49))
+
 ## [0.6.0](https://github.com/kaz9120/hidoko/compare/hidoko-id-v0.5.0...hidoko-id-v0.6.0) (2026-06-16)
 
 
