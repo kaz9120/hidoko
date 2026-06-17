@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.4](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.14.3...snapcrop-v0.14.4) (2026-06-17)
+
+
+### Bug Fixes
+
+* **snapcrop:** 色 popover の補助テキストを削除する ([#267](https://github.com/kaz9120/hidoko/issues/267)) ([f3a9ffd](https://github.com/kaz9120/hidoko/commit/f3a9ffda5cc7cb6308e05f823b9df05937e05f6c))
+
 ## [0.14.3](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.14.2...snapcrop-v0.14.3) (2026-06-17)
 
 
