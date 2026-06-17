@@ -58,7 +58,7 @@ export function ArrowSelectionOverlay({
 		if (!d || d.pointerId !== e.pointerId) return;
 		const pt = getImagePoint(e.clientX, e.clientY);
 		if (!pt) return;
-		engine.updateInteraction(pt);
+		engine.updateInteraction(pt, e.shiftKey);
 	};
 
 	const onHandleUp = (e: React.PointerEvent<HTMLDivElement>) => {

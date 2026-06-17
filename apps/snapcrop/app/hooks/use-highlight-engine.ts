@@ -67,6 +67,35 @@ function resolveDrawCurrent(i: {
 	return i.constrain ? constrainToAxis(i.startImg, i.currentImg) : i.currentImg;
 }
 
+/**
+ * endpoint ドラッグ中の実効 delta。Shift 拘束中は反対端を固定して動かす端点を
+ * 優勢軸 (水平 / 垂直) に吸着させ、その結果から元端点座標との差分を返す。
+ */
+function resolveEndpointDelta(i: {
+	endpoint: HighlightEndpoint;
+	startHighlight: HighlightAnnotation;
+	startImg: ImagePoint;
+	currentImg: ImagePoint;
+	constrain: boolean;
+}): { dx: number; dy: number } {
+	const dx = i.currentImg.x - i.startImg.x;
+	const dy = i.currentImg.y - i.startImg.y;
+	if (!i.constrain) return { dx, dy };
+	const origin =
+		i.endpoint === "start"
+			? { x: i.startHighlight.x1, y: i.startHighlight.y1 }
+			: { x: i.startHighlight.x2, y: i.startHighlight.y2 };
+	const fixed =
+		i.endpoint === "start"
+			? { x: i.startHighlight.x2, y: i.startHighlight.y2 }
+			: { x: i.startHighlight.x1, y: i.startHighlight.y1 };
+	const snapped = constrainToAxis(fixed, {
+		x: origin.x + dx,
+		y: origin.y + dy,
+	});
+	return { dx: snapped.x - origin.x, dy: snapped.y - origin.y };
+}
+
 export type UseHighlightEngineResult = {
 	/** 表示用 highlight 配列。interaction 中はそのハイライトだけ delta 反映済 */
 	renderedHighlights: readonly HighlightAnnotation[];
@@ -232,12 +261,10 @@ export function useHighlightEngine(
 				y2: next.y2,
 			});
 		} else {
-			const dx = prev.currentImg.x - prev.startImg.x;
-			const dy = prev.currentImg.y - prev.startImg.y;
 			const next = moveHighlightEndpoint(
 				prev.startHighlight,
 				prev.endpoint,
-				{ dx, dy },
+				resolveEndpointDelta(prev),
 				img,
 			);
 			updateHighlight(prev.id, {
@@ -269,7 +296,7 @@ export function useHighlightEngine(
 			return moveHighlightEndpoint(
 				interaction.startHighlight,
 				interaction.endpoint,
-				{ dx, dy },
+				resolveEndpointDelta(interaction),
 				img,
 			);
 		});
