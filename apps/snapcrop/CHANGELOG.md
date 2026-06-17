@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.14.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.13.0...snapcrop-v0.14.0) (2026-06-17)
+
+
+### Features
+
+* **snapcrop:** workers.dev で Agentation を起動する debug gate を導入する ([#229](https://github.com/kaz9120/hidoko/issues/229)) ([00093fd](https://github.com/kaz9120/hidoko/commit/00093fdf4d3641189c24b8fc8c23e6fdde758d9e))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ui bumped to 0.4.0
+
 ## [0.13.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.12.1...snapcrop-v0.13.0) (2026-06-16)
 
 
