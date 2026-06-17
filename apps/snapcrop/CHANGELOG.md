@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.1](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.14.0...snapcrop-v0.14.1) (2026-06-17)
+
+
+### Bug Fixes
+
+* **snapcrop:** 矢印・マーカーの端を Shift+ドラッグで角度スナップさせる ([#259](https://github.com/kaz9120/hidoko/issues/259)) ([644ca26](https://github.com/kaz9120/hidoko/commit/644ca269ca4a58ea33c8cfb9aa6d12a8498d00f0))
+
 ## [0.14.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.13.0...snapcrop-v0.14.0) (2026-06-17)
 
 
