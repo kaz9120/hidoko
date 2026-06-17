@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.1](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.13.0...note-ogp-v0.13.1) (2026-06-17)
+
+
+### Bug Fixes
+
+* **note-ogp:** showLead を AutoFitTitle の高さ予算に組み込む ([#257](https://github.com/kaz9120/hidoko/issues/257)) ([6d12564](https://github.com/kaz9120/hidoko/commit/6d125649b2917541f502a4f784d50538f1845f17))
+
 ## [0.13.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.12.1...note-ogp-v0.13.0) (2026-06-17)
 
 
