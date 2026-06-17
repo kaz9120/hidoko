@@ -28,22 +28,26 @@ export default {
 		const path = url.pathname;
 
 		try {
-			if (path === "/api/signup" && request.method === "POST") {
+			// ここから 6 経路（#215 影響範囲）はメソッド判定を handler 側に寄せ、path 一致だけで
+			// dispatch する。誤メソッドは handler が 405 を返す（path はあるが method が違う
+			// リクエストが SPA フォールスルーで HTML を返してしまうのを避ける）。残りの経路は
+			// path+method 判定のままで、別途 follow-up。
+			if (path === "/api/signup") {
 				return await handleSignup(request, env);
 			}
-			if (path === "/api/signin" && request.method === "POST") {
+			if (path === "/api/signin") {
 				return await handleSignin(request, env);
 			}
-			if (path === "/api/signout" && request.method === "POST") {
+			if (path === "/api/signout") {
 				return await handleSignout(request, env);
 			}
-			if (path === "/api/reset/request" && request.method === "POST") {
+			if (path === "/api/reset/request") {
 				return await handleResetRequest(request, env);
 			}
-			if (path === "/api/reset/confirm" && request.method === "POST") {
+			if (path === "/api/reset/confirm") {
 				return await handleResetConfirm(request, env);
 			}
-			if (path === "/verify" && request.method === "GET") {
+			if (path === "/verify") {
 				return await handleVerify(request, env);
 			}
 			if (path === "/oauth/start/google" && request.method === "GET") {
