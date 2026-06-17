@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.12.1...note-ogp-v0.13.0) (2026-06-17)
+
+
+### Features
+
+* **note-ogp:** workers.dev と localhost で Agentation を起動する ([#231](https://github.com/kaz9120/hidoko/issues/231)) ([38eaa0b](https://github.com/kaz9120/hidoko/commit/38eaa0b1f57ffccaa6361f23905710b2d9f8f175)), closes [#228](https://github.com/kaz9120/hidoko/issues/228)
+
 ## [0.12.1](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.12.0...note-ogp-v0.12.1) (2026-06-17)
 
 
