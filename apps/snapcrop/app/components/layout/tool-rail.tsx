@@ -176,9 +176,6 @@ export function ToolRail() {
 							colors={HIGHLIGHT_PRESET_COLORS}
 							onChange={setMarkerColor}
 						/>
-						<p className="text-[10.5px] text-(--text-faint)">
-							保存されます。次に開いたときもこの色から始まります。
-						</p>
 					</div>
 				</PopoverContent>
 			</Popover>
