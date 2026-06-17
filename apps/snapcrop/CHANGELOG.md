@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.5](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.14.4...snapcrop-v0.14.5) (2026-06-17)
+
+
+### Bug Fixes
+
+* **snapcrop:** ヘルプダイアログを OS 判定で ⌘ / Ctrl 出し分ける ([#269](https://github.com/kaz9120/hidoko/issues/269)) ([96bb585](https://github.com/kaz9120/hidoko/commit/96bb58598d34ad67a0343dd65064a4515c554d4f))
+
 ## [0.14.4](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.14.3...snapcrop-v0.14.4) (2026-06-17)
 
 
