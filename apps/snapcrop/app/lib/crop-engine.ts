@@ -17,6 +17,9 @@ export type ImageMetrics = {
 
 export type ResizeHandle = "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw";
 
+/** クロップ範囲の最小辺長 (px)。画像座標系。 */
+export const MIN_CROP_SIZE = 50;
+
 /** rect を画像範囲内に収め、最小サイズ制約を満たすよう調整する。 */
 export function clampRect(
 	rect: CropRect,
