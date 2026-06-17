@@ -9,6 +9,7 @@ import {
 	DialogTitle,
 } from "ui/components/dialog";
 import { Kbd, KbdGroup } from "ui/components/kbd";
+import { isApplePlatform } from "~/lib/platform";
 
 type Shortcut = {
 	keys: readonly string[];
@@ -112,6 +113,16 @@ const AUTHOR_LINKS = [
  */
 export function HelpDialog() {
 	const [open, setOpen] = useState(false);
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
+
+	// hydration 前は ⌘ 表記固定（empty-hero と同じ理由）。mounted 後に
+	// OS 判定で出し分けて、Windows / Linux なら Ctrl に置換する。
+	const apple = mounted ? isApplePlatform() : true;
+	const cmdLabel = apple ? "⌘" : "Ctrl";
 
 	useEffect(() => {
 		const handler = (event: KeyboardEvent) => {
@@ -155,7 +166,7 @@ export function HelpDialog() {
 					<DialogHeader>
 						<DialogTitle>キーボードショートカット</DialogTitle>
 						<DialogDescription>
-							Windows / Linux では ⌘ を Ctrl に読み替えてください。
+							お使いの OS のキー表記で表示しています。
 						</DialogDescription>
 					</DialogHeader>
 
@@ -186,7 +197,7 @@ export function HelpDialog() {
 																	+
 																</span>
 															)}
-															<Kbd>{key}</Kbd>
+															<Kbd>{key === "⌘" ? cmdLabel : key}</Kbd>
 														</Fragment>
 													))}
 												</KbdGroup>
