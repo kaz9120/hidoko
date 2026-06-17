@@ -7,7 +7,7 @@ import {
 	Scripts,
 	ScrollRestoration,
 } from "react-router";
-import { Analytics, Toaster, TooltipProvider } from "ui";
+import { AgentationDebugGate, Analytics, Toaster, TooltipProvider } from "ui";
 import faviconUrl from "ui/assets/logo/mark-cream.svg?url";
 import type { Route } from "./+types/root";
 import "./globals.css";
@@ -39,6 +39,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 					clarityId={import.meta.env.VITE_CLARITY_ID}
 					clarityMask="strict"
 				/>
+				<AgentationDebugGate />
 				<ScrollRestoration />
 				<Scripts />
 			</body>
