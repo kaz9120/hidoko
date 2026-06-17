@@ -1,5 +1,6 @@
 import { now, sha256Hex } from "../tokens";
 import type { Env } from "../types";
+import { jsonError } from "./helpers";
 
 /**
  * GET /verify?token=… を SPA に渡さず Worker で完結させる。
@@ -10,6 +11,10 @@ export async function handleVerify(
 	request: Request,
 	env: Env,
 ): Promise<Response> {
+	if (request.method !== "GET") {
+		return jsonError(405, "method not allowed");
+	}
+
 	const url = new URL(request.url);
 	const token = url.searchParams.get("token");
 	if (!token) {
