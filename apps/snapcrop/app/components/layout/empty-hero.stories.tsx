@@ -6,7 +6,7 @@ import { EmptyHero } from "./empty-hero";
 /**
  * 画像未ロード時に editor 全面へ出すヒーロー。ロゴ + 1 行コピー
  * (「スクショを瞬時にクリップボードへ。」)、キャプチャ / 貼り付けの
- * ショートカット案内、ドラッグ＆ドロップ対応の明示、made by 表記を載せる。
+ * ショートカット案内、ドラッグ＆ドロップ対応の明示、powered by 表記を載せる。
  *
  * ショートカット表記は Apple 系プラットフォームなら ⌘、それ以外なら
  * Win / Ctrl に出し分ける (Storybook では閲覧環境の表記になる)。
@@ -36,7 +36,7 @@ type Story = StoryObj<typeof meta>;
 
 /**
  * 初期表示。点線枠の中央にロゴとコピーが立ち、その下にショートカット案内と
- * ドラッグ＆ドロップの案内、下端に made by 表記が並ぶ。
+ * ドラッグ＆ドロップの案内、下端に powered by 表記が並ぶ。
  * @summary 初期表示
  */
 export const Default: Story = {
