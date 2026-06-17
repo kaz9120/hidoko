@@ -1,4 +1,5 @@
 import { type CSSProperties, useLayoutEffect, useRef, useState } from "react";
+import { useDocumentFontsReady } from "~/hooks/use-document-fonts-ready";
 import type {
 	Fields,
 	NumberCorner,
@@ -760,8 +761,10 @@ function AutoFitTitle({
 }) {
 	const ref = useRef<HTMLDivElement | null>(null);
 	const [size, setSize] = useState(max);
+	const fontsReady = useDocumentFontsReady();
 	// text は effect 内で直接読まないが、children として描画される結果を
 	// scrollWidth / Height で測るため、text が変われば再フィットさせたい。
+	// fontsReady は Web フォント読込後の書体メトリクスで再計測させるトリガ。
 	// biome-ignore lint/correctness/useExhaustiveDependencies: text 変更時に DOM 再測定が必要
 	useLayoutEffect(() => {
 		const el = ref.current;
@@ -779,7 +782,7 @@ function AutoFitTitle({
 		}
 		setSize(s);
 		onMeasured?.(s);
-	}, [text, width, maxH, max, min, step, onMeasured]);
+	}, [text, width, maxH, max, min, step, onMeasured, fontsReady]);
 
 	// 改行は手動指定どおりに保持する（自動折り返しなし）。
 	// TITLE_NOWRAP の whiteSpace: "pre" が \n をそのままレンダリングに反映
@@ -820,9 +823,11 @@ function Title({
 	const leadVisible = showLead && Boolean(lead);
 	const leadRef = useRef<HTMLDivElement | null>(null);
 	const [leadHeight, setLeadHeight] = useState(0);
+	const fontsReady = useDocumentFontsReady();
 
 	// lead テキストや slot の幅変更で DOM 高さが変わるので、effect 内で
-	// 直接参照していなくても依存に含めて再測定させる必要がある。
+	// 直接参照していなくても依存に含めて再測定させる必要がある。fontsReady は
+	// Web フォント読込後の書体メトリクスで再測定させるトリガ。
 	// biome-ignore lint/correctness/useExhaustiveDependencies: lead/slot 変更時に DOM 再測定が必要
 	useLayoutEffect(() => {
 		if (!leadVisible) {
@@ -836,7 +841,7 @@ function Title({
 		}
 		// marginTop は offsetHeight に含まれないので別途加算する
 		setLeadHeight(el.offsetHeight + LEAD_MARGIN_TOP);
-	}, [leadVisible, lead, slot]);
+	}, [leadVisible, lead, slot, fontsReady]);
 
 	// lead 高さを差し引いた maxH を AutoFitTitle に渡す。0 を下回らないようガード
 	// する（AutoFitTitle の縮小ループ自体は min フォントサイズで止まる）。
