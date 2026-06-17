@@ -1,6 +1,6 @@
 {
 	"name": "note-ogp",
-	"version": "0.13.1",
+	"version": "0.13.2",
 	"private": true,
 	"sideEffects": false,
 	"type": "module",

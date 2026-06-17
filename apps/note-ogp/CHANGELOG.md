@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.2](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.13.1...note-ogp-v0.13.2) (2026-06-17)
+
+
+### Bug Fixes
+
+* **note-ogp:** Web フォント読み込み後に AutoFitTitle と lead 高さを再計測する ([#261](https://github.com/kaz9120/hidoko/issues/261)) ([d37e98e](https://github.com/kaz9120/hidoko/commit/d37e98e5cb46fafc10b34cb09a05151577ab0b2e))
+
 ## [0.13.1](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.13.0...note-ogp-v0.13.1) (2026-06-17)
 
 
