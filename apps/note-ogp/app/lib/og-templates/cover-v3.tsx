@@ -801,6 +801,8 @@ function AutoFitTitle({
 	);
 }
 
+const LEAD_MARGIN_TOP = 18;
+
 function Title({
 	text,
 	lead,
@@ -815,12 +817,37 @@ function Title({
 	onMeasured?: (px: number) => void;
 }) {
 	const cfg = TITLE_SLOTS[slot];
+	const leadVisible = showLead && Boolean(lead);
+	const leadRef = useRef<HTMLDivElement | null>(null);
+	const [leadHeight, setLeadHeight] = useState(0);
+
+	// lead テキストや slot の幅変更で DOM 高さが変わるので、effect 内で
+	// 直接参照していなくても依存に含めて再測定させる必要がある。
+	// biome-ignore lint/correctness/useExhaustiveDependencies: lead/slot 変更時に DOM 再測定が必要
+	useLayoutEffect(() => {
+		if (!leadVisible) {
+			setLeadHeight(0);
+			return;
+		}
+		const el = leadRef.current;
+		if (!el) {
+			setLeadHeight(0);
+			return;
+		}
+		// marginTop は offsetHeight に含まれないので別途加算する
+		setLeadHeight(el.offsetHeight + LEAD_MARGIN_TOP);
+	}, [leadVisible, lead, slot]);
+
+	// lead 高さを差し引いた maxH を AutoFitTitle に渡す。0 を下回らないようガード
+	// する（AutoFitTitle の縮小ループ自体は min フォントサイズで止まる）。
+	const titleMaxH = Math.max(0, cfg.maxH - leadHeight);
+
 	return (
 		<div style={{ position: "absolute", ...cfg.box }}>
 			<AutoFitTitle
 				text={text}
 				width={cfg.width}
-				maxH={cfg.maxH}
+				maxH={titleMaxH}
 				max={cfg.max}
 				min={cfg.min}
 				align={cfg.align}
@@ -834,10 +861,11 @@ function Title({
 					textShadow: "0 2px 14px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.55)",
 				}}
 			/>
-			{showLead && lead && (
+			{leadVisible && (
 				<div
+					ref={leadRef}
 					style={{
-						marginTop: 18,
+						marginTop: LEAD_MARGIN_TOP,
 						maxWidth: Math.min(cfg.width, 620),
 						marginLeft:
 							cfg.align === "right"
