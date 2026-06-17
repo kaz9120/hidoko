@@ -69,6 +69,7 @@ const SECTIONS: readonly ShortcutSection[] = [
 			{ keys: ["A"], description: "矢印ツールに切り替え" },
 			{ keys: ["T"], description: "テキストツールに切り替え" },
 			{ keys: ["H"], description: "マーカーツールに切り替え" },
+			{ keys: ["M"], description: "モザイクツールに切り替え" },
 		],
 	},
 	{
