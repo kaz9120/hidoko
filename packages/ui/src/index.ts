@@ -1,3 +1,4 @@
+export { AgentationDebugGate } from "./components/agentation-debug-gate";
 export { Analytics, type AnalyticsProps } from "./components/analytics";
 export { Button, buttonVariants } from "./components/button";
 export { Toaster } from "./components/sonner";
