@@ -10,7 +10,7 @@ const X_PROFILE_URL = "https://x.com/kyamamoto9120";
 
 /**
  * 画像未ロード時に editor 全面へ出すヒーロー。ロゴ + 1 行コピー、主要
- * ショートカット案内、ドラッグ＆ドロップ案内、made by 表記をまとめる。
+ * ショートカット案内、ドラッグ＆ドロップ案内、powered by 表記をまとめる。
  *
  * ドロップの実体 (document レベルの drop 監視) は useFileDrop 側にあり、
  * ここは isDragging を受けて点線枠と案内文を反応させるだけ。
@@ -83,7 +83,7 @@ export function EmptyHero({ isDragging }: { isDragging: boolean }) {
 					rel="noreferrer"
 					target="_blank"
 				>
-					made by @kyamamoto9120
+					powered by @kyamamoto9120
 				</a>
 			</div>
 		</section>

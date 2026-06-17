@@ -198,7 +198,7 @@ export function HelpDialog() {
 					</div>
 
 					<footer className="flex items-center gap-3 border-border border-t pt-3">
-						<span className="text-muted-foreground text-xs">作った人</span>
+						<span className="text-muted-foreground text-xs">powered by</span>
 						{AUTHOR_LINKS.map((link) => (
 							<a
 								className="inline-flex items-center gap-1 text-foreground text-xs underline-offset-2 hover:underline"
