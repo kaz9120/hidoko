@@ -71,6 +71,39 @@ function resolveDrawCurrent(
 		: i.currentImg;
 }
 
+/**
+ * endpoint ドラッグ中の実効 delta。Shift 拘束中は反対端を固定して動かす端点を
+ * 45° 刻みに吸着させ、その結果から元端点座標との差分を返す。
+ */
+function resolveEndpointDelta(
+	i: {
+		endpoint: ArrowEndpoint;
+		startArrow: ArrowAnnotation;
+		startImg: ImagePoint;
+		currentImg: ImagePoint;
+		constrain: boolean;
+	},
+	img: ImageMetrics,
+): { dx: number; dy: number } {
+	const dx = i.currentImg.x - i.startImg.x;
+	const dy = i.currentImg.y - i.startImg.y;
+	if (!i.constrain) return { dx, dy };
+	const origin =
+		i.endpoint === "start"
+			? { x: i.startArrow.x1, y: i.startArrow.y1 }
+			: { x: i.startArrow.x2, y: i.startArrow.y2 };
+	const fixed =
+		i.endpoint === "start"
+			? { x: i.startArrow.x2, y: i.startArrow.y2 }
+			: { x: i.startArrow.x1, y: i.startArrow.y1 };
+	const snapped = constrainToAngleSnap(
+		fixed,
+		{ x: origin.x + dx, y: origin.y + dy },
+		img,
+	);
+	return { dx: snapped.x - origin.x, dy: snapped.y - origin.y };
+}
+
 export type UseArrowEngineResult = {
 	/** 表示用 arrow 配列。interaction 中はその矢印だけ delta 反映済 */
 	renderedArrows: readonly ArrowAnnotation[];
@@ -241,12 +274,10 @@ export function useArrowEngine(image: ImageMetrics): UseArrowEngineResult {
 				y2: next.y2,
 			});
 		} else {
-			const dx = prev.currentImg.x - prev.startImg.x;
-			const dy = prev.currentImg.y - prev.startImg.y;
 			const next = moveArrowEndpoint(
 				prev.startArrow,
 				prev.endpoint,
-				{ dx, dy },
+				resolveEndpointDelta(prev, img),
 				img,
 			);
 			updateArrow(prev.id, {
@@ -278,7 +309,7 @@ export function useArrowEngine(image: ImageMetrics): UseArrowEngineResult {
 			return moveArrowEndpoint(
 				interaction.startArrow,
 				interaction.endpoint,
-				{ dx, dy },
+				resolveEndpointDelta(interaction, img),
 				img,
 			);
 		});
