@@ -2,31 +2,24 @@
 
 # Claude Code 向けの追加指示
 
-## 実装タスクは PR まで完走する
+## 実装タスクは shipping で完走させる
 
-実装を頼まれたら、コードを書いて終わりにしない。PR が CI を通過し、レビューに対応できる状態までを 1 つの仕事とする。
+実装を頼まれたら、コードを書いて終わりにしない。PR を CI 緑・description 最新・全コメント解消・Draft 解除・マージ・ブランチ削除まで届ける。手順は `/shipping` に集約しているので、Issue URL / PR URL / タスク要件テキストを引数に投げ込むだけで完走まで進む。
 
-1. `main` から feature ブランチを切る。`main` に直接コミットしない。
-2. 実装し、`bun run preflight` を通す。
-3. 論理的変更ごとにコミットする（1 コミット 1 目的）。
-4. push して `gh pr create` で PR を作る。description は [.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md) の構造で書く。
-5. `gh pr checks <PR_URL> --watch` で CI を見届け、落ちたら直す。
-6. CodeRabbit のレビューが付いたら `/responding-to-coderabbit` で対応する。
+明示されなくても、実装タスクは `/shipping` の流れで進める。「PR を作っていいですか」「マージしていいですか」とは聞かない。確認するのは新規実装で What/Done が確定できないときだけ。それ以外は取り消し不能アクション（force push / reset --hard / branch 削除 / PR の close / merge）も含めて自分で実行する。
 
-「PR を作っていいですか」とは聞かない。ユーザーに確認するのは、スコープが変わるとき・破壊的な操作が必要なときだけ。
+hidoko は AI 駆動開発の最先端を試す実験場であり、業務リポジトリと同じ慎重さで動かさない。安全側に倒したい仕事は別のリポジトリでやる。
 
-## ユーザーが実行する操作
+## Claude が触らない 2 つだけ
 
-以下は提案にとどめ、Claude は実行しない。
+- `main` への直接 push（必ず PR 経由）
+- release-please のリリース PR の merge / 編集（auto-merge の仕組みに任せる）
 
-- `git push --force` / `git reset --hard` / ブランチ削除
-- PR の merge / close / approve
-- `--no-verify` によるフックのスキップ
+これ以外は全部自分で実行する。`--no-verify` で hook をスキップするのは禁止（hook が落ちたら原因を直す）。
 
 ## プロジェクトスキル
 
-- `/preparing-dev-task` — タスクを Why / What / Done に整理し、ブランチと Draft PR を作る
-- `/implementing-pull-request` — PR の状態（初回実装・継続・レビュー対応）を判別して完走させる
-- `/responding-to-coderabbit` — CodeRabbit の未解決コメントに修正・返信・resolve で対応する
+- `/shipping` — GitHub Issue / PR URL / タスク要件テキストを受け取り、PR をマージまで自律で届け切る。新規着手・継続開発・レビュー対応・Agentation のプレビューフィードバック対応を自動判別する
+- `/autonomous-development` — ローカル常駐ループで Issue をポーリングし、AI が着手して良い Issue を 1 つ取って `/shipping` を回す。完走したら次の Issue を探す
 
-スキルを明示されなくても、上の開発フローは常に適用する。
+`/shipping` は単発実行、`/autonomous-development` はそれをループで回すラッパー、という役割分担。普段の実装タスクは `/shipping` を使う。常駐運用したいときだけ `/autonomous-development` を起動する。

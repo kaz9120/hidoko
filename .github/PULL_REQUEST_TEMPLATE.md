@@ -1,5 +1,5 @@
 <!--
-  preparing-dev-task / implementing-pull-request スキルはこの構造で description を生成・更新する。
+  shipping スキルはこの構造で description を生成・更新する。
   手で PR を作るときも同じ構造を埋める。
 -->
 
