@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.3](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.14.2...snapcrop-v0.14.3) (2026-06-17)
+
+
+### Bug Fixes
+
+* **snapcrop:** ヘルプダイアログにモザイクツールのショートカットを追加する ([#265](https://github.com/kaz9120/hidoko/issues/265)) ([5dad9a4](https://github.com/kaz9120/hidoko/commit/5dad9a4c2c9bd2f5353e36a32487b907a8020f08))
+
 ## [0.14.2](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.14.1...snapcrop-v0.14.2) (2026-06-17)
 
 
