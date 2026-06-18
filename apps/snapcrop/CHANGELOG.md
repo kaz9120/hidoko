@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.7](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.15.6...snapcrop-v0.15.7) (2026-06-18)
+
+
+### Bug Fixes
+
+* **snapcrop:** トップのキャッチコピーを動詞連鎖型に書き換える ([#296](https://github.com/kaz9120/hidoko/issues/296)) ([495210d](https://github.com/kaz9120/hidoko/commit/495210dca8547c384d97cd833b73ced6f21b2dea))
+
 ## [0.15.6](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.15.5...snapcrop-v0.15.6) (2026-06-18)
 
 
