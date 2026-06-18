@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.16.1...snapcrop-v0.17.0) (2026-06-18)
+
+
+### Features
+
+* **snapcrop:** empty-hero に radial gradient を追加する ([#328](https://github.com/kaz9120/hidoko/issues/328)) ([fc86c55](https://github.com/kaz9120/hidoko/commit/fc86c55a6d7bcf1f1537b2faba7adc940e624048))
+
 ## [0.16.1](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.16.0...snapcrop-v0.16.1) (2026-06-18)
 
 
