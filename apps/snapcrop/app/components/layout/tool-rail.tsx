@@ -117,7 +117,7 @@ export function ToolRail() {
 				);
 			})}
 
-			<span aria-hidden="true" className="my-1.5 h-px w-6 shrink-0 bg-border" />
+			<span aria-hidden="true" className="my-3 h-px w-6 shrink-0 bg-border" />
 
 			{STYLE_PRESET_ORDER.map((id, i) => {
 				const preset = STYLE_PRESETS[id];
@@ -146,7 +146,7 @@ export function ToolRail() {
 				);
 			})}
 
-			<span aria-hidden="true" className="my-1.5 h-px w-6 shrink-0 bg-border" />
+			<span aria-hidden="true" className="my-3 h-px w-6 shrink-0 bg-border" />
 
 			<Popover>
 				<Tooltip>
