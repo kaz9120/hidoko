@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/kaz9120/hidoko/compare/ui-v0.4.0...ui-v0.4.1) (2026-06-18)
+
+
+### Bug Fixes
+
+* **ui:** テーマ切替時に html, body の bg / color を transition させる ([#276](https://github.com/kaz9120/hidoko/issues/276)) ([7697c84](https://github.com/kaz9120/hidoko/commit/7697c840ceb80ff6228dc78b9c0cfd70f0d7ab5c))
+
 ## [0.4.0](https://github.com/kaz9120/hidoko/compare/ui-v0.3.0...ui-v0.4.0) (2026-06-17)
 
 
