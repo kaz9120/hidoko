@@ -65,7 +65,7 @@ export function PrivacyContent() {
 						info="ページ表示時のフォントリクエスト（IP アドレス・User Agent を含む）"
 						name="Google Fonts"
 						policyHref="https://policies.google.com/privacy"
-						purpose="Web フォント（Inter・Noto Sans JP・JetBrains Mono）の配信"
+						purpose="Web フォント（Inter・LINE Seed JP・JetBrains Mono）の配信"
 						recipient="Google LLC（米国）"
 					/>
 					<ServiceDisclosure
