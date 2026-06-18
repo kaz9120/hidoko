@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.4](https://github.com/kaz9120/hidoko/compare/futari-no-yotei-v0.2.3...futari-no-yotei-v0.2.4) (2026-06-18)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ui bumped to 0.4.3
+
 ## [0.2.3](https://github.com/kaz9120/hidoko/compare/futari-no-yotei-v0.2.2...futari-no-yotei-v0.2.3) (2026-06-18)
 
 

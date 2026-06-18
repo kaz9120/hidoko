@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.3](https://github.com/kaz9120/hidoko/compare/ui-v0.4.2...ui-v0.4.3) (2026-06-18)
+
+
+### Bug Fixes
+
+* **ui:** Dialog の overlay と content の duration を 240ms に揃える ([#290](https://github.com/kaz9120/hidoko/issues/290)) ([7e15062](https://github.com/kaz9120/hidoko/commit/7e15062ee02906d83784ca7fb2634fdcf920204f))
+
 ## [0.4.2](https://github.com/kaz9120/hidoko/compare/ui-v0.4.1...ui-v0.4.2) (2026-06-18)
 
 
