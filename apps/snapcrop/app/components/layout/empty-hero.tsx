@@ -90,7 +90,7 @@ export function EmptyHero({ isDragging }: { isDragging: boolean }) {
 					rel="noreferrer"
 					target="_blank"
 				>
-					created by @kyamamoto9120
+					created by 焚き火を愛するエンジニア
 				</a>
 			</div>
 		</section>
