@@ -229,10 +229,12 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   /* テーマ切替 (.light クラスの付け外し) で背景・前景色をふわっと変える。
+     duration-relax + ease-settle で「夜と昼が入れ替わる」情緒を出す。
      要素単位の transition と競合させないため html/body のみに限定する。 */
   transition:
-    background-color var(--duration) var(--ease),
-    color var(--duration) var(--ease);
+    background-color var(--duration-relax) var(--ease-settle),
+    color var(--duration-relax) var(--ease-settle),
+    border-color var(--duration-relax) var(--ease-settle);
 }
 
 @media (prefers-reduced-motion: reduce) {
