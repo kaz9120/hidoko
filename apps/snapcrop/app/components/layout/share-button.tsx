@@ -2,7 +2,7 @@ import { Button } from "ui";
 
 const APP_URL = "https://snapcrop.y-kaz.com/?ref=share";
 
-const SHARE_TEXT = `スクショの切り抜き・注釈が一瞬で終わる snapcrop、便利 ✂️ (@kyamamoto9120 作)
+const SHARE_TEXT = `スクショに線を引いてすぐ渡す、これでやってる
 ${APP_URL}`;
 
 const TWEET_INTENT_URL = "https://twitter.com/intent/tweet";
