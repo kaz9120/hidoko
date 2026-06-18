@@ -43,11 +43,16 @@ export function EmptyHero({ isDragging }: { isDragging: boolean }) {
 					isDragging ? "border-primary bg-primary/10" : "border-border"
 				}`}
 			>
-				<div className="flex flex-col items-center gap-4">
+				<div className="flex flex-col items-center gap-3">
 					<img alt="" aria-hidden="true" className="size-16" src={logoUrl} />
 					<h2 className="font-bold text-2xl text-foreground tracking-tight">
-						撮ってすぐ、書き込んで、共有まで
+						撮って、書いて、すぐ共有
 					</h2>
+					{/* 見出しと併走するユースケース。snapcrop の典型動作と使い道を
+					    1 行で示す。「便利」のような評価語を避け、動詞で「何が起きるか」を出す。 */}
+					<p className="text-muted-foreground text-sm">
+						矢印を 1 本足したスクショを、そのまま Slack へ
+					</p>
 				</div>
 
 				<div className="flex flex-col items-center gap-3">
