@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.15.10...snapcrop-v0.16.0) (2026-06-18)
+
+
+### Features
+
+* **snapcrop:** OGP メタタグと OG 画像 (SVG) を追加する ([#305](https://github.com/kaz9120/hidoko/issues/305)) ([3c031c9](https://github.com/kaz9120/hidoko/commit/3c031c9296e8c1642556f67f8d499ae2e84a7860))
+
 ## [0.15.10](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.15.9...snapcrop-v0.15.10) (2026-06-18)
 
 
