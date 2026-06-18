@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.1](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.16.0...snapcrop-v0.16.1) (2026-06-18)
+
+
+### Bug Fixes
+
+* **snapcrop:** プライバシーポリシーの Web フォント表記を実態に合わせる ([#326](https://github.com/kaz9120/hidoko/issues/326)) ([fe5ede3](https://github.com/kaz9120/hidoko/commit/fe5ede35c69095329c7ea85147cac9bdcaeea5d8))
+
 ## [0.16.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.15.10...snapcrop-v0.16.0) (2026-06-18)
 
 
