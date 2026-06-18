@@ -15,6 +15,20 @@
 	}
 }
 
+@layer components {
+	/*
+	 * empty-hero 背景 — 下から立ち上る焚き火の輝き。homepage の
+	 * .ykz-hero-glow と同じレシピで snapcrop にも温度を持たせる。
+	 */
+	.snapcrop-hero-glow {
+		background: radial-gradient(
+			ellipse at 50% 110%,
+			rgba(244, 125, 58, 0.1) 0%,
+			transparent 55%
+		);
+	}
+}
+
 /* Editor canvas のスクロールバーをプライマリ色（差し色）で描く。中性的なグレーだと
    ライトモードで背景に溶けて視認できないため、ライト・ダーク共通で目立つ ember 系を
    thumb に置く。 */
