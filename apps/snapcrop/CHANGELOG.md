@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.3](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.2...snapcrop-v0.17.3) (2026-06-18)
+
+
+### Bug Fixes
+
+* **snapcrop:** ヒーロー見出しを研ぎ、ユースケース 1 行を添える ([#334](https://github.com/kaz9120/hidoko/issues/334)) ([777df1d](https://github.com/kaz9120/hidoko/commit/777df1dd8a1cc4d16afb49947b5aa031427c8d71))
+
 ## [0.17.2](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.1...snapcrop-v0.17.2) (2026-06-18)
 
 
