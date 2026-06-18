@@ -1,4 +1,4 @@
-import { RotateCwSquareIcon } from "lucide-react";
+import { RectangleHorizontalIcon, RectangleVerticalIcon } from "lucide-react";
 import {
 	type ChangeEvent,
 	type KeyboardEvent,
@@ -153,14 +153,26 @@ export function CropFloatingToolbar({
 			</ToggleGroup>
 
 			<Toggle
-				aria-label={isPortrait ? "横向きに切り替え" : "縦向きに切り替え"}
+				aria-label={
+					isPortrait
+						? "現在は縦向き、押すと横向きに切り替え"
+						: "現在は横向き、押すと縦向きに切り替え"
+				}
 				onPressedChange={handleOrientationToggle}
 				pressed={isPortrait}
 				size="sm"
-				title={isPortrait ? "横向きに切り替え" : "縦向きに切り替え"}
+				title={
+					isPortrait
+						? "現在は縦向き、押すと横向きに切り替え"
+						: "現在は横向き、押すと縦向きに切り替え"
+				}
 				variant="outline"
 			>
-				<RotateCwSquareIcon strokeWidth={1.75} />
+				{isPortrait ? (
+					<RectangleVerticalIcon strokeWidth={1.75} />
+				) : (
+					<RectangleHorizontalIcon strokeWidth={1.75} />
+				)}
 			</Toggle>
 
 			<NumberField
