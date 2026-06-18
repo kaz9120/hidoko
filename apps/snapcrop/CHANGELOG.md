@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.1](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.0...snapcrop-v0.17.1) (2026-06-18)
+
+
+### Bug Fixes
+
+* **snapcrop:** 作者表記を powered by から created by に統一する ([#330](https://github.com/kaz9120/hidoko/issues/330)) ([35ccf3f](https://github.com/kaz9120/hidoko/commit/35ccf3facbcca232d6a0dd182facaa3f1e2659b4))
+
 ## [0.17.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.16.1...snapcrop-v0.17.0) (2026-06-18)
 
 
