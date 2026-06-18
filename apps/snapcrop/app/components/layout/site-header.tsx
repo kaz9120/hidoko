@@ -190,7 +190,7 @@ function TooltipIconButton({
 					aria-label={label}
 					disabled={disabled}
 					onClick={onClick}
-					size="icon-sm"
+					size="icon"
 					variant="ghost"
 				>
 					<Icon strokeWidth={1.75} />

@@ -113,7 +113,7 @@ export function ExportActionsView({
 						aria-label="PNG でダウンロード"
 						disabled={disabled || isDownloading}
 						onClick={onDownload}
-						size="icon-sm"
+						size="icon"
 						variant="ghost"
 					>
 						<DownloadIcon strokeWidth={1.75} />
