@@ -1,5 +1,14 @@
 # hidoko-id
 
+## [0.8.5](https://github.com/kaz9120/hidoko/compare/hidoko-id-v0.8.4...hidoko-id-v0.8.5) (2026-06-18)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ui bumped to 0.4.4
+
 ## [0.8.4](https://github.com/kaz9120/hidoko/compare/hidoko-id-v0.8.3...hidoko-id-v0.8.4) (2026-06-18)
 
 
