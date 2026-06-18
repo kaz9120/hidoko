@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.10](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.14.9...snapcrop-v0.14.10) (2026-06-18)
+
+
+### Bug Fixes
+
+* **snapcrop:** 画像未ロード時のステータスバーを非表示にする ([#280](https://github.com/kaz9120/hidoko/issues/280)) ([ae9e4ca](https://github.com/kaz9120/hidoko/commit/ae9e4cab0abf75ee1ee48d9988687fe1a334d177))
+
 ## [0.14.9](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.14.8...snapcrop-v0.14.9) (2026-06-18)
 
 
