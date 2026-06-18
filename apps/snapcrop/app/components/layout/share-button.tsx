@@ -2,7 +2,7 @@ import { Button } from "ui";
 
 const APP_URL = "https://snapcrop.y-kaz.com/?ref=share";
 
-const SHARE_TEXT = `スクショに線を引いてすぐ渡す、これでやってる
+const SHARE_TEXT = `snapcrop — 撮って、書いて、すぐ共有
 ${APP_URL}`;
 
 const TWEET_INTENT_URL = "https://twitter.com/intent/tweet";
