@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.6](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.15.5...snapcrop-v0.15.6) (2026-06-18)
+
+
+### Bug Fixes
+
+* **snapcrop:** 「クロップ結果」「クロップ範囲」を「選択範囲」に置き換える ([#294](https://github.com/kaz9120/hidoko/issues/294)) ([9d1e408](https://github.com/kaz9120/hidoko/commit/9d1e40883f09fa126b8f4181cfd7cf51d11d8533))
+
 ## [0.15.5](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.15.4...snapcrop-v0.15.5) (2026-06-18)
 
 
