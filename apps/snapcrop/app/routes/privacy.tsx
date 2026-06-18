@@ -7,10 +7,12 @@ import {
 export function meta() {
 	return [
 		{ title: "プライバシーポリシー | snapcrop" },
-		{
-			name: "description",
-			content: "snapcrop のプライバシーポリシー",
-		},
+		{ name: "description", content: "snapcrop のプライバシーポリシー" },
+		{ property: "og:title", content: "プライバシーポリシー | snapcrop" },
+		{ property: "og:description", content: "snapcrop のプライバシーポリシー" },
+		{ property: "og:type", content: "article" },
+		{ property: "og:site_name", content: "snapcrop" },
+		{ name: "twitter:card", content: "summary" },
 	];
 }
 

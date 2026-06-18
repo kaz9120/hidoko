@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <title>snapcrop — 撮ってすぐ、書き込んで、共有まで</title>
+  <!-- 焚き火トーンのダーク背景。下方からのほのかなグローで火床を匂わせる。 -->
+  <defs>
+    <radialGradient id="ember-glow" cx="50%" cy="100%" r="80%">
+      <stop offset="0%" stop-color="#f47d3a" stop-opacity="0.28" />
+      <stop offset="40%" stop-color="#e85d20" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="#0a0907" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#0a0907" />
+  <rect width="1200" height="630" fill="url(#ember-glow)" />
+  <!-- ロゴ: 焚き火マークの簡略。中央上に控えめに置く。 -->
+  <g transform="translate(600, 200)" stroke="#f47d3a" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 0 -40 C -16 -24, -24 -8, -20 8 C -16 24, 0 32, 0 40 C 0 32, 16 24, 20 8 C 24 -8, 16 -24, 0 -40 Z" fill="#f47d3a" fill-opacity="0.16" />
+    <path d="M -8 -8 C -12 4, -6 16, 0 16 C 6 16, 12 4, 8 -8 C 4 -16, -4 -16, -8 -8 Z" fill="#f8a05c" fill-opacity="0.32" />
+  </g>
+  <!-- ブランド名 -->
+  <text x="600" y="320" text-anchor="middle" font-family="'Helvetica Neue', 'Inter', system-ui, sans-serif" font-size="56" font-weight="700" fill="#f5f1e6" letter-spacing="-1">snapcrop</text>
+  <!-- キャッチコピー -->
+  <text x="600" y="400" text-anchor="middle" font-family="'Hiragino Kaku Gothic ProN', 'Noto Sans JP', system-ui, sans-serif" font-size="40" font-weight="500" fill="#d4cdc1" letter-spacing="0.5">撮ってすぐ、書き込んで、共有まで</text>
+  <!-- 補助情報 -->
+  <text x="600" y="560" text-anchor="middle" font-family="'Helvetica Neue', 'Inter', system-ui, sans-serif" font-size="20" font-weight="400" fill="#a8a094" letter-spacing="0.4">powered by @kyamamoto9120</text>
+</svg>
