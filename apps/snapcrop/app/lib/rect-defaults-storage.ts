@@ -12,7 +12,7 @@ import {
 	type RectThickness,
 } from "~/lib/rect-engine";
 
-const STORAGE_KEY = "snapcrop.rect.defaults";
+const STORAGE_KEY = "hidoko-snapcrop-rect-defaults";
 
 const STYLES: ReadonlySet<RectStyle> = new Set(["outline", "fill", "mosaic"]);
 const THICKNESSES: ReadonlySet<RectThickness> = new Set(["sm", "md", "lg"]);

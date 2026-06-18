@@ -16,7 +16,6 @@ import { HelpDialog } from "~/components/help-dialog";
 import { ExportActions } from "~/components/layout/export-actions";
 import { ShareButton } from "~/components/layout/share-button";
 import { ZoomControl } from "~/components/layout/zoom-control";
-import { SettingsDialog } from "~/components/settings-dialog";
 import { ThemeToggle } from "~/components/theme-toggle";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 import { readImageFromClipboard } from "~/lib/clipboard";
@@ -159,7 +158,6 @@ export function SiteHeader() {
 			<div className="ml-auto flex items-center gap-1">
 				<HelpDialog />
 				<ThemeToggle />
-				<SettingsDialog />
 				<Divider />
 				<ExportActions />
 				<ShareButton />
