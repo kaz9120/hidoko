@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.9](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.15.8...snapcrop-v0.15.9) (2026-06-18)
+
+
+### Bug Fixes
+
+* **snapcrop:** 矩形の設定ダイアログを廃止する ([#300](https://github.com/kaz9120/hidoko/issues/300)) ([d3054bd](https://github.com/kaz9120/hidoko/commit/d3054bda094fb5ca17e9de37c5db6b66392261d3))
+
 ## [0.15.8](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.15.7...snapcrop-v0.15.8) (2026-06-18)
 
 
