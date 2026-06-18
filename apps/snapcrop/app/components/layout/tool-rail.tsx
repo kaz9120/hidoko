@@ -1,6 +1,6 @@
 import {
 	CropIcon,
-	Grid2X2Icon,
+	Grid3X3Icon,
 	HighlighterIcon,
 	MoveUpRightIcon,
 	PencilIcon,
@@ -35,7 +35,7 @@ const TOOLS: ToolDef[] = [
 	{ id: "arrow", icon: MoveUpRightIcon, label: "矢印", shortcut: "A" },
 	{ id: "text", icon: TypeIcon, label: "テキスト", shortcut: "T" },
 	{ id: "highlight", icon: HighlighterIcon, label: "マーカー", shortcut: "H" },
-	{ id: "mosaic", icon: Grid2X2Icon, label: "モザイク", shortcut: "M" },
+	{ id: "mosaic", icon: Grid3X3Icon, label: "モザイク", shortcut: "M" },
 ];
 
 /**
