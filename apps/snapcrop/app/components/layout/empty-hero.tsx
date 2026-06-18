@@ -46,7 +46,7 @@ export function EmptyHero({ isDragging }: { isDragging: boolean }) {
 				<div className="flex flex-col items-center gap-4">
 					<img alt="" aria-hidden="true" className="size-16" src={logoUrl} />
 					<h2 className="font-bold text-2xl text-foreground tracking-tight">
-						スクショを瞬時にクリップボードへ。
+						撮ってすぐ、書き込んで、共有まで
 					</h2>
 				</div>
 
