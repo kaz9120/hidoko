@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.7](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.6...snapcrop-v0.17.7) (2026-06-18)
+
+
+### Bug Fixes
+
+* **snapcrop:** シェアテキストを「ツール名 — キャッチコピー」構成に整理する ([#342](https://github.com/kaz9120/hidoko/issues/342)) ([920c1b7](https://github.com/kaz9120/hidoko/commit/920c1b70fb35a603ebaa188410df0f1c13bdf1a1))
+
 ## [0.17.6](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.5...snapcrop-v0.17.6) (2026-06-18)
 
 
