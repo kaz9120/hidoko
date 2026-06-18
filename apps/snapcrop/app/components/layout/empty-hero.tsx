@@ -5,6 +5,7 @@ import logoCreamUrl from "ui/assets/logo/mark-cream.svg?url";
 import logoDarkUrl from "ui/assets/logo/mark-dark.svg?url";
 import { Kbd, KbdGroup } from "ui/components/kbd";
 import { isApplePlatform } from "~/lib/platform";
+import { useEmbers } from "~/lib/use-embers";
 
 const X_PROFILE_URL = "https://x.com/kyamamoto9120";
 
@@ -16,6 +17,7 @@ const X_PROFILE_URL = "https://x.com/kyamamoto9120";
  * ここは isDragging を受けて点線枠と案内文を反応させるだけ。
  */
 export function EmptyHero({ isDragging }: { isDragging: boolean }) {
+	useEmbers();
 	const { resolvedTheme } = useTheme();
 	const [mounted, setMounted] = useState(false);
 
@@ -35,6 +37,7 @@ export function EmptyHero({ isDragging }: { isDragging: boolean }) {
 
 	return (
 		<section className="relative flex flex-1 items-center justify-center overflow-hidden p-5">
+			<hi-embers density={28} wind="0" glow="off" />
 			<div
 				className={`absolute inset-5 flex flex-col items-center justify-center gap-8 rounded-xl border-2 border-dashed px-6 text-center transition-colors ${
 					isDragging ? "border-primary bg-primary/10" : "border-border"
