@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.9](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.14.8...snapcrop-v0.14.9) (2026-06-18)
+
+
+### Bug Fixes
+
+* **snapcrop:** モザイクツールアイコンを Grid3X3 に差し替える ([#278](https://github.com/kaz9120/hidoko/issues/278)) ([be2b160](https://github.com/kaz9120/hidoko/commit/be2b160ce93ce497ba46fee0f38080ebbde23f3f))
+
 ## [0.14.8](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.14.7...snapcrop-v0.14.8) (2026-06-18)
 
 
