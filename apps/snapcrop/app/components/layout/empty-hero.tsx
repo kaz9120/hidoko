@@ -50,35 +50,39 @@ export function EmptyHero({ isDragging }: { isDragging: boolean }) {
 					</h2>
 				</div>
 
-				<div className="grid grid-cols-[auto_auto] items-center gap-x-3 gap-y-2 text-sm">
-					<KbdGroup className="justify-self-end">
-						{captureKeys.map((key) => (
-							<Kbd key={key}>{key}</Kbd>
-						))}
-					</KbdGroup>
-					<span className="justify-self-start text-muted-foreground">
-						で画面をキャプチャ
-					</span>
-					<KbdGroup className="justify-self-end">
-						{pasteKeys.map((key) => (
-							<Kbd key={key}>{key}</Kbd>
-						))}
-					</KbdGroup>
-					<span className="justify-self-start text-muted-foreground">
-						でここに貼り付け
-					</span>
+				<div className="flex flex-col items-center gap-3">
+					{/* 主役: D&D を最初の一歩として点線枠と一致した文言で見せる。
+					    isDragging で色とコピーを切り替えて受け入れ状態を強調する。 */}
+					<p
+						className={`flex items-center gap-2 text-base transition-colors sm:text-lg ${
+							isDragging ? "text-primary" : "text-foreground"
+						}`}
+					>
+						<ImageIcon aria-hidden="true" size={20} strokeWidth={1.75} />
+						{isDragging ? "ここにドロップして取り込み" : "ここに画像をドラッグ"}
+					</p>
+					{/* 補助: ⌘V と ⌘⇧4 (Win: Ctrl+V / Win+Shift+S) を 1 行に圧縮。
+					    KbdGroup を inline で並べて補助情報の密度を緩める。 */}
+					<p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-muted-foreground text-xs">
+						<span className="inline-flex items-center gap-1.5">
+							または
+							<KbdGroup>
+								{pasteKeys.map((key) => (
+									<Kbd key={key}>{key}</Kbd>
+								))}
+							</KbdGroup>
+							で貼り付け
+						</span>
+						<span className="inline-flex items-center gap-1.5">
+							<KbdGroup>
+								{captureKeys.map((key) => (
+									<Kbd key={key}>{key}</Kbd>
+								))}
+							</KbdGroup>
+							でキャプチャ
+						</span>
+					</p>
 				</div>
-
-				<p
-					className={`flex items-center gap-2 text-sm transition-colors ${
-						isDragging ? "text-primary" : "text-muted-foreground"
-					}`}
-				>
-					<ImageIcon aria-hidden="true" size={16} strokeWidth={1.75} />
-					{isDragging
-						? "ここにドロップして取り込み"
-						: "画像ファイルのドラッグ＆ドロップにも対応"}
-				</p>
 
 				<a
 					className="absolute bottom-4 text-muted-foreground text-xs transition-colors hover:text-primary"
