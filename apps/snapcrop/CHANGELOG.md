@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.4](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.3...snapcrop-v0.17.4) (2026-06-18)
+
+
+### Bug Fixes
+
+* **snapcrop:** ファーストビュー主役をスクリーンショット起点に寄せる ([#336](https://github.com/kaz9120/hidoko/issues/336)) ([6d61a25](https://github.com/kaz9120/hidoko/commit/6d61a255d2cc4144c309e0ebce760194056b0849))
+
 ## [0.17.3](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.2...snapcrop-v0.17.3) (2026-06-18)
 
 
