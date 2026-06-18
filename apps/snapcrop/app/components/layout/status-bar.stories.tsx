@@ -49,9 +49,9 @@ const SAMPLE_IMAGE: LoadedImage = {
 };
 
 /**
- * 画像未ロードの初期状態。「画像が未ロードです」と「⌘V で貼り付け」だけが
- * 並ぶ最小表示。
- * @summary 画像未ロード時
+ * 画像未ロードの初期状態。ステータスバー自体が非表示になり、empty-hero に
+ * 主役を譲る（DOM が出ない）。
+ * @summary 画像未ロード時（非表示）
  */
 export const Default: Story = {};
 
