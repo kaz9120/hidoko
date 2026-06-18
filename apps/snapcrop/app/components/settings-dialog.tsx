@@ -116,7 +116,7 @@ export function SettingsDialog() {
 					<Button
 						aria-label="設定"
 						onClick={() => setOpen(true)}
-						size="icon-sm"
+						size="icon"
 						variant="ghost"
 					>
 						<SettingsIcon strokeWidth={1.75} />

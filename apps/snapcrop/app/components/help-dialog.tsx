@@ -152,7 +152,7 @@ export function HelpDialog() {
 					<Button
 						aria-label="ヘルプ (?)"
 						onClick={() => setOpen(true)}
-						size="icon-sm"
+						size="icon"
 						variant="ghost"
 					>
 						<CircleHelpIcon strokeWidth={1.75} />
