@@ -110,7 +110,7 @@ function CustomColorSwatch({
 			</PopoverTrigger>
 			<PopoverContent align="end" className="w-44 p-3" sideOffset={8}>
 				<div className="flex flex-col gap-2">
-					<span className="font-mono text-[10px] text-muted-foreground uppercase tracking-[0.08em]">
+					<span className="font-mono text-xs text-muted-foreground uppercase tracking-[0.08em]">
 						カスタム色
 					</span>
 					<input

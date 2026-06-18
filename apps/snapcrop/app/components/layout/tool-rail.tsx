@@ -196,7 +196,7 @@ function ColorRow({
 }) {
 	return (
 		<div className="flex flex-col gap-1.5">
-			<span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+			<span className="font-mono text-xs uppercase tracking-[0.12em] text-muted-foreground">
 				{title}
 			</span>
 			<div className="flex flex-wrap items-center gap-1.5">
