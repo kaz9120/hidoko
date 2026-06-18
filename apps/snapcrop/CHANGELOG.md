@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.1](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.15.0...snapcrop-v0.15.1) (2026-06-18)
+
+
+### Bug Fixes
+
+* **snapcrop:** 縦横切替ボタンを現在向きアイコンに変える ([#284](https://github.com/kaz9120/hidoko/issues/284)) ([f414696](https://github.com/kaz9120/hidoko/commit/f4146965919e8009b5dda112d4ee8b3529eb1058))
+
 ## [0.15.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.14.10...snapcrop-v0.15.0) (2026-06-18)
 
 
