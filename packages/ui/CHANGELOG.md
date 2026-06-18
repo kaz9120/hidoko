@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.4](https://github.com/kaz9120/hidoko/compare/ui-v0.4.3...ui-v0.4.4) (2026-06-18)
+
+
+### Bug Fixes
+
+* **ui:** テーマ切替の transition を長く柔らかくする (560ms + ease-settle) ([#338](https://github.com/kaz9120/hidoko/issues/338)) ([b339738](https://github.com/kaz9120/hidoko/commit/b339738540e80cb8c8f628a58c776eebf9ccdc84))
+
 ## [0.4.3](https://github.com/kaz9120/hidoko/compare/ui-v0.4.2...ui-v0.4.3) (2026-06-18)
 
 
