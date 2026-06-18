@@ -38,7 +38,7 @@ export function SiteFooter() {
 				<Sep />
 				<FooterLink onClick={() => setTermsOpen(true)}>利用規約</FooterLink>
 				<span className="ml-auto" />
-				<FooterLink href={X_PROFILE_URL}>powered by @kyamamoto9120</FooterLink>
+				<FooterLink href={X_PROFILE_URL}>created by @kyamamoto9120</FooterLink>
 				<Sep />
 				<FooterLink href={PERSONAL_SITE_URL}>y-kaz.com ↗</FooterLink>
 			</footer>
