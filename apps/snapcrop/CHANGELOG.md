@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.5](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.15.4...snapcrop-v0.15.5) (2026-06-18)
+
+
+### Bug Fixes
+
+* **snapcrop:** リーガル文書をフッターから Dialog で開けるようにする ([#292](https://github.com/kaz9120/hidoko/issues/292)) ([898476d](https://github.com/kaz9120/hidoko/commit/898476db307a7697e33e0b05afa8ba39641ef522))
+
 ## [0.15.4](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.15.3...snapcrop-v0.15.4) (2026-06-18)
 
 
