@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.8](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.15.7...snapcrop-v0.15.8) (2026-06-18)
+
+
+### Bug Fixes
+
+* **snapcrop:** X 共有テキストを「これでやってる」構文に書き換える ([#298](https://github.com/kaz9120/hidoko/issues/298)) ([5ce3735](https://github.com/kaz9120/hidoko/commit/5ce3735cb39127b0f7bfcec57ceff0448e0d5350))
+
 ## [0.15.7](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.15.6...snapcrop-v0.15.7) (2026-06-18)
 
 
