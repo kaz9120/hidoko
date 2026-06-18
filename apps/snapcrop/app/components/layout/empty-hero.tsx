@@ -1,17 +1,19 @@
-import { ImageIcon } from "lucide-react";
+import { MonitorIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import logoCreamUrl from "ui/assets/logo/mark-cream.svg?url";
 import logoDarkUrl from "ui/assets/logo/mark-dark.svg?url";
-import { Kbd, KbdGroup } from "ui/components/kbd";
-import { isApplePlatform } from "~/lib/platform";
 import { useEmbers } from "~/lib/use-embers";
 
 const X_PROFILE_URL = "https://x.com/kyamamoto9120";
 
 /**
- * 画像未ロード時に editor 全面へ出すヒーロー。ロゴ + 1 行コピー、主要
- * ショートカット案内、ドラッグ＆ドロップ案内、created by 表記をまとめる。
+ * 画像未ロード時に editor 全面へ出すヒーロー。ロゴ + キャッチコピー +
+ * ユースケース + スクショ撮影への導線 + created by 表記をまとめる。
+ *
+ * 主役は「スクリーンショットを撮る」体験。⌘V や ⌘⇧4 のショートカット
+ * 表記は習熟ユーザー向けでノイズになるためファーストビューには出さず、
+ * ヘルプダイアログで確認できるようにしている。
  *
  * ドロップの実体 (document レベルの drop 監視) は useFileDrop 側にあり、
  * ここは isDragging を受けて点線枠と案内文を反応させるだけ。
@@ -28,12 +30,6 @@ export function EmptyHero({ isDragging }: { isDragging: boolean }) {
 	// hydration 前は dark 想定で描画。tokens.css は dark が初期状態。
 	const logoUrl =
 		mounted && resolvedTheme === "light" ? logoCreamUrl : logoDarkUrl;
-
-	// prerender との hydration mismatch を避けるため、mounted までは
-	// 既存 UI のデフォルトに合わせて ⌘ 表記で描画する。
-	const apple = mounted ? isApplePlatform() : true;
-	const captureKeys = apple ? ["⌘", "⇧", "4"] : ["Win", "Shift", "S"];
-	const pasteKeys = apple ? ["⌘", "V"] : ["Ctrl", "V"];
 
 	return (
 		<section className="snapcrop-hero-glow relative flex flex-1 items-center justify-center overflow-hidden p-5">
@@ -55,37 +51,23 @@ export function EmptyHero({ isDragging }: { isDragging: boolean }) {
 					</p>
 				</div>
 
-				<div className="flex flex-col items-center gap-3">
-					{/* 主役: D&D を最初の一歩として点線枠と一致した文言で見せる。
-					    isDragging で色とコピーを切り替えて受け入れ状態を強調する。 */}
+				<div className="flex flex-col items-center gap-2">
+					{/* 主役: スクリーンショットを起点にした最初の一歩。MonitorIcon で
+					    「画面を撮る」体験を示し、isDragging で D&D 受け入れに切り替える。 */}
 					<p
 						className={`flex items-center gap-2 text-base transition-colors sm:text-lg ${
 							isDragging ? "text-primary" : "text-foreground"
 						}`}
 					>
-						<ImageIcon aria-hidden="true" size={20} strokeWidth={1.75} />
-						{isDragging ? "ここにドロップして取り込み" : "ここに画像をドラッグ"}
+						<MonitorIcon aria-hidden="true" size={20} strokeWidth={1.75} />
+						{isDragging
+							? "ここにドロップして取り込み"
+							: "画面を撮って、ここに貼る"}
 					</p>
-					{/* 補助: ⌘V と ⌘⇧4 (Win: Ctrl+V / Win+Shift+S) を 1 行に圧縮。
-					    KbdGroup を inline で並べて補助情報の密度を緩める。 */}
-					<p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-muted-foreground text-xs">
-						<span className="inline-flex items-center gap-1.5">
-							または
-							<KbdGroup>
-								{pasteKeys.map((key) => (
-									<Kbd key={key}>{key}</Kbd>
-								))}
-							</KbdGroup>
-							で貼り付け
-						</span>
-						<span className="inline-flex items-center gap-1.5">
-							<KbdGroup>
-								{captureKeys.map((key) => (
-									<Kbd key={key}>{key}</Kbd>
-								))}
-							</KbdGroup>
-							でキャプチャ
-						</span>
+					{/* 補助: ファイル D&D も受け入れていることを小さく伝える。
+					    ショートカット表記 (⌘V / ⌘⇧4) はヘルプダイアログに分離。 */}
+					<p className="text-muted-foreground text-xs">
+						ファイルのドラッグ&ドロップも対応
 					</p>
 				</div>
 
