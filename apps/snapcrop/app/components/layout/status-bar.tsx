@@ -42,13 +42,10 @@ export function StatusBarView({
 	historyIndex: number;
 	historyLength: number;
 }) {
+	// 画像未ロード時はバー自体を非表示にする。empty-hero がロゴ・コピー・
+	// ショートカット案内を持っているので、ここで情報を反復する必要はない。
 	if (!image) {
-		return (
-			<footer className="flex h-6 shrink-0 items-center gap-3 border-border border-t bg-card/50 px-3 font-mono text-[11px] text-muted-foreground">
-				<span>画像が未ロードです</span>
-				<span className="ml-auto">⌘V で貼り付け</span>
-			</footer>
-		);
+		return null;
 	}
 
 	const dims = `${image.width} × ${image.height}`;
