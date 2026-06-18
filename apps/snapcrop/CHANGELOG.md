@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.7](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.14.6...snapcrop-v0.14.7) (2026-06-18)
+
+
+### Bug Fixes
+
+* **snapcrop:** ヘッダー内アイコンボタンを 36px に拡大する (a11y) ([#274](https://github.com/kaz9120/hidoko/issues/274)) ([685cb2d](https://github.com/kaz9120/hidoko/commit/685cb2d6f45f50ee57c824542d91b1a151fe6f3c))
+
 ## [0.14.6](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.14.5...snapcrop-v0.14.6) (2026-06-18)
 
 
