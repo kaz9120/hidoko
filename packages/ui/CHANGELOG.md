@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.2](https://github.com/kaz9120/hidoko/compare/ui-v0.4.1...ui-v0.4.2) (2026-06-18)
+
+
+### Bug Fixes
+
+* **ui:** popover の open animation duration を 200ms に伸ばす ([#288](https://github.com/kaz9120/hidoko/issues/288)) ([58259f7](https://github.com/kaz9120/hidoko/commit/58259f7ccd98e34937d47065ee3adff63c7d807a))
+
 ## [0.4.1](https://github.com/kaz9120/hidoko/compare/ui-v0.4.0...ui-v0.4.1) (2026-06-18)
 
 
