@@ -36,7 +36,7 @@ export function EmptyHero({ isDragging }: { isDragging: boolean }) {
 	const pasteKeys = apple ? ["⌘", "V"] : ["Ctrl", "V"];
 
 	return (
-		<section className="relative flex flex-1 items-center justify-center overflow-hidden p-5">
+		<section className="snapcrop-hero-glow relative flex flex-1 items-center justify-center overflow-hidden p-5">
 			<hi-embers density={28} wind="0" glow="off" />
 			<div
 				className={`absolute inset-5 flex flex-col items-center justify-center gap-8 rounded-xl border-2 border-dashed px-6 text-center transition-colors ${
