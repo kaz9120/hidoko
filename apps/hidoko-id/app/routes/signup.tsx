@@ -155,19 +155,19 @@ export default function SignupRoute() {
 					required
 					checked={terms}
 					onCheckedChange={(v) => setTerms(v === true)}
-					className="mt-0.5 data-[state=checked]:border-[var(--ember-600)] data-[state=checked]:bg-[var(--ember-400)] data-[state=checked]:text-[#1a0d05]"
+					className="mt-0.5 data-[state=checked]:border-[var(--ember-600)] data-[state=checked]:bg-[var(--accent)] data-[state=checked]:text-[#1a0d05]"
 				/>
 				<span>
 					<Link
 						to="/terms"
-						className="font-medium text-[var(--ember-400)] hover:text-[var(--ember-300)]"
+						className="font-medium text-[var(--accent)] hover:text-[var(--accent-hover)]"
 					>
 						利用規約
 					</Link>{" "}
 					と{" "}
 					<Link
 						to="/privacy"
-						className="font-medium text-[var(--ember-400)] hover:text-[var(--ember-300)]"
+						className="font-medium text-[var(--accent)] hover:text-[var(--accent-hover)]"
 					>
 						プライバシーポリシー
 					</Link>{" "}
@@ -198,7 +198,7 @@ export default function SignupRoute() {
 						<span>すでに使っている</span>
 						<Link
 							to={signinHref}
-							className="inline-flex items-center gap-1 font-medium text-[var(--ember-400)] hover:text-[var(--ember-300)]"
+							className="inline-flex items-center gap-1 font-medium text-[var(--accent)] hover:text-[var(--accent-hover)]"
 						>
 							サインイン
 							<ArrowUpRight aria-hidden className="size-3.5" />
@@ -238,7 +238,7 @@ export default function SignupRoute() {
 							<li key={b} className="flex items-start gap-2.5">
 								<Check
 									aria-hidden
-									className="mt-1 size-3.5 text-[var(--ember-400)]"
+									className="mt-1 size-3.5 text-[var(--accent)]"
 								/>
 								<span>{b}</span>
 							</li>
@@ -257,7 +257,7 @@ export default function SignupRoute() {
 					<span>すでに使っている</span>
 					<Link
 						to={signinHref}
-						className="inline-flex items-center gap-1 font-medium text-[var(--ember-400)] hover:text-[var(--ember-300)]"
+						className="inline-flex items-center gap-1 font-medium text-[var(--accent)] hover:text-[var(--accent-hover)]"
 					>
 						サインイン
 						<ArrowUpRight aria-hidden className="size-3.5" />

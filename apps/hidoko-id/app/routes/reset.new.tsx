@@ -68,12 +68,13 @@ export default function ResetNewRoute() {
 
 				<div className="w-full max-w-[400px] text-center">
 					<div
-						className="mx-auto mb-5 inline-flex size-14 items-center justify-center rounded-full border bg-[color-mix(in_oklab,var(--rust)_14%,transparent)]"
+						className="mx-auto mb-5 inline-flex size-14 items-center justify-center rounded-full border bg-[color-mix(in_oklab,var(--danger)_14%,transparent)]"
 						style={{
-							borderColor: "color-mix(in oklab, var(--rust) 32%, transparent)",
+							borderColor:
+								"color-mix(in oklab, var(--danger) 32%, transparent)",
 						}}
 					>
-						<RotateCcw aria-hidden className="size-6 text-[var(--rust)]" />
+						<RotateCcw aria-hidden className="size-6 text-[var(--danger)]" />
 					</div>
 
 					<Mark tone="muted">リンクの有効期限</Mark>

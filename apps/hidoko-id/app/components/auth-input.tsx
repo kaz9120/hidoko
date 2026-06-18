@@ -34,7 +34,7 @@ export function AuthField({
 			</label>
 			{children}
 			{error ? (
-				<small className="text-[var(--rust)] text-xs">{error}</small>
+				<small className="text-[var(--danger)] text-xs">{error}</small>
 			) : hint ? (
 				<small className="text-[var(--text-faint)] text-xs">{hint}</small>
 			) : null}
@@ -61,12 +61,12 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
 					"h-11 rounded-md bg-[var(--bg-sunken)] px-3.5 text-[15px]",
 					"border-[var(--border)] hover:border-[var(--border-strong)]",
 					"shadow-[inset_0_1px_0_rgba(0,0,0,0.3)]",
-					"focus-visible:border-[var(--ember-400)]",
+					"focus-visible:border-[var(--accent)]",
 					"focus-visible:shadow-[var(--glow-ember),inset_0_1px_0_rgba(0,0,0,0.3)] focus-visible:ring-0",
 					hasError && [
-						"border-[var(--rust)]",
-						"focus-visible:border-[var(--rust)]",
-						"focus-visible:shadow-[0_0_0_3px_color-mix(in_oklab,var(--rust)_25%,transparent),inset_0_1px_0_rgba(0,0,0,0.3)]",
+						"border-[var(--danger)]",
+						"focus-visible:border-[var(--danger)]",
+						"focus-visible:shadow-[0_0_0_3px_color-mix(in_oklab,var(--danger)_25%,transparent),inset_0_1px_0_rgba(0,0,0,0.3)]",
 					],
 					className,
 				)}

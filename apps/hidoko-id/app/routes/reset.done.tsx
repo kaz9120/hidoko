@@ -21,9 +21,9 @@ export default function ResetDoneRoute() {
 
 			<div className="w-full max-w-[420px] text-center">
 				<div
-					className="mx-auto mb-5 inline-flex size-14 items-center justify-center rounded-full border bg-[color-mix(in_oklab,var(--moss)_18%,transparent)]"
+					className="mx-auto mb-5 inline-flex size-14 items-center justify-center rounded-full border bg-[color-mix(in_oklab,var(--success)_18%,transparent)]"
 					style={{
-						borderColor: "color-mix(in oklab, var(--moss) 40%, transparent)",
+						borderColor: "color-mix(in oklab, var(--success) 40%, transparent)",
 					}}
 				>
 					<Check aria-hidden className="size-6 text-[#b9c79a]" />

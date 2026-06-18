@@ -117,9 +117,10 @@ export default function AccountCredentialsRoute() {
 
 				{emailSentTo ? (
 					<div
-						className="rounded-md border bg-[color-mix(in_oklab,var(--moss)_14%,transparent)] px-3.5 py-3 text-[13px] text-[#b9c79a]"
+						className="rounded-md border bg-[color-mix(in_oklab,var(--success)_14%,transparent)] px-3.5 py-3 text-[13px] text-[#b9c79a]"
 						style={{
-							borderColor: "color-mix(in oklab, var(--moss) 35%, transparent)",
+							borderColor:
+								"color-mix(in oklab, var(--success) 35%, transparent)",
 						}}
 					>
 						<span className="inline-flex items-center gap-2">
@@ -132,7 +133,7 @@ export default function AccountCredentialsRoute() {
 						{devVerifyUrl ? (
 							<a
 								href={devVerifyUrl}
-								className="mt-2 block break-all font-mono text-[11px] text-[var(--ember-400)] hover:text-[var(--ember-300)]"
+								className="mt-2 block break-all font-mono text-[11px] text-[var(--accent)] hover:text-[var(--accent-hover)]"
 							>
 								DEV ONLY: {devVerifyUrl}
 							</a>
@@ -187,9 +188,10 @@ export default function AccountCredentialsRoute() {
 
 				{pwDone ? (
 					<div
-						className="rounded-md border bg-[color-mix(in_oklab,var(--moss)_14%,transparent)] px-3.5 py-3 text-[13px] text-[#b9c79a]"
+						className="rounded-md border bg-[color-mix(in_oklab,var(--success)_14%,transparent)] px-3.5 py-3 text-[13px] text-[#b9c79a]"
 						style={{
-							borderColor: "color-mix(in oklab, var(--moss) 35%, transparent)",
+							borderColor:
+								"color-mix(in oklab, var(--success) 35%, transparent)",
 						}}
 					>
 						<span className="inline-flex items-center gap-2">

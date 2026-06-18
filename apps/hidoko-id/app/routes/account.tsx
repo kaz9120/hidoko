@@ -117,8 +117,8 @@ export default function AccountLayout() {
 					<div
 						className={`rounded-md border px-3.5 py-2.5 text-[13px] ${
 							emailChangeBanner.tone === "moss"
-								? "border-[color-mix(in_oklab,var(--moss)_35%,transparent)] bg-[color-mix(in_oklab,var(--moss)_14%,transparent)] text-[#b9c79a]"
-								: "border-[color-mix(in_oklab,var(--rust)_35%,transparent)] bg-[color-mix(in_oklab,var(--rust)_14%,transparent)] text-[var(--rust)]"
+								? "border-[color-mix(in_oklab,var(--success)_35%,transparent)] bg-[color-mix(in_oklab,var(--success)_14%,transparent)] text-[#b9c79a]"
+								: "border-[color-mix(in_oklab,var(--danger)_35%,transparent)] bg-[color-mix(in_oklab,var(--danger)_14%,transparent)] text-[var(--danger)]"
 						}`}
 					>
 						{emailChangeBanner.text}
