@@ -9,7 +9,7 @@ import {
 import { Toggle, ToggleGroup, ToggleGroupItem } from "ui";
 import { FloatingToolbar } from "~/components/canvas/floating-toolbar";
 import type { CropEngineHandle } from "~/hooks/use-crop-engine";
-import type { CropRect } from "~/lib/crop-engine";
+import { type CropRect, MIN_CROP_SIZE } from "~/lib/crop-engine";
 
 type AspectRatio = {
 	id: string;
@@ -90,7 +90,45 @@ export function CropFloatingToolbar({
 	};
 
 	const setCropSize = (next: { width?: number; height?: number }) => {
-		cropperRef.current?.setData(next);
+		const cropper = cropperRef.current;
+		if (!cropper) return;
+
+		const found = ASPECT_RATIOS.find((r) => r.id === aspectRatioId);
+		const ratio = found ? effectiveRatio(found.ratio, isPortrait) : Number.NaN;
+
+		// 自由モード: 入力された辺だけ反映し、もう片方は engine の clamp に委ねる。
+		if (!Number.isFinite(ratio) || ratio <= 0) {
+			cropper.setData(next);
+			return;
+		}
+
+		// ロック中: 片方の入力から相手を比率で算出し、画像範囲・最小サイズに当たって
+		// も比率を保ったまま縮小 / 拡大する。setAspectRatio と同じ調整パターン。
+		const img = cropper.getImageData();
+		let width = next.width ?? cropRect.width;
+		let height = next.height ?? cropRect.height;
+		if (next.width !== undefined) {
+			height = width / ratio;
+		} else if (next.height !== undefined) {
+			width = height * ratio;
+		}
+		if (width > img.naturalWidth) {
+			width = img.naturalWidth;
+			height = width / ratio;
+		}
+		if (height > img.naturalHeight) {
+			height = img.naturalHeight;
+			width = height * ratio;
+		}
+		if (width < MIN_CROP_SIZE) {
+			width = MIN_CROP_SIZE;
+			height = width / ratio;
+		}
+		if (height < MIN_CROP_SIZE) {
+			height = MIN_CROP_SIZE;
+			width = height * ratio;
+		}
+		cropper.setData({ width, height });
 	};
 
 	return (

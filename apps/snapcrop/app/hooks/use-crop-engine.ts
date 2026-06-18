@@ -10,6 +10,7 @@ import {
 	type CropRect,
 	clampRect,
 	type ImageMetrics,
+	MIN_CROP_SIZE,
 	moveRect,
 	type ResizeHandle,
 	resizeRect,
@@ -18,8 +19,6 @@ import {
 
 export type CropData = CropRect;
 export type { CropRect, ImageMetrics, ResizeHandle };
-
-const MIN_CROP_SIZE = 50;
 
 /**
  * 画像内に収まり指定比率を満たす最大の矩形を中央配置する。比率制約なしのときは
