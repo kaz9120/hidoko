@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.14.10...snapcrop-v0.15.0) (2026-06-18)
+
+
+### Features
+
+* **snapcrop:** empty-hero に hi-embers を重ねてファーストビューに動きを足す ([#282](https://github.com/kaz9120/hidoko/issues/282)) ([5053fad](https://github.com/kaz9120/hidoko/commit/5053fad7d2e08603412d376549d3e25e67d760e8))
+
 ## [0.14.10](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.14.9...snapcrop-v0.14.10) (2026-06-18)
 
 
