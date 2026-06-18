@@ -228,6 +228,17 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  /* テーマ切替 (.light クラスの付け外し) で背景・前景色をふわっと変える。
+     要素単位の transition と競合させないため html/body のみに限定する。 */
+  transition:
+    background-color var(--duration) var(--ease),
+    color var(--duration) var(--ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html, body {
+    transition: none;
+  }
 }
 
 ::selection {
