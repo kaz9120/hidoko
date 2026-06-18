@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.14.6](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.14.5...snapcrop-v0.14.6) (2026-06-18)
+
+
+### Bug Fixes
+
+* **snapcrop:** アスペクト比ロック中の寸法入力で相手側を連動させる ([#271](https://github.com/kaz9120/hidoko/issues/271)) ([ea9a4ee](https://github.com/kaz9120/hidoko/commit/ea9a4ee2e53ae812dbc48c35bc32164e954ea4bb))
+* **snapcrop:** 色 popover のセクションラベルを a11y 基準で読みやすくする ([#272](https://github.com/kaz9120/hidoko/issues/272)) ([4dac96b](https://github.com/kaz9120/hidoko/commit/4dac96baa90ab928635c31cd0510ca256c4ecce1))
+
 ## [0.14.5](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.14.4...snapcrop-v0.14.5) (2026-06-17)
 
 
