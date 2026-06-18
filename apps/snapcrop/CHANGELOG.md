@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.15.4](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.15.3...snapcrop-v0.15.4) (2026-06-18)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ui bumped to 0.4.3
+
 ## [0.15.3](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.15.2...snapcrop-v0.15.3) (2026-06-18)
 
 

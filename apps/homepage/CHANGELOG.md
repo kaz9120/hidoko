@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.4](https://github.com/kaz9120/hidoko/compare/homepage-v0.2.3...homepage-v0.2.4) (2026-06-18)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ui bumped to 0.4.3
+
 ## [0.2.3](https://github.com/kaz9120/hidoko/compare/homepage-v0.2.2...homepage-v0.2.3) (2026-06-18)
 
 
