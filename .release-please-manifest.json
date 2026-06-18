@@ -3,6 +3,6 @@
 	"apps/hidoko-id": "0.8.4",
 	"apps/homepage": "0.2.4",
 	"apps/note-ogp": "0.13.5",
-	"apps/snapcrop": "0.15.4",
+	"apps/snapcrop": "0.15.5",
 	"packages/ui": "0.4.3"
 }
