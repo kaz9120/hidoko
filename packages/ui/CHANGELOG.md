@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.5](https://github.com/kaz9120/hidoko/compare/ui-v0.4.4...ui-v0.4.5) (2026-06-18)
+
+
+### Bug Fixes
+
+* **ui:** ダイアログの open duration を 700ms / close を 400ms に伸ばす ([#340](https://github.com/kaz9120/hidoko/issues/340)) ([8ba34f2](https://github.com/kaz9120/hidoko/commit/8ba34f2955cae58d150a45448de02cfffd06a11e))
+
 ## [0.4.4](https://github.com/kaz9120/hidoko/compare/ui-v0.4.3...ui-v0.4.4) (2026-06-18)
 
 
