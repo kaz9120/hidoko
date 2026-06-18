@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.2](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.1...snapcrop-v0.17.2) (2026-06-18)
+
+
+### Bug Fixes
+
+* **snapcrop:** 作者リンクを「焚き火を愛するエンジニア」表記に変える ([#332](https://github.com/kaz9120/hidoko/issues/332)) ([bb7948b](https://github.com/kaz9120/hidoko/commit/bb7948b11f7edad97b643815c76ad66adb295c1f))
+
 ## [0.17.1](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.0...snapcrop-v0.17.1) (2026-06-18)
 
 
