@@ -4,7 +4,6 @@ import { Button, Tooltip, TooltipContent, TooltipTrigger } from "ui";
 import {
 	Dialog,
 	DialogContent,
-	DialogDescription,
 	DialogHeader,
 	DialogTitle,
 } from "ui/components/dialog";
@@ -162,12 +161,12 @@ export function HelpDialog() {
 			</Tooltip>
 
 			<Dialog onOpenChange={setOpen} open={open}>
-				<DialogContent className="max-h-[85dvh] max-w-md overflow-y-auto">
+				<DialogContent
+					aria-describedby={undefined}
+					className="max-h-[85dvh] max-w-md overflow-y-auto"
+				>
 					<DialogHeader>
 						<DialogTitle>キーボードショートカット</DialogTitle>
-						<DialogDescription>
-							お使いの OS のキー表記で表示しています。
-						</DialogDescription>
 					</DialogHeader>
 
 					<div className="flex flex-col gap-4">
