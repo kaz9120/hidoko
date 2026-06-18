@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.10](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.15.9...snapcrop-v0.15.10) (2026-06-18)
+
+
+### Bug Fixes
+
+* **snapcrop:** empty-hero の案内ブロックを D&D 主役の構造に再設計する ([#302](https://github.com/kaz9120/hidoko/issues/302)) ([903527c](https://github.com/kaz9120/hidoko/commit/903527cdf01dae63e7168adcd77348d45dc3d33c))
+
 ## [0.15.9](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.15.8...snapcrop-v0.15.9) (2026-06-18)
 
 
