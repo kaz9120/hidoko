@@ -43,7 +43,7 @@ const SECTIONS: readonly ShortcutSection[] = [
 		heading: "画像",
 		shortcuts: [
 			{ keys: ["⌘", "V"], description: "クリップボードの画像を読み込む" },
-			{ keys: ["⌘", "C"], description: "クロップ結果をコピーする" },
+			{ keys: ["⌘", "C"], description: "選択範囲をコピーする" },
 		],
 	},
 	{
@@ -51,7 +51,7 @@ const SECTIONS: readonly ShortcutSection[] = [
 		shortcuts: [
 			{ keys: ["⌘", "Z"], description: "元に戻す" },
 			{ keys: ["⌘", "⇧", "Z"], description: "やり直す" },
-			{ keys: ["⌘", "A"], description: "クロップ範囲を画像全体に広げる" },
+			{ keys: ["⌘", "A"], description: "選択範囲を画像全体に広げる" },
 		],
 	},
 	{
