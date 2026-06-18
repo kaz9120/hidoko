@@ -11,8 +11,8 @@ interface PasswordStrengthProps {
 const SEGMENT_TONES = [
 	"bg-[var(--ember-700)]",
 	"bg-[var(--ember-600)]",
-	"bg-[var(--ember-500)]",
-	"bg-[var(--ember-300)]",
+	"bg-[var(--accent-active)]",
+	"bg-[var(--accent-hover)]",
 ] as const;
 
 /**
@@ -39,7 +39,7 @@ export function PasswordStrength({ score, className }: PasswordStrengthProps) {
 						key={tone}
 						className={cn(
 							"h-1.5 flex-1 rounded-full transition-colors",
-							i < lit ? tone : "bg-[var(--ink-300)]",
+							i < lit ? tone : "bg-[var(--border)]",
 						)}
 					/>
 				))}

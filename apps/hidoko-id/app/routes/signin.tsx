@@ -88,7 +88,7 @@ export default function SigninRoute() {
 			</div>
 
 			{justVerified ? (
-				<div className="rounded-md border border-[color-mix(in_oklab,var(--moss)_35%,transparent)] bg-[color-mix(in_oklab,var(--moss)_14%,transparent)] px-3.5 py-2.5 text-[13px] text-[#b9c79a]">
+				<div className="rounded-md border border-[color-mix(in_oklab,var(--success)_35%,transparent)] bg-[color-mix(in_oklab,var(--success)_14%,transparent)] px-3.5 py-2.5 text-[13px] text-[#b9c79a]">
 					メールアドレスを確認した。続けてサインインする
 				</div>
 			) : null}
@@ -112,7 +112,7 @@ export default function SigninRoute() {
 				rightLabel={
 					<Link
 						to="/reset"
-						className="text-[12px] font-normal text-[var(--ember-400)] hover:text-[var(--ember-300)]"
+						className="text-[12px] font-normal text-[var(--accent)] hover:text-[var(--accent-hover)]"
 					>
 						忘れた
 					</Link>
@@ -169,7 +169,7 @@ export default function SigninRoute() {
 						<span>アカウントがない</span>
 						<Link
 							to={signupHref}
-							className="inline-flex items-center gap-1 font-medium text-[var(--ember-400)] hover:text-[var(--ember-300)]"
+							className="inline-flex items-center gap-1 font-medium text-[var(--accent)] hover:text-[var(--accent-hover)]"
 						>
 							作成
 							<ArrowUpRight aria-hidden className="size-3.5" />
@@ -203,7 +203,7 @@ export default function SigninRoute() {
 					</Link>
 					<Link
 						to={signupHref}
-						className="inline-flex items-center gap-1 font-medium text-[var(--ember-400)] hover:text-[var(--ember-300)]"
+						className="inline-flex items-center gap-1 font-medium text-[var(--accent)] hover:text-[var(--accent-hover)]"
 					>
 						アカウントを作成
 						<ArrowUpRight aria-hidden className="size-3.5" />
@@ -238,18 +238,18 @@ export default function SigninRoute() {
 
 			{/* used by marquee */}
 			<div className="absolute inset-x-11 bottom-7 z-20 flex items-center gap-4 border-t border-[var(--border-subtle)] pt-5 font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--text-faint)]">
-				<span className="text-[var(--ember-400)]">USED BY ／</span>
+				<span className="text-[var(--accent)]">USED BY ／</span>
 				{FOOTER_APPS.map((name, i) => (
 					<span key={name} className="flex items-center gap-4">
 						{i > 0 ? (
-							<span className="text-[var(--ink-300)]" aria-hidden>
+							<span className="text-[var(--border)]" aria-hidden>
 								·
 							</span>
 						) : null}
 						<span>{name}</span>
 					</span>
 				))}
-				<span className="ml-auto text-[var(--ember-400)]">
+				<span className="ml-auto text-[var(--accent)]">
 					— {FOOTER_APPS.length} APPS
 				</span>
 			</div>

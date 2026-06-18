@@ -81,13 +81,12 @@ export default function ResetSentRoute() {
 
 			<div className="w-full max-w-[420px] text-center">
 				<div
-					className="mx-auto mb-5 inline-flex size-14 items-center justify-center rounded-full border bg-[color-mix(in_oklab,var(--ember-400)_14%,transparent)]"
+					className="mx-auto mb-5 inline-flex size-14 items-center justify-center rounded-full border bg-[color-mix(in_oklab,var(--accent)_14%,transparent)]"
 					style={{
-						borderColor:
-							"color-mix(in oklab, var(--ember-400) 32%, transparent)",
+						borderColor: "color-mix(in oklab, var(--accent) 32%, transparent)",
 					}}
 				>
-					<MailCheck aria-hidden className="size-6 text-[var(--ember-400)]" />
+					<MailCheck aria-hidden className="size-6 text-[var(--accent)]" />
 				</div>
 
 				<Mark tone="ember">メール送信</Mark>
@@ -118,7 +117,7 @@ export default function ResetSentRoute() {
 				</div>
 
 				{error ? (
-					<p className="mt-3 text-[12px] text-[var(--rust)]">{error}</p>
+					<p className="mt-3 text-[12px] text-[var(--danger)]">{error}</p>
 				) : null}
 
 				{devResetUrl ? (
@@ -131,7 +130,7 @@ export default function ResetSentRoute() {
 						</p>
 						<a
 							href={devResetUrl}
-							className="break-all font-mono text-[11px] text-[var(--ember-400)] hover:text-[var(--ember-300)]"
+							className="break-all font-mono text-[11px] text-[var(--accent)] hover:text-[var(--accent-hover)]"
 						>
 							{devResetUrl}
 						</a>
@@ -141,7 +140,7 @@ export default function ResetSentRoute() {
 				<div className="mt-8">
 					<Link
 						to="/signin"
-						className="inline-flex items-center gap-1.5 font-medium text-[13px] text-[var(--ember-400)] hover:text-[var(--ember-300)]"
+						className="inline-flex items-center gap-1.5 font-medium text-[13px] text-[var(--accent)] hover:text-[var(--accent-hover)]"
 					>
 						<ArrowLeft aria-hidden className="size-3.5" />
 						サインインに戻る

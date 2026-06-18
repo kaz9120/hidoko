@@ -146,7 +146,9 @@ export default function AccountSessionsRoute() {
 				</AuthButton>
 			</header>
 
-			{error ? <p className="text-[12px] text-[var(--rust)]">{error}</p> : null}
+			{error ? (
+				<p className="text-[12px] text-[var(--danger)]">{error}</p>
+			) : null}
 
 			{sessions == null ? (
 				<p className="text-[13px] text-[var(--text-faint)]">読み込み中…</p>
@@ -159,7 +161,7 @@ export default function AccountSessionsRoute() {
 						>
 							<Monitor
 								aria-hidden
-								className="mt-1 size-4 text-[var(--ember-400)]"
+								className="mt-1 size-4 text-[var(--accent)]"
 							/>
 							<div className="min-w-0 flex-1">
 								<div className="flex items-center gap-2.5">
@@ -168,12 +170,12 @@ export default function AccountSessionsRoute() {
 									</span>
 									{s.isCurrent ? (
 										<span
-											className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[10px] tracking-[0.1em] text-[var(--ember-400)]"
+											className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[10px] tracking-[0.1em] text-[var(--accent)]"
 											style={{
 												borderColor:
-													"color-mix(in oklab, var(--ember-400) 32%, transparent)",
+													"color-mix(in oklab, var(--accent) 32%, transparent)",
 												backgroundColor:
-													"color-mix(in oklab, var(--ember-400) 14%, transparent)",
+													"color-mix(in oklab, var(--accent) 14%, transparent)",
 											}}
 										>
 											このブラウザ

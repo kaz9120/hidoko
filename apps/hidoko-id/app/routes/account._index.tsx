@@ -30,7 +30,7 @@ export default function AccountProfileRoute() {
 				</div>
 				<Link
 					to="/account/profile"
-					className="inline-flex items-center gap-1 self-center font-medium text-[13px] text-[var(--ember-400)] hover:text-[var(--ember-300)]"
+					className="inline-flex items-center gap-1 self-center font-medium text-[13px] text-[var(--accent)] hover:text-[var(--accent-hover)]"
 				>
 					編集
 					<ArrowUpRight aria-hidden className="size-3.5" />
@@ -57,15 +57,15 @@ export default function AccountProfileRoute() {
 							className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-sans text-[11px] text-[#b9c79a]"
 							style={{
 								borderColor:
-									"color-mix(in oklab, var(--moss) 35%, transparent)",
+									"color-mix(in oklab, var(--success) 35%, transparent)",
 								backgroundColor:
-									"color-mix(in oklab, var(--moss) 14%, transparent)",
+									"color-mix(in oklab, var(--success) 14%, transparent)",
 							}}
 						>
 							<CheckCircle aria-hidden className="size-3" /> 確認済み
 						</span>
 					) : (
-						<span className="inline-flex rounded-full border border-[var(--rust)]/40 bg-[color-mix(in_oklab,var(--rust)_14%,transparent)] px-2 py-0.5 font-sans text-[11px] text-[var(--rust)]">
+						<span className="inline-flex rounded-full border border-[var(--danger)]/40 bg-[color-mix(in_oklab,var(--danger)_14%,transparent)] px-2 py-0.5 font-sans text-[11px] text-[var(--danger)]">
 							未確認
 						</span>
 					)}
