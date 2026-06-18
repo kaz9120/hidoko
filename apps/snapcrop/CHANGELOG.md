@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.2](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.15.1...snapcrop-v0.15.2) (2026-06-18)
+
+
+### Bug Fixes
+
+* **snapcrop:** tool-rail のセクション間余白を広げて境界を明確にする ([#286](https://github.com/kaz9120/hidoko/issues/286)) ([3219dd1](https://github.com/kaz9120/hidoko/commit/3219dd104ac55780082b850d301ed107e8f5c927))
+
 ## [0.15.1](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.15.0...snapcrop-v0.15.1) (2026-06-18)
 
 
