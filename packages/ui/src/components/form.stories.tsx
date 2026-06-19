@@ -72,9 +72,7 @@ export const Default: Story = {
 								<FormControl>
 									<Input placeholder="例: 三軒茶屋の焚き火人" {...field} />
 								</FormControl>
-								<FormDescription>
-									他のメンバーから見える名前。
-								</FormDescription>
+								<FormDescription>他のメンバーから見える名前。</FormDescription>
 								<FormMessage />
 							</FormItem>
 						)}
@@ -119,9 +117,7 @@ export const WithError: Story = {
 								<FormControl>
 									<Input placeholder="例: 三軒茶屋の焚き火人" {...field} />
 								</FormControl>
-								<FormDescription>
-									他のメンバーから見える名前。
-								</FormDescription>
+								<FormDescription>他のメンバーから見える名前。</FormDescription>
 								<FormMessage />
 							</FormItem>
 						)}

@@ -31,9 +31,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
 	render: () => (
 		<div className="flex items-center gap-2">
-			<Button
-				onClick={() => toast.success("焚き火の記録を保存しました")}
-			>
+			<Button onClick={() => toast.success("焚き火の記録を保存しました")}>
 				保存
 			</Button>
 			<Toaster />

@@ -99,23 +99,22 @@ bunx shadcn@latest add <name> --cwd packages/ui
 
 ## 最新化
 
-shadcn は package ではないので Renovate では追えない。手動で同期する。
+shadcn は package ではないので Renovate では追えない。`packages/ui/src/components/**` を直接編集してブランドの motion 語彙を組み込んでいる関係上、全件上書きの sync は使えない。代わりに公式 registry との差分だけ確認する。
 
 ```sh
-bun run ui:diff   # 何が変わるか確認 (dry-run)
-bun run ui:sync   # 全コンポーネントを最新版で上書き
+bun run ui:check-updates   # shadcn 公式との差分を表示
 ```
 
-上書きで困らないよう、**packages/ui 配下のコンポーネントを手で編集しない**。挙動を変えたいときは:
+差分が出たら、必要な fix だけ手で cherry-pick する。
 
-1. shadcn 本家の議論 / PR をウォッチして取り込まれるのを待つ
-2. それでも必要なら app 側で wrap して差分を吸収する
+挙動を変えたいときは `packages/ui/src/components/**` を直接編集する。これは shadcn の公式哲学 (copy-paste components you own) に沿った使い方。
 
 ## ルール
 
 - shadcn registry にあるコンポーネントは必ずこのパッケージから取る (自前で書かない)
-- `packages/ui/src/components/**` と `packages/ui/src/hooks/**` は **Biome 対象外**。shadcn 公式の lint 違反を毎回直したくないため
+- `packages/ui/src/hooks/**` と `packages/ui/src/embers.js` は **Biome 対象外**。shadcn 公式 hooks の lint 違反を毎回直したくないため
 - shadcn 変数で tokens.css 側に対応するセマンティックトークンが無いもの (例: 新たに登場した `--sidebar-*` の派生) は shadcn デフォルトのまま仮置きしてよい。本格的に使うときは tokens.css にトークンを足して [src/styles.css](src/styles.css) で紐付け直す
+- 編集を加える際は `packages/ui/src/motion.css` の 12 語彙と [DESIGN.md](../../DESIGN.md) のトークンに揃える。独自 transition / duration を直書きしない
 
 ## 既知の制約
 

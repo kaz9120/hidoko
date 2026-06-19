@@ -48,10 +48,7 @@ const woods: Wood[] = [
 export const Default: Story = {
 	render: () => (
 		<div className="w-64">
-			<Combobox<Wood>
-				items={woods}
-				itemToStringLabel={(item) => item.label}
-			>
+			<Combobox<Wood> items={woods} itemToStringLabel={(item) => item.label}>
 				<ComboboxInput placeholder="樹種を探す">
 					<ComboboxContent>
 						<ComboboxEmpty>該当なし</ComboboxEmpty>

@@ -53,7 +53,10 @@ const weekdayConfig = {
  */
 export const Default: Story = {
 	render: () => (
-		<ChartContainer config={weekdayConfig} className="h-[240px] w-full max-w-xl">
+		<ChartContainer
+			config={weekdayConfig}
+			className="h-[240px] w-full max-w-xl"
+		>
 			<BarChart data={weekday}>
 				<CartesianGrid vertical={false} />
 				<XAxis dataKey="day" tickLine={false} axisLine={false} />
@@ -91,7 +94,10 @@ const monthlyConfig = {
  */
 export const MultiSeriesLine: Story = {
 	render: () => (
-		<ChartContainer config={monthlyConfig} className="h-[260px] w-full max-w-xl">
+		<ChartContainer
+			config={monthlyConfig}
+			className="h-[260px] w-full max-w-xl"
+		>
 			<LineChart data={monthly}>
 				<CartesianGrid vertical={false} />
 				<XAxis dataKey="month" tickLine={false} axisLine={false} />

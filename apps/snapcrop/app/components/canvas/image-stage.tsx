@@ -7,7 +7,6 @@ import {
 } from "react";
 import { AnnotationInteractionLayer } from "~/components/canvas/annotation-interaction-layer";
 import { AnnotationLayer } from "~/components/canvas/annotation-layer";
-import { ArrowFloatingToolbar } from "~/components/canvas/arrow-floating-toolbar";
 import { ArrowLayer } from "~/components/canvas/arrow-layer";
 import { ArrowPreviewOverlay } from "~/components/canvas/arrow-preview-overlay";
 import { ArrowSelectionOverlay } from "~/components/canvas/arrow-selection-overlay";

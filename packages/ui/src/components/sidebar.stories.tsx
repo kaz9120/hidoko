@@ -1,10 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import {
-	CalendarIcon,
-	FlameIcon,
-	HomeIcon,
-	SettingsIcon,
-} from "lucide-react";
+import { CalendarIcon, FlameIcon, HomeIcon, SettingsIcon } from "lucide-react";
 
 import {
 	Sidebar,

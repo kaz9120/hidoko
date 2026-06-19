@@ -104,10 +104,7 @@ export const InfoIconHint: Story = {
 				<span>火床の温度</span>
 				<Tooltip>
 					<TooltipTrigger asChild>
-						<button
-							type="button"
-							className="inline-flex text-muted-foreground"
-						>
+						<button type="button" className="inline-flex text-muted-foreground">
 							<InfoIcon className="size-3.5" />
 						</button>
 					</TooltipTrigger>

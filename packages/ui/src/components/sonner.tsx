@@ -33,6 +33,14 @@ const Toaster = ({ ...props }: ToasterProps) => {
 				} as React.CSSProperties
 			}
 			{...props}
+			toastOptions={{
+				...props.toastOptions,
+				classNames: {
+					toast:
+						"!shadow-[var(--shadow-card)] !border !border-border !bg-card !text-foreground !rounded-md !py-3 !px-4 !text-sm !gap-2.5",
+					...props.toastOptions?.classNames,
+				},
+			}}
 		/>
 	);
 };

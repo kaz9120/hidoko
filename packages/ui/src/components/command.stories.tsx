@@ -128,7 +128,10 @@ export const Palette: Story = {
 export const Empty: Story = {
 	render: () => (
 		<Command className="w-80 rounded-md border shadow-sm">
-			<CommandInput placeholder="コマンドを検索..." defaultValue="存在しない文字列" />
+			<CommandInput
+				placeholder="コマンドを検索..."
+				defaultValue="存在しない文字列"
+			/>
 			<CommandList>
 				<CommandEmpty>該当なし</CommandEmpty>
 				<CommandGroup heading="火床">

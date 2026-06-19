@@ -82,10 +82,7 @@ export const Default: Story = {
 					</NavigationMenuContent>
 				</NavigationMenuItem>
 				<NavigationMenuItem>
-					<NavigationMenuLink
-						href="#"
-						className={navigationMenuTriggerStyle()}
-					>
+					<NavigationMenuLink href="#" className={navigationMenuTriggerStyle()}>
 						ドキュメント
 					</NavigationMenuLink>
 				</NavigationMenuItem>
@@ -103,34 +100,22 @@ export const LinksOnly: Story = {
 		<NavigationMenu viewport={false}>
 			<NavigationMenuList>
 				<NavigationMenuItem>
-					<NavigationMenuLink
-						href="#"
-						className={navigationMenuTriggerStyle()}
-					>
+					<NavigationMenuLink href="#" className={navigationMenuTriggerStyle()}>
 						ホーム
 					</NavigationMenuLink>
 				</NavigationMenuItem>
 				<NavigationMenuItem>
-					<NavigationMenuLink
-						href="#"
-						className={navigationMenuTriggerStyle()}
-					>
+					<NavigationMenuLink href="#" className={navigationMenuTriggerStyle()}>
 						焚き火
 					</NavigationMenuLink>
 				</NavigationMenuItem>
 				<NavigationMenuItem>
-					<NavigationMenuLink
-						href="#"
-						className={navigationMenuTriggerStyle()}
-					>
+					<NavigationMenuLink href="#" className={navigationMenuTriggerStyle()}>
 						夜の散歩
 					</NavigationMenuLink>
 				</NavigationMenuItem>
 				<NavigationMenuItem>
-					<NavigationMenuLink
-						href="#"
-						className={navigationMenuTriggerStyle()}
-					>
+					<NavigationMenuLink href="#" className={navigationMenuTriggerStyle()}>
 						設定
 					</NavigationMenuLink>
 				</NavigationMenuItem>
