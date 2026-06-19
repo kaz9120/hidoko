@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.14.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.13.7...note-ogp-v0.14.0) (2026-06-19)
+
+
+### Features
+
+* 焚き火を愛するエンジニア Design System を全アプリに適用する ([#359](https://github.com/kaz9120/hidoko/issues/359)) ([e56436e](https://github.com/kaz9120/hidoko/commit/e56436e34eb3bb9b57cd5b23c117e3b07b558486))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ui bumped to 0.5.0
+
 ## [0.13.7](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.13.6...note-ogp-v0.13.7) (2026-06-18)
 
 

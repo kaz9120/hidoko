@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/kaz9120/hidoko/compare/ui-v0.4.5...ui-v0.5.0) (2026-06-19)
+
+
+### Features
+
+* 焚き火を愛するエンジニア Design System を全アプリに適用する ([#359](https://github.com/kaz9120/hidoko/issues/359)) ([e56436e](https://github.com/kaz9120/hidoko/commit/e56436e34eb3bb9b57cd5b23c117e3b07b558486))
+
 ## [0.4.5](https://github.com/kaz9120/hidoko/compare/ui-v0.4.4...ui-v0.4.5) (2026-06-18)
 
 
