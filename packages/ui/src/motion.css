@@ -275,7 +275,8 @@
 
 .hi-motion-rise[data-state="open"],
 .hi-motion-rise[data-state="instant-open"],
-.hi-motion-rise[data-state="delayed-open"] {
+.hi-motion-rise[data-state="delayed-open"],
+.hi-motion-rise[data-open] {
 	opacity: 1;
 	transform: translateY(0) scale(1);
 	pointer-events: auto;
