@@ -1,6 +1,6 @@
 {
 	"name": "snapcrop",
-	"version": "0.17.11",
+	"version": "0.17.12",
 	"private": true,
 	"sideEffects": false,
 	"type": "module",
