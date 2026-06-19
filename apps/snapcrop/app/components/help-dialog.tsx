@@ -158,7 +158,7 @@ export function HelpDialog() {
 			<Dialog onOpenChange={setOpen} open={open}>
 				<DialogContent
 					aria-describedby={undefined}
-					className="max-h-[85dvh] max-w-md overflow-y-auto"
+					className="max-h-[85dvh] max-w-xl overflow-y-auto"
 				>
 					<DialogHeader>
 						<DialogTitle>キーボードショートカット</DialogTitle>
