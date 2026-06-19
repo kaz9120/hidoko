@@ -99,11 +99,6 @@ const SECTIONS: readonly ShortcutSection[] = [
 	},
 ] as const;
 
-const AUTHOR_LINKS = [
-	{ label: "焚き火を愛するエンジニア", href: "https://x.com/kyamamoto9120" },
-	{ label: "y-kaz.com", href: "https://y-kaz.com/" },
-] as const;
-
 /**
  * ヘッダ右クラスタのヘルプボタンと、それが開くショートカット一覧ダイアログ。
  * `?` キーでも開ける (use-rect-shortcuts.ts の先例に揃え、入力欄フォーカス中と
@@ -210,18 +205,15 @@ export function HelpDialog() {
 
 					<footer className="flex items-center gap-3 border-border border-t pt-3">
 						<span className="text-muted-foreground text-xs">created by</span>
-						{AUTHOR_LINKS.map((link) => (
-							<a
-								className="inline-flex items-center gap-1 text-foreground text-xs underline-offset-2 hover:underline"
-								href={link.href}
-								key={link.href}
-								rel="noreferrer"
-								target="_blank"
-							>
-								{link.label}
-								<ExternalLinkIcon aria-hidden="true" className="size-3" />
-							</a>
-						))}
+						<a
+							className="inline-flex items-center gap-1 text-foreground text-xs underline-offset-2 hover:underline"
+							href="https://x.com/kyamamoto9120"
+							rel="noreferrer"
+							target="_blank"
+						>
+							焚き火を愛するエンジニア
+							<ExternalLinkIcon aria-hidden="true" className="size-3" />
+						</a>
 					</footer>
 				</DialogContent>
 			</Dialog>
