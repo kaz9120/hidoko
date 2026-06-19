@@ -247,19 +247,11 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  /* テーマ切替 (.light クラスの付け外し) で背景・前景色をふわっと変える。
-     duration-relax + ease-settle で「夜と昼が入れ替わる」情緒を出す。
-     要素単位の transition と競合させないため html/body のみに限定する。 */
-  transition:
-    background-color var(--duration-relax) var(--ease-settle),
-    color var(--duration-relax) var(--ease-settle),
-    border-color var(--duration-relax) var(--ease-settle);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html, body {
-    transition: none;
-  }
+  /* テーマ切替時の色遷移は `useThemeDawn` フックが <html> に
+     `.hi-motion-dawn` を一時付与して制御する (motion.css で定義)。
+     ここで html/body 自身に transition を直接付けると、子孫の dawn
+     transition と二重に動いてしまうため、自身には付けない。
+     useThemeDawn を使わない app では、テーマは瞬時に切り替わる。 */
 }
 
 ::selection {

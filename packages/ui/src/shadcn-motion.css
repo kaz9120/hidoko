@@ -1,0 +1,251 @@
+/* ============================================================
+   Hidoko — shadcn motion bindings
+   ------------------------------------------------------------
+   shadcn/ui コンポーネントの `data-slot` 属性に対して、新 motion 語彙を
+   グローバル CSS で被せる。コンポーネント本体には触らないため、
+   `bunx shadcn` の同期で破壊されない（packages/ui の運用ルール）。
+
+   実装方針:
+   - Radix UI は `data-state="open"` / `"closed"` の遷移に `@keyframes`
+     animation の `animationend` を待って unmount する。そのため
+     transition ではなく必ず `animation` + `@keyframes` で書く。
+   - shadcn デフォルトの Tailwind animate (animate-in / fade-in-0 /
+     zoom-in-95 / accordion-up / accordion-down 等) は CSS の source
+     order と specificity で打ち消す。`!important` は使わない。
+   - 詳細は DESIGN.md「Motion」と previews/motion-patterns.html を参照。
+   - `prefers-reduced-motion: reduce` ですべて静止に倒す。
+   ============================================================ */
+
+/* ─── Keyframes ─── */
+
+/* Overlay (背幕) — 霧が立ちこめる / 霧が引く */
+@keyframes hi-overlay-in {
+	from {
+		background: rgba(10, 9, 7, 0);
+		backdrop-filter: blur(0);
+		-webkit-backdrop-filter: blur(0);
+	}
+	to {
+		background: rgba(10, 9, 7, 0.64);
+		backdrop-filter: blur(8px);
+		-webkit-backdrop-filter: blur(8px);
+	}
+}
+@keyframes hi-overlay-out {
+	from {
+		background: rgba(10, 9, 7, 0.64);
+		backdrop-filter: blur(8px);
+		-webkit-backdrop-filter: blur(8px);
+	}
+	to {
+		background: rgba(10, 9, 7, 0);
+		backdrop-filter: blur(0);
+		-webkit-backdrop-filter: blur(0);
+	}
+}
+
+/* Dialog 本体 — 霧が晴れて浮かぶ / 霧に沈む */
+/* shadcn は center 配置に translate(-50%, -50%) を当てるので、
+   そこに上下方向の translateY と scale / blur を足す。 */
+@keyframes hi-fog-in {
+	from {
+		opacity: 0;
+		transform: translate(-50%, calc(-50% + 16px)) scale(0.97);
+		filter: blur(4px);
+	}
+	to {
+		opacity: 1;
+		transform: translate(-50%, -50%) scale(1);
+		filter: blur(0);
+	}
+}
+@keyframes hi-fog-out {
+	from {
+		opacity: 1;
+		transform: translate(-50%, -50%) scale(1);
+		filter: blur(0);
+	}
+	to {
+		opacity: 0;
+		transform: translate(-50%, calc(-50% + 16px)) scale(0.97);
+		filter: blur(4px);
+	}
+}
+
+/* Rise (浮上) — tooltip / popover / dropdown / menu の共通入退場 */
+@keyframes hi-rise-in {
+	from {
+		opacity: 0;
+		transform: translateY(6px) scale(0.96);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+@keyframes hi-rise-out {
+	from {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+	to {
+		opacity: 0;
+		transform: translateY(6px) scale(0.96);
+	}
+}
+
+/* Fold (折り畳み) — accordion / collapsible の高さ補間 */
+@keyframes hi-fold-down {
+	from { height: 0; }
+	to { height: var(--radix-accordion-content-height, var(--radix-collapsible-content-height, auto)); }
+}
+@keyframes hi-fold-up {
+	from { height: var(--radix-accordion-content-height, var(--radix-collapsible-content-height, auto)); }
+	to { height: 0; }
+}
+
+/* ─── Dialog ─── */
+[data-slot="dialog-overlay"][data-state="open"] {
+	animation: hi-overlay-in 700ms var(--ease-ember) forwards;
+}
+[data-slot="dialog-overlay"][data-state="closed"] {
+	animation: hi-overlay-out 500ms var(--ease-ember) forwards;
+}
+[data-slot="dialog-content"][data-state="open"] {
+	animation: hi-fog-in 700ms var(--ease-settle) forwards;
+}
+[data-slot="dialog-content"][data-state="closed"] {
+	animation: hi-fog-out 500ms var(--ease-ember) forwards;
+}
+
+/* ─── Alert Dialog ─── */
+[data-slot="alert-dialog-overlay"][data-state="open"] {
+	animation: hi-overlay-in 700ms var(--ease-ember) forwards;
+}
+[data-slot="alert-dialog-overlay"][data-state="closed"] {
+	animation: hi-overlay-out 500ms var(--ease-ember) forwards;
+}
+[data-slot="alert-dialog-content"][data-state="open"] {
+	animation: hi-fog-in 700ms var(--ease-settle) forwards;
+}
+[data-slot="alert-dialog-content"][data-state="closed"] {
+	animation: hi-fog-out 500ms var(--ease-ember) forwards;
+}
+
+/* ─── Sheet (Drawer 系) — Dialog と同じ温度 ─── */
+[data-slot="sheet-overlay"][data-state="open"] {
+	animation: hi-overlay-in 700ms var(--ease-ember) forwards;
+}
+[data-slot="sheet-overlay"][data-state="closed"] {
+	animation: hi-overlay-out 500ms var(--ease-ember) forwards;
+}
+
+/* ─── Accordion content — 紙を広げる ─── */
+[data-slot="accordion-content"] {
+	overflow: hidden;
+}
+[data-slot="accordion-content"][data-state="open"] {
+	animation: hi-fold-down var(--duration-slow) var(--ease-ember);
+}
+[data-slot="accordion-content"][data-state="closed"] {
+	animation: hi-fold-up var(--duration-slow) var(--ease-ember);
+}
+
+/* ─── Collapsible content — Accordion と同じ温度 ─── */
+[data-slot="collapsible-content"] {
+	overflow: hidden;
+}
+[data-slot="collapsible-content"][data-state="open"] {
+	animation: hi-fold-down var(--duration-slow) var(--ease-ember);
+}
+[data-slot="collapsible-content"][data-state="closed"] {
+	animation: hi-fold-up var(--duration-slow) var(--ease-ember);
+}
+
+/* ─── Tooltip — そっと寄り添う ─── */
+[data-slot="tooltip-content"][data-state="delayed-open"],
+[data-slot="tooltip-content"][data-state="instant-open"] {
+	animation: hi-rise-in var(--duration-slow) var(--ease-settle) forwards;
+}
+[data-slot="tooltip-content"][data-state="closed"] {
+	animation: hi-rise-out var(--duration) var(--ease-ember) forwards;
+}
+
+/* ─── Popover / HoverCard / Dropdown / Context / Menubar /
+       NavigationMenu / Select content — 同じ「浮上」 ─── */
+[data-slot="popover-content"][data-state="open"],
+[data-slot="hover-card-content"][data-state="open"],
+[data-slot="dropdown-menu-content"][data-state="open"],
+[data-slot="context-menu-content"][data-state="open"],
+[data-slot="menubar-content"][data-state="open"],
+[data-slot="select-content"][data-state="open"],
+[data-slot="navigation-menu-viewport"][data-state="open"] {
+	animation: hi-rise-in var(--duration-slow) var(--ease-settle) forwards;
+}
+[data-slot="popover-content"][data-state="closed"],
+[data-slot="hover-card-content"][data-state="closed"],
+[data-slot="dropdown-menu-content"][data-state="closed"],
+[data-slot="context-menu-content"][data-state="closed"],
+[data-slot="menubar-content"][data-state="closed"],
+[data-slot="select-content"][data-state="closed"],
+[data-slot="navigation-menu-viewport"][data-state="closed"] {
+	animation: hi-rise-out var(--duration) var(--ease-ember) forwards;
+}
+
+/* ─── Skeleton — 熾火脈動 ─── */
+/* shadcn: animate-pulse rounded-md bg-accent。
+   Tailwind の冷たいグレー pulse を、熾火色の sweep に置き換える。
+   `hi-ember-pulse` のキーフレームは motion.css 側で定義済み。 */
+[data-slot="skeleton"] {
+	background: linear-gradient(
+		110deg,
+		var(--bg-raised) 30%,
+		color-mix(in oklab, var(--ember-400) 8%, var(--bg-overlay)) 50%,
+		var(--bg-raised) 70%
+	);
+	background-size: 250% 100%;
+	animation: hi-ember-pulse 2.4s var(--ease-breath) infinite;
+}
+
+/* ─── Tabs content — 場面切替 ─── */
+/* shadcn の Tabs は active な panel が常時マウントされる構造ではなく
+   active 状態が data-state="active" で切り替わる。
+   active 切替の瞬間に下からふわっと浮かばせる。 */
+[data-slot="tabs-content"][data-state="active"] {
+	animation: hi-tab-in var(--duration-slow) var(--ease-ember);
+}
+
+/* ─── prefers-reduced-motion ─── */
+@media (prefers-reduced-motion: reduce) {
+	[data-slot="dialog-overlay"],
+	[data-slot="dialog-content"],
+	[data-slot="sheet-overlay"],
+	[data-slot="alert-dialog-overlay"],
+	[data-slot="alert-dialog-content"],
+	[data-slot="accordion-content"],
+	[data-slot="collapsible-content"],
+	[data-slot="tooltip-content"],
+	[data-slot="popover-content"],
+	[data-slot="hover-card-content"],
+	[data-slot="dropdown-menu-content"],
+	[data-slot="context-menu-content"],
+	[data-slot="menubar-content"],
+	[data-slot="select-content"],
+	[data-slot="navigation-menu-viewport"],
+	[data-slot="tabs-content"][data-state="active"] {
+		animation: none;
+	}
+	/* Radix は animationend を待つので、即 0ms で run させる代わりに
+	   forwards で終端の見た目を保持する。close は瞬時に unmount される。 */
+	[data-slot="dialog-overlay"][data-state="open"],
+	[data-slot="alert-dialog-overlay"][data-state="open"],
+	[data-slot="sheet-overlay"][data-state="open"] {
+		background: rgba(10, 9, 7, 0.64);
+		backdrop-filter: blur(8px);
+		-webkit-backdrop-filter: blur(8px);
+	}
+	[data-slot="skeleton"] {
+		background: var(--bg-raised);
+		animation: none;
+	}
+}

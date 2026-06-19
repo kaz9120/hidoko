@@ -7,6 +7,14 @@
 @import "./motion.css";
 
 /*
+ * shadcn motion bindings — shadcn コンポーネント本体は触らず、
+ * `data-slot` 属性に対してグローバル CSS で新 motion を被せる。
+ * shadcn デフォルトの Tailwind animate (animate-in / fade-in / zoom-in
+ * など) を CSS の source order で打ち消す。`!important` は使わない。
+ */
+@import "./shadcn-motion.css";
+
+/*
  * 火床トークン → shadcn/ui CSS 変数の橋渡し
  *
  * tokens.css のセマンティックトークン (--bg / --text / --accent など) を
