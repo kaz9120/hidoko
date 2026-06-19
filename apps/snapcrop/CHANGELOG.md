@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.11](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.10...snapcrop-v0.17.11) (2026-06-19)
+
+
+### Bug Fixes
+
+* **snapcrop:** ヘルプフッターから y-kaz.com リンクを外す ([#350](https://github.com/kaz9120/hidoko/issues/350)) ([31856ad](https://github.com/kaz9120/hidoko/commit/31856add8dd2267b69c436471bf73413aa2e10a7))
+
 ## [0.17.10](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.9...snapcrop-v0.17.10) (2026-06-19)
 
 
