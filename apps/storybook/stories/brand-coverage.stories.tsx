@@ -76,7 +76,7 @@ function Section({
  */
 export const All: Story = {
 	render: () => (
-		<TooltipProvider delayDuration={150}>
+		<TooltipProvider delayDuration={0}>
 			<div className="mx-auto grid max-w-5xl gap-6 bg-background p-12">
 				<header>
 					<p className="font-mono text-xs uppercase tracking-wide text-accent">
