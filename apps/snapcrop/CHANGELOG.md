@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.14](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.13...snapcrop-v0.17.14) (2026-06-19)
+
+
+### Bug Fixes
+
+* **snapcrop:** スタイル選択をサイドバーから Dropdown に集約する ([#357](https://github.com/kaz9120/hidoko/issues/357)) ([8a1d436](https://github.com/kaz9120/hidoko/commit/8a1d43635b2c965bbd7beaab9e7e0d02a91a1e50))
+
 ## [0.17.13](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.12...snapcrop-v0.17.13) (2026-06-19)
 
 
