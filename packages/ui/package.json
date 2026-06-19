@@ -55,7 +55,6 @@
 	},
 	"scripts": {
 		"typecheck": "tsc -b",
-		"sync": "bunx shadcn@latest add --all --overwrite --yes",
-		"diff": "bunx shadcn@latest add --all --dry-run --yes"
+		"check-updates": "bun scripts/check-shadcn-updates.ts"
 	}
 }
