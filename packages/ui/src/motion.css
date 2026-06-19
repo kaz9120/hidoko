@@ -367,25 +367,6 @@
 	grid-template-rows: 1fr;
 }
 
-/* Sonner toast — settle で着地、smoke で消える */
-/* Sonner ライブラリ独自の transform / transition を抑え、motion.css の
- * hi-settle (560ms ease-settle で下から微 over-shoot で着地) と
- * hi-smoke (560ms で上に煙のように消える) を発火させる。
- *
- * enter: data-mounted="true" / not data-removed
- * exit:  data-removed="true" */
-[data-sonner-toaster] [data-sonner-toast] {
-	transform: none !important;
-	transition: opacity 0ms;
-}
-[data-sonner-toaster]
-	[data-sonner-toast][data-mounted="true"]:not([data-removed="true"]) {
-	animation: hi-settle var(--duration-relax) var(--ease-settle);
-}
-[data-sonner-toaster] [data-sonner-toast][data-removed="true"] {
-	animation: hi-smoke var(--duration-relax) var(--ease) forwards;
-}
-
 /* Accordion / Collapsible のブランド時間軸 — shadcn が当てる
  * animate-accordion-up / animate-accordion-down のスピードと
  * easing をブランドに揃える。アニメ本体 (Radix の content-height ベース)
@@ -452,11 +433,6 @@
 	.hi-motion-rise[data-state="closed"],
 	.hi-motion-rise[data-open],
 	.hi-motion-rise[data-closed] {
-		animation: none;
-	}
-	[data-sonner-toaster]
-		[data-sonner-toast][data-mounted="true"]:not([data-removed="true"]),
-	[data-sonner-toaster] [data-sonner-toast][data-removed="true"] {
 		animation: none;
 	}
 	::view-transition-old(root),

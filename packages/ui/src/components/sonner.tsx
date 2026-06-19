@@ -37,7 +37,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
 				...props.toastOptions,
 				classNames: {
 					toast:
-						"!shadow-[var(--shadow-pop)] !border-border !bg-popover !text-popover-foreground",
+						"!shadow-[var(--shadow-card)] !border !border-border !bg-card !text-foreground !rounded-md !py-3 !px-4 !text-sm !gap-2.5",
 					...props.toastOptions?.classNames,
 				},
 			}}
