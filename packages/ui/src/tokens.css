@@ -79,6 +79,16 @@
   --chart-4: var(--rust);
   --chart-5: var(--smoke);
 
+  /* ─── Sidebar（shadcn/ui 互換の 8 変数。セマンティック経由で解決） ─── */
+  --sidebar:                    var(--bg-raised);
+  --sidebar-foreground:         var(--text);
+  --sidebar-primary:            var(--accent);
+  --sidebar-primary-foreground: var(--text-on-ember);
+  --sidebar-accent:             var(--bg-overlay);
+  --sidebar-accent-foreground:  var(--text-strong);
+  --sidebar-border:             var(--border-subtle);
+  --sidebar-ring:               var(--accent);
+
   /* ─── タイポグラフィ ─── */
   --font-sans:
     "Inter", "LINE Seed JP",
@@ -87,6 +97,8 @@
   --font-mono:
     "JetBrains Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
 
+  /* UI テキスト最小サイズ。12px は装飾ラベル・タイムスタンプのみ許容。 */
+  --text-min:  14px;
   --text-xs:   12px;
   --text-sm:   14px;
   --text-base: 16px;
@@ -147,6 +159,13 @@
   --glow-ember-strong:
     0 0 0 1px rgba(244, 125, 58, 0.5),
     0 8px 36px rgba(244, 125, 58, 0.45);
+
+  /* ─── アクセシビリティ ─── */
+  --a11y-target-min: 44px;          /* WCAG 2.5.8 — タップ／クリックの最小領域 */
+  --a11y-target-comfortable: 48px;  /* 推奨タップ領域（モバイル） */
+  --a11y-focus-width:  2px;             /* フォーカスリングの太さ */
+  --a11y-focus-offset: 2px;             /* フォーカスリングのオフセット */
+  --a11y-focus-color:  var(--ember-400);/* フォーカスリングの色 */
 
   /* ─── レイアウト ─── */
   --width-prose: 68ch;

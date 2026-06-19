@@ -47,8 +47,11 @@
 	box-shadow: var(--shadow-pop);
 }
 
-/* リダイレクト loader の ember pulse / spin。tokens.css に同名キーフレームが無いため定義。 */
-@keyframes hidoko-id-ember-pulse {
+/* リダイレクト loader 用のローカル motion。
+ * `.hi-motion-ember-pulse` (motion.css) は background-gradient で skeleton 代替
+ * を作る別パターン。ここは Flame アイコンや小さな点の opacity 脈動なので、
+ * 名前衝突を避けるため `hidoko-id-icon-pulse` として独自で持つ。 */
+@keyframes hidoko-id-icon-pulse {
 	0%,
 	100% {
 		opacity: 0.55;
@@ -66,5 +69,5 @@
 	animation: hidoko-id-spin 1.2s linear infinite;
 }
 .hidoko-id-pulse {
-	animation: hidoko-id-ember-pulse 2.4s ease-in-out infinite;
+	animation: hidoko-id-icon-pulse 2.4s ease-in-out infinite;
 }

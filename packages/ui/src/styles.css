@@ -1,4 +1,12 @@
 /*
+ * motion 語彙（12 種）— hi-* クラスは opt-in で発火する。
+ * styles.css 経由で全 app に同梱され、tokens.css の --duration-* / --ease-*
+ * を消費する。.hi-motion-* / .hi-overlay / .hi-dialog を当てた要素だけ
+ * 動き、それ以外は静止のまま。詳細は DESIGN.md「Motion」と motion.css を参照。
+ */
+@import "./motion.css";
+
+/*
  * 火床トークン → shadcn/ui CSS 変数の橋渡し
  *
  * tokens.css のセマンティックトークン (--bg / --text / --accent など) を
@@ -10,9 +18,11 @@
  * そのまま参照する (shadcn の bg-accent / border-border はブランド色 /
  * セマンティックボーダー色として解決される)。
  *
- * `--sidebar-*` / `--chart-*` は shadcn の Sidebar / Chart コンポーネント用。
- * セマンティックトークン経由で解決しているので、ダーク / ライトの切替は html
- * クラスだけで自動追従する (`.dark` ブロックは不要)。
+ * `--sidebar-*` / `--chart-*` は shadcn の Sidebar / Chart コンポーネント用で、
+ * tokens.css 側で定義する (セマンティックトークン経由で解決するので、ダーク /
+ * ライトの切替は html クラスだけで自動追従し、`.dark` ブロックは不要)。
+ * ここでは shadcn が直接参照する別名 (--background / --primary 等) を
+ * tokens.css のセマンティックに対応付ける。
  */
 :root {
 	--radius: 0.625rem;
@@ -32,15 +42,6 @@
 	--destructive: var(--danger);
 	--input: var(--border);
 	--ring: var(--accent);
-
-	--sidebar: var(--bg-raised);
-	--sidebar-foreground: var(--text);
-	--sidebar-primary: var(--accent);
-	--sidebar-primary-foreground: var(--text-on-ember);
-	--sidebar-accent: var(--bg-overlay);
-	--sidebar-accent-foreground: var(--text-strong);
-	--sidebar-border: var(--border-subtle);
-	--sidebar-ring: var(--accent);
 }
 
 @theme inline {
