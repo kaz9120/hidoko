@@ -43,10 +43,7 @@ export const LeftToRight: Story = {
 export const RightToLeft: Story = {
 	render: () => (
 		<DirectionProvider dir="rtl">
-			<div
-				dir="rtl"
-				className="rounded-md border px-4 py-3 text-sm"
-			>
+			<div dir="rtl" className="rounded-md border px-4 py-3 text-sm">
 				مرحباً — RTL の文脈で配下の Radix が右側起点で開く。
 			</div>
 		</DirectionProvider>

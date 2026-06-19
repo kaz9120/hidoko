@@ -9,8 +9,6 @@
 		"ignoreUnknown": true,
 		"includes": [
 			"**",
-			"!packages/ui/src/components",
-			"packages/ui/src/components/*.stories.tsx",
 			"!packages/ui/src/hooks",
 			"!packages/ui/src/embers.js",
 			"!packages/ui/src/embers.d.ts",
@@ -34,5 +32,28 @@
 				"organizeImports": "on"
 			}
 		}
-	}
+	},
+	"overrides": [
+		{
+			"includes": ["packages/ui/src/components/**"],
+			"linter": {
+				"rules": {
+					"a11y": {
+						"useSemanticElements": "off",
+						"useFocusableInteractive": "off",
+						"useAriaPropsForRole": "off",
+						"useKeyWithClickEvents": "off"
+					},
+					"suspicious": {
+						"noArrayIndexKey": "off",
+						"noShadowRestrictedNames": "off",
+						"noDocumentCookie": "off"
+					},
+					"security": {
+						"noDangerouslySetInnerHtml": "off"
+					}
+				}
+			}
+		}
+	]
 }

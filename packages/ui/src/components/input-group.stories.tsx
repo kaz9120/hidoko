@@ -87,10 +87,7 @@ export const WithTrailingButton: Story = {
 				<InputGroupAddon align="inline-start">
 					<MailIcon />
 				</InputGroupAddon>
-				<InputGroupInput
-					type="email"
-					placeholder="name@example.com"
-				/>
+				<InputGroupInput type="email" placeholder="name@example.com" />
 				<InputGroupAddon align="inline-end">
 					<InputGroupButton size="sm" variant="default">
 						送る

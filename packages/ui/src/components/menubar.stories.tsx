@@ -144,7 +144,9 @@ export const WithChoices: Story = {
 						<MenubarRadioGroup value={theme} onValueChange={setTheme}>
 							<MenubarRadioItem value="light">ライト</MenubarRadioItem>
 							<MenubarRadioItem value="dark">ダーク</MenubarRadioItem>
-							<MenubarRadioItem value="system">システムに合わせる</MenubarRadioItem>
+							<MenubarRadioItem value="system">
+								システムに合わせる
+							</MenubarRadioItem>
 						</MenubarRadioGroup>
 					</MenubarContent>
 				</MenubarMenu>
