@@ -58,7 +58,7 @@ const SECTIONS: readonly ShortcutSection[] = [
 		shortcuts: [
 			{ keys: ["⌘", "0"], description: "ウィンドウに合わせる" },
 			{ keys: ["⌘", "1"], description: "100% 表示にする" },
-			{ keys: ["Space"], description: "押しながらドラッグでキャンバスをパン" },
+			{ keys: ["Space"], description: "押しながらドラッグで表示位置を動かす" },
 		],
 	},
 	{
