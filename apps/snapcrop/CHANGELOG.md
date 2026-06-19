@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.12](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.11...snapcrop-v0.17.12) (2026-06-19)
+
+
+### Bug Fixes
+
+* **snapcrop:** ヘルプダイアログの幅を広げる ([#352](https://github.com/kaz9120/hidoko/issues/352)) ([e62f9b2](https://github.com/kaz9120/hidoko/commit/e62f9b21d734441da6e122c2466646c8fff23672))
+
 ## [0.17.11](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.10...snapcrop-v0.17.11) (2026-06-19)
 
 
