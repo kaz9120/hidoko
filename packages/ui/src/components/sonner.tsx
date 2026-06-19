@@ -33,6 +33,14 @@ const Toaster = ({ ...props }: ToasterProps) => {
 				} as React.CSSProperties
 			}
 			{...props}
+			toastOptions={{
+				...props.toastOptions,
+				classNames: {
+					toast:
+						"!shadow-[var(--shadow-pop)] !border-border !bg-popover !text-popover-foreground",
+					...props.toastOptions?.classNames,
+				},
+			}}
 		/>
 	);
 };
