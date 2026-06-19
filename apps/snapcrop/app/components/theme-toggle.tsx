@@ -1,10 +1,12 @@
 import { MoonIcon, SunIcon } from "lucide-react";
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "ui";
+import { useThemeDawn } from "ui/hooks/use-theme-dawn";
 
 export function ThemeToggle() {
-	const { resolvedTheme, setTheme } = useTheme();
+	// useThemeDawn は next-themes をラップし、テーマ切替時に
+	// `.hi-motion-dawn` を <html> に一時付与する。夜明けのように色がゆっくり移る。
+	const { resolvedTheme, setTheme } = useThemeDawn();
 	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {

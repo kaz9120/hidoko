@@ -1,15 +1,18 @@
 import { MoonIcon, SunIcon } from "lucide-react";
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Button, Tooltip, TooltipContent, TooltipTrigger } from "ui";
+import { useThemeDawn } from "ui/hooks/use-theme-dawn";
 
 /**
  * アプリ UI のライト / ダークを切り替えるトグル。コントロールパネルの
  * 「テーマ」(書き出す OGP 画像のテーマ) とは独立して動くため、ラベルは
  * 「アプリを〜」で始めて区別する。
+ *
+ * useThemeDawn により、切替の瞬間に <html> へ `.hi-motion-dawn` が一時付与され、
+ * 色が「夜明けのように」遷移する。
  */
 export function ThemeToggle() {
-	const { resolvedTheme, setTheme } = useTheme();
+	const { resolvedTheme, setTheme } = useThemeDawn();
 	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {
