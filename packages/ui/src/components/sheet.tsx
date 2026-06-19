@@ -35,10 +35,7 @@ function SheetOverlay({
 	return (
 		<SheetPrimitive.Overlay
 			data-slot="sheet-overlay"
-			className={cn(
-				"hi-overlay z-50 motion-reduce:duration-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:duration-700 data-[state=closed]:duration-400",
-				className,
-			)}
+			className={cn("hi-overlay z-50", className)}
 			{...props}
 		/>
 	);

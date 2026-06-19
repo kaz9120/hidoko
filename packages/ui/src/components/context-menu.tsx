@@ -85,7 +85,7 @@ function ContextMenuSubContent({
 		<ContextMenuPrimitive.SubContent
 			data-slot="context-menu-sub-content"
 			className={cn(
-				"hi-motion-rise z-50 min-w-[8rem] origin-(--radix-context-menu-content-transform-origin) overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
+				"hi-motion-rise z-50 min-w-[8rem] origin-(--radix-context-menu-content-transform-origin) overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg",
 				className,
 			)}
 			{...props}
@@ -102,7 +102,7 @@ function ContextMenuContent({
 			<ContextMenuPrimitive.Content
 				data-slot="context-menu-content"
 				className={cn(
-					"hi-motion-rise z-50 max-h-(--radix-context-menu-content-available-height) min-w-[8rem] origin-(--radix-context-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
+					"hi-motion-rise z-50 max-h-(--radix-context-menu-content-available-height) min-w-[8rem] origin-(--radix-context-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
 					className,
 				)}
 				{...props}
