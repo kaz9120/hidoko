@@ -12,6 +12,14 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Toggle, Tooltip, TooltipContent, TooltipTrigger } from "ui";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
+	DropdownMenuShortcut,
+	DropdownMenuTrigger,
+} from "ui/components/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "ui/components/popover";
 import {
 	type ActiveTool,
@@ -119,32 +127,53 @@ export function ToolRail() {
 
 			<span aria-hidden="true" className="my-3 h-px w-6 shrink-0 bg-border" />
 
-			{STYLE_PRESET_ORDER.map((id, i) => {
-				const preset = STYLE_PRESETS[id];
-				const Icon = STYLE_PRESET_ICONS[id];
-				const pressed = stylePreset === id;
-				const shortcut = String(i + 1);
+			{(() => {
+				const current = STYLE_PRESETS[stylePreset];
+				const CurrentIcon = STYLE_PRESET_ICONS[stylePreset];
 				return (
-					<Tooltip key={id}>
-						<TooltipTrigger asChild>
-							<Toggle
-								aria-label={`スタイル: ${preset.label} (${shortcut})`}
-								onPressedChange={(next) => {
-									if (next) handleStylePresetChange(id);
-								}}
-								pressed={pressed}
-								size="lg"
-								variant="default"
+					<DropdownMenu>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<DropdownMenuTrigger asChild>
+									<Toggle
+										aria-label={`スタイル: ${current.label}`}
+										size="lg"
+										variant="default"
+									>
+										<CurrentIcon strokeWidth={1.75} />
+									</Toggle>
+								</DropdownMenuTrigger>
+							</TooltipTrigger>
+							<TooltipContent side="right">
+								スタイル: {current.label}
+							</TooltipContent>
+						</Tooltip>
+						<DropdownMenuContent side="right" align="start">
+							<DropdownMenuRadioGroup
+								value={stylePreset}
+								onValueChange={(value) =>
+									handleStylePresetChange(value as StylePresetId)
+								}
 							>
-								<Icon strokeWidth={1.75} />
-							</Toggle>
-						</TooltipTrigger>
-						<TooltipContent side="right">
-							{preset.label} ({shortcut}) — {preset.hint}
-						</TooltipContent>
-					</Tooltip>
+								{STYLE_PRESET_ORDER.map((id, i) => {
+									const preset = STYLE_PRESETS[id];
+									const Icon = STYLE_PRESET_ICONS[id];
+									return (
+										<DropdownMenuRadioItem key={id} value={id}>
+											<Icon strokeWidth={1.75} />
+											<span className="flex-1">{preset.label}</span>
+											<span className="text-muted-foreground text-xs">
+												{preset.hint}
+											</span>
+											<DropdownMenuShortcut>{i + 1}</DropdownMenuShortcut>
+										</DropdownMenuRadioItem>
+									);
+								})}
+							</DropdownMenuRadioGroup>
+						</DropdownMenuContent>
+					</DropdownMenu>
 				);
-			})}
+			})()}
 
 			<span aria-hidden="true" className="my-3 h-px w-6 shrink-0 bg-border" />
 
