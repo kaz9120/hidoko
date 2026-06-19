@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/kaz9120/hidoko/compare/ui-v0.5.0...ui-v0.6.0) (2026-06-19)
+
+
+### Features
+
+* **ui:** shadcn 全コンポーネントにブランドの motion 語彙を直接適用する ([#363](https://github.com/kaz9120/hidoko/issues/363)) ([f61e0ba](https://github.com/kaz9120/hidoko/commit/f61e0baa0c43c998f8a4d6b2125cc97d05b3480e))
+
 ## [0.5.0](https://github.com/kaz9120/hidoko/compare/ui-v0.4.5...ui-v0.5.0) (2026-06-19)
 
 
