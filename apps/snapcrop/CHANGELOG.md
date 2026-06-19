@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.13](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.12...snapcrop-v0.17.13) (2026-06-19)
+
+
+### Bug Fixes
+
+* **snapcrop:** ツールレールのタップ領域を 40px に揃える ([#355](https://github.com/kaz9120/hidoko/issues/355)) ([5f5bb0e](https://github.com/kaz9120/hidoko/commit/5f5bb0e569e7809c935d480fc8fcc23bbb3b95a4))
+
 ## [0.17.12](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.11...snapcrop-v0.17.12) (2026-06-19)
 
 
