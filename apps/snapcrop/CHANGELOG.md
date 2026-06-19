@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.8](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.7...snapcrop-v0.17.8) (2026-06-19)
+
+
+### Bug Fixes
+
+* **snapcrop:** ヘルプダイアログの補足文を削除する ([#344](https://github.com/kaz9120/hidoko/issues/344)) ([ac5f948](https://github.com/kaz9120/hidoko/commit/ac5f9485aeb8cb982a8fab33e0dfc228462397dc))
+
 ## [0.17.7](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.6...snapcrop-v0.17.7) (2026-06-18)
 
 
