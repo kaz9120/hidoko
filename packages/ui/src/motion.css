@@ -285,6 +285,18 @@
 	grid-template-rows: 1fr;
 }
 
+/* Accordion / Collapsible のブランド時間軸 — shadcn が当てる
+ * animate-accordion-up / animate-accordion-down のスピードと
+ * easing をブランドに揃える。アニメ本体 (Radix の content-height ベース)
+ * は tw-animate-css 側に任せる。 */
+[data-slot="accordion-content"][data-state="open"],
+[data-slot="accordion-content"][data-state="closed"],
+[data-slot="collapsible-content"][data-state="open"],
+[data-slot="collapsible-content"][data-state="closed"] {
+	animation-duration: var(--duration-slow);
+	animation-timing-function: var(--ease-ember);
+}
+
 /* reduced motion — 動きは消す。温度（色・影・グロー）は残す */
 @media (prefers-reduced-motion: reduce) {
 	.hi-motion-breath::before,
@@ -322,6 +334,12 @@
 	}
 	.hi-motion-ember-pulse {
 		background: var(--bg-raised);
+	}
+	[data-slot="accordion-content"][data-state="open"],
+	[data-slot="accordion-content"][data-state="closed"],
+	[data-slot="collapsible-content"][data-state="open"],
+	[data-slot="collapsible-content"][data-state="closed"] {
+		animation: none;
 	}
 	::view-transition-old(root),
 	::view-transition-new(root) {
