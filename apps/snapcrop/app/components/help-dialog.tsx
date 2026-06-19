@@ -77,7 +77,7 @@ const SECTIONS: readonly ShortcutSection[] = [
 		shortcuts: [
 			{
 				keys: ["⇧"],
-				description: "押しながらドラッグで拘束 (正方形 / 45° / 水平垂直)",
+				description: "押しながらドラッグで形を揃える (正方形 / 45° / 水平垂直)",
 			},
 		],
 	},
