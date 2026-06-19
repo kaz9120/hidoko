@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.15.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.14.0...note-ogp-v0.15.0) (2026-06-19)
+
+
+### Features
+
+* **ui:** shadcn 全コンポーネントにブランドの motion 語彙を直接適用する ([#363](https://github.com/kaz9120/hidoko/issues/363)) ([f61e0ba](https://github.com/kaz9120/hidoko/commit/f61e0baa0c43c998f8a4d6b2125cc97d05b3480e))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ui bumped to 0.6.0
+
 ## [0.14.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.13.7...note-ogp-v0.14.0) (2026-06-19)
 
 
