@@ -87,7 +87,7 @@ export function ToolRail() {
 		<aside
 			aria-label="編集ツール"
 			aria-disabled={disabled}
-			className={`flex w-11 shrink-0 flex-col items-center gap-1 border-border border-r bg-[var(--bg-overlay)] py-2 transition-opacity ${
+			className={`flex w-12 shrink-0 flex-col items-center gap-1 border-border border-r bg-[var(--bg-overlay)] py-2 transition-opacity ${
 				disabled ? "pointer-events-none opacity-40" : ""
 			}`}
 		>
@@ -104,7 +104,7 @@ export function ToolRail() {
 									if (next) setActiveTool(tool.id);
 								}}
 								pressed={pressed}
-								size="sm"
+								size="lg"
 								variant="default"
 							>
 								<Icon strokeWidth={1.75} />
@@ -133,7 +133,7 @@ export function ToolRail() {
 									if (next) handleStylePresetChange(id);
 								}}
 								pressed={pressed}
-								size="sm"
+								size="lg"
 								variant="default"
 							>
 								<Icon strokeWidth={1.75} />
@@ -155,7 +155,7 @@ export function ToolRail() {
 							<button
 								type="button"
 								aria-label="色を変える"
-								className="size-7 shrink-0 rounded-full border-2 border-border ring-offset-2 ring-offset-[var(--bg-overlay)] transition-shadow hover:ring-2 hover:ring-primary/40"
+								className="size-10 shrink-0 rounded-full border-2 border-border ring-offset-2 ring-offset-[var(--bg-overlay)] transition-shadow hover:ring-2 hover:ring-primary/40"
 								style={{ backgroundColor: rectDefaults.color }}
 							/>
 						</PopoverTrigger>
