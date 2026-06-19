@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.10](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.9...snapcrop-v0.17.10) (2026-06-19)
+
+
+### Bug Fixes
+
+* **snapcrop:** ヘルプの "キャンバスをパン" を一般語に書き直す ([#348](https://github.com/kaz9120/hidoko/issues/348)) ([398d09a](https://github.com/kaz9120/hidoko/commit/398d09a0a8fe0c16af415f3b126269caead747f8))
+
 ## [0.17.9](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.8...snapcrop-v0.17.9) (2026-06-19)
 
 
