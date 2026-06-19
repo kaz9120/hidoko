@@ -40,7 +40,7 @@ function TooltipContent({
 				data-slot="tooltip-content"
 				sideOffset={sideOffset}
 				className={cn(
-					"hi-motion-rise z-50 w-fit origin-(--radix-tooltip-content-transform-origin) rounded-md bg-foreground px-3 py-1.5 text-xs text-balance text-background",
+					"hi-motion-rise z-50 w-fit rounded-md bg-foreground px-3 py-1.5 text-xs text-balance text-background",
 					className,
 				)}
 				{...props}

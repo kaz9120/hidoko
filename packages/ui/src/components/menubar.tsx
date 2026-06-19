@@ -79,7 +79,7 @@ function MenubarContent({
 				alignOffset={alignOffset}
 				sideOffset={sideOffset}
 				className={cn(
-					"hi-motion-rise z-50 min-w-[12rem] origin-(--radix-menubar-content-transform-origin) overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+					"hi-motion-rise z-50 min-w-[12rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
 					className,
 				)}
 				{...props}
@@ -248,7 +248,7 @@ function MenubarSubContent({
 		<MenubarPrimitive.SubContent
 			data-slot="menubar-sub-content"
 			className={cn(
-				"hi-motion-rise z-50 min-w-[8rem] origin-(--radix-menubar-content-transform-origin) overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg",
+				"hi-motion-rise z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg",
 				className,
 			)}
 			{...props}
