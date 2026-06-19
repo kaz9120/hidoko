@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.9](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.8...snapcrop-v0.17.9) (2026-06-19)
+
+
+### Bug Fixes
+
+* **snapcrop:** ヘルプの "拘束" を結果ベースの表現に書き直す ([#346](https://github.com/kaz9120/hidoko/issues/346)) ([0b7d321](https://github.com/kaz9120/hidoko/commit/0b7d32158ead1b5d16b77efc772aebb2dddbdc23))
+
 ## [0.17.8](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.17.7...snapcrop-v0.17.8) (2026-06-19)
 
 
