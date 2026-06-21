@@ -52,50 +52,58 @@ function DialogContent({
 	return (
 		<DialogPortal data-slot="dialog-portal">
 			<DialogOverlay />
-			<DialogPrimitive.Content
-				data-slot="dialog-content"
-				className={cn("hi-dialog", className)}
+			<div
 				style={{
 					position: "fixed",
-					top: "50%",
-					left: "50%",
-					transform: "translateY(0) scale(1)",
+					inset: 0,
 					zIndex: 1001,
-					width: "100%",
-					maxWidth: "min(calc(100% - 2rem), 32rem)",
-					maxHeight: "85vh",
-					overflowY: "auto",
-					background: "var(--bg-raised)",
-					border: "1px solid var(--border)",
-					borderRadius: "var(--radius-lg)",
-					padding: "var(--space-6)",
-					boxShadow: "var(--shadow-pop)",
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+					pointerEvents: "none",
 				}}
-				{...props}
 			>
-				{children}
-				{showCloseButton && (
-					<DialogPrimitive.Close
-						data-slot="dialog-close"
-						className="hi-focus-ring"
-						style={{
-							position: "absolute",
-							top: "var(--space-4)",
-							right: "var(--space-4)",
-							opacity: 0.7,
-							cursor: "pointer",
-							background: "none",
-							border: "none",
-							color: "inherit",
-							borderRadius: "var(--radius-xs)",
-							padding: 0,
-						}}
-					>
-						<XIcon style={{ width: 16, height: 16 }} />
-						<span className="hi-sr-only">Close</span>
-					</DialogPrimitive.Close>
-				)}
-			</DialogPrimitive.Content>
+				<DialogPrimitive.Content
+					data-slot="dialog-content"
+					className={cn("hi-dialog", className)}
+					style={{
+						width: "100%",
+						maxWidth: "min(calc(100% - 2rem), 32rem)",
+						maxHeight: "85vh",
+						overflowY: "auto",
+						background: "var(--bg-raised)",
+						border: "1px solid var(--border)",
+						borderRadius: "var(--radius-lg)",
+						padding: "var(--space-6)",
+						boxShadow: "var(--shadow-pop)",
+						pointerEvents: "auto",
+					}}
+					{...props}
+				>
+					{children}
+					{showCloseButton && (
+						<DialogPrimitive.Close
+							data-slot="dialog-close"
+							className="hi-focus-ring"
+							style={{
+								position: "absolute",
+								top: "var(--space-4)",
+								right: "var(--space-4)",
+								opacity: 0.7,
+								cursor: "pointer",
+								background: "none",
+								border: "none",
+								color: "inherit",
+								borderRadius: "var(--radius-xs)",
+								padding: 0,
+							}}
+						>
+							<XIcon style={{ width: 16, height: 16 }} />
+							<span className="hi-sr-only">Close</span>
+						</DialogPrimitive.Close>
+					)}
+				</DialogPrimitive.Content>
+			</div>
 		</DialogPortal>
 	);
 }

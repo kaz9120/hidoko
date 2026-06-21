@@ -30,7 +30,7 @@ function Toggle({
 				"hi-btn",
 				variant === "outline" && "hi-btn--outline",
 				sizeClass[size],
-				"data-[state=on]:bg-accent-soft data-[state=on]:text-text-strong",
+				"data-[state=on]:bg-accent data-[state=on]:text-text-on-ember data-[state=on]:border-accent",
 				className,
 			)}
 			{...props}

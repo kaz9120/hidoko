@@ -48,28 +48,36 @@ function AlertDialogContent({
 	return (
 		<AlertDialogPortal>
 			<AlertDialogOverlay />
-			<AlertDialogPrimitive.Content
-				data-slot="alert-dialog-content"
-				data-size={size}
-				className={cn("hi-dialog group/alert-dialog-content", className)}
+			<div
 				style={{
 					position: "fixed",
-					top: "50%",
-					left: "50%",
-					transform: "translateY(0) scale(1)",
+					inset: 0,
 					zIndex: 1001,
-					display: "grid",
-					width: "100%",
-					maxWidth: size === "sm" ? "20rem" : "min(calc(100% - 2rem), 32rem)",
-					gap: "var(--space-4)",
-					background: "var(--bg-raised)",
-					border: "1px solid var(--border)",
-					borderRadius: "var(--radius-lg)",
-					padding: "var(--space-6)",
-					boxShadow: "var(--shadow-pop)",
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+					pointerEvents: "none",
 				}}
-				{...props}
-			/>
+			>
+				<AlertDialogPrimitive.Content
+					data-slot="alert-dialog-content"
+					data-size={size}
+					className={cn("hi-dialog group/alert-dialog-content", className)}
+					style={{
+						display: "grid",
+						width: "100%",
+						maxWidth: size === "sm" ? "20rem" : "min(calc(100% - 2rem), 32rem)",
+						gap: "var(--space-4)",
+						background: "var(--bg-raised)",
+						border: "1px solid var(--border)",
+						borderRadius: "var(--radius-lg)",
+						padding: "var(--space-6)",
+						boxShadow: "var(--shadow-pop)",
+						pointerEvents: "auto",
+					}}
+					{...props}
+				/>
+			</div>
 		</AlertDialogPortal>
 	);
 }
