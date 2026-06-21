@@ -21,14 +21,14 @@ type Props = {
  */
 export function PairMoon({
 	size = 36,
-	color = "var(--accent)",
+	color = "var(--brand)",
 	color2,
 	label = "ふたつの月",
 }: Props) {
 	const id = useId();
 	const glowId = `pairmoon-glow-${id}`;
 	const titleId = `pairmoon-title-${id}`;
-	const c2 = color2 ?? "color-mix(in oklab, var(--accent) 60%, var(--moon))";
+	const c2 = color2 ?? "color-mix(in oklab, var(--brand) 60%, var(--moon))";
 	return (
 		<svg
 			role="img"

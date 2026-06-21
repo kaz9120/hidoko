@@ -57,7 +57,7 @@ export function TopNav() {
 				variant="outline"
 				size="sm"
 				// shadcn outline の hover (bg-accent) を打ち消し、文字とボーダーだけアクセント化する
-				className="ml-auto bg-secondary hover:border-[color-mix(in_oklab,var(--accent)_50%,var(--border))] hover:bg-secondary hover:text-primary"
+				className="ml-auto bg-secondary hover:border-[color-mix(in_oklab,var(--brand)_50%,var(--border))] hover:bg-secondary hover:text-primary"
 			>
 				<a href={X_PROFILE_URL} target="_blank" rel="noreferrer">
 					<SendIcon aria-hidden="true" />

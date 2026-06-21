@@ -79,7 +79,7 @@ export const All: Story = {
 		<TooltipProvider delayDuration={0}>
 			<div className="mx-auto grid max-w-5xl gap-6 bg-background p-12">
 				<header>
-					<p className="font-mono text-xs uppercase tracking-wide text-accent">
+					<p className="font-mono text-xs uppercase tracking-wide text-brand">
 						Brand Coverage
 					</p>
 					<h1 className="mt-2 text-3xl font-medium tracking-tight text-foreground">

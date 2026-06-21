@@ -84,7 +84,7 @@ function FooterLink({
 		// tokens.css の a スタイルを button に手で合わせる。
 		return (
 			<button
-				className="cursor-pointer text-[var(--accent)] transition-colors duration-(--duration) ease-(--ease) hover:text-[var(--accent-hover)]"
+				className="cursor-pointer text-[var(--brand)] transition-colors duration-(--duration) ease-(--ease) hover:text-[var(--brand-hover)]"
 				onClick={onClick}
 				type="button"
 			>

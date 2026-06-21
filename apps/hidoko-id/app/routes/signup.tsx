@@ -155,19 +155,19 @@ export default function SignupRoute() {
 					required
 					checked={terms}
 					onCheckedChange={(v) => setTerms(v === true)}
-					className="mt-0.5 data-[state=checked]:border-[var(--ember-600)] data-[state=checked]:bg-[var(--accent)] data-[state=checked]:text-[#1a0d05]"
+					className="mt-0.5 data-[state=checked]:border-[var(--ember-600)] data-[state=checked]:bg-[var(--brand)] data-[state=checked]:text-[#1a0d05]"
 				/>
 				<span>
 					<Link
 						to="/terms"
-						className="font-medium text-[var(--accent)] hover:text-[var(--accent-hover)]"
+						className="font-medium text-[var(--brand)] hover:text-[var(--brand-hover)]"
 					>
 						利用規約
 					</Link>{" "}
 					と{" "}
 					<Link
 						to="/privacy"
-						className="font-medium text-[var(--accent)] hover:text-[var(--accent-hover)]"
+						className="font-medium text-[var(--brand)] hover:text-[var(--brand-hover)]"
 					>
 						プライバシーポリシー
 					</Link>{" "}
@@ -198,7 +198,7 @@ export default function SignupRoute() {
 						<span>すでに使っている</span>
 						<Link
 							to={signinHref}
-							className="inline-flex items-center gap-1 font-medium text-[var(--accent)] hover:text-[var(--accent-hover)]"
+							className="inline-flex items-center gap-1 font-medium text-[var(--brand)] hover:text-[var(--brand-hover)]"
 						>
 							サインイン
 							<ArrowUpRight aria-hidden className="size-3.5" />
@@ -238,7 +238,7 @@ export default function SignupRoute() {
 							<li key={b} className="flex items-start gap-2.5">
 								<Check
 									aria-hidden
-									className="mt-1 size-3.5 text-[var(--accent)]"
+									className="mt-1 size-3.5 text-[var(--brand)]"
 								/>
 								<span>{b}</span>
 							</li>
@@ -257,7 +257,7 @@ export default function SignupRoute() {
 					<span>すでに使っている</span>
 					<Link
 						to={signinHref}
-						className="inline-flex items-center gap-1 font-medium text-[var(--accent)] hover:text-[var(--accent-hover)]"
+						className="inline-flex items-center gap-1 font-medium text-[var(--brand)] hover:text-[var(--brand-hover)]"
 					>
 						サインイン
 						<ArrowUpRight aria-hidden className="size-3.5" />

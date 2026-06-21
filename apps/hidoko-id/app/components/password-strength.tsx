@@ -11,8 +11,8 @@ interface PasswordStrengthProps {
 const SEGMENT_TONES = [
 	"bg-[var(--ember-700)]",
 	"bg-[var(--ember-600)]",
-	"bg-[var(--accent-active)]",
-	"bg-[var(--accent-hover)]",
+	"bg-[var(--brand-active)]",
+	"bg-[var(--brand-hover)]",
 ] as const;
 
 /**

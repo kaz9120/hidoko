@@ -52,20 +52,20 @@ export function WeekMatrix({ items, statuses, dates, todayKey }: Props) {
 							className="border-border-subtle border-l py-1.5 text-center"
 							style={{
 								background: isToday
-									? "color-mix(in oklab, var(--accent) 10%, transparent)"
+									? "color-mix(in oklab, var(--brand) 10%, transparent)"
 									: undefined,
 							}}
 						>
 							<div
 								className={`font-mono text-[9px] tracking-[0.18em] ${
-									isToday ? "text-accent" : wkColor
+									isToday ? "text-brand" : wkColor
 								}`}
 							>
 								{wkdLabel}
 							</div>
 							<div
 								className={`mt-px font-semibold text-[12px] ${
-									isToday ? "text-accent" : "text-text-strong"
+									isToday ? "text-brand" : "text-text-strong"
 								}`}
 								style={{ fontFeatureSettings: '"tnum"' }}
 							>
@@ -99,7 +99,7 @@ export function WeekMatrix({ items, statuses, dates, todayKey }: Props) {
 								className="relative flex items-center justify-center border-border-subtle border-l p-0.5"
 								style={{
 									background: isToday
-										? "color-mix(in oklab, var(--accent) 4%, transparent)"
+										? "color-mix(in oklab, var(--brand) 4%, transparent)"
 										: undefined,
 								}}
 							>

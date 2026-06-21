@@ -171,7 +171,7 @@ export function StatusItemDialog(props: Props) {
 							<Label htmlFor={nameId}>項目名</Label>
 							{/* Slack のステータス入力欄を参考に、絵文字ボタンを leading に
 							    置いた一体型の入力にする。focus は wrapper が一括で吸う。 */}
-							<div className="flex h-10 items-stretch rounded-md border border-border bg-bg-raised transition-shadow focus-within:border-accent focus-within:ring-[3px] focus-within:ring-accent/30">
+							<div className="flex h-10 items-stretch rounded-md border border-border bg-bg-raised transition-shadow focus-within:border-brand focus-within:ring-[3px] focus-within:ring-brand/30">
 								<EmojiPicker
 									value={emoji}
 									onChange={setEmoji}
@@ -204,9 +204,9 @@ export function StatusItemDialog(props: Props) {
 											className="flex flex-1 cursor-pointer items-center justify-center rounded-md border bg-bg-overlay px-2 py-1.5 text-xs transition-colors focus-within:outline-2 focus-within:outline-accent focus-within:outline-offset-2"
 											style={{
 												borderColor: selected
-													? "color-mix(in oklab, var(--accent) 40%, transparent)"
+													? "color-mix(in oklab, var(--brand) 40%, transparent)"
 													: "var(--border-subtle)",
-												color: selected ? "var(--accent)" : "var(--text-muted)",
+												color: selected ? "var(--brand)" : "var(--text-muted)",
 												fontWeight: selected ? 600 : 400,
 												boxShadow: selected ? "var(--glow-ember-soft)" : "none",
 											}}

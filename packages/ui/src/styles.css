@@ -7,41 +7,85 @@
 @import "./motion.css";
 
 /*
+ * Radix data-slot にモーション自動注入。shadcn/ui コンポーネントを
+ * インストールするだけで、Dialog は霧が晴れるように、Accordion は紙を
+ * 広げるように、Toast は着地して煙のように消える。
+ */
+@import "./radix-motion.css";
+
+/*
+ * shadcn/ui コンポーネントに Hidoko 固有の質感を追加する。
+ * テーマ変数だけでは得られない「温度」の層。
+ */
+@import "./shadcn-enhancements.css";
+
+/*
  * 火床トークン → shadcn/ui CSS 変数の橋渡し
  *
- * tokens.css のセマンティックトークン (--bg / --text / --accent など) を
- * 経由して shadcn の CSS 変数を解決する。tokens.css 側が `:root` (ダーク) と
- * `.light` (ライト) で値を切り替えるため、html の class 切替だけで配色全体が
- * 追従する。
+ * tokens.css のセマンティックトークン (--bg / --text / --brand など) を
+ * 経由して shadcn の CSS 変数を解決する。
  *
- * `--accent` `--border` は tokens.css が既に定義しているため再宣言せず
- * そのまま参照する (shadcn の bg-accent / border-border はブランド色 /
- * セマンティックボーダー色として解決される)。
- *
- * `--sidebar-*` / `--chart-*` は shadcn の Sidebar / Chart コンポーネント用で、
- * tokens.css 側で定義する (セマンティックトークン経由で解決するので、ダーク /
- * ライトの切替は html クラスだけで自動追従し、`.dark` ブロックは不要)。
- * ここでは shadcn が直接参照する別名 (--background / --primary 等) を
- * tokens.css のセマンティックに対応付ける。
+ * 注意:
+ * - --accent を shadcn の意味（ホバー背景 = --bg-overlay）に再定義する。
+ *   ブランド色は --brand / --brand-hover / --brand-soft を使うこと。
+ * - dark-first: :root がダーク、.light がライト。
+ *   next-themes では defaultTheme="dark", attribute="class" で運用する。
+ * - sidebar / chart 変数は tokens.css で定義済み。ここでは上書きしない。
  */
 :root {
-	--radius: 0.625rem;
+	/* Surface & Text */
 	--background: var(--bg);
 	--foreground: var(--text);
 	--card: var(--bg-raised);
 	--card-foreground: var(--text);
 	--popover: var(--bg-raised);
 	--popover-foreground: var(--text);
-	--primary: var(--accent);
+
+	/* Primary = ブランド色 */
+	--primary: var(--brand);
+	--primary-foreground: var(--text-on-ember);
+
+	/* Secondary = 一段持ち上げた面 */
+	--secondary: var(--bg-overlay);
+	--secondary-foreground: var(--text);
+
+	/* Muted = 控えめな面 */
+	--muted: var(--bg-overlay);
+	--muted-foreground: var(--text-muted);
+
+	/* Accent = ホバー・選択の背景（shadcn の意味） */
+	--accent: var(--bg-overlay);
+	--accent-foreground: var(--text-strong);
+
+	/* Destructive = 破壊操作 */
+	--destructive: var(--rust);
+	--destructive-foreground: var(--ink-900);
+
+	/* Border / Input / Ring */
+	--input: var(--border);
+	--ring: var(--brand);
+
+	/* Radius — shadcn の基準値 */
+	--radius: var(--radius-lg);
+
+	/* Font */
+	--font-sans: "Inter", "LINE Seed JP",
+		system-ui, -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN",
+		"Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
+	--font-mono: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+
+/* ─── ライト ─── */
+.light, [data-theme="light"] {
 	--primary-foreground: var(--text-on-ember);
 	--secondary: var(--bg-overlay);
 	--secondary-foreground: var(--text);
 	--muted: var(--bg-overlay);
 	--muted-foreground: var(--text-muted);
-	--accent-foreground: var(--text-on-ember);
-	--destructive: var(--danger);
+	--accent: var(--bg-overlay);
+	--accent-foreground: var(--text-strong);
+	--destructive-foreground: var(--ink-900);
 	--input: var(--border);
-	--ring: var(--accent);
 }
 
 @theme inline {
@@ -65,9 +109,15 @@
 	--color-accent: var(--accent);
 	--color-accent-foreground: var(--accent-foreground);
 	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+
+	--color-brand: var(--brand);
+	--color-brand-hover: var(--brand-hover);
+	--color-brand-active: var(--brand-active);
+	--color-brand-soft: var(--brand-soft);
 
 	--color-sidebar: var(--sidebar);
 	--color-sidebar-foreground: var(--sidebar-foreground);

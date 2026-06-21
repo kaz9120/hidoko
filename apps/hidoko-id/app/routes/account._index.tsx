@@ -30,7 +30,7 @@ export default function AccountProfileRoute() {
 				</div>
 				<Link
 					to="/account/profile"
-					className="inline-flex items-center gap-1 self-center font-medium text-[13px] text-[var(--accent)] hover:text-[var(--accent-hover)]"
+					className="inline-flex items-center gap-1 self-center font-medium text-[13px] text-[var(--brand)] hover:text-[var(--brand-hover)]"
 				>
 					編集
 					<ArrowUpRight aria-hidden className="size-3.5" />

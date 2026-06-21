@@ -28,7 +28,7 @@ export function Hero() {
 				<div className="flex items-center gap-[22px]">
 					<a
 						href="#about"
-						className="inline-flex items-center gap-1 border-b border-transparent pb-px font-medium text-primary transition-all duration-200 hover:border-accent-hover hover:text-accent-hover"
+						className="inline-flex items-center gap-1 border-b border-transparent pb-px font-medium text-primary transition-all duration-200 hover:border-brand-hover hover:text-brand-hover"
 					>
 						自己紹介
 						<ArrowDownIcon className="size-3.5" aria-hidden="true" />

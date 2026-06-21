@@ -54,7 +54,7 @@ export default function OAuthReturnRoute() {
 					<div className="mt-6">
 						<Link
 							to="/signin"
-							className="font-medium text-[13px] text-[var(--accent)] hover:text-[var(--accent-hover)]"
+							className="font-medium text-[13px] text-[var(--brand)] hover:text-[var(--brand-hover)]"
 						>
 							サインインへ →
 						</Link>
@@ -73,11 +73,11 @@ export default function OAuthReturnRoute() {
 			<div className="w-full max-w-[380px] text-center">
 				<div className="relative mx-auto mb-5 size-14">
 					<div className="absolute inset-0 rounded-full border-2 border-[var(--border)]" />
-					<div className="hidoko-id-spin absolute inset-0 rounded-full border-2 border-transparent border-t-[var(--accent)] border-r-[var(--accent)]" />
+					<div className="hidoko-id-spin absolute inset-0 rounded-full border-2 border-transparent border-t-[var(--brand)] border-r-[var(--brand)]" />
 					<div className="absolute inset-0 grid place-items-center">
 						<Flame
 							aria-hidden
-							className="hidoko-id-pulse size-5 text-[var(--accent)]"
+							className="hidoko-id-pulse size-5 text-[var(--brand)]"
 						/>
 					</div>
 				</div>
@@ -93,7 +93,7 @@ export default function OAuthReturnRoute() {
 				<div className="mt-7 inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--bg-raised)] px-3 py-1.5 font-mono text-[11px] text-[var(--text-faint)] tracking-[0.05em]">
 					<span
 						className="hidoko-id-pulse size-1.5 rounded-full"
-						style={{ background: "var(--accent)" }}
+						style={{ background: "var(--brand)" }}
 					/>
 					<span>{host}</span>
 				</div>
@@ -103,7 +103,7 @@ export default function OAuthReturnRoute() {
 						自動で遷移しない場合は{" "}
 						<a
 							href={next}
-							className="font-medium text-[var(--accent)] hover:text-[var(--accent-hover)]"
+							className="font-medium text-[var(--brand)] hover:text-[var(--brand-hover)]"
 						>
 							ここを押す
 						</a>

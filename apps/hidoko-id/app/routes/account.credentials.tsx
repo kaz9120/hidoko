@@ -133,7 +133,7 @@ export default function AccountCredentialsRoute() {
 						{devVerifyUrl ? (
 							<a
 								href={devVerifyUrl}
-								className="mt-2 block break-all font-mono text-[11px] text-[var(--accent)] hover:text-[var(--accent-hover)]"
+								className="mt-2 block break-all font-mono text-[11px] text-[var(--brand)] hover:text-[var(--brand-hover)]"
 							>
 								DEV ONLY: {devVerifyUrl}
 							</a>
