@@ -34,7 +34,7 @@
 
 	[data-slot="button"][data-variant="outline"]:hover,
 	[data-slot="button"][data-variant="ghost"]:hover {
-		background-color: color-mix(in oklab, var(--ember-400) 8%, var(--bg-overlay));
+		background-color: color-mix(in oklab, var(--ember-400) 12%, var(--bg-overlay));
 		color: var(--text-strong);
 	}
 }

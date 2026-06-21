@@ -53,8 +53,10 @@
 	--muted: var(--bg-overlay);
 	--muted-foreground: var(--text-muted);
 
-	/* Accent = ホバー・選択の背景（shadcn の意味） */
-	--accent: var(--bg-overlay);
+	/* Accent = ホバー・選択の背景（shadcn の意味）
+	   bg-overlay だけだと ink scale の段差が小さく視認しにくいため、
+	   ember tint を 6% 加えて全コンポーネントのホバーに温度を持たせる */
+	--accent: color-mix(in oklab, var(--ember-400) 6%, var(--bg-overlay));
 	--accent-foreground: var(--text-strong);
 
 	/* Destructive = 破壊操作 */
@@ -82,7 +84,7 @@
 	--secondary-foreground: var(--text);
 	--muted: var(--bg-overlay);
 	--muted-foreground: var(--text-muted);
-	--accent: var(--bg-overlay);
+	--accent: color-mix(in oklab, var(--ember-500) 6%, var(--bg-overlay));
 	--accent-foreground: var(--text-strong);
 	--destructive-foreground: var(--ink-900);
 	--input: var(--border);
