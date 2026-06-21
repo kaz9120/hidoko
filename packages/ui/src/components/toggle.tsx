@@ -6,12 +6,13 @@ import type * as React from "react";
 import { cn } from "ui/lib/utils";
 
 type ToggleVariant = "default" | "outline";
-type ToggleSize = "default" | "sm" | "lg";
+type ToggleSize = "default" | "sm" | "lg" | "icon";
 
 const sizeClass: Record<ToggleSize, string> = {
 	default: "h-9 min-w-9 px-2",
 	sm: "h-8 min-w-8 px-1.5",
 	lg: "h-10 min-w-10 px-2.5",
+	icon: "hi-btn--icon",
 };
 
 function Toggle({

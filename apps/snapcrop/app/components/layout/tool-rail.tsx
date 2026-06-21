@@ -112,7 +112,7 @@ export function ToolRail() {
 									if (next) setActiveTool(tool.id);
 								}}
 								pressed={pressed}
-								size="lg"
+								size="icon"
 								variant="default"
 							>
 								<Icon strokeWidth={1.75} />
@@ -137,7 +137,7 @@ export function ToolRail() {
 								<DropdownMenuTrigger asChild>
 									<Toggle
 										aria-label={`スタイル: ${current.label}`}
-										size="lg"
+										size="icon"
 										variant="default"
 									>
 										<CurrentIcon strokeWidth={1.75} />
@@ -184,7 +184,7 @@ export function ToolRail() {
 							<button
 								type="button"
 								aria-label="色を変える"
-								className="size-10 shrink-0 rounded-full border-2 border-border ring-offset-2 ring-offset-[var(--bg-overlay)] transition-shadow hover:ring-2 hover:ring-primary/40"
+								className="size-10 shrink-0 rounded-full border-2 border-border ring-offset-2 ring-offset-[var(--bg-overlay)] transition-shadow hover:ring-2 hover:ring-accent/40"
 								style={{ backgroundColor: rectDefaults.color }}
 							/>
 						</PopoverTrigger>
@@ -238,7 +238,7 @@ function ColorRow({
 							aria-label={`色 ${c}`}
 							onClick={() => onChange(c)}
 							className={`size-5 shrink-0 rounded-full border ring-offset-1 ring-offset-(--popover) transition-all hover:scale-110 ${
-								active ? "ring-2 ring-foreground" : "border-border"
+								active ? "ring-2 ring-text-strong" : "border-border"
 							}`}
 							style={{ backgroundColor: c }}
 						/>
