@@ -65,8 +65,8 @@
 	--input: var(--border);
 	--ring: var(--brand);
 
-	/* Radius — shadcn の基準値 */
-	--radius: var(--radius-lg);
+	/* Radius — shadcn の基準値。Card だけ個別に rounded-lg を使う */
+	--radius: var(--radius-md);
 
 	/* Font */
 	--font-sans: "Inter", "LINE Seed JP",

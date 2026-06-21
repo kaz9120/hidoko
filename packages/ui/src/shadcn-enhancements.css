@@ -19,17 +19,24 @@
 		transform var(--duration-instant) var(--ease);
 }
 
-[data-slot="button"]:hover {
-	box-shadow:
-		0 0 0 1px color-mix(in oklab, var(--ember-400) 14%, transparent),
-		0 0 20px color-mix(in oklab, var(--ember-400) 18%, transparent);
-}
+@media (hover: hover) and (pointer: fine) {
+	[data-slot="button"]:hover {
+		box-shadow:
+			0 0 0 1px color-mix(in oklab, var(--ember-400) 14%, transparent),
+			0 0 20px color-mix(in oklab, var(--ember-400) 18%, transparent);
+	}
 
-[data-slot="button"].bg-primary:hover,
-[data-slot="button"][data-variant="default"]:hover {
-	box-shadow:
-		0 0 0 1px color-mix(in oklab, var(--ember-400) 24%, transparent),
-		0 4px 24px color-mix(in oklab, var(--ember-400) 28%, transparent);
+	[data-slot="button"][data-variant="default"]:hover {
+		box-shadow:
+			0 0 0 1px color-mix(in oklab, var(--ember-400) 24%, transparent),
+			0 4px 24px color-mix(in oklab, var(--ember-400) 28%, transparent);
+	}
+
+	[data-slot="button"][data-variant="outline"]:hover,
+	[data-slot="button"][data-variant="ghost"]:hover {
+		background-color: color-mix(in oklab, var(--ember-400) 8%, var(--bg-overlay));
+		color: var(--text-strong);
+	}
 }
 
 [data-slot="button"]:active {
@@ -47,9 +54,11 @@
 		transform var(--duration) var(--ease);
 }
 
-[data-slot="card"]:hover {
-	transform: translateY(-1px);
-	border-color: var(--border-strong);
+@media (hover: hover) and (pointer: fine) {
+	[data-slot="card"]:hover {
+		transform: translateY(-1px);
+		border-color: var(--border-strong);
+	}
 }
 
 
@@ -122,6 +131,15 @@
 }
 
 
+/* ━━━ Toggle / ToggleGroup — 選択状態のブランド色 ━━━ */
+
+[data-slot="toggle"][data-state="on"],
+[data-slot="toggle-group-item"][data-state="on"] {
+	background: var(--brand-soft);
+	color: var(--brand);
+}
+
+
 /* ━━━ Badge — レター・スペーシング ━━━ */
 
 [data-slot="badge"] {
@@ -166,10 +184,12 @@
 
 /* ━━━ Dialog / Sheet close button — ホバーで温かみ ━━━ */
 
-[data-slot="dialog-close"]:hover,
-[data-slot="sheet-close"]:hover {
-	color: var(--text-strong);
-	transition: color var(--duration) var(--ease);
+@media (hover: hover) and (pointer: fine) {
+	[data-slot="dialog-close"]:hover,
+	[data-slot="sheet-close"]:hover {
+		color: var(--text-strong);
+		transition: color var(--duration) var(--ease);
+	}
 }
 
 
