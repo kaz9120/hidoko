@@ -37,7 +37,7 @@ export function TopNav() {
 				href="#top"
 			>
 				<HidokoMark size={26} />
-				<span className="font-mono tracking-[-0.005em] text-foreground">
+				<span className="font-mono tracking-[-0.005em] text-text">
 					y-kaz.com
 				</span>
 			</a>
@@ -46,7 +46,7 @@ export function TopNav() {
 					<a
 						key={item.href}
 						href={item.href}
-						className="text-[13.5px] text-muted-foreground transition-colors hover:text-text-strong"
+						className="text-[13.5px] text-text-muted transition-colors hover:text-text-strong"
 					>
 						{item.label}
 					</a>
@@ -57,7 +57,7 @@ export function TopNav() {
 				variant="outline"
 				size="sm"
 				// shadcn outline の hover (bg-accent) を打ち消し、文字とボーダーだけアクセント化する
-				className="ml-auto bg-secondary hover:border-[color-mix(in_oklab,var(--accent)_50%,var(--border))] hover:bg-secondary hover:text-primary"
+				className="ml-auto bg-bg-overlay hover:border-[color-mix(in_oklab,var(--accent)_50%,var(--border))] hover:bg-bg-overlay hover:text-accent"
 			>
 				<a href={X_PROFILE_URL} target="_blank" rel="noreferrer">
 					<SendIcon aria-hidden="true" />

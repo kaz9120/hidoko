@@ -77,7 +77,7 @@ export function Stage({
 					<button
 						type="button"
 						onClick={() => setTimelineOpen((open) => !open)}
-						className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/80 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+						className="inline-flex items-center gap-1.5 rounded-full border border-border bg-bg/80 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.22em] text-text-muted transition-colors hover:border-primary/40 hover:text-text"
 						aria-expanded={timelineOpen}
 					>
 						{timelineOpen ? (

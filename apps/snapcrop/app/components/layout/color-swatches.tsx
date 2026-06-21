@@ -32,7 +32,7 @@ export function ColorSwatches({
 						aria-label={`色 ${c}`}
 						className={`size-[18px] cursor-pointer rounded-full border-[1.5px] p-0 transition-transform not-disabled:hover:scale-110 disabled:cursor-not-allowed ${
 							active
-								? "border-foreground shadow-[0_0_0_1.5px_var(--background)]"
+								? "border-text shadow-[0_0_0_1.5px_var(--bg)]"
 								: "border-transparent"
 						}`}
 						disabled={disabled}

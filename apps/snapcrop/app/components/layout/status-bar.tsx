@@ -55,34 +55,34 @@ export function StatusBarView({
 	const estimatedBytes = estimateOutputBytes(image, cropData);
 
 	return (
-		<footer className="flex h-6 shrink-0 items-center gap-3 border-border border-t bg-card/50 px-3 font-mono text-[11px] text-muted-foreground">
+		<footer className="flex h-6 shrink-0 items-center gap-3 border-border border-t bg-bg-raised/50 px-3 font-mono text-[11px] text-text-muted">
 			<span
-				className="max-w-[200px] truncate text-foreground/80"
+				className="max-w-[200px] truncate text-text/80"
 				title={image.fileName}
 			>
 				{image.fileName}
 			</span>
 			<Sep />
-			<span className="text-foreground/80">{dims}</span>
+			<span className="text-text/80">{dims}</span>
 			<Sep />
 			<span>
 				{formatMimeType(image.format)} · {formatBytes(image.fileSize)}
 			</span>
 			<span className="ml-auto" />
 			<span>
-				選択: <span className="text-foreground/80">{cropDims}</span>
+				選択: <span className="text-text/80">{cropDims}</span>
 				{estimatedBytes !== null && (
 					<span> · 約 {formatBytes(estimatedBytes)}</span>
 				)}
 			</span>
 			<Sep />
 			<span>
-				図形: <span className="text-foreground/80">{annotationCount}</span>
+				図形: <span className="text-text/80">{annotationCount}</span>
 			</span>
 			<Sep />
 			<span>
 				履歴:{" "}
-				<span className="text-foreground/80">
+				<span className="text-text/80">
 					{historyIndex + 1} / {historyLength}
 				</span>
 			</span>

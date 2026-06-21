@@ -156,15 +156,15 @@ function ServiceDisclosure({
 }) {
 	return (
 		<div>
-			<h3 className="font-semibold text-foreground">{name}</h3>
+			<h3 className="font-semibold text-text">{name}</h3>
 			<dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
-				<dt className="font-medium text-foreground">送信先</dt>
+				<dt className="font-medium text-text">送信先</dt>
 				<dd>{recipient}</dd>
-				<dt className="font-medium text-foreground">送信される情報</dt>
+				<dt className="font-medium text-text">送信される情報</dt>
 				<dd>{info}</dd>
-				<dt className="font-medium text-foreground">利用目的</dt>
+				<dt className="font-medium text-text">利用目的</dt>
 				<dd>{purpose}</dd>
-				<dt className="font-medium text-foreground">プライバシーポリシー</dt>
+				<dt className="font-medium text-text">プライバシーポリシー</dt>
 				<dd className="break-all">
 					<a
 						className="underline underline-offset-2"

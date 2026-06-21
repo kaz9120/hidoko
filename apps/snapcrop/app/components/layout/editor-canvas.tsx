@@ -126,8 +126,8 @@ function ImageCanvas({
 
 function DropOverlay() {
 	return (
-		<div className="pointer-events-none absolute inset-5 flex items-center justify-center rounded-xl border-2 border-primary border-dashed bg-primary/10">
-			<p className="font-medium text-foreground text-lg">
+		<div className="pointer-events-none absolute inset-5 flex items-center justify-center rounded-xl border-2 border-primary border-dashed bg-accent/10">
+			<p className="font-medium text-text text-lg">
 				ここにドロップして差し替え
 			</p>
 		</div>

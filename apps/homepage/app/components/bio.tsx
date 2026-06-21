@@ -36,14 +36,14 @@ const GROUPS: { kind: BioKind; label: string }[] = [
 ];
 
 const chip = cva(
-	"inline-flex items-center gap-2 rounded-md border px-3 py-2 text-[13.5px] text-foreground transition-all duration-200 hover:border-border-strong hover:bg-secondary [&_svg]:size-3.5 [&_svg]:text-muted-foreground",
+	"inline-flex items-center gap-2 rounded-md border px-3 py-2 text-[13.5px] text-text transition-all duration-200 hover:border-border-strong hover:bg-bg-overlay [&_svg]:size-3.5 [&_svg]:text-text-muted",
 	{
 		variants: {
 			kind: {
-				role: "border-[color-mix(in_oklab,var(--ember-400)_22%,var(--border))] bg-[color-mix(in_oklab,var(--ember-400)_8%,var(--bg-raised))] [&_svg]:text-primary",
-				comm: "bg-card [&_svg]:text-ember-300",
+				role: "border-[color-mix(in_oklab,var(--ember-400)_22%,var(--border))] bg-[color-mix(in_oklab,var(--ember-400)_8%,var(--bg-raised))] [&_svg]:text-accent",
+				comm: "bg-bg-raised [&_svg]:text-ember-300",
 				fact: "bg-[var(--bg-sunken)] font-mono text-[12.5px] [&_svg]:text-moon",
-				hobby: "px-[11px] py-1.5 text-[13px] text-muted-foreground bg-card",
+				hobby: "px-[11px] py-1.5 text-[13px] text-text-muted bg-bg-raised",
 			},
 		},
 		defaultVariants: { kind: "role" },
@@ -73,7 +73,7 @@ export function Bio() {
 										<Icon aria-hidden="true" />
 										<span>{part.text}</span>
 										{part.tag && (
-											<span className="rounded-sm bg-[color-mix(in_oklab,var(--ember-400)_12%,transparent)] px-1.5 py-0.5 font-mono text-[10.5px] text-primary">
+											<span className="rounded-sm bg-[color-mix(in_oklab,var(--ember-400)_12%,transparent)] px-1.5 py-0.5 font-mono text-[10.5px] text-accent">
 												{part.tag}
 											</span>
 										)}

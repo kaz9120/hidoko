@@ -130,9 +130,7 @@ export function ExportActionsView({
 			>
 				<CopyIcon strokeWidth={2} />
 				コピー
-				<Kbd className="bg-primary-foreground/15 text-primary-foreground/80">
-					⌘C
-				</Kbd>
+				<Kbd className="bg-text-on-ember/15 text-text-on-ember/80">⌘C</Kbd>
 			</Button>
 		</div>
 	);

@@ -35,7 +35,7 @@ export function ImageField({
 	return (
 		<div className="flex flex-col gap-2">
 			{value ? (
-				<div className="overflow-hidden rounded-md border border-border bg-background">
+				<div className="overflow-hidden rounded-md border border-border bg-bg">
 					<img
 						src={value}
 						alt="アップロード済み画像のプレビュー"
@@ -53,7 +53,7 @@ export function ImageField({
 						<Button
 							type="button"
 							variant="ghost"
-							className="flex-1 rounded-none font-mono text-[10px] uppercase tracking-[0.22em] text-destructive hover:text-destructive"
+							className="flex-1 rounded-none font-mono text-[10px] uppercase tracking-[0.22em] text-danger hover:text-danger"
 							onClick={() => onChange(null)}
 						>
 							削除
@@ -64,13 +64,13 @@ export function ImageField({
 				<button
 					type="button"
 					onClick={openPicker}
-					className="flex h-20 w-full flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border bg-background text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
+					className="flex h-20 w-full flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border bg-bg text-text-muted transition-colors hover:border-primary hover:text-text"
 				>
 					<span className="flex items-center gap-2 text-sm">
 						<ImagePlusIcon className="size-4" strokeWidth={1.75} />
 						画像を追加
 					</span>
-					<span className="flex items-center gap-1 font-mono text-[9px] uppercase tracking-[0.22em] text-muted-foreground/80">
+					<span className="flex items-center gap-1 font-mono text-[9px] uppercase tracking-[0.22em] text-text-muted/80">
 						<ImageIcon className="size-3" strokeWidth={1.75} />
 						JPG / PNG ／ クリックで選択
 					</span>

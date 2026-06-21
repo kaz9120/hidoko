@@ -11,20 +11,10 @@
 }
 
 @theme inline {
-	/* tokens.css のサブレベル — Tailwind ユーティリティで触れるように */
-	--color-text-strong: var(--text-strong);
-	--color-text-faint: var(--text-faint);
-	--color-bg-0: var(--bg-0);
-	--color-border-subtle: var(--border-subtle);
-	--color-border-strong: var(--border-strong);
-	--color-accent-hover: var(--accent-hover);
 	--color-ember-200: var(--ember-200);
 	--color-ember-300: var(--ember-300);
 	--color-ember-400: var(--ember-400);
 	--color-moon: var(--moon);
-
-	--font-sans: var(--font-sans);
-	--font-mono: var(--font-mono);
 }
 
 @layer base {

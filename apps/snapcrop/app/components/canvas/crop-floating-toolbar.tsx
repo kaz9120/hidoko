@@ -180,10 +180,7 @@ export function CropFloatingToolbar({
 				onCommit={(n) => setCropSize({ width: n })}
 				value={cropWidth}
 			/>
-			<span
-				aria-hidden="true"
-				className="font-mono text-muted-foreground text-xs"
-			>
+			<span aria-hidden="true" className="font-mono text-text-muted text-xs">
 				×
 			</span>
 			<NumberField
@@ -243,7 +240,7 @@ function NumberField({
 	return (
 		<input
 			aria-label={axis === "w" ? "クロップ幅 (px)" : "クロップ高さ (px)"}
-			className="h-7 w-14 rounded-sm border border-border bg-input/30 px-2 text-right font-mono text-foreground text-xs outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-50"
+			className="h-7 w-14 rounded-sm border border-border bg-bg-sunken/30 px-2 text-right font-mono text-text text-xs outline-none focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/40 disabled:opacity-50"
 			inputMode="numeric"
 			onBlur={commit}
 			onChange={handleChange}

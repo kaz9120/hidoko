@@ -1,4 +1,3 @@
-import { CircleIcon } from "lucide-react";
 import { RadioGroup as RadioGroupPrimitive } from "radix-ui";
 import type * as React from "react";
 
@@ -24,17 +23,38 @@ function RadioGroupItem({
 	return (
 		<RadioGroupPrimitive.Item
 			data-slot="radio-group-item"
-			className={cn(
-				"aspect-square size-4 shrink-0 rounded-full border border-input text-primary shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:bg-input/30 dark:aria-invalid:ring-destructive/40",
-				className,
-			)}
+			className={cn("hi-focus-ring", className)}
+			style={{
+				width: 20,
+				height: 20,
+				flexShrink: 0,
+				borderRadius: "var(--radius-full)",
+				border: "1px solid var(--border-strong)",
+				background: "var(--bg-sunken)",
+				cursor: "pointer",
+				display: "grid",
+				placeItems: "center",
+				transition: `all var(--duration) var(--ease)`,
+				padding: 0,
+			}}
 			{...props}
 		>
 			<RadioGroupPrimitive.Indicator
 				data-slot="radio-group-indicator"
-				className="relative flex items-center justify-center"
+				style={{
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+				}}
 			>
-				<CircleIcon className="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 fill-primary" />
+				<span
+					style={{
+						width: 6,
+						height: 6,
+						borderRadius: "var(--radius-full)",
+						background: "#1a0d05",
+					}}
+				/>
 			</RadioGroupPrimitive.Indicator>
 		</RadioGroupPrimitive.Item>
 	);

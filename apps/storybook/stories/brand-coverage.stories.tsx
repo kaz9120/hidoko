@@ -62,8 +62,8 @@ function Section({
 	children: React.ReactNode;
 }) {
 	return (
-		<section className="rounded-lg border bg-card p-6">
-			<h2 className="mb-4 font-mono text-xs uppercase tracking-wide text-muted-foreground">
+		<section className="rounded-lg border bg-bg-raised p-6">
+			<h2 className="mb-4 font-mono text-xs uppercase tracking-wide text-text-muted">
 				{title}
 			</h2>
 			<div className="flex flex-wrap items-center gap-3">{children}</div>
@@ -77,15 +77,15 @@ function Section({
 export const All: Story = {
 	render: () => (
 		<TooltipProvider delayDuration={0}>
-			<div className="mx-auto grid max-w-5xl gap-6 bg-background p-12">
+			<div className="mx-auto grid max-w-5xl gap-6 bg-bg p-12">
 				<header>
 					<p className="font-mono text-xs uppercase tracking-wide text-accent">
 						Brand Coverage
 					</p>
-					<h1 className="mt-2 text-3xl font-medium tracking-tight text-foreground">
+					<h1 className="mt-2 text-3xl font-medium tracking-tight text-text">
 						12 の motion 語彙を一画面で確認
 					</h1>
-					<p className="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground">
+					<p className="mt-2 max-w-prose text-sm leading-relaxed text-text-muted">
 						ブランドの motion / focus ring / glow が shadcn
 						ベースコンポーネントに 乗っているかを目視で確認する。各 section
 						で語彙が 1〜2 個。

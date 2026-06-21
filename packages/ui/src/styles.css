@@ -1,86 +1,61 @@
 /*
- * motion 語彙（12 種）— hi-* クラスは opt-in で発火する。
- * styles.css 経由で全 app に同梱され、tokens.css の --duration-* / --ease-*
- * を消費する。.hi-motion-* / .hi-overlay / .hi-dialog を当てた要素だけ
- * 動き、それ以外は静止のまま。詳細は DESIGN.md「Motion」と motion.css を参照。
+ * Hidoko UI — スタイルエントリポイント
+ *
+ * 読み込み順:
+ * 1. components.css — コンポーネント CSS クラス + モーション語彙（12 種）
+ * 2. motion.css     — Radix data-state ブリッジ（data-state → CSS animation）
+ * 3. @theme inline  — tokens.css → Tailwind テーマの直結マッピング
  */
+@import "./components.css";
 @import "./motion.css";
 
-/*
- * 火床トークン → shadcn/ui CSS 変数の橋渡し
- *
- * tokens.css のセマンティックトークン (--bg / --text / --accent など) を
- * 経由して shadcn の CSS 変数を解決する。tokens.css 側が `:root` (ダーク) と
- * `.light` (ライト) で値を切り替えるため、html の class 切替だけで配色全体が
- * 追従する。
- *
- * `--accent` `--border` は tokens.css が既に定義しているため再宣言せず
- * そのまま参照する (shadcn の bg-accent / border-border はブランド色 /
- * セマンティックボーダー色として解決される)。
- *
- * `--sidebar-*` / `--chart-*` は shadcn の Sidebar / Chart コンポーネント用で、
- * tokens.css 側で定義する (セマンティックトークン経由で解決するので、ダーク /
- * ライトの切替は html クラスだけで自動追従し、`.dark` ブロックは不要)。
- * ここでは shadcn が直接参照する別名 (--background / --primary 等) を
- * tokens.css のセマンティックに対応付ける。
- */
-:root {
-	--radius: 0.625rem;
-	--background: var(--bg);
-	--foreground: var(--text);
-	--card: var(--bg-raised);
-	--card-foreground: var(--text);
-	--popover: var(--bg-raised);
-	--popover-foreground: var(--text);
-	--primary: var(--accent);
-	--primary-foreground: var(--text-on-ember);
-	--secondary: var(--bg-overlay);
-	--secondary-foreground: var(--text);
-	--muted: var(--bg-overlay);
-	--muted-foreground: var(--text-muted);
-	--accent-foreground: var(--text-on-ember);
-	--destructive: var(--danger);
-	--input: var(--border);
-	--ring: var(--accent);
-}
-
 @theme inline {
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
+  --color-bg: var(--bg);
+  --color-bg-0: var(--bg-0);
+  --color-bg-raised: var(--bg-raised);
+  --color-bg-overlay: var(--bg-overlay);
+  --color-bg-sunken: var(--bg-sunken);
 
-	--color-background: var(--background);
-	--color-foreground: var(--foreground);
-	--color-card: var(--card);
-	--color-card-foreground: var(--card-foreground);
-	--color-popover: var(--popover);
-	--color-popover-foreground: var(--popover-foreground);
-	--color-primary: var(--primary);
-	--color-primary-foreground: var(--primary-foreground);
-	--color-secondary: var(--secondary);
-	--color-secondary-foreground: var(--secondary-foreground);
-	--color-muted: var(--muted);
-	--color-muted-foreground: var(--muted-foreground);
-	--color-accent: var(--accent);
-	--color-accent-foreground: var(--accent-foreground);
-	--color-destructive: var(--destructive);
-	--color-border: var(--border);
-	--color-input: var(--input);
-	--color-ring: var(--ring);
+  --color-text: var(--text);
+  --color-text-strong: var(--text-strong);
+  --color-text-muted: var(--text-muted);
+  --color-text-faint: var(--text-faint);
+  --color-text-on-ember: var(--text-on-ember);
 
-	--color-sidebar: var(--sidebar);
-	--color-sidebar-foreground: var(--sidebar-foreground);
-	--color-sidebar-primary: var(--sidebar-primary);
-	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-	--color-sidebar-accent: var(--sidebar-accent);
-	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-	--color-sidebar-border: var(--sidebar-border);
-	--color-sidebar-ring: var(--sidebar-ring);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-active: var(--brand-active);
+  --color-brand-soft: var(--brand-soft);
 
-	--color-chart-1: var(--chart-1);
-	--color-chart-2: var(--chart-2);
-	--color-chart-3: var(--chart-3);
-	--color-chart-4: var(--chart-4);
-	--color-chart-5: var(--chart-5);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-active: var(--accent-active);
+  --color-accent-soft: var(--accent-soft);
+
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-border-subtle: var(--border-subtle);
+
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-info: var(--info);
+  --color-warning: var(--warning);
+
+  --color-ring: var(--accent);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }

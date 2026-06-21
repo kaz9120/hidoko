@@ -51,7 +51,7 @@ export const WithSequence: Story = {
  */
 export const InlineWithText: Story = {
 	render: () => (
-		<p className="text-sm text-muted-foreground">
+		<p className="text-sm text-text-muted">
 			コマンドパレットを開く{" "}
 			<KbdGroup>
 				<Kbd>⌘</Kbd>

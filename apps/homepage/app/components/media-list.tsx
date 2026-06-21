@@ -18,7 +18,7 @@ const TYPE_META: Record<MediaType, { icon: LucideIcon; classes: string }> = {
 	podcast: {
 		icon: MicIcon,
 		classes:
-			"border-[color-mix(in_oklab,var(--ember-400)_30%,var(--border))] bg-[color-mix(in_oklab,var(--ember-400)_12%,var(--bg-sunken))] text-primary",
+			"border-[color-mix(in_oklab,var(--ember-400)_30%,var(--border))] bg-[color-mix(in_oklab,var(--ember-400)_12%,var(--bg-sunken))] text-accent",
 	},
 	youtube: {
 		icon: PlayIcon,
@@ -31,7 +31,7 @@ export function MediaList() {
 	if (MEDIA.length === 0) return <EmptyState />;
 
 	return (
-		<div className="flex flex-col overflow-hidden rounded-lg border bg-card shadow-[var(--shadow-card)]">
+		<div className="flex flex-col overflow-hidden rounded-lg border bg-bg-raised shadow-[var(--shadow-card)]">
 			{MEDIA.map((m) => (
 				<MediaRow key={m.id} item={m} />
 			))}
@@ -47,7 +47,7 @@ function MediaRow({ item }: { item: MediaItem }) {
 			href={item.href}
 			target="_blank"
 			rel="noreferrer"
-			className="grid grid-cols-[44px_1fr_auto] items-start gap-[14px] border-b border-border-subtle px-[18px] py-[18px] text-foreground transition-colors duration-200 last:border-b-0 hover:bg-secondary min-[880px]:grid-cols-[56px_1fr_auto] min-[880px]:gap-[18px] min-[880px]:px-6 min-[880px]:py-[22px]"
+			className="grid grid-cols-[44px_1fr_auto] items-start gap-[14px] border-b border-border-subtle px-[18px] py-[18px] text-text transition-colors duration-200 last:border-b-0 hover:bg-bg-overlay min-[880px]:grid-cols-[56px_1fr_auto] min-[880px]:gap-[18px] min-[880px]:px-6 min-[880px]:py-[22px]"
 		>
 			<div
 				className={cn(
@@ -59,7 +59,7 @@ function MediaRow({ item }: { item: MediaItem }) {
 			</div>
 			<div className="flex min-w-0 flex-col gap-1.5">
 				<div className="flex items-baseline gap-3 text-[11.5px] text-text-faint">
-					<span className="font-medium tracking-[0.02em] text-muted-foreground">
+					<span className="font-medium tracking-[0.02em] text-text-muted">
 						{item.outlet}
 					</span>
 					<span className="font-mono text-[11px]">{item.date}</span>
@@ -68,7 +68,7 @@ function MediaRow({ item }: { item: MediaItem }) {
 					{item.title}
 				</div>
 				{item.note && (
-					<p className="m-0 max-w-[64ch] text-[13px] leading-[1.6] text-muted-foreground">
+					<p className="m-0 max-w-[64ch] text-[13px] leading-[1.6] text-text-muted">
 						{item.note}
 					</p>
 				)}

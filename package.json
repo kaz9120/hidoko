@@ -15,7 +15,6 @@
 		"cf:watch-paths": "bun scripts/sync-build-watch-paths.ts",
 		"design:lint": "design.md lint DESIGN.md",
 		"preflight": "bun run check && bun run typecheck && bun run design:lint",
-		"ui:check-updates": "bun --filter ui check-updates",
 		"vrt:run": "reg-suit run",
 		"precommit": "lint-staged",
 		"prepare": "husky"

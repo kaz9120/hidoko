@@ -29,7 +29,7 @@ export function SiteFooter() {
 
 	return (
 		<>
-			<footer className="flex h-[22px] shrink-0 items-center gap-3 border-border border-t bg-[var(--bg-sunken)] px-3 font-mono text-[10px] text-muted-foreground">
+			<footer className="flex h-[22px] shrink-0 items-center gap-3 border-border border-t bg-[var(--bg-sunken)] px-3 font-mono text-[10px] text-text-muted">
 				<span>v{packageJson.version}</span>
 				<Sep />
 				<FooterLink onClick={() => setPrivacyOpen(true)}>

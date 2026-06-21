@@ -6,8 +6,7 @@ import { PRESET_COLORS } from "~/lib/rect-engine";
 
 const SWATCH_BASE_CLASS =
 	"size-[18px] cursor-pointer rounded-full border-[1.5px] p-0 transition-transform not-disabled:hover:scale-110 disabled:cursor-not-allowed";
-const SWATCH_ACTIVE_CLASS =
-	"border-foreground shadow-[0_0_0_1.5px_var(--background)]";
+const SWATCH_ACTIVE_CLASS = "border-text shadow-[0_0_0_1.5px_var(--bg)]";
 const RAINBOW_GRADIENT =
 	"conic-gradient(from 0deg, #f44, #fa3, #fd0, #4d4, #4af, #94f, #f4a, #f44)";
 
@@ -110,7 +109,7 @@ function CustomColorSwatch({
 			</PopoverTrigger>
 			<PopoverContent align="end" className="w-44 p-3" sideOffset={8}>
 				<div className="flex flex-col gap-2">
-					<span className="font-mono text-xs text-muted-foreground uppercase tracking-[0.08em]">
+					<span className="font-mono text-xs text-text-muted uppercase tracking-[0.08em]">
 						カスタム色
 					</span>
 					<input

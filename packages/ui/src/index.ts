@@ -1,8 +1,8 @@
 export { AgentationDebugGate } from "./components/agentation-debug-gate";
 export { Analytics, type AnalyticsProps } from "./components/analytics";
-export { Button, buttonVariants } from "./components/button";
+export { Button } from "./components/button";
 export { Toaster } from "./components/sonner";
-export { Toggle, toggleVariants } from "./components/toggle";
+export { Toggle } from "./components/toggle";
 export { ToggleGroup, ToggleGroupItem } from "./components/toggle-group";
 export {
 	Tooltip,

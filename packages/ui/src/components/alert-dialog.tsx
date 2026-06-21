@@ -1,5 +1,3 @@
-"use client";
-
 import { AlertDialog as AlertDialogPrimitive } from "radix-ui";
 import type * as React from "react";
 import { Button } from "ui/components/button";
@@ -34,7 +32,7 @@ function AlertDialogOverlay({
 	return (
 		<AlertDialogPrimitive.Overlay
 			data-slot="alert-dialog-overlay"
-			className={cn("hi-overlay z-50", className)}
+			className={cn("hi-overlay", className)}
 			{...props}
 		/>
 	);
@@ -53,10 +51,23 @@ function AlertDialogContent({
 			<AlertDialogPrimitive.Content
 				data-slot="alert-dialog-content"
 				data-size={size}
-				className={cn(
-					"hi-dialog group/alert-dialog-content fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg data-[size=sm]:max-w-xs data-[size=default]:sm:max-w-lg",
-					className,
-				)}
+				className={cn("hi-dialog group/alert-dialog-content", className)}
+				style={{
+					position: "fixed",
+					top: "50%",
+					left: "50%",
+					transform: "translateY(0) scale(1)",
+					zIndex: 1001,
+					display: "grid",
+					width: "100%",
+					maxWidth: size === "sm" ? "20rem" : "min(calc(100% - 2rem), 32rem)",
+					gap: "var(--space-4)",
+					background: "var(--bg-raised)",
+					border: "1px solid var(--border)",
+					borderRadius: "var(--radius-lg)",
+					padding: "var(--space-6)",
+					boxShadow: "var(--shadow-pop)",
+				}}
 				{...props}
 			/>
 		</AlertDialogPortal>
@@ -71,7 +82,7 @@ function AlertDialogHeader({
 		<div
 			data-slot="alert-dialog-header"
 			className={cn(
-				"grid grid-rows-[auto_1fr] place-items-center gap-1.5 text-center has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr] has-data-[slot=alert-dialog-media]:gap-x-6 sm:group-data-[size=default]/alert-dialog-content:place-items-start sm:group-data-[size=default]/alert-dialog-content:text-left sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-rows-[auto_1fr]",
+				"flex flex-col gap-1.5 text-center sm:text-left",
 				className,
 			)}
 			{...props}
@@ -87,7 +98,7 @@ function AlertDialogFooter({
 		<div
 			data-slot="alert-dialog-footer"
 			className={cn(
-				"flex flex-col-reverse gap-2 group-data-[size=sm]/alert-dialog-content:grid group-data-[size=sm]/alert-dialog-content:grid-cols-2 sm:flex-row sm:justify-end",
+				"flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
 				className,
 			)}
 			{...props}
@@ -102,10 +113,13 @@ function AlertDialogTitle({
 	return (
 		<AlertDialogPrimitive.Title
 			data-slot="alert-dialog-title"
-			className={cn(
-				"text-lg font-semibold sm:group-data-[size=default]/alert-dialog-content:group-has-data-[slot=alert-dialog-media]/alert-dialog-content:col-start-2",
-				className,
-			)}
+			style={{
+				fontSize: "var(--text-lg)",
+				fontWeight: 600,
+				color: "var(--text-strong)",
+				margin: 0,
+			}}
+			className={cn(className)}
 			{...props}
 		/>
 	);
@@ -118,23 +132,12 @@ function AlertDialogDescription({
 	return (
 		<AlertDialogPrimitive.Description
 			data-slot="alert-dialog-description"
-			className={cn("text-sm text-muted-foreground", className)}
-			{...props}
-		/>
-	);
-}
-
-function AlertDialogMedia({
-	className,
-	...props
-}: React.ComponentProps<"div">) {
-	return (
-		<div
-			data-slot="alert-dialog-media"
-			className={cn(
-				"mb-2 inline-flex size-16 items-center justify-center rounded-md bg-muted sm:group-data-[size=default]/alert-dialog-content:row-span-2 *:[svg:not([class*='size-'])]:size-8",
-				className,
-			)}
+			style={{
+				fontSize: "var(--text-sm)",
+				color: "var(--text-muted)",
+				margin: 0,
+			}}
+			className={cn(className)}
 			{...props}
 		/>
 	);
@@ -184,7 +187,6 @@ export {
 	AlertDialogDescription,
 	AlertDialogFooter,
 	AlertDialogHeader,
-	AlertDialogMedia,
 	AlertDialogOverlay,
 	AlertDialogPortal,
 	AlertDialogTitle,

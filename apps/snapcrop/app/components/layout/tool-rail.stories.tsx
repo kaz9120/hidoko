@@ -26,7 +26,7 @@ const meta = {
 				<TooltipProvider>
 					<div className="flex h-[400px] bg-[var(--ink-0)]">
 						<Story />
-						<div className="flex flex-1 items-center justify-center text-muted-foreground text-sm">
+						<div className="flex flex-1 items-center justify-center text-text-muted text-sm">
 							キャンバス領域 (story では未描画)
 						</div>
 					</div>

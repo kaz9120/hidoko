@@ -101,8 +101,8 @@ export function SiteHeader() {
 	};
 
 	return (
-		<header className="sticky top-0 z-30 flex flex-wrap items-center gap-2 border-border border-b bg-background/95 px-3 py-2 backdrop-blur md:px-4">
-			<h1 className="flex items-center gap-2 font-semibold text-foreground text-lg">
+		<header className="sticky top-0 z-30 flex flex-wrap items-center gap-2 border-border border-b bg-bg/95 px-3 py-2 backdrop-blur md:px-4">
+			<h1 className="flex items-center gap-2 font-semibold text-text text-lg">
 				<img alt="" aria-hidden="true" className="size-6" src={logoUrl} />
 				snapcrop
 			</h1>

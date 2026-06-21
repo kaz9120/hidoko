@@ -1,265 +1,14 @@
 /* ============================================================
-   Hidoko — Motion vocabulary
+   Hidoko — Radix data-state bridges
    ------------------------------------------------------------
-   動きの 12 語彙をユーティリティクラスとして提供する。
-   命名は英語、用途は日本語ドキュメント (DESIGN.md「Motion」) を参照。
+   Radix UI プリミティブは閉じる時に animationend を待って unmount
+   するため、transition だけでは exit が即座に消えてしまう。
+   data-state="open" / "closed" の時だけ CSS animation を発火させ、
+   components.css のベース transition (.is-active 駆動) と両立させる。
 
-   このファイルは opt-in。apps の globals.css で
-       @import "ui/motion.css";
-   と読み込むと、基本 5 語彙 (glow / breath / smoke / settle / sweep) と
-   UI パターン 7 語彙 (overlay+dialog / fold / dawn / kindle / rise /
-   ember-pulse / tab-enter)、View Transitions ルール、
-   prefers-reduced-motion 対応がまとめて有効になる。
-
-   トークンは tokens.css 側で定義済み (--duration-* / --ease-*)。
+   Popover / Tooltip 系は `instant-open` / `delayed-open` も使うため
+   3 状態を同列に扱う。
    ============================================================ */
-
-/* 熾火グロー — hover の輪郭に ember tint。
- * 反応は速く、余韻はゆっくり。.hi-btn 系の汎用ホバー語彙。 */
-.hi-motion-glow {
-	transition:
-		border-color var(--duration) var(--ease-ember),
-		color var(--duration) var(--ease-ember),
-		box-shadow var(--duration) var(--ease-ember);
-}
-.hi-motion-glow:hover {
-	border-color: color-mix(in oklab, var(--ember-400) 40%, currentColor);
-	box-shadow:
-		var(--shadow-rim),
-		0 0 0 1px color-mix(in oklab, var(--ember-400) 18%, transparent),
-		0 0 24px color-mix(in oklab, var(--ember-400) 28%, transparent);
-}
-
-/* 脈動 — loading / processing で 1 画面に 1 つだけ。
- * 外側に halo を出して呼吸させる。常時脈動は禁則。 */
-.hi-motion-breath { position: relative; }
-.hi-motion-breath::before {
-	content: "";
-	position: absolute;
-	inset: -8px;
-	border-radius: inherit;
-	background: radial-gradient(
-		closest-side,
-		color-mix(in oklab, var(--ember-400) 55%, transparent),
-		transparent 78%
-	);
-	filter: blur(8px);
-	pointer-events: none;
-	z-index: -1;
-	animation: hi-breath var(--duration-breath) var(--ease-breath) infinite;
-}
-@keyframes hi-breath {
-	0%, 100% { opacity: 0.3;  transform: scale(0.92); }
-	50%      { opacity: 0.85; transform: scale(1.08); }
-}
-
-/* 煙 — 消える要素は上にゆっくり、opacity + translateY + blur で。
- * dismiss、toast 退場、ページ離脱の語彙。 */
-.hi-motion-smoke {
-	animation: hi-smoke var(--duration-relax) var(--ease) forwards;
-}
-@keyframes hi-smoke {
-	0%   { opacity: 1; transform: translateY(0)     scale(1);     filter: blur(0); }
-	100% { opacity: 0; transform: translateY(-14px) scale(0.985); filter: blur(2px); }
-}
-
-/* 着地 — 下からわずかな over-shoot で現れる。
- * toast 入場、新規追加アイテム、ページ入場の語彙。 */
-.hi-motion-settle {
-	animation: hi-settle var(--duration-relax) var(--ease-settle);
-}
-@keyframes hi-settle {
-	0%   { opacity: 0; transform: translateY(14px) scale(0.992); filter: blur(2px); }
-	100% { opacity: 1; transform: translateY(0)    scale(1);     filter: blur(0); }
-}
-
-/* 開閉 — width / height / transform の sweep。
- * サイドパネル、accordion、collapsible の語彙。 */
-.hi-motion-sweep {
-	transition:
-		width var(--duration-slow) var(--ease-ember),
-		height var(--duration-slow) var(--ease-ember),
-		transform var(--duration-slow) var(--ease-ember);
-}
-
-/* sweep の中身を順に着地させる。
- * 親に .is-open、子に style="--i: 0 / 1 / 2..." */
-.hi-motion-stagger > * {
-	opacity: 0;
-	transform: translateX(-8px);
-	transition:
-		opacity var(--duration) var(--ease-ember) calc(var(--i, 0) * 40ms),
-		transform var(--duration) var(--ease-ember) calc(var(--i, 0) * 40ms);
-}
-.is-open > .hi-motion-stagger > *,
-.hi-motion-stagger.is-open > * {
-	opacity: 1;
-	transform: translateX(0);
-}
-
-/* ページ遷移 — ルート切替時に out → in を当てる。
- * 手動制御版。View Transitions API が使えるブラウザでは下の @supports が
- * ::view-transition-old / new(root) に同じ温度を自動で乗せる。 */
-.hi-motion-page-out {
-	animation: hi-smoke var(--duration-relax) var(--ease) forwards;
-}
-.hi-motion-page-in {
-	animation: hi-settle var(--duration-relax) var(--ease-settle);
-}
-
-@supports (view-transition-name: root) {
-	::view-transition-old(root) {
-		animation: hi-smoke var(--duration-relax) var(--ease) forwards;
-	}
-	::view-transition-new(root) {
-		animation: hi-settle var(--duration-relax) var(--ease-settle);
-	}
-}
-
-/* ─── Overlay — 背幕 ─── */
-/* ダイアログ・シートの背面。is-active で暗転 + ぼかし。
- * 「霧が立ちこめる」温度を 700ms の余韻でつくる。 */
-.hi-overlay {
-	position: fixed;
-	inset: 0;
-	z-index: 1000;
-	background: rgba(10, 9, 7, 0);
-	backdrop-filter: blur(0);
-	-webkit-backdrop-filter: blur(0);
-	transition:
-		background 700ms var(--ease-ember),
-		backdrop-filter 700ms var(--ease-ember),
-		-webkit-backdrop-filter 700ms var(--ease-ember);
-	pointer-events: none;
-}
-.hi-overlay.is-active {
-	background: rgba(10, 9, 7, 0.64);
-	backdrop-filter: blur(8px);
-	-webkit-backdrop-filter: blur(8px);
-	pointer-events: auto;
-}
-
-/* ─── Dialog — 霧が晴れる対話 ─── */
-/* blur が解け、奥行きから浮かび上がる。.hi-overlay と対で使う。 */
-.hi-dialog {
-	z-index: 1001;
-	opacity: 0;
-	transform: translateY(16px) scale(0.97);
-	filter: blur(4px);
-	transition:
-		opacity 700ms var(--ease-settle),
-		transform 700ms var(--ease-settle),
-		filter 700ms var(--ease-settle);
-	pointer-events: none;
-}
-.hi-dialog.is-active {
-	opacity: 1;
-	transform: translateY(0) scale(1);
-	filter: blur(0);
-	pointer-events: auto;
-}
-
-/* ─── Fold — 折り畳みの開閉 ─── */
-/* 紙を広げるように。grid-template-rows: 0fr → 1fr で高さを補間する。
- * 構造: .hi-motion-fold > div(overflow:hidden 自動) > 中身 */
-.hi-motion-fold {
-	display: grid;
-	grid-template-rows: 0fr;
-	transition: grid-template-rows var(--duration-slow) var(--ease-ember);
-}
-.hi-motion-fold.is-open {
-	grid-template-rows: 1fr;
-}
-.hi-motion-fold > * {
-	overflow: hidden;
-}
-
-/* ─── Kindle — スクロールで灯る ─── */
-/* 薪に火が移るように。IntersectionObserver で .is-lit を付与する。 */
-.hi-motion-kindle {
-	opacity: 0;
-	transform: translateY(20px);
-	transition:
-		opacity var(--duration-relax) var(--ease-ember),
-		transform var(--duration-relax) var(--ease-ember);
-}
-.hi-motion-kindle.is-lit {
-	opacity: 1;
-	transform: translateY(0);
-}
-
-/* ─── Rise — 浮上（tooltip / popover） ─── */
-/* そっと寄り添うように。is-active で表示。 */
-.hi-motion-rise {
-	opacity: 0;
-	transform: translateY(6px) scale(0.96);
-	pointer-events: none;
-	transition:
-		opacity var(--duration-slow) var(--ease-settle),
-		transform var(--duration-slow) var(--ease-settle);
-}
-.hi-motion-rise.is-active {
-	opacity: 1;
-	transform: translateY(0) scale(1);
-	pointer-events: auto;
-}
-
-/* ─── Dawn — テーマ遷移の夜明け ─── */
-/* .light の切替前に付与、1100ms 後に除去。夜が明けるように色が移る。
- * JS: el.classList.add('hi-motion-dawn');
- *     el.classList.toggle('light');
- *     setTimeout(() => el.classList.remove('hi-motion-dawn'), 1100); */
-.hi-motion-dawn,
-.hi-motion-dawn *,
-.hi-motion-dawn *::before,
-.hi-motion-dawn *::after {
-	transition:
-		background-color 1000ms var(--ease-ember),
-		color 750ms var(--ease-ember),
-		border-color 750ms var(--ease-ember),
-		box-shadow 750ms var(--ease-ember),
-		outline-color 750ms var(--ease-ember),
-		fill 750ms var(--ease-ember),
-		stroke 750ms var(--ease-ember);
-}
-
-/* ─── Ember Pulse — 待つ時間の温度 ─── */
-/* 冷たいグレー skeleton ではなく、熾火色の脈動で待たせる。 */
-.hi-motion-ember-pulse {
-	background: linear-gradient(
-		110deg,
-		var(--bg-raised) 30%,
-		color-mix(in oklab, var(--ember-400) 8%, var(--bg-overlay)) 50%,
-		var(--bg-raised) 70%
-	);
-	background-size: 250% 100%;
-	border-radius: var(--radius-md);
-	animation: hi-ember-pulse 2.4s var(--ease-breath) infinite;
-}
-@keyframes hi-ember-pulse {
-	0%   { background-position: 200% 0; }
-	100% { background-position: -50% 0; }
-}
-
-/* ─── Tab Enter — 場面の切替 ─── */
-/* 静かに浮かび上がるように。タブ切替時に付与する。 */
-.hi-motion-tab-enter {
-	animation: hi-tab-in var(--duration-slow) var(--ease-ember);
-}
-@keyframes hi-tab-in {
-	from { opacity: 0; transform: translateY(8px); }
-	to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ─── Bridge: Radix data-state → CSS animation ─── */
-/* shadcn の Radix UI ベースコンポーネントは閉じる時に animationend を待って
- * unmount するため、transition だけでは exit が即座に消えてしまう。
- * 対策として data-state="open" / "closed" の時だけ CSS animation を発火させ、
- * ベースの transition (.is-active 駆動 / Vanilla 互換) と両立させる。
- *
- * Popover / Tooltip 系は `instant-open` / `delayed-open` も使うため
- * 3 状態を同列に扱う。@base-ui/react ベースの combobox は `data-open` /
- * `data-closed` を使うのでこれも対応する。 */
 
 /* Overlay — 霧の暗転 + blur */
 .hi-overlay[data-state="open"] {
@@ -332,13 +81,11 @@
 /* Rise — Tooltip / Popover の浮上 */
 .hi-motion-rise[data-state="open"],
 .hi-motion-rise[data-state="instant-open"],
-.hi-motion-rise[data-state="delayed-open"],
-.hi-motion-rise[data-open] {
+.hi-motion-rise[data-state="delayed-open"] {
 	pointer-events: auto;
 	animation: hi-rise-in var(--duration-slow) var(--ease-settle) forwards;
 }
-.hi-motion-rise[data-state="closed"],
-.hi-motion-rise[data-closed] {
+.hi-motion-rise[data-state="closed"] {
 	pointer-events: none;
 	animation: hi-rise-out var(--duration) var(--ease) forwards;
 }
@@ -363,66 +110,13 @@
 	}
 }
 
+/* Fold — Accordion / Collapsible */
 .hi-motion-fold[data-state="open"] {
 	grid-template-rows: 1fr;
 }
 
-/* Accordion / Collapsible のブランド時間軸 — shadcn が当てる
- * animate-accordion-up / animate-accordion-down のスピードと
- * easing をブランドに揃える。アニメ本体 (Radix の content-height ベース)
- * は tw-animate-css 側に任せる。 */
-[data-slot="accordion-content"][data-state="open"],
-[data-slot="accordion-content"][data-state="closed"],
-[data-slot="collapsible-content"][data-state="open"],
-[data-slot="collapsible-content"][data-state="closed"] {
-	animation-duration: var(--duration-slow);
-	animation-timing-function: var(--ease-ember);
-}
-
-/* reduced motion — 動きは消す。温度（色・影・グロー）は残す */
+/* reduced motion — Radix bridge のアニメーションも消す */
 @media (prefers-reduced-motion: reduce) {
-	.hi-motion-breath::before,
-	.hi-motion-smoke,
-	.hi-motion-settle,
-	.hi-motion-page-out,
-	.hi-motion-page-in,
-	.hi-motion-ember-pulse,
-	.hi-motion-tab-enter {
-		animation: none;
-	}
-	.hi-motion-glow,
-	.hi-motion-sweep,
-	.hi-motion-stagger > *,
-	.hi-overlay,
-	.hi-dialog,
-	.hi-motion-fold,
-	.hi-motion-rise {
-		transition: none;
-	}
-	.hi-motion-stagger > * {
-		opacity: 1;
-		transform: none;
-	}
-	.hi-motion-kindle {
-		opacity: 1;
-		transform: none;
-		transition: none;
-	}
-	.hi-motion-dawn,
-	.hi-motion-dawn *,
-	.hi-motion-dawn *::before,
-	.hi-motion-dawn *::after {
-		transition: none;
-	}
-	.hi-motion-ember-pulse {
-		background: var(--bg-raised);
-	}
-	[data-slot="accordion-content"][data-state="open"],
-	[data-slot="accordion-content"][data-state="closed"],
-	[data-slot="collapsible-content"][data-state="open"],
-	[data-slot="collapsible-content"][data-state="closed"] {
-		animation: none;
-	}
 	.hi-overlay[data-state="open"],
 	.hi-overlay[data-state="closed"],
 	.hi-dialog[data-state="open"],
@@ -430,13 +124,7 @@
 	.hi-motion-rise[data-state="open"],
 	.hi-motion-rise[data-state="instant-open"],
 	.hi-motion-rise[data-state="delayed-open"],
-	.hi-motion-rise[data-state="closed"],
-	.hi-motion-rise[data-open],
-	.hi-motion-rise[data-closed] {
-		animation: none;
-	}
-	::view-transition-old(root),
-	::view-transition-new(root) {
+	.hi-motion-rise[data-state="closed"] {
 		animation: none;
 	}
 }

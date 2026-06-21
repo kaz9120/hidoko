@@ -90,7 +90,7 @@ export const Scrolled: Story = {
 		<div>
 			<TopNav />
 			<div className="px-[var(--ykz-pad)] pt-[160px] pb-[200px]">
-				<div className="mx-auto flex max-w-[1080px] flex-col gap-6 text-muted-foreground">
+				<div className="mx-auto flex max-w-[1080px] flex-col gap-6 text-text-muted">
 					{DUMMY_PARAGRAPHS.map((para) => (
 						<p key={para.id} className="m-0 text-[14.5px] leading-[1.85]">
 							{para.text}

@@ -162,7 +162,7 @@ export function ToolRail() {
 										<DropdownMenuRadioItem key={id} value={id}>
 											<Icon strokeWidth={1.75} />
 											<span className="flex-1">{preset.label}</span>
-											<span className="text-muted-foreground text-xs">
+											<span className="text-text-muted text-xs">
 												{preset.hint}
 											</span>
 											<DropdownMenuShortcut>{i + 1}</DropdownMenuShortcut>
@@ -225,7 +225,7 @@ function ColorRow({
 }) {
 	return (
 		<div className="flex flex-col gap-1.5">
-			<span className="font-mono text-xs uppercase tracking-[0.12em] text-muted-foreground">
+			<span className="font-mono text-xs uppercase tracking-[0.12em] text-text-muted">
 				{title}
 			</span>
 			<div className="flex flex-wrap items-center gap-1.5">

@@ -1,0 +1,675 @@
+/* ============================================================
+   焚き火を愛するエンジニア Design System — Components
+   基盤レイヤー「火床（Hidoko）」の UI コンポーネント。
+   プレフィックス: hi-
+   ============================================================ */
+
+/* ─── Accessibility Utilities ─── */
+
+/* スクリーンリーダー専用。視覚的に非表示だが読み上げ対象 */
+.hi-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* スキップリンク。Tab で表示され、メインコンテンツへジャンプ */
+.hi-skip-link {
+  position: fixed;
+  top: -100%;
+  left: var(--space-4);
+  z-index: 10000;
+  padding: 12px 20px;
+  background: var(--accent);
+  color: var(--text-on-ember);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  text-decoration: none;
+  box-shadow: var(--glow-ember);
+  transition: top var(--duration) var(--ease);
+}
+.hi-skip-link:focus {
+  top: 0;
+  outline: none;
+}
+
+/* フォーカスリング（共通）。focus-visible のみ表示。
+   キーボード操作時に視認できる 2px のリングを描く */
+.hi-focus-ring:focus-visible,
+.hi-btn:focus-visible,
+.hi-input:focus-visible,
+.hi-check input:focus-visible,
+.hi-radio input:focus-visible,
+.hi-switch input:focus-visible ~ i,
+.hi-tabs__item:focus-visible,
+.hi-side__item:focus-visible {
+  outline: var(--a11y-focus-width) solid var(--a11y-focus-color);
+  outline-offset: var(--a11y-focus-offset);
+}
+
+/* ─── Buttons ─── */
+.hi-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--a11y-target-min);
+  padding: 10px 18px;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text);
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-rim);
+  cursor: pointer;
+  transition:
+    background var(--duration) var(--ease-ember),
+    border-color var(--duration) var(--ease-ember),
+    color var(--duration) var(--ease-ember),
+    box-shadow var(--duration) var(--ease-ember),
+    transform var(--duration-instant) var(--ease);
+  letter-spacing: 0.01em;
+}
+/* hover : 熾火グロー — 輪郭が ember tint でぼうっと照らされる */
+.hi-btn:hover {
+  background: var(--ink-300);
+  border-color: color-mix(in oklab, var(--ember-400) 32%, var(--border-strong));
+  color: var(--text-strong);
+  box-shadow:
+    var(--shadow-rim),
+    0 0 0 1px color-mix(in oklab, var(--ember-400) 18%, transparent),
+    0 0 24px color-mix(in oklab, var(--ember-400) 28%, transparent);
+}
+.hi-btn:active { transform: translateY(1px); }
+.hi-btn:focus-visible { outline: var(--a11y-focus-width) solid var(--a11y-focus-color); outline-offset: var(--a11y-focus-offset); box-shadow: var(--glow-ember); }
+.hi-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.hi-btn--primary {
+  background: linear-gradient(180deg, var(--ember-300) 0%, var(--ember-500) 100%);
+  border-color: var(--ember-600);
+  color: #1a0d05;
+  box-shadow:
+    0 1px 0 rgba(0,0,0,0.4),
+    0 6px 20px rgba(244, 125, 58, 0.35),
+    inset 0 1px 0 rgba(255, 240, 220, 0.35);
+}
+.hi-btn--primary:hover {
+  background: linear-gradient(180deg, var(--ember-200) 0%, var(--ember-400) 100%);
+  border-color: var(--ember-500);
+  color: #1a0d05;
+}
+.hi-btn--primary:focus-visible { outline: var(--a11y-focus-width) solid var(--a11y-focus-color); outline-offset: var(--a11y-focus-offset); box-shadow: var(--glow-ember-strong); }
+
+.hi-btn--ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-muted);
+  box-shadow: none;
+}
+.hi-btn--ghost:hover { background: var(--bg-overlay); color: var(--text-strong); border-color: var(--border-subtle); }
+
+.hi-btn--danger {
+  background: transparent;
+  border-color: var(--rust);
+  color: var(--rust);
+}
+.hi-btn--danger:hover { background: color-mix(in oklab, var(--rust) 14%, transparent); color: #ffd9cf; }
+
+/* sm: 視覚的にコンパクトだがタッチ領域は 44px を死守 */
+.hi-btn--sm { padding: 6px 12px; font-size: var(--text-xs); min-height: var(--a11y-target-min); }
+.hi-btn--lg { padding: 14px 24px; font-size: var(--text-base); }
+
+.hi-btn--icon { padding: 9px; aspect-ratio: 1; min-width: var(--a11y-target-min); min-height: var(--a11y-target-min); justify-content: center; }
+
+.hi-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--brand);
+  font-weight: 500;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 1px;
+  transition: all var(--duration) var(--ease);
+}
+.hi-link:hover { color: var(--brand-hover); border-bottom-color: var(--brand-hover); }
+
+/* ─── Form ─── */
+.hi-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.hi-field > span {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.hi-field > small { font-size: var(--text-xs); color: var(--text-faint); }
+.hi-field--error > small { color: var(--danger); }
+
+.hi-input {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--text-strong);
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  outline: none;
+  box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.3);
+  transition:
+    border-color var(--duration) var(--ease-ember),
+    box-shadow var(--duration) var(--ease-ember);
+}
+.hi-input::placeholder { color: var(--text-faint); }
+.hi-input:hover { border-color: var(--border-strong); }
+.hi-input:focus { border-color: var(--accent); box-shadow: var(--glow-ember), inset 0 1px 0 rgba(0,0,0,0.3); }
+.hi-input:focus-visible { outline: var(--a11y-focus-width) solid var(--a11y-focus-color); outline-offset: var(--a11y-focus-offset); }
+textarea.hi-input { resize: vertical; min-height: 80px; }
+select.hi-input { appearance: none; padding-right: 32px; background-image: linear-gradient(45deg, transparent 50%, var(--text-faint) 50%), linear-gradient(135deg, var(--text-faint) 50%, transparent 50%); background-position: calc(100% - 16px) 50%, calc(100% - 12px) 50%; background-size: 4px 4px; background-repeat: no-repeat; }
+.hi-field--error .hi-input { border-color: var(--danger); }
+
+.hi-check, .hi-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  color: var(--text);
+  font-size: var(--text-sm);
+}
+.hi-check input, .hi-radio input {
+  appearance: none;
+  width: 20px; height: 20px;
+  /* タッチ領域を 44px に拡張（視覚サイズは 20px） */
+  position: relative;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-sunken);
+  border-radius: var(--radius-xs);
+  display: grid; place-items: center;
+  transition: all var(--duration) var(--ease);
+  margin: 0;
+}
+.hi-radio input { border-radius: var(--radius-full); }
+.hi-check input:checked, .hi-radio input:checked {
+  background: var(--brand); border-color: var(--ember-600);
+  box-shadow: var(--glow-ember-soft);
+}
+.hi-check input::before, .hi-radio input::before {
+  content: "";
+  position: absolute;
+  inset: -12px; /* (44 - 20) / 2 = 12px 拡張 */
+}
+.hi-check input:checked::after {
+  content: ""; width: 5px; height: 9px;
+  border: solid #1a0d05; border-width: 0 2px 2px 0;
+  transform: rotate(45deg) translate(-1px, -1px);
+}
+.hi-radio input:checked::after {
+  content: ""; width: 6px; height: 6px;
+  border-radius: var(--radius-full); background: #1a0d05;
+}
+
+.hi-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 16px;
+  cursor: pointer;
+  color: var(--text);
+  font-size: var(--text-sm);
+}
+.hi-switch input { display: none; }
+.hi-switch i {
+  width: 40px; height: 24px;
+  /* 最小 44px のタッチ領域は label 全体で確保 */
+  background: var(--ink-300);
+  border-radius: var(--radius-full);
+  position: relative;
+  transition: background var(--duration) var(--ease);
+}
+.hi-switch i::after {
+  content: "";
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 20px; height: 20px;
+  border-radius: var(--radius-full);
+  background: var(--ink-700);
+  transition: all var(--duration) var(--ease);
+}
+.hi-switch input:checked ~ i { background: var(--brand); box-shadow: var(--glow-ember-soft); }
+.hi-switch input:checked ~ i::after { left: 18px; background: #1a0d05; }
+.hi-switch { min-height: var(--a11y-target-min); }
+
+/* ─── Badge / Tag / Kbd ─── */
+.hi-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  background: var(--bg-overlay);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+  letter-spacing: 0.02em;
+}
+.hi-badge--ember { background: color-mix(in oklab, var(--ember-400) 16%, transparent); color: var(--ember-200); border-color: color-mix(in oklab, var(--ember-400) 30%, transparent); }
+.hi-badge--moss  { background: color-mix(in oklab, var(--moss) 18%, transparent);  color: #b9c79a; border-color: color-mix(in oklab, var(--moss) 35%, transparent); }
+.hi-badge--moon  { background: color-mix(in oklab, var(--moon) 15%, transparent);  color: var(--moon); border-color: color-mix(in oklab, var(--moon) 30%, transparent); }
+.hi-badge--rust  { background: color-mix(in oklab, var(--rust) 18%, transparent);  color: #f0a294; border-color: color-mix(in oklab, var(--rust) 36%, transparent); }
+
+.hi-tag {
+  display: inline-flex;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunken);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+}
+
+.hi-kbd {
+  display: inline-flex; align-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 2px;
+  box-shadow: var(--shadow-rim);
+  letter-spacing: 0.02em;
+}
+
+/* ─── Card ─── */
+.hi-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 22px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  transition: all var(--duration) var(--ease);
+}
+.hi-card:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+.hi-card__head { display: flex; align-items: center; justify-content: space-between; }
+.hi-card__title { margin: 0; color: var(--text-strong); font-size: var(--text-xl); font-weight: 500; letter-spacing: var(--tracking-tight); }
+.hi-card__body  { margin: 0; color: var(--text-muted); font-size: var(--text-sm); line-height: 1.7; }
+.hi-card__foot {
+  margin-top: auto;
+  padding-top: 14px;
+  display: flex; gap: 16px;
+  font-size: var(--text-xs); color: var(--text-faint);
+  border-top: 1px solid var(--border-subtle);
+}
+.hi-card__foot span { display: inline-flex; align-items: center; gap: 4px; }
+.hi-card--accent {
+  border-color: color-mix(in oklab, var(--ember-400) 35%, var(--border));
+  box-shadow: var(--shadow-card), var(--glow-ember-soft);
+  background: linear-gradient(180deg, color-mix(in oklab, var(--ember-400) 6%, var(--bg-raised)) 0%, var(--bg-raised) 60%);
+}
+
+/* ─── Tabs ─── */
+.hi-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.hi-tabs__item {
+  padding: 10px 16px;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all var(--duration) var(--ease);
+}
+.hi-tabs__item:hover { color: var(--text); }
+.hi-tabs__item:focus-visible { outline: var(--a11y-focus-width) solid var(--a11y-focus-color); outline-offset: var(--a11y-focus-offset); border-radius: var(--radius-sm); }
+.hi-tabs__item.is-active { color: var(--text-strong); border-bottom-color: var(--brand); }
+
+/* ─── Motion ─── */
+/* 動きの語彙。命名は英語、用途は日本語ドキュメント参照 (previews/motion.html) */
+
+/* 熾火グロー — hover の輪郭に ember tint。.hi-btn にはデフォルトで適用済み */
+.hi-motion-glow {
+  transition:
+    border-color var(--duration) var(--ease-ember),
+    color var(--duration) var(--ease-ember),
+    box-shadow var(--duration) var(--ease-ember);
+}
+.hi-motion-glow:hover {
+  border-color: color-mix(in oklab, var(--ember-400) 40%, currentColor);
+  box-shadow:
+    var(--shadow-rim),
+    0 0 0 1px color-mix(in oklab, var(--ember-400) 18%, transparent),
+    0 0 24px color-mix(in oklab, var(--ember-400) 28%, transparent);
+}
+
+/* 脈動 — loading/processing で 1 画面に 1 つ。外側に halo を呼吸させる */
+.hi-motion-breath { position: relative; }
+.hi-motion-breath::before {
+  content: "";
+  position: absolute; inset: -8px;
+  border-radius: inherit;
+  background: radial-gradient(closest-side,
+    color-mix(in oklab, var(--ember-400) 55%, transparent),
+    transparent 78%);
+  filter: blur(8px);
+  pointer-events: none;
+  z-index: -1;
+  animation: hi-breath var(--duration-breath) var(--ease-breath) infinite;
+}
+@keyframes hi-breath {
+  0%, 100% { opacity: 0.30; transform: scale(0.92); }
+  50%      { opacity: 0.85; transform: scale(1.08); }
+}
+
+/* 煙 — 消える要素は上にゆっくり、blur と opacity で */
+.hi-motion-smoke {
+  animation: hi-smoke var(--duration-relax) var(--ease) forwards;
+}
+@keyframes hi-smoke {
+  0%   { opacity: 1; transform: translateY(0)     scale(1);     filter: blur(0); }
+  100% { opacity: 0; transform: translateY(-14px) scale(0.985); filter: blur(2px); }
+}
+
+/* 着地 — 下からわずかな over-shoot で現れる。toast / 新規追加アイテム / page enter */
+.hi-motion-settle {
+  animation: hi-settle var(--duration-relax) var(--ease-settle);
+}
+@keyframes hi-settle {
+  0%   { opacity: 0; transform: translateY(14px) scale(0.992); filter: blur(2px); }
+  100% { opacity: 1; transform: translateY(0)    scale(1);     filter: blur(0); }
+}
+
+/* 開閉 — width/height の transition で。中身は stagger と組み合わせる */
+.hi-motion-sweep {
+  transition:
+    width  var(--duration-slow) var(--ease-ember),
+    height var(--duration-slow) var(--ease-ember),
+    transform var(--duration-slow) var(--ease-ember);
+}
+/* sweep の中身を順に着地させる用 — 親に .is-open、子に style="--i: 0/1/2..." */
+.hi-motion-stagger > * {
+  opacity: 0;
+  transform: translateX(-8px);
+  transition:
+    opacity var(--duration) var(--ease-ember) calc(var(--i, 0) * 40ms),
+    transform var(--duration) var(--ease-ember) calc(var(--i, 0) * 40ms);
+}
+.is-open > .hi-motion-stagger > *,
+.hi-motion-stagger.is-open > * {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ページ遷移 — ルート切替時に out → in を割り当てる */
+.hi-motion-page-out { animation: hi-smoke var(--duration-relax) var(--ease) forwards; }
+.hi-motion-page-in  { animation: hi-settle var(--duration-relax) var(--ease-settle); }
+
+/* View Transitions API 用 — 同じ温度を ::view-transition-* に */
+@supports (view-transition-name: root) {
+  ::view-transition-old(root) { animation: hi-smoke var(--duration-relax) var(--ease) forwards; }
+  ::view-transition-new(root) { animation: hi-settle var(--duration-relax) var(--ease-settle); }
+}
+
+/* ─── Overlay — 背幕 ─── */
+/* ダイアログの背面。is-active でぼかしと暗転。 */
+.hi-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(10, 9, 7, 0);
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+  transition:
+    background 700ms var(--ease-ember),
+    backdrop-filter 700ms var(--ease-ember),
+    -webkit-backdrop-filter 700ms var(--ease-ember);
+  pointer-events: none;
+}
+.hi-overlay.is-active {
+  background: rgba(10, 9, 7, 0.64);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: auto;
+}
+
+/* ─── Dialog — ふわっと現れる対話 ─── */
+/* 霧が晴れるように。blur が解け、奥行きから浮かぶ。 */
+.hi-dialog {
+  z-index: 1001;
+  opacity: 0;
+  transform: translateY(16px) scale(0.97);
+  filter: blur(4px);
+  transition:
+    opacity 700ms var(--ease-settle),
+    transform 700ms var(--ease-settle),
+    filter 700ms var(--ease-settle);
+  pointer-events: none;
+}
+.hi-dialog.is-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+  pointer-events: auto;
+}
+
+/* ─── Fold — 折り畳みの開閉 ─── */
+/* 紙を広げるように。grid-template-rows で高さを補間。 */
+/* HTML: .hi-motion-fold > div(overflow:hidden 自動) > 中身 */
+.hi-motion-fold {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--duration-slow) var(--ease-ember);
+}
+.hi-motion-fold.is-open {
+  grid-template-rows: 1fr;
+}
+.hi-motion-fold > * {
+  overflow: hidden;
+}
+
+/* ─── Kindle — スクロールで灯る ─── */
+/* 薪に火が移るように。IntersectionObserver で .is-lit を付与。 */
+.hi-motion-kindle {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity var(--duration-relax) var(--ease-ember),
+    transform var(--duration-relax) var(--ease-ember);
+}
+.hi-motion-kindle.is-lit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── Rise — 浮上（tooltip / popover） ─── */
+/* そっと寄り添うように。is-active で表示。 */
+.hi-motion-rise {
+  opacity: 0;
+  transform: translateY(6px) scale(0.96);
+  pointer-events: none;
+  transition:
+    opacity var(--duration-slow) var(--ease-settle),
+    transform var(--duration-slow) var(--ease-settle);
+}
+.hi-motion-rise.is-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* ─── Dawn — テーマ遷移の夜明け ─── */
+/* .light の切替前に付与、800ms 後に除去。夜が明けるように色が移る。 */
+/* JS: el.classList.add('hi-motion-dawn'); el.classList.toggle('light');
+       setTimeout(() => el.classList.remove('hi-motion-dawn'), 1100); */
+.hi-motion-dawn,
+.hi-motion-dawn *,
+.hi-motion-dawn *::before,
+.hi-motion-dawn *::after {
+  transition:
+    background-color 1000ms var(--ease-ember),
+    color 750ms var(--ease-ember),
+    border-color 750ms var(--ease-ember),
+    box-shadow 750ms var(--ease-ember),
+    outline-color 750ms var(--ease-ember),
+    fill 750ms var(--ease-ember),
+    stroke 750ms var(--ease-ember);
+}
+
+/* ─── Ember Pulse — 待つ時間の温度 ─── */
+/* 冷たいグレーではなく、熾火色の脈動で待たせる。 */
+.hi-motion-ember-pulse {
+  background: linear-gradient(
+    110deg,
+    var(--bg-raised) 30%,
+    color-mix(in oklab, var(--ember-400) 8%, var(--bg-overlay)) 50%,
+    var(--bg-raised) 70%
+  );
+  background-size: 250% 100%;
+  border-radius: var(--radius-md);
+  animation: hi-ember-pulse 2.4s var(--ease-breath) infinite;
+}
+@keyframes hi-ember-pulse {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -50% 0; }
+}
+
+/* ─── Tab Enter — 場面の切替 ─── */
+/* 静かに浮かび上がるように。タブ切替時に付与。 */
+.hi-motion-tab-enter {
+  animation: hi-tab-in var(--duration-slow) var(--ease-ember);
+}
+@keyframes hi-tab-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* reduced motion : 動きは消す、温度は残す */
+@media (prefers-reduced-motion: reduce) {
+  .hi-motion-breath::before,
+  .hi-motion-smoke,
+  .hi-motion-settle,
+  .hi-motion-page-out,
+  .hi-motion-page-in,
+  .hi-motion-ember-pulse,
+  .hi-motion-tab-enter { animation: none; }
+  .hi-motion-glow,
+  .hi-motion-sweep,
+  .hi-motion-stagger > *,
+  .hi-overlay,
+  .hi-dialog,
+  .hi-motion-fold,
+  .hi-motion-rise { transition: none; }
+  .hi-motion-stagger > * { opacity: 1; transform: none; }
+  .hi-motion-kindle { opacity: 1; transform: none; transition: none; }
+  .hi-motion-dawn,
+  .hi-motion-dawn *,
+  .hi-motion-dawn *::before,
+  .hi-motion-dawn *::after { transition: none; }
+  .hi-motion-ember-pulse { background: var(--bg-raised); }
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none; }
+}
+
+/* ─── Side nav ─── */
+.hi-side {
+  display: flex; flex-direction: column; gap: 24px;
+  padding: 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  width: 240px;
+}
+.hi-side__group { display: flex; flex-direction: column; gap: 4px; }
+.hi-side__group .hi-mark { padding: 4px 10px; }
+.hi-side__item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition:
+    background var(--duration) var(--ease-ember),
+    color var(--duration) var(--ease-ember),
+    box-shadow var(--duration) var(--ease-ember);
+}
+.hi-side__item:hover { background: var(--bg-overlay); color: var(--text-strong); }
+.hi-side__item:focus-visible { outline: var(--a11y-focus-width) solid var(--a11y-focus-color); outline-offset: calc(-1 * var(--a11y-focus-offset)); }
+.hi-side__item.is-active { background: var(--brand-soft); color: var(--ember-200); border-left: 2px solid var(--brand); padding-left: 8px; }
+
+/* ─── Code / Terminal ─── */
+.hi-code, .hi-term {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.7;
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  margin: 0;
+  overflow-x: auto;
+  color: var(--text);
+}
+.hi-code .c-c { color: var(--text-faint); font-style: italic; }
+.hi-code .c-k { color: var(--moon); }
+.hi-code .c-v { color: var(--ember-200); }
+.hi-code .c-s { color: var(--moss); }
+.hi-code .c-str { color: var(--ember-300); }
+
+.hi-term { background: #08070a; border-color: #1a1814; }
+.hi-term .t-p { color: var(--moon); }
+.hi-term .t-b { color: var(--ember-300); }
+.hi-term .t-d { color: var(--ember-400); }
+.hi-term .t-o { color: var(--text-muted); }
+
+/* ─── Radix data-state bridges for form controls ─── */
+[data-slot="checkbox"][data-state="checked"],
+[data-slot="checkbox"][data-state="indeterminate"] {
+  background: var(--brand);
+  border-color: var(--ember-600);
+  box-shadow: var(--glow-ember-soft);
+}
+[data-slot="checkbox"]:disabled,
+[data-slot="radio-group-item"]:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+[data-slot="radio-group-item"][data-state="checked"] {
+  border-color: var(--brand);
+  box-shadow: var(--glow-ember-soft);
+}
+
+[data-slot="switch"][data-state="checked"] {
+  background: var(--brand);
+  box-shadow: var(--glow-ember-soft);
+}
+[data-slot="switch"][data-state="unchecked"] {
+  background: var(--ink-300);
+}
+[data-slot="switch"]:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+[data-slot="switch-thumb"][data-state="checked"] {
+  background: #1a0d05;
+}
+[data-slot="switch-thumb"][data-state="unchecked"] {
+  background: var(--ink-700);
+}

@@ -31,10 +31,10 @@ export function SiteHeader({
 		mounted && resolvedTheme === "light" ? logoCreamUrl : logoDarkUrl;
 
 	return (
-		<header className="flex h-12 flex-shrink-0 items-center gap-3 border-b border-border bg-card px-4 md:px-5">
+		<header className="flex h-12 flex-shrink-0 items-center gap-3 border-b border-border bg-bg-raised px-4 md:px-5">
 			<div className="flex items-center gap-2.5">
 				<img alt="" aria-hidden="true" className="size-5" src={logoUrl} />
-				<h1 className="text-sm font-semibold tracking-tight text-foreground">
+				<h1 className="text-sm font-semibold tracking-tight text-text">
 					アイキャッチ台紙
 				</h1>
 				<span className="font-mono text-[10px] uppercase tracking-[0.22em] text-primary">
@@ -46,10 +46,10 @@ export function SiteHeader({
 					<button
 						type="button"
 						onClick={onProfileClick}
-						className="flex h-7 max-w-[220px] items-center gap-1.5 rounded-md border border-border bg-background px-2 text-xs text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
+						className="flex h-7 max-w-[220px] items-center gap-1.5 rounded-md border border-border bg-bg px-2 text-xs text-text-muted transition-colors hover:border-primary/50 hover:text-text"
 						aria-label="プロフィールを編集"
 					>
-						<span className="truncate text-foreground/80">
+						<span className="truncate text-text/80">
 							{profile.brand || "プロフィール"}
 						</span>
 						{profile.author && (

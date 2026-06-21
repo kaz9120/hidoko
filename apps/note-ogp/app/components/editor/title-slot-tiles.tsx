@@ -60,8 +60,8 @@ function Tile({
 			type="button"
 			onClick={onClick}
 			className={cn(
-				"relative aspect-[1280/670] cursor-pointer overflow-hidden rounded-md border bg-muted p-0 outline-none transition-colors",
-				"focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card",
+				"relative aspect-[1280/670] cursor-pointer overflow-hidden rounded-md border bg-bg-overlay p-0 outline-none transition-colors",
+				"focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-card",
 				"active:translate-y-px",
 				active
 					? "border-primary shadow-[var(--glow-ember)]"
@@ -81,8 +81,8 @@ function Tile({
 			</div>
 			<span
 				className={cn(
-					"pointer-events-none absolute top-1 left-1 rounded-[2px] bg-background/70 px-1.5 py-px font-mono text-[9px] uppercase tracking-[0.18em]",
-					active ? "text-primary" : "text-foreground",
+					"pointer-events-none absolute top-1 left-1 rounded-[2px] bg-bg/70 px-1.5 py-px font-mono text-[9px] uppercase tracking-[0.18em]",
+					active ? "text-primary" : "text-text",
 				)}
 			>
 				{label}

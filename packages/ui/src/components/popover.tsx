@@ -27,10 +27,17 @@ function PopoverContent({
 				data-slot="popover-content"
 				align={align}
 				sideOffset={sideOffset}
-				className={cn(
-					"hi-motion-rise z-50 w-72 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-hidden",
-					className,
-				)}
+				className={cn("hi-motion-rise", className)}
+				style={{
+					zIndex: 50,
+					width: "18rem",
+					background: "var(--bg-raised)",
+					border: "1px solid var(--border)",
+					borderRadius: "var(--radius-lg)",
+					padding: "var(--space-4)",
+					boxShadow: "var(--shadow-pop)",
+					outline: "none",
+				}}
 				{...props}
 			/>
 		</PopoverPrimitive.Portal>
@@ -70,7 +77,8 @@ function PopoverDescription({
 	return (
 		<p
 			data-slot="popover-description"
-			className={cn("text-muted-foreground", className)}
+			style={{ color: "var(--text-muted)" }}
+			className={className}
 			{...props}
 		/>
 	);

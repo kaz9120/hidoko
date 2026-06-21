@@ -167,7 +167,7 @@ export function HelpDialog() {
 					<div className="flex flex-col gap-4">
 						{SECTIONS.map((section) => (
 							<section key={section.heading}>
-								<h3 className="mb-1.5 font-mono text-[11px] text-muted-foreground tracking-[0.08em] uppercase">
+								<h3 className="mb-1.5 font-mono text-[11px] text-text-muted tracking-[0.08em] uppercase">
 									{section.heading}
 								</h3>
 								<dl className="flex flex-col">
@@ -176,7 +176,7 @@ export function HelpDialog() {
 											className="flex items-center justify-between gap-4 py-1"
 											key={shortcut.description}
 										>
-											<dt className="text-foreground text-sm">
+											<dt className="text-text text-sm">
 												{shortcut.description}
 											</dt>
 											<dd>
@@ -186,7 +186,7 @@ export function HelpDialog() {
 															{index > 0 && (
 																<span
 																	aria-hidden="true"
-																	className="text-muted-foreground text-xs"
+																	className="text-text-muted text-xs"
 																>
 																	+
 																</span>
@@ -204,9 +204,9 @@ export function HelpDialog() {
 					</div>
 
 					<footer className="flex items-center gap-3 border-border border-t pt-3">
-						<span className="text-muted-foreground text-xs">created by</span>
+						<span className="text-text-muted text-xs">created by</span>
 						<a
-							className="inline-flex items-center gap-1 text-foreground text-xs underline-offset-2 hover:underline"
+							className="inline-flex items-center gap-1 text-text text-xs underline-offset-2 hover:underline"
 							href="https://x.com/kyamamoto9120"
 							rel="noreferrer"
 							target="_blank"

@@ -111,7 +111,7 @@ export function NoteOgpEditor() {
 	};
 
 	return (
-		<div className="flex min-h-screen flex-col bg-background md:h-screen">
+		<div className="flex min-h-screen flex-col bg-bg md:h-screen">
 			<SiteHeader
 				profile={{ brand: state.brand, author: state.author }}
 				onProfileClick={handleProfileChipClick}
@@ -133,7 +133,7 @@ export function NoteOgpEditor() {
 					<button
 						type="button"
 						onClick={() => setSidebarCollapsed((c) => !c)}
-						className="absolute top-1/2 right-0 z-10 hidden h-12 w-3.5 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:border-primary/40 hover:text-foreground md:flex"
+						className="absolute top-1/2 right-0 z-10 hidden h-12 w-3.5 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full border border-border bg-bg-raised text-text-muted shadow-sm transition-colors hover:border-primary/40 hover:text-text md:flex"
 						aria-label={
 							sidebarCollapsed ? "サイドパネルを開く" : "サイドパネルを閉じる"
 						}

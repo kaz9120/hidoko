@@ -13,7 +13,7 @@ export function Tools() {
 					target="_blank"
 					rel="noreferrer"
 					className={cn(
-						"flex flex-col gap-3 rounded-lg border bg-card px-7 py-[26px] text-foreground shadow-[var(--shadow-card)] transition-all duration-200",
+						"flex flex-col gap-3 rounded-lg border bg-bg-raised px-7 py-[26px] text-text shadow-[var(--shadow-card)] transition-all duration-200",
 						"hover:-translate-y-0.5 hover:border-border-strong",
 						tool.accent &&
 							"border-[color-mix(in_oklab,var(--ember-400)_22%,var(--border))]",
@@ -23,19 +23,19 @@ export function Tools() {
 						<h3 className="m-0 text-[22px] font-semibold tracking-[-0.018em] text-text-strong">
 							{tool.name}
 						</h3>
-						<span className="inline-flex items-center gap-1 font-mono text-[12.5px] text-primary">
+						<span className="inline-flex items-center gap-1 font-mono text-[12.5px] text-accent">
 							{tool.href.replace(/^https?:\/\//, "").replace(/\/$/, "")}
 							<ArrowUpRightIcon className="size-3.5" aria-hidden="true" />
 						</span>
 					</div>
-					<p className="m-0 text-sm leading-[1.75] text-muted-foreground">
+					<p className="m-0 text-sm leading-[1.75] text-text-muted">
 						{tool.desc}
 					</p>
 					<div className="flex flex-wrap gap-1.5">
 						{tool.tags.map((tag) => (
 							<span
 								key={tag}
-								className="inline-flex rounded-sm border border-border-subtle bg-[var(--bg-sunken)] px-2.5 py-1 font-mono text-xs text-muted-foreground"
+								className="inline-flex rounded-sm border border-border-subtle bg-[var(--bg-sunken)] px-2.5 py-1 font-mono text-xs text-text-muted"
 							>
 								{tag}
 							</span>

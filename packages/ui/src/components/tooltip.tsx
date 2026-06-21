@@ -39,14 +39,20 @@ function TooltipContent({
 			<TooltipPrimitive.Content
 				data-slot="tooltip-content"
 				sideOffset={sideOffset}
-				className={cn(
-					"hi-motion-rise z-50 w-fit rounded-[4px] border border-border bg-secondary px-3 py-1.5 text-[13px] text-balance text-foreground shadow-[var(--shadow-pop)]",
-					className,
-				)}
+				className={cn("hi-motion-rise", className)}
+				style={{
+					zIndex: 50,
+					background: "var(--bg-overlay)",
+					color: "var(--text)",
+					border: "1px solid var(--border)",
+					borderRadius: "var(--radius-md)",
+					padding: "6px 12px",
+					fontSize: "var(--text-xs)",
+					boxShadow: "var(--shadow-pop)",
+				}}
 				{...props}
 			>
 				{children}
-				<TooltipPrimitive.Arrow className="z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] bg-secondary fill-secondary" />
 			</TooltipPrimitive.Content>
 		</TooltipPrimitive.Portal>
 	);

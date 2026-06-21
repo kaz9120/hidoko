@@ -23,7 +23,7 @@ export function Footer() {
 				<Button
 					asChild
 					variant="outline"
-					className="self-center bg-secondary hover:border-[color-mix(in_oklab,var(--accent)_50%,var(--border))] hover:bg-secondary hover:text-primary min-[880px]:justify-self-end"
+					className="self-center bg-bg-overlay hover:border-[color-mix(in_oklab,var(--accent)_50%,var(--border))] hover:bg-bg-overlay hover:text-accent min-[880px]:justify-self-end"
 				>
 					<a href={X_PROFILE_URL} target="_blank" rel="noreferrer">
 						<XIcon aria-hidden="true" />

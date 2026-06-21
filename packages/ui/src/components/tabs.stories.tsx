@@ -2,15 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
 
-/**
- * 横並びまたは縦並びのタブ。同じ高さの中で文脈を切り替えるときに使う。
- * 既定の `variant="default"` は背景のあるピル型、`variant="line"` は
- * 下線型のシンプルなタブになる。
- *
- * @summary 文脈切り替えのタブ
- */
 const meta = {
-	title: "shadcn-ui/Tabs",
+	title: "ui/Tabs",
 	component: Tabs,
 	parameters: {
 		layout: "padded",
@@ -54,7 +47,7 @@ export const Default: Story = {
 export const Line: Story = {
 	render: () => (
 		<Tabs defaultValue="tonight" className="w-[420px]">
-			<TabsList variant="line">
+			<TabsList>
 				<TabsTrigger value="tonight">今夜</TabsTrigger>
 				<TabsTrigger value="weekend">週末</TabsTrigger>
 				<TabsTrigger value="someday">いつか</TabsTrigger>

@@ -50,7 +50,7 @@ export function ControlPanel({
 	busy: boolean;
 }) {
 	return (
-		<aside className="flex h-full flex-col overflow-hidden border-border border-l bg-card">
+		<aside className="flex h-full flex-col overflow-hidden border-border border-l bg-bg-raised">
 			<PanelHeader />
 			<div className="flex-1 overflow-y-auto px-6 py-5">
 				<PhotoSection state={state} update={update} />
@@ -72,11 +72,11 @@ export function ControlPanel({
 
 function PanelHeader() {
 	return (
-		<header className="flex-shrink-0 border-border border-b bg-card px-6 pt-5 pb-4">
+		<header className="flex-shrink-0 border-border border-b bg-bg-raised px-6 pt-5 pb-4">
 			<div className="mb-1.5 flex items-center gap-2">
 				<span
 					aria-hidden="true"
-					className="inline-block size-1.5 rounded-[1px] bg-primary"
+					className="inline-block size-1.5 rounded-[1px] bg-accent"
 				/>
 				<span className="font-mono text-[11px] uppercase tracking-[0.22em] text-primary">
 					note OGP
@@ -85,10 +85,10 @@ function PanelHeader() {
 					v3 · foundation
 				</span>
 			</div>
-			<h2 className="text-base font-bold text-foreground leading-tight">
+			<h2 className="text-base font-bold text-text leading-tight">
 				アイキャッチを作る
 			</h2>
-			<p className="mt-0.5 text-xs text-muted-foreground leading-[1.55]">
+			<p className="mt-0.5 text-xs text-text-muted leading-[1.55]">
 				写真を主役に、タイトルの居場所と号数の見せ方を選ぶ。
 			</p>
 		</header>
@@ -112,7 +112,7 @@ function PhotoSection({
 					onChange={(v) => update({ image: v })}
 				/>
 				<FieldDescription>
-					写真の <span className="text-muted-foreground font-medium">暗部</span>{" "}
+					写真の <span className="text-text-muted font-medium">暗部</span>{" "}
 					を見て、次の「タイトルの居場所」を選ぶ
 				</FieldDescription>
 			</Field>
@@ -219,8 +219,8 @@ function TitleSlotSection({
 	return (
 		<>
 			<SectionTitle>タイトルの居場所</SectionTitle>
-			<p className="mb-3 text-xs text-muted-foreground leading-relaxed">
-				写真の <span className="text-foreground font-medium">暗部</span>{" "}
+			<p className="mb-3 text-xs text-text-muted leading-relaxed">
+				写真の <span className="text-text font-medium">暗部</span>{" "}
 				に文字を置く。被写体が右なら左下（S1）、左なら右下（S2）。
 			</p>
 			<TitleSlotTiles
@@ -263,8 +263,8 @@ function NumberTreatmentSection({
 	return (
 		<>
 			<SectionTitle>号数の身振り</SectionTitle>
-			<p className="mb-3 text-xs text-muted-foreground leading-relaxed">
-				基本は <span className="text-foreground font-medium">N1 Corner</span>
+			<p className="mb-3 text-xs text-text-muted leading-relaxed">
+				基本は <span className="text-text font-medium">N1 Corner</span>
 				。雑誌的に押し出したいときだけ別の身振りを使う。
 			</p>
 			<NumberTreatmentTiles state={state} onSelect={handleSelect} />
@@ -323,8 +323,8 @@ function FinishSection({
 						onClick={() => update({ showLead: true })}
 						className={
 							state.showLead
-								? "flex-1 cursor-pointer bg-secondary px-2 py-2 text-sm text-secondary-foreground shadow-[inset_0_0_0_1px_var(--border-strong)] outline-none transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset active:bg-accent/60"
-								: "flex-1 cursor-pointer px-2 py-2 text-sm text-foreground outline-none transition-colors hover:bg-accent/40 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset active:bg-accent/60"
+								? "flex-1 cursor-pointer bg-bg-overlay px-2 py-2 text-sm text-text shadow-[inset_0_0_0_1px_var(--border-strong)] outline-none transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset active:bg-accent/60"
+								: "flex-1 cursor-pointer px-2 py-2 text-sm text-text outline-none transition-colors hover:bg-accent/40 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset active:bg-accent/60"
 						}
 					>
 						表示
@@ -335,8 +335,8 @@ function FinishSection({
 						onClick={() => update({ showLead: false })}
 						className={
 							!state.showLead
-								? "flex-1 cursor-pointer border-border border-l bg-secondary px-2 py-2 text-sm text-secondary-foreground shadow-[inset_0_0_0_1px_var(--border-strong)] outline-none transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset active:bg-accent/60"
-								: "flex-1 cursor-pointer border-border border-l px-2 py-2 text-sm text-foreground outline-none transition-colors hover:bg-accent/40 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset active:bg-accent/60"
+								? "flex-1 cursor-pointer border-border border-l bg-bg-overlay px-2 py-2 text-sm text-text shadow-[inset_0_0_0_1px_var(--border-strong)] outline-none transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset active:bg-accent/60"
+								: "flex-1 cursor-pointer border-border border-l px-2 py-2 text-sm text-text outline-none transition-colors hover:bg-accent/40 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset active:bg-accent/60"
 						}
 					>
 						非表示
@@ -362,7 +362,7 @@ function ProjectSection({
 	return (
 		<Accordion type="single" collapsible className="mt-5">
 			<AccordionItem value="project">
-				<AccordionTrigger className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+				<AccordionTrigger className="font-mono text-[10px] uppercase tracking-[0.22em] text-text-muted">
 					プロジェクト（連載の固定情報）
 				</AccordionTrigger>
 				<AccordionContent className="pt-2">
@@ -437,8 +437,8 @@ function ProjectSection({
 								onClick={() => update({ showMark: true })}
 								className={
 									state.showMark
-										? "flex-1 cursor-pointer bg-secondary px-2 py-2 text-sm text-secondary-foreground shadow-[inset_0_0_0_1px_var(--border-strong)] outline-none transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset active:bg-accent/60"
-										: "flex-1 cursor-pointer px-2 py-2 text-sm text-foreground outline-none transition-colors hover:bg-accent/40 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset active:bg-accent/60"
+										? "flex-1 cursor-pointer bg-bg-overlay px-2 py-2 text-sm text-text shadow-[inset_0_0_0_1px_var(--border-strong)] outline-none transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset active:bg-accent/60"
+										: "flex-1 cursor-pointer px-2 py-2 text-sm text-text outline-none transition-colors hover:bg-accent/40 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset active:bg-accent/60"
 								}
 							>
 								表示
@@ -449,8 +449,8 @@ function ProjectSection({
 								onClick={() => update({ showMark: false })}
 								className={
 									!state.showMark
-										? "flex-1 cursor-pointer border-border border-l bg-secondary px-2 py-2 text-sm text-secondary-foreground shadow-[inset_0_0_0_1px_var(--border-strong)] outline-none transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset active:bg-accent/60"
-										: "flex-1 cursor-pointer border-border border-l px-2 py-2 text-sm text-foreground outline-none transition-colors hover:bg-accent/40 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset active:bg-accent/60"
+										? "flex-1 cursor-pointer border-border border-l bg-bg-overlay px-2 py-2 text-sm text-text shadow-[inset_0_0_0_1px_var(--border-strong)] outline-none transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset active:bg-accent/60"
+										: "flex-1 cursor-pointer border-border border-l px-2 py-2 text-sm text-text outline-none transition-colors hover:bg-accent/40 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset active:bg-accent/60"
 								}
 							>
 								非表示
@@ -475,7 +475,7 @@ function PanelFooter({
 	onReset: () => void;
 }) {
 	return (
-		<footer className="flex flex-shrink-0 flex-col gap-2 border-border border-t bg-card px-6 pt-4 pb-5">
+		<footer className="flex flex-shrink-0 flex-col gap-2 border-border border-t bg-bg-raised px-6 pt-4 pb-5">
 			<Button
 				type="button"
 				size="lg"
@@ -496,7 +496,7 @@ function PanelFooter({
 					<Button
 						type="button"
 						variant="outline"
-						className="w-full justify-center font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground"
+						className="w-full justify-center font-mono text-[10px] uppercase tracking-[0.22em] text-text-muted"
 					>
 						リセット
 					</Button>

@@ -166,17 +166,17 @@ export function ProfileDialog({
  */
 function MastheadPreview({ values }: { values: ProfileValues }) {
 	return (
-		<div className="rounded-md border border-border bg-background p-3 font-mono text-[11px] text-muted-foreground">
+		<div className="rounded-md border border-border bg-bg p-3 font-mono text-[11px] text-text-muted">
 			<div className="mb-1 text-[9px] uppercase tracking-[0.22em] text-(--text-faint)">
 				マストヘッドのプレビュー
 			</div>
-			<div className="flex items-baseline gap-2 text-foreground">
+			<div className="flex items-baseline gap-2 text-text">
 				{values.showMark && (
 					<span aria-hidden="true" className="text-primary">
 						●
 					</span>
 				)}
-				<span className="text-foreground/80">{values.brand || "—"}</span>
+				<span className="text-text/80">{values.brand || "—"}</span>
 			</div>
 			<div className="mt-0.5 text-[10px] text-(--text-faint)">
 				{values.author || "—"}

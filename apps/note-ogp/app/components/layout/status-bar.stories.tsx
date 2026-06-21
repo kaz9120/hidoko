@@ -6,7 +6,7 @@ import { StatusBar } from "./status-bar";
 
 /**
  * note-ogp 画面下端のステータスバー。snapcrop の `status-bar.tsx` と同じ
- * 「下端 24px / `bg-card/50` の地」を踏襲し、note-ogp 固有の情報（出力寸法
+ * 「下端 24px / `bg-bg-raised/50` の地」を踏襲し、note-ogp 固有の情報（出力寸法
  * 1280×670 固定・表示倍率・タイトル位置と号数の身振り・タイトルの文字数 /
  * 可読性 / 自動保存時刻）に組み替えている。Stage 上に常設していた寸法ラベルと
  * % キャプションを撤去し、この 1 箇所に集約する。

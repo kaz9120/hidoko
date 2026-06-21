@@ -4,7 +4,7 @@ import { FRAME_HEIGHT, FRAME_WIDTH } from "~/lib/og-templates";
 
 /**
  * 画面下端 24px のステータスバー。snapcrop の `status-bar.tsx` と同じ
- * 「下端 24px / `bg-card/50` の地・`text-muted-foreground` の文字色」を踏襲し、
+ * 「下端 24px / `bg-bg-raised/50` の地・`text-text-muted` の文字色」を踏襲し、
  * note-ogp 用に並び順を組み替えたもの。
  *
  * 左から：出力寸法（1280 × 670 固定）·  表示倍率 % · 身振り（タイトル位置 + 号数）
@@ -38,14 +38,14 @@ export function StatusBar({
 	const readability = fields.title ? getReadabilityStatus(titleFontSize) : null;
 
 	return (
-		<footer className="flex h-6 shrink-0 items-center gap-3 border-border border-t bg-card/50 px-3 font-mono text-[11px] text-muted-foreground">
-			<span className="text-foreground/80">
+		<footer className="flex h-6 shrink-0 items-center gap-3 border-border border-t bg-bg-raised/50 px-3 font-mono text-[11px] text-text-muted">
+			<span className="text-text/80">
 				{FRAME_WIDTH} × {FRAME_HEIGHT}
 			</span>
 			<Sep />
 			<span>{Math.round(scale * 100)}%</span>
 			<Sep />
-			<span className="text-foreground/80">
+			<span className="text-text/80">
 				{SLOT_LABEL[fields.titleSlot]} · {NUMBER_LABEL[fields.numberTreatment]}
 			</span>
 

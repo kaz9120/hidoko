@@ -11,7 +11,7 @@ const PERSONAL_SITE_URL = "https://y-kaz.com/";
  */
 export function SiteFooter() {
 	return (
-		<footer className="flex min-h-[22px] shrink-0 flex-wrap items-center gap-x-3 gap-y-0.5 border-border border-t bg-[var(--bg-sunken)] px-3 py-0.5 font-mono text-[10px] text-muted-foreground">
+		<footer className="flex min-h-[22px] shrink-0 flex-wrap items-center gap-x-3 gap-y-0.5 border-border border-t bg-[var(--bg-sunken)] px-3 py-0.5 font-mono text-[10px] text-text-muted">
 			<span>v{packageJson.version}</span>
 			<Sep />
 			<FooterLink to="/privacy">プライバシーポリシー</FooterLink>

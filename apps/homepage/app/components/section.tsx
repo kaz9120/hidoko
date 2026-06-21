@@ -18,7 +18,7 @@ export function Section({ id, eyebrow, title, lede, children, more }: Props) {
 			<div className="relative mx-auto max-w-[1080px]">
 				<header className="mb-12 flex max-w-[720px] flex-col gap-2">
 					{eyebrow && (
-						<span className="mb-1 font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
+						<span className="mb-1 font-mono text-[11px] uppercase tracking-[0.18em] text-accent">
 							{eyebrow}
 						</span>
 					)}
@@ -26,7 +26,7 @@ export function Section({ id, eyebrow, title, lede, children, more }: Props) {
 						{title}
 					</h2>
 					{lede && (
-						<p className="mt-1.5 text-[15px] leading-[1.7] text-muted-foreground">
+						<p className="mt-1.5 text-[15px] leading-[1.7] text-text-muted">
 							{lede}
 						</p>
 					)}

@@ -31,7 +31,7 @@ export const Default: Story = {
 		<div className="w-[260px]">
 			<div className="text-sm">三軒茶屋の夜</div>
 			<Separator className="my-3" />
-			<div className="text-sm text-muted-foreground">火床、珈琲、本</div>
+			<div className="text-sm text-text-muted">火床、珈琲、本</div>
 		</div>
 	),
 };

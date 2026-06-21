@@ -16,7 +16,7 @@ const meta = {
 	args: { value: null, onChange: () => {} },
 	decorators: [
 		(Story) => (
-			<div className="w-80 bg-card p-4">
+			<div className="w-80 bg-bg-raised p-4">
 				<Story />
 			</div>
 		),

@@ -23,7 +23,7 @@ const meta = {
 	decorators: [
 		(Story) => (
 			<TooltipProvider>
-				<div className="flex items-center rounded-md bg-background px-4 py-2">
+				<div className="flex items-center rounded-md bg-bg px-4 py-2">
 					<Story />
 				</div>
 			</TooltipProvider>
