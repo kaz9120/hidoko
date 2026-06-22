@@ -11,7 +11,14 @@ import {
 	WavesIcon,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Toggle, Tooltip, TooltipContent, TooltipTrigger } from "ui";
+import {
+	Toggle,
+	ToggleGroup,
+	ToggleGroupItem,
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "ui";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -99,31 +106,35 @@ export function ToolRail() {
 				disabled ? "pointer-events-none opacity-40" : ""
 			}`}
 		>
-			{TOOLS.map((tool) => {
-				const Icon = tool.icon;
-				const pressed = activeTool === tool.id;
-				return (
-					<Tooltip key={tool.id}>
-						<TooltipTrigger asChild>
-							<Toggle
-								aria-label={`${tool.label} (${tool.shortcut})`}
-								onPressedChange={(next) => {
-									// 同じツールを再クリックして外す挙動は無効。常に「選択」方向にだけ反応する
-									if (next) setActiveTool(tool.id);
-								}}
-								pressed={pressed}
-								size="lg"
-								variant="default"
-							>
-								<Icon strokeWidth={1.75} />
-							</Toggle>
-						</TooltipTrigger>
-						<TooltipContent side="right">
-							{tool.label} ({tool.shortcut})
-						</TooltipContent>
-					</Tooltip>
-				);
-			})}
+			<ToggleGroup
+				aria-label="ツール"
+				className="flex-col"
+				onValueChange={(value) => {
+					if (value) setActiveTool(value as ActiveTool);
+				}}
+				type="single"
+				value={activeTool}
+			>
+				{TOOLS.map((tool) => {
+					const Icon = tool.icon;
+					return (
+						<Tooltip key={tool.id}>
+							<TooltipTrigger asChild>
+								<ToggleGroupItem
+									aria-label={`${tool.label} (${tool.shortcut})`}
+									size="lg"
+									value={tool.id}
+								>
+									<Icon strokeWidth={1.75} />
+								</ToggleGroupItem>
+							</TooltipTrigger>
+							<TooltipContent side="right">
+								{tool.label} ({tool.shortcut})
+							</TooltipContent>
+						</Tooltip>
+					);
+				})}
+			</ToggleGroup>
 
 			<span aria-hidden="true" className="my-3 h-px w-6 shrink-0 bg-border" />
 
