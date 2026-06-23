@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/kaz9120/hidoko/compare/ui-v0.6.0...ui-v0.7.0) (2026-06-23)
+
+
+### Features
+
+* **ui:** デザインシステムの shadcn/ui 3層統合と --brand トークン分離 ([#366](https://github.com/kaz9120/hidoko/issues/366)) ([02bba44](https://github.com/kaz9120/hidoko/commit/02bba449282426ad89fe27c8fc16c68b454215a2))
+
 ## [0.6.0](https://github.com/kaz9120/hidoko/compare/ui-v0.5.0...ui-v0.6.0) (2026-06-19)
 
 

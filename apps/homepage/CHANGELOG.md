@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.3.0](https://github.com/kaz9120/hidoko/compare/homepage-v0.2.8...homepage-v0.3.0) (2026-06-23)
+
+
+### Features
+
+* **ui:** デザインシステムの shadcn/ui 3層統合と --brand トークン分離 ([#366](https://github.com/kaz9120/hidoko/issues/366)) ([02bba44](https://github.com/kaz9120/hidoko/commit/02bba449282426ad89fe27c8fc16c68b454215a2))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ui bumped to 0.7.0
+
 ## [0.2.8](https://github.com/kaz9120/hidoko/compare/homepage-v0.2.7...homepage-v0.2.8) (2026-06-19)
 
 
