@@ -131,15 +131,12 @@
 }
 
 
-/* ━━━ Toggle / ToggleGroup — 選択状態のブランド色 ━━━
-   Tailwind の data-[state=on]:bg-accent より確実に優先するため
-   !important を使う。エンハンスメント層はブランド品質の最終決定権を持つ。 */
+/* ━━━ Toggle / ToggleGroup — 選択状態のブランド色 ━━━ */
 
 [data-slot="toggle"][data-state="on"],
 [data-slot="toggle-group-item"][data-state="on"] {
-	background: var(--brand) !important;
-	color: var(--text-on-ember) !important;
-	box-shadow: var(--glow-ember-soft) !important;
+	background: var(--brand-soft);
+	color: var(--brand);
 }
 
 
