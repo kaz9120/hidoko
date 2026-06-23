@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.15.1](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.15.0...note-ogp-v0.15.1) (2026-06-23)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * ui bumped to 0.7.0
+
 ## [0.15.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.14.0...note-ogp-v0.15.0) (2026-06-19)
 
 
