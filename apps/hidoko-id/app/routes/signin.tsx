@@ -112,7 +112,7 @@ export default function SigninRoute() {
 				rightLabel={
 					<Link
 						to="/reset"
-						className="text-[12px] font-normal text-[var(--accent)] hover:text-[var(--accent-hover)]"
+						className="text-[12px] font-normal text-[var(--brand)] hover:text-[var(--brand-hover)]"
 					>
 						忘れた
 					</Link>
@@ -169,7 +169,7 @@ export default function SigninRoute() {
 						<span>アカウントがない</span>
 						<Link
 							to={signupHref}
-							className="inline-flex items-center gap-1 font-medium text-[var(--accent)] hover:text-[var(--accent-hover)]"
+							className="inline-flex items-center gap-1 font-medium text-[var(--brand)] hover:text-[var(--brand-hover)]"
 						>
 							作成
 							<ArrowUpRight aria-hidden className="size-3.5" />
@@ -203,7 +203,7 @@ export default function SigninRoute() {
 					</Link>
 					<Link
 						to={signupHref}
-						className="inline-flex items-center gap-1 font-medium text-[var(--accent)] hover:text-[var(--accent-hover)]"
+						className="inline-flex items-center gap-1 font-medium text-[var(--brand)] hover:text-[var(--brand-hover)]"
 					>
 						アカウントを作成
 						<ArrowUpRight aria-hidden className="size-3.5" />
@@ -238,7 +238,7 @@ export default function SigninRoute() {
 
 			{/* used by marquee */}
 			<div className="absolute inset-x-11 bottom-7 z-20 flex items-center gap-4 border-t border-[var(--border-subtle)] pt-5 font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--text-faint)]">
-				<span className="text-[var(--accent)]">USED BY ／</span>
+				<span className="text-[var(--brand)]">USED BY ／</span>
 				{FOOTER_APPS.map((name, i) => (
 					<span key={name} className="flex items-center gap-4">
 						{i > 0 ? (
@@ -249,7 +249,7 @@ export default function SigninRoute() {
 						<span>{name}</span>
 					</span>
 				))}
-				<span className="ml-auto text-[var(--accent)]">
+				<span className="ml-auto text-[var(--brand)]">
 					— {FOOTER_APPS.length} APPS
 				</span>
 			</div>

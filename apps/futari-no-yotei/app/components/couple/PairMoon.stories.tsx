@@ -45,8 +45,8 @@ export const Large: Story = {
 export const SingleTone: Story = {
 	args: {
 		size: 48,
-		color: "var(--accent)",
-		color2: "var(--accent)",
+		color: "var(--brand)",
+		color2: "var(--brand)",
 	},
 };
 

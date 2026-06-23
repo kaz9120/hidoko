@@ -21,7 +21,7 @@
 	background:
 		radial-gradient(
 			ellipse at 50% 100%,
-			color-mix(in oklab, var(--accent) 10%, transparent) 0%,
+			color-mix(in oklab, var(--brand) 10%, transparent) 0%,
 			transparent 55%
 		),
 		var(--bg);
@@ -32,7 +32,7 @@
 	background:
 		radial-gradient(
 			ellipse at 30% 110%,
-			color-mix(in oklab, var(--accent) 8%, transparent) 0%,
+			color-mix(in oklab, var(--brand) 8%, transparent) 0%,
 			transparent 60%
 		),
 		var(--bg-raised);

@@ -18,7 +18,7 @@ export function Mark({
 			className={cn(
 				"inline-flex items-center font-mono text-[11px] uppercase",
 				"tracking-[0.18em]",
-				tone === "ember" ? "text-[var(--accent)]" : "text-[var(--text-faint)]",
+				tone === "ember" ? "text-[var(--brand)]" : "text-[var(--text-faint)]",
 				className,
 			)}
 			{...props}

@@ -38,7 +38,7 @@ export function DayCard({
 
 	const sz = SIZES[size];
 	const weekdayColor = isToday
-		? "var(--accent)"
+		? "var(--brand)"
 		: wkd === 0
 			? "var(--rust)"
 			: wkd === 6
@@ -50,10 +50,10 @@ export function DayCard({
 			className="flex items-stretch overflow-hidden rounded-lg border"
 			style={{
 				background: isToday
-					? "linear-gradient(180deg, color-mix(in oklab, var(--accent) 7%, var(--bg-raised)) 0%, var(--bg-raised) 100%)"
+					? "linear-gradient(180deg, color-mix(in oklab, var(--brand) 7%, var(--bg-raised)) 0%, var(--bg-raised) 100%)"
 					: "var(--bg-raised)",
 				borderColor: isToday
-					? "color-mix(in oklab, var(--accent) 35%, var(--border))"
+					? "color-mix(in oklab, var(--brand) 35%, var(--border))"
 					: "var(--border-subtle)",
 				boxShadow: isToday
 					? "var(--glow-ember-soft), var(--shadow-card)"
@@ -81,7 +81,7 @@ export function DayCard({
 					className="font-bold tabular-nums leading-none tracking-[-0.02em]"
 					style={{
 						fontSize: sz.dayFs,
-						color: isToday ? "var(--accent)" : "var(--text-strong)",
+						color: isToday ? "var(--brand)" : "var(--text-strong)",
 					}}
 				>
 					{d.getDate()}
@@ -91,7 +91,7 @@ export function DayCard({
 						className="font-mono uppercase tracking-[0.18em]"
 						style={{
 							fontSize: 8,
-							color: isToday ? "var(--accent)" : "var(--text-faint)",
+							color: isToday ? "var(--brand)" : "var(--text-faint)",
 							marginTop: 4,
 						}}
 					>
@@ -127,11 +127,11 @@ export function DayCard({
 										width: STATUS_CELL[size],
 										height: STATUS_CELL[size],
 										background: st?.confirmed
-											? "color-mix(in oklab, var(--accent) 12%, transparent)"
+											? "color-mix(in oklab, var(--brand) 12%, transparent)"
 											: "transparent",
 										border: `1px ${st?.confirmed ? "solid" : "dashed"} ${
 											st?.confirmed
-												? "color-mix(in oklab, var(--accent) 32%, transparent)"
+												? "color-mix(in oklab, var(--brand) 32%, transparent)"
 												: "var(--border)"
 										}`,
 										fontSize: sz.emojiFs,

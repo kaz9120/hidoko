@@ -61,7 +61,7 @@ export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
 					"h-11 rounded-md bg-[var(--bg-sunken)] px-3.5 text-[15px]",
 					"border-[var(--border)] hover:border-[var(--border-strong)]",
 					"shadow-[inset_0_1px_0_rgba(0,0,0,0.3)]",
-					"focus-visible:border-[var(--accent)]",
+					"focus-visible:border-[var(--brand)]",
 					"focus-visible:shadow-[var(--glow-ember),inset_0_1px_0_rgba(0,0,0,0.3)] focus-visible:ring-0",
 					hasError && [
 						"border-[var(--danger)]",

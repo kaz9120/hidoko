@@ -26,10 +26,10 @@
 	--color-border-strong: var(--border-strong);
 	--color-border-subtle: var(--border-subtle);
 
-	--color-accent: var(--accent);
-	--color-accent-hover: var(--accent-hover);
-	--color-accent-active: var(--accent-active);
-	--color-accent-soft: var(--accent-soft);
+	--color-brand: var(--brand);
+	--color-brand-hover: var(--brand-hover);
+	--color-brand-active: var(--brand-active);
+	--color-brand-soft: var(--brand-soft);
 
 	--color-ember-200: var(--ember-200);
 	--color-ember-300: var(--ember-300);

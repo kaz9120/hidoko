@@ -1,0 +1,278 @@
+/* ============================================================
+   Hidoko — Radix Motion (shadcn/ui data-slot 自動注入)
+   ------------------------------------------------------------
+   Radix UI の data-state / shadcn v4 の data-slot に
+   Hidoko のモーション語彙を自動注入する。
+
+   shadcn/ui コンポーネントをインストールするだけで、
+   Dialog は霧が晴れるように、Accordion は紙を広げるように、
+   Toast は着地して煙のように消える。
+
+   tokens.css の後に読み込むこと。
+   ============================================================ */
+
+/* ━━━ 1. Dialog / AlertDialog — 霧が晴れる対話 ━━━ */
+
+[data-slot="dialog-overlay"][data-state="open"],
+[data-slot="alert-dialog-overlay"][data-state="open"] {
+	animation: hi-radix-overlay-in var(--duration-relax) var(--ease-ember) both;
+}
+[data-slot="dialog-overlay"][data-state="closed"],
+[data-slot="alert-dialog-overlay"][data-state="closed"] {
+	animation: hi-radix-overlay-out var(--duration-slow) var(--ease) both;
+}
+
+@keyframes hi-radix-overlay-in {
+	from { opacity: 0; backdrop-filter: blur(0); -webkit-backdrop-filter: blur(0); }
+	to   { opacity: 1; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+}
+@keyframes hi-radix-overlay-out {
+	from { opacity: 1; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+	to   { opacity: 0; backdrop-filter: blur(0); -webkit-backdrop-filter: blur(0); }
+}
+
+[data-slot="dialog-content"][data-state="open"],
+[data-slot="alert-dialog-content"][data-state="open"] {
+	animation: hi-radix-dialog-in var(--duration-relax) var(--ease-settle) both;
+}
+[data-slot="dialog-content"][data-state="closed"],
+[data-slot="alert-dialog-content"][data-state="closed"] {
+	animation: hi-radix-dialog-out var(--duration-slow) var(--ease) both;
+}
+
+@keyframes hi-radix-dialog-in {
+	from { opacity: 0; transform: translateY(16px) scale(0.97); filter: blur(4px); }
+	to   { opacity: 1; transform: translateY(0) scale(1);       filter: blur(0); }
+}
+@keyframes hi-radix-dialog-out {
+	from { opacity: 1; transform: translateY(0) scale(1);       filter: blur(0); }
+	to   { opacity: 0; transform: translateY(8px) scale(0.98);  filter: blur(2px); }
+}
+
+
+/* ━━━ 2. Sheet / Drawer — 横から現れる幕 ━━━ */
+
+[data-slot="sheet-overlay"][data-state="open"],
+[data-slot="drawer-overlay"][data-state="open"] {
+	animation: hi-radix-overlay-in var(--duration-relax) var(--ease-ember) both;
+}
+[data-slot="sheet-overlay"][data-state="closed"],
+[data-slot="drawer-overlay"][data-state="closed"] {
+	animation: hi-radix-overlay-out var(--duration-slow) var(--ease) both;
+}
+
+[data-slot="sheet-content"][data-state="open"][data-side="right"] {
+	animation: hi-radix-sheet-right-in var(--duration-slow) var(--ease-ember) both;
+}
+[data-slot="sheet-content"][data-state="closed"][data-side="right"] {
+	animation: hi-radix-sheet-right-out var(--duration) var(--ease) both;
+}
+[data-slot="sheet-content"][data-state="open"][data-side="left"] {
+	animation: hi-radix-sheet-left-in var(--duration-slow) var(--ease-ember) both;
+}
+[data-slot="sheet-content"][data-state="closed"][data-side="left"] {
+	animation: hi-radix-sheet-left-out var(--duration) var(--ease) both;
+}
+[data-slot="sheet-content"][data-state="open"][data-side="top"] {
+	animation: hi-radix-sheet-top-in var(--duration-slow) var(--ease-ember) both;
+}
+[data-slot="sheet-content"][data-state="closed"][data-side="top"] {
+	animation: hi-radix-sheet-top-out var(--duration) var(--ease) both;
+}
+[data-slot="sheet-content"][data-state="open"][data-side="bottom"] {
+	animation: hi-radix-sheet-bottom-in var(--duration-slow) var(--ease-ember) both;
+}
+[data-slot="sheet-content"][data-state="closed"][data-side="bottom"] {
+	animation: hi-radix-sheet-bottom-out var(--duration) var(--ease) both;
+}
+
+@keyframes hi-radix-sheet-right-in  { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes hi-radix-sheet-right-out { from { transform: translateX(0); } to { transform: translateX(100%); } }
+@keyframes hi-radix-sheet-left-in   { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+@keyframes hi-radix-sheet-left-out  { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+@keyframes hi-radix-sheet-top-in    { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+@keyframes hi-radix-sheet-top-out   { from { transform: translateY(0); } to { transform: translateY(-100%); } }
+@keyframes hi-radix-sheet-bottom-in { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes hi-radix-sheet-bottom-out{ from { transform: translateY(0); } to { transform: translateY(100%); } }
+
+
+/* ━━━ 3. Accordion / Collapsible — 紙を広げる折り ━━━ */
+
+[data-slot="accordion-content"][data-state="open"] {
+	animation: hi-radix-fold-open var(--duration-slow) var(--ease-ember) both;
+}
+[data-slot="accordion-content"][data-state="closed"] {
+	animation: hi-radix-fold-close var(--duration-slow) var(--ease-ember) both;
+}
+[data-slot="collapsible-content"][data-state="open"] {
+	animation: hi-radix-fold-open var(--duration-slow) var(--ease-ember) both;
+}
+[data-slot="collapsible-content"][data-state="closed"] {
+	animation: hi-radix-fold-close var(--duration-slow) var(--ease-ember) both;
+}
+
+@keyframes hi-radix-fold-open {
+	from { height: 0; opacity: 0; }
+	to   { height: var(--radix-accordion-content-height, var(--radix-collapsible-content-height, auto)); opacity: 1; }
+}
+@keyframes hi-radix-fold-close {
+	from { height: var(--radix-accordion-content-height, var(--radix-collapsible-content-height, auto)); opacity: 1; }
+	to   { height: 0; opacity: 0; }
+}
+
+
+/* ━━━ 4. Tabs — 場面の切り替え ━━━ */
+
+[data-slot="tabs-content"][data-state="active"] {
+	animation: hi-tab-in var(--duration-slow) var(--ease-ember);
+}
+
+
+/* ━━━ 5. Popover / Tooltip / HoverCard / DropdownMenu /
+       ContextMenu / Select / Combobox / NavigationMenu — 静かに着地 ━━━ */
+
+[data-slot="popover-content"][data-state="open"],
+[data-slot="tooltip-content"][data-state="open"],
+[data-slot="hover-card-content"][data-state="open"],
+[data-slot="dropdown-menu-content"][data-state="open"],
+[data-slot="context-menu-content"][data-state="open"],
+[data-slot="select-content"][data-state="open"],
+[data-slot="combobox-content"][data-state="open"],
+[data-slot="combobox-content"][data-open],
+[data-slot="navigation-menu-content"][data-state="open"],
+[data-slot="menubar-content"][data-state="open"],
+[data-slot="dropdown-menu-sub-content"][data-state="open"],
+[data-slot="context-menu-sub-content"][data-state="open"] {
+	animation: hi-radix-rise-in var(--duration-slow) var(--ease-settle) both;
+}
+
+[data-slot="popover-content"][data-state="closed"],
+[data-slot="tooltip-content"][data-state="closed"],
+[data-slot="hover-card-content"][data-state="closed"],
+[data-slot="dropdown-menu-content"][data-state="closed"],
+[data-slot="context-menu-content"][data-state="closed"],
+[data-slot="select-content"][data-state="closed"],
+[data-slot="combobox-content"][data-state="closed"],
+[data-slot="combobox-content"][data-closed],
+[data-slot="navigation-menu-content"][data-state="closed"],
+[data-slot="menubar-content"][data-state="closed"],
+[data-slot="dropdown-menu-sub-content"][data-state="closed"],
+[data-slot="context-menu-sub-content"][data-state="closed"] {
+	animation: hi-radix-rise-out var(--duration) var(--ease) both;
+}
+
+@keyframes hi-radix-rise-in {
+	from { opacity: 0; transform: translateY(6px) scale(0.97); }
+	to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+@keyframes hi-radix-rise-out {
+	from { opacity: 1; transform: translateY(0)   scale(1); }
+	to   { opacity: 0; transform: translateY(4px) scale(0.98); }
+}
+
+/* data-side で方向を微調整（rise 系コンポーネントのみ） */
+[data-slot="popover-content"][data-side="top"][data-state="open"],
+[data-slot="tooltip-content"][data-side="top"][data-state="open"],
+[data-slot="hover-card-content"][data-side="top"][data-state="open"],
+[data-slot="dropdown-menu-content"][data-side="top"][data-state="open"],
+[data-slot="dropdown-menu-sub-content"][data-side="top"][data-state="open"],
+[data-slot="context-menu-content"][data-side="top"][data-state="open"],
+[data-slot="context-menu-sub-content"][data-side="top"][data-state="open"],
+[data-slot="select-content"][data-side="top"][data-state="open"],
+[data-slot="menubar-content"][data-side="top"][data-state="open"] {
+	animation-name: hi-radix-rise-in-top;
+}
+@keyframes hi-radix-rise-in-top {
+	from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+	to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+[data-slot="popover-content"][data-side="left"][data-state="open"],
+[data-slot="tooltip-content"][data-side="left"][data-state="open"],
+[data-slot="dropdown-menu-content"][data-side="left"][data-state="open"],
+[data-slot="dropdown-menu-sub-content"][data-side="left"][data-state="open"],
+[data-slot="context-menu-sub-content"][data-side="left"][data-state="open"],
+[data-slot="menubar-content"][data-side="left"][data-state="open"] {
+	animation-name: hi-radix-rise-in-left;
+}
+@keyframes hi-radix-rise-in-left {
+	from { opacity: 0; transform: translateX(-6px) scale(0.97); }
+	to   { opacity: 1; transform: translateX(0)    scale(1); }
+}
+
+[data-slot="popover-content"][data-side="right"][data-state="open"],
+[data-slot="tooltip-content"][data-side="right"][data-state="open"],
+[data-slot="dropdown-menu-content"][data-side="right"][data-state="open"],
+[data-slot="dropdown-menu-sub-content"][data-side="right"][data-state="open"],
+[data-slot="context-menu-sub-content"][data-side="right"][data-state="open"],
+[data-slot="menubar-content"][data-side="right"][data-state="open"] {
+	animation-name: hi-radix-rise-in-right;
+}
+@keyframes hi-radix-rise-in-right {
+	from { opacity: 0; transform: translateX(6px) scale(0.97); }
+	to   { opacity: 1; transform: translateX(0)   scale(1); }
+}
+
+
+/* ━━━ 6. Sonner (Toast) — settle で着地、smoke で消える ━━━ */
+
+[data-sonner-toaster] {
+	--normal-bg: var(--bg-raised);
+	--normal-border: var(--border);
+	--normal-text: var(--text);
+	--success-bg: var(--bg-raised);
+	--success-border: var(--moss);
+	--success-text: var(--text);
+	--error-bg: var(--bg-raised);
+	--error-border: var(--rust);
+	--error-text: var(--text);
+	--info-bg: var(--bg-raised);
+	--info-border: var(--moon);
+	--info-text: var(--text);
+	--warning-bg: var(--bg-raised);
+	--warning-border: var(--ember-300);
+	--warning-text: var(--text);
+	font-family: var(--font-sans);
+}
+
+[data-sonner-toast] {
+	box-shadow: var(--shadow-pop) !important;
+	border-radius: var(--radius-lg) !important;
+}
+
+[data-sonner-toast][data-mounted="true"] {
+	transition-timing-function: var(--ease-settle);
+}
+
+
+/* ━━━ reduced motion ━━━ */
+
+@media (prefers-reduced-motion: reduce) {
+	[data-slot="dialog-overlay"][data-state="open"],
+	[data-slot="dialog-overlay"][data-state="closed"],
+	[data-slot="alert-dialog-overlay"][data-state="open"],
+	[data-slot="alert-dialog-overlay"][data-state="closed"],
+	[data-slot="dialog-content"][data-state="open"],
+	[data-slot="dialog-content"][data-state="closed"],
+	[data-slot="alert-dialog-content"][data-state="open"],
+	[data-slot="alert-dialog-content"][data-state="closed"],
+	[data-slot="sheet-overlay"][data-state],
+	[data-slot="drawer-overlay"][data-state],
+	[data-slot="sheet-content"][data-state],
+	[data-slot="accordion-content"][data-state],
+	[data-slot="collapsible-content"][data-state],
+	[data-slot="tabs-content"][data-state="active"],
+	[data-slot="popover-content"][data-state],
+	[data-slot="tooltip-content"][data-state],
+	[data-slot="hover-card-content"][data-state],
+	[data-slot="dropdown-menu-content"][data-state],
+	[data-slot="context-menu-content"][data-state],
+	[data-slot="select-content"][data-state],
+	[data-slot="combobox-content"][data-state],
+	[data-slot="navigation-menu-content"][data-state],
+	[data-slot="menubar-content"][data-state],
+	[data-slot="dropdown-menu-sub-content"][data-state],
+	[data-slot="context-menu-sub-content"][data-state] {
+		animation: none !important;
+	}
+}

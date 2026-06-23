@@ -52,12 +52,12 @@ export default function VerifyEmailRoute() {
 
 			<div className="w-full max-w-[420px] text-center">
 				<div
-					className="mx-auto mb-5 inline-flex size-14 items-center justify-center rounded-full border bg-[color-mix(in_oklab,var(--accent)_14%,transparent)]"
+					className="mx-auto mb-5 inline-flex size-14 items-center justify-center rounded-full border bg-[color-mix(in_oklab,var(--brand)_14%,transparent)]"
 					style={{
-						borderColor: "color-mix(in oklab, var(--accent) 32%, transparent)",
+						borderColor: "color-mix(in oklab, var(--brand) 32%, transparent)",
 					}}
 				>
-					<MailCheck aria-hidden className="size-6 text-[var(--accent)]" />
+					<MailCheck aria-hidden className="size-6 text-[var(--brand)]" />
 				</div>
 
 				<Mark tone="ember">メール確認</Mark>
@@ -96,7 +96,7 @@ export default function VerifyEmailRoute() {
 					違うメールで作成{" "}
 					<Link
 						to="/signup"
-						className="text-[var(--accent)] hover:text-[var(--accent-hover)]"
+						className="text-[var(--brand)] hover:text-[var(--brand-hover)]"
 					>
 						→
 					</Link>
@@ -112,7 +112,7 @@ export default function VerifyEmailRoute() {
 						</p>
 						<a
 							href={devVerifyUrl}
-							className="break-all font-mono text-[11px] text-[var(--accent)] hover:text-[var(--accent-hover)]"
+							className="break-all font-mono text-[11px] text-[var(--brand)] hover:text-[var(--brand-hover)]"
 						>
 							{devVerifyUrl}
 						</a>
@@ -122,7 +122,7 @@ export default function VerifyEmailRoute() {
 				<div className="mt-8">
 					<Link
 						to="/signin"
-						className="inline-flex items-center gap-1.5 font-medium text-[13px] text-[var(--accent)] hover:text-[var(--accent-hover)]"
+						className="inline-flex items-center gap-1.5 font-medium text-[13px] text-[var(--brand)] hover:text-[var(--brand-hover)]"
 					>
 						<ArrowLeft aria-hidden className="size-3.5" />
 						サインインに戻る

@@ -35,7 +35,7 @@ function SheetOverlay({
 	return (
 		<SheetPrimitive.Overlay
 			data-slot="sheet-overlay"
-			className={cn("hi-overlay z-50", className)}
+			className={cn("z-50", className)}
 			{...props}
 		/>
 	);

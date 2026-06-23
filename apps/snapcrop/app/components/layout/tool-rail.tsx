@@ -95,7 +95,7 @@ export function ToolRail() {
 		<aside
 			aria-label="編集ツール"
 			aria-disabled={disabled}
-			className={`flex w-12 shrink-0 flex-col items-center gap-1 border-border border-r bg-[var(--bg-overlay)] py-2 transition-opacity ${
+			className={`flex w-12 shrink-0 flex-col items-center gap-1 border-border border-r bg-card py-2 transition-opacity ${
 				disabled ? "pointer-events-none opacity-40" : ""
 			}`}
 		>
@@ -108,7 +108,6 @@ export function ToolRail() {
 							<Toggle
 								aria-label={`${tool.label} (${tool.shortcut})`}
 								onPressedChange={(next) => {
-									// 同じツールを再クリックして外す挙動は無効。常に「選択」方向にだけ反応する
 									if (next) setActiveTool(tool.id);
 								}}
 								pressed={pressed}
@@ -184,7 +183,7 @@ export function ToolRail() {
 							<button
 								type="button"
 								aria-label="色を変える"
-								className="size-10 shrink-0 rounded-full border-2 border-border ring-offset-2 ring-offset-[var(--bg-overlay)] transition-shadow hover:ring-2 hover:ring-primary/40"
+								className="size-10 shrink-0 rounded-full border-2 border-border ring-offset-2 ring-offset-card transition-shadow hover:ring-2 hover:ring-primary/40"
 								style={{ backgroundColor: rectDefaults.color }}
 							/>
 						</PopoverTrigger>

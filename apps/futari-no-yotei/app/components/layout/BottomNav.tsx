@@ -42,14 +42,14 @@ export function BottomNav() {
 					key={id}
 					to={to}
 					end={end}
-					className="relative flex flex-1 flex-col items-center gap-0.5 px-0 py-1 font-medium text-[10px] text-text-faint no-underline aria-[current=page]:text-accent"
+					className="relative flex flex-1 flex-col items-center gap-0.5 px-0 py-1 font-medium text-[10px] text-text-faint no-underline aria-[current=page]:text-brand"
 				>
 					{({ isActive }) => (
 						<>
 							{isActive ? (
 								<span
 									aria-hidden
-									className="-top-2 absolute h-0.5 w-6 rounded-full bg-accent shadow-[0_0_18px_color-mix(in_oklab,var(--accent)_35%,transparent)]"
+									className="-top-2 absolute h-0.5 w-6 rounded-full bg-brand shadow-[0_0_18px_color-mix(in_oklab,var(--brand)_35%,transparent)]"
 								/>
 							) : null}
 							<Icon width={22} height={22} strokeWidth={1.75} aria-hidden />

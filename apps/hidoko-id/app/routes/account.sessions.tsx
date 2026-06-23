@@ -161,7 +161,7 @@ export default function AccountSessionsRoute() {
 						>
 							<Monitor
 								aria-hidden
-								className="mt-1 size-4 text-[var(--accent)]"
+								className="mt-1 size-4 text-[var(--brand)]"
 							/>
 							<div className="min-w-0 flex-1">
 								<div className="flex items-center gap-2.5">
@@ -170,12 +170,12 @@ export default function AccountSessionsRoute() {
 									</span>
 									{s.isCurrent ? (
 										<span
-											className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[10px] tracking-[0.1em] text-[var(--accent)]"
+											className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[10px] tracking-[0.1em] text-[var(--brand)]"
 											style={{
 												borderColor:
-													"color-mix(in oklab, var(--accent) 32%, transparent)",
+													"color-mix(in oklab, var(--brand) 32%, transparent)",
 												backgroundColor:
-													"color-mix(in oklab, var(--accent) 14%, transparent)",
+													"color-mix(in oklab, var(--brand) 14%, transparent)",
 											}}
 										>
 											このブラウザ

@@ -244,7 +244,7 @@ function SectionLabel({
 	label: string;
 	count: number;
 }) {
-	const colorClass = tone === "accent" ? "text-accent" : "text-text-muted";
+	const colorClass = tone === "accent" ? "text-brand" : "text-text-muted";
 	return (
 		<div
 			className={`flex items-center gap-1.5 font-mono text-[11px] tracking-[0.18em] ${colorClass}`}
@@ -252,7 +252,7 @@ function SectionLabel({
 			{tone === "accent" ? (
 				<span
 					aria-hidden
-					className="h-1.5 w-1.5 rounded-full bg-accent"
+					className="h-1.5 w-1.5 rounded-full bg-brand"
 					style={{ boxShadow: "var(--glow-ember-soft)" }}
 				/>
 			) : null}

@@ -16,7 +16,7 @@ export function TodayHeader({ dateKey, summary, unconfirmedCount }: Props) {
 	return (
 		<div className="flex items-end gap-2.5 px-3.5">
 			<span
-				className="font-bold text-4xl text-accent leading-none tracking-[-0.04em]"
+				className="font-bold text-4xl text-brand leading-none tracking-[-0.04em]"
 				style={{ fontFeatureSettings: '"tnum"' }}
 			>
 				{d.getDate()}
@@ -34,7 +34,7 @@ export function TodayHeader({ dateKey, summary, unconfirmedCount }: Props) {
 			{unconfirmedCount > 0 ? (
 				// バッジ自体のテキストが「{count} 未確定」で意味を成すので、
 				// aria-label は付けない (要素読み上げと aria-label の二重提示を避ける)。
-				<span className="mb-1.5 self-end rounded-full border border-accent/40 border-dashed bg-accent-soft px-1.5 py-0.5 font-mono text-[9px] text-accent tracking-[0.18em]">
+				<span className="mb-1.5 self-end rounded-full border border-brand/40 border-dashed bg-brand-soft px-1.5 py-0.5 font-mono text-[9px] text-brand tracking-[0.18em]">
 					{unconfirmedCount} 未確定
 				</span>
 			) : null}

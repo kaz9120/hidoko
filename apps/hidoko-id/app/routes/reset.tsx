@@ -86,7 +86,7 @@ export default function ResetRoute() {
 				<div className="mt-8 text-center">
 					<Link
 						to="/signin"
-						className="inline-flex items-center gap-1.5 font-medium text-[13px] text-[var(--accent)] hover:text-[var(--accent-hover)]"
+						className="inline-flex items-center gap-1.5 font-medium text-[13px] text-[var(--brand)] hover:text-[var(--brand-hover)]"
 					>
 						<ArrowLeft aria-hidden className="size-3.5" />
 						サインインに戻る

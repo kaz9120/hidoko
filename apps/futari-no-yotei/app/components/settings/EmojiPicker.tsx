@@ -65,9 +65,9 @@ export function EmojiPicker({ value, onChange, contextLabel }: Props) {
 								onClick={() => setCategory(cat)}
 								className="shrink-0 rounded-sm px-2 py-1 text-[11px] transition-colors"
 								style={{
-									color: active ? "var(--accent)" : "var(--text-muted)",
+									color: active ? "var(--brand)" : "var(--text-muted)",
 									background: active
-										? "color-mix(in oklab, var(--accent) 12%, transparent)"
+										? "color-mix(in oklab, var(--brand) 12%, transparent)"
 										: "transparent",
 									fontWeight: active ? 600 : 400,
 								}}
@@ -90,10 +90,10 @@ export function EmojiPicker({ value, onChange, contextLabel }: Props) {
 								className="flex h-9 w-9 items-center justify-center rounded-sm text-lg transition-colors hover:bg-bg-overlay focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-1"
 								style={{
 									background: selected
-										? "color-mix(in oklab, var(--accent) 16%, transparent)"
+										? "color-mix(in oklab, var(--brand) 16%, transparent)"
 										: undefined,
 									outline: selected
-										? "1px solid color-mix(in oklab, var(--accent) 40%, transparent)"
+										? "1px solid color-mix(in oklab, var(--brand) 40%, transparent)"
 										: undefined,
 								}}
 							>

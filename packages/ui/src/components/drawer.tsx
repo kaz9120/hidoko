@@ -33,7 +33,7 @@ function DrawerOverlay({
 	return (
 		<DrawerPrimitive.Overlay
 			data-slot="drawer-overlay"
-			className={cn("hi-overlay z-50", className)}
+			className={cn("z-50", className)}
 			{...props}
 		/>
 	);

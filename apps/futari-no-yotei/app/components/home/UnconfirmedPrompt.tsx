@@ -44,7 +44,7 @@ export function UnconfirmedPrompt({
 		item.name === "晩御飯" ? "今夜どうする?" : `${item.name}はどうする?`;
 
 	return (
-		<div className="rounded-md border border-accent/35 border-dashed bg-bg-raised p-3">
+		<div className="rounded-md border border-brand/35 border-dashed bg-bg-raised p-3">
 			<div className="mb-1 flex items-center gap-1.5">
 				<span aria-hidden className="text-sm">
 					{item.emoji}
@@ -84,12 +84,12 @@ export function UnconfirmedPrompt({
 							className="flex flex-1 flex-col items-center gap-0.5 rounded-sm border bg-bg-overlay px-0.5 py-2 text-[10px] transition-colors focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
 							style={{
 								borderColor: selected
-									? "color-mix(in oklab, var(--accent) 35%, transparent)"
+									? "color-mix(in oklab, var(--brand) 35%, transparent)"
 									: "var(--border-subtle)",
 								background: selected
-									? "color-mix(in oklab, var(--accent) 14%, var(--bg-overlay))"
+									? "color-mix(in oklab, var(--brand) 14%, var(--bg-overlay))"
 									: "var(--bg-overlay)",
-								color: selected ? "var(--accent)" : "var(--text-muted)",
+								color: selected ? "var(--brand)" : "var(--text-muted)",
 								fontWeight: selected ? 600 : 400,
 								boxShadow: selected ? "var(--glow-ember-soft)" : "none",
 								lineHeight: 1.2,
