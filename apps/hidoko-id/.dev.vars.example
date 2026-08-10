@@ -4,7 +4,7 @@
 
 # 開発用 first-party オリジン許可リスト。Vite が立てる 5173-5177 と
 # wrangler dev の 8787、それから本番アプリのオリジン（テスト時にも踏めるよう）。
-FIRST_PARTY_ORIGINS=http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:5177,http://localhost:8787,https://snapcrop.y-kaz.com,https://note-ogp.y-kaz.com,https://futari-no-yotei.y-kaz.com,https://y-kaz.com
+FIRST_PARTY_ORIGINS=http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:5177,http://localhost:8787,https://snapcrop.y-kaz.com,https://note-ogp.y-kaz.com,https://y-kaz.com
 
 # ローカルでは parent domain を共有しないので空に戻す。
 # 空のとき Secure フラグも付けない（http://localhost で使えるように）。

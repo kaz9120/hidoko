@@ -12,7 +12,6 @@ const config: StorybookConfig = {
 	stories: [
 		"../../../packages/ui/src/**/*.stories.@(ts|tsx)",
 		"../../snapcrop/app/**/*.stories.@(ts|tsx)",
-		"../../futari-no-yotei/app/**/*.stories.@(ts|tsx)",
 		"../../homepage/app/**/*.stories.@(ts|tsx)",
 		"../../note-ogp/app/**/*.stories.@(ts|tsx)",
 		"../stories/**/*.stories.@(ts|tsx)",

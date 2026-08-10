@@ -7,7 +7,7 @@ body:
     attributes:
       label: 対象
       description: 影響する workspace
-      placeholder: snapcrop / homepage / futari-no-yotei / packages/ui / リポジトリ全体
+      placeholder: snapcrop / homepage / note-ogp / packages/ui / リポジトリ全体
     validations:
       required: true
   - type: textarea
