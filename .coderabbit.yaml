@@ -74,7 +74,7 @@ reviews:
         - 画像処理は Web 標準 API（Canvas / OffscreenCanvas / Web Worker）を
           優先し、重い処理がメインスレッドを止めていないか見てください。
 
-    - path: "apps/{homepage,futari-no-yotei,note-ogp}/**"
+    - path: "apps/{homepage,note-ogp}/**"
       instructions: |
         - Cloudflare Workers 上で動くアプリです。Workers ランタイム互換性を
           意識し、Node 専用 API より Web 標準 API を優先してください。

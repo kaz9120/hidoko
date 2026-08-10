@@ -1,6 +1,6 @@
 # hidoko-storybook
 
-hidoko モノレポの全 workspace を横断する集約 Storybook。`packages/ui` の shadcn コンポーネントと、各 app (`snapcrop` / `futari-no-yotei` / `homepage`) の組み合わせ UI を 1 つの場所で確認する。
+hidoko モノレポの全 workspace を横断する集約 Storybook。`packages/ui` の shadcn コンポーネントと、各 app (`snapcrop` / `homepage` / `note-ogp`) の組み合わせ UI を 1 つの場所で確認する。
 
 Cloudflare Workers Builds で PR ごとに preview URL が自動コメントされるので、デザイン確認・レビューはその URL を共有して行う。
 
@@ -32,8 +32,8 @@ bun --filter hidoko-storybook test-storybook   # Playwright で全 story の scr
 
 - `packages/ui/src/**/*.stories.@(ts|tsx)`
 - `apps/snapcrop/app/**/*.stories.@(ts|tsx)`
-- `apps/futari-no-yotei/app/**/*.stories.@(ts|tsx)`
 - `apps/homepage/app/**/*.stories.@(ts|tsx)`
+- `apps/note-ogp/app/**/*.stories.@(ts|tsx)`
 - `apps/storybook/stories/**/*.stories.@(ts|tsx)` (Storybook 自身のドキュメント・ガイドページ用)
 
 app コンポーネントが `react-router` の hook や `<Link>` を使っているときは、story 側で `MemoryRouter` 等の decorator を当てる。

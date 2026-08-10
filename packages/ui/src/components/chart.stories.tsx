@@ -68,12 +68,12 @@ export const Default: Story = {
 };
 
 const monthly = [
-	{ month: "1 月", snapcrop: 12, futari: 4 },
-	{ month: "2 月", snapcrop: 18, futari: 6 },
-	{ month: "3 月", snapcrop: 22, futari: 9 },
-	{ month: "4 月", snapcrop: 30, futari: 11 },
-	{ month: "5 月", snapcrop: 28, futari: 14 },
-	{ month: "6 月", snapcrop: 34, futari: 16 },
+	{ month: "1 月", snapcrop: 12, noteOgp: 4 },
+	{ month: "2 月", snapcrop: 18, noteOgp: 6 },
+	{ month: "3 月", snapcrop: 22, noteOgp: 9 },
+	{ month: "4 月", snapcrop: 30, noteOgp: 11 },
+	{ month: "5 月", snapcrop: 28, noteOgp: 14 },
+	{ month: "6 月", snapcrop: 34, noteOgp: 16 },
 ];
 
 const monthlyConfig = {
@@ -81,8 +81,8 @@ const monthlyConfig = {
 		label: "snapcrop",
 		color: "var(--chart-1)",
 	},
-	futari: {
-		label: "ふたりのよてい",
+	noteOgp: {
+		label: "note-ogp",
 		color: "var(--chart-2)",
 	},
 } satisfies ChartConfig;
@@ -110,8 +110,8 @@ export const MultiSeriesLine: Story = {
 					dot={false}
 				/>
 				<Line
-					dataKey="futari"
-					stroke="var(--color-futari)"
+					dataKey="noteOgp"
+					stroke="var(--color-noteOgp)"
 					strokeWidth={2}
 					dot={false}
 				/>

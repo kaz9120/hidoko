@@ -18,12 +18,7 @@ export function meta() {
 	];
 }
 
-const FOOTER_APPS = [
-	"snapcrop",
-	"note ogp",
-	"futari no yotei",
-	"homepage",
-] as const;
+const FOOTER_APPS = ["snapcrop", "note ogp", "homepage"] as const;
 
 export default function SigninRoute() {
 	const [params] = useSearchParams();

@@ -7,7 +7,6 @@
 	"bootstrap-sha": "710f271885a4a90531a9c71c6cbd14e2df971b16",
 	"plugins": ["node-workspace"],
 	"packages": {
-		"apps/futari-no-yotei": {},
 		"apps/hidoko-id": {},
 		"apps/homepage": {},
 		"apps/note-ogp": {},
