@@ -129,14 +129,16 @@ function Grid({
 }
 
 /**
- * 既定の組み A1 定番。タイトルは左下、号数は右上のコーナー。
- * @summary A1 定番（既定）
+ * エディタの既定 H1 静けさ。写真の静かな面を探して置き、タイトルの尻に号数を
+ * 添える。この story は写真を渡していないので、居場所は自動配置のフォールバック
+ * （左下）に倒れる。
+ * @summary H1 静けさ（エディタの既定）
  */
 export const Default: Story = {
 	render: () => (
 		<Panel
-			label={kumiLabel("a1")}
-			f={base({ kumi: "a1" })}
+			label={kumiLabel("h1")}
+			f={base({ kumi: "h1" })}
 			scale={SOLO_SCALE}
 		/>
 	),

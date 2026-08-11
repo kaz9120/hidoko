@@ -20,7 +20,6 @@ import "./globals.css";
 // ・Newsreader 500（正体）— タイトル中のラテンと数字（tsume.ts）
 // ・Newsreader 400 / 500（斜体）— 号数。400 は B1 見出しのプレートだけ
 // ・JetBrains Mono 600 — VOL. ラベル。ui 側は 400/500 しか読まないのでここで足す
-// apps/storybook/.storybook/preview-head.html と同じ内容にすること。
 const OGP_FONTS_HREF =
 	"https://fonts.googleapis.com/css2?" +
 	[
