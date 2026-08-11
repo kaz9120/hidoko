@@ -7,15 +7,15 @@ import { loadTimelineOpen, saveTimelineOpen } from "~/lib/ui-state-storage";
 import { TimelinePreview } from "./timeline-preview";
 
 /**
- * 1280×670 の Cover v3 を縮小プレビューする中央ペイン。
+ * 1280×670 の台紙を縮小プレビューする中央ペイン。
  *
  * `frameRef` を親に返し、PNG 書き出し時の対象 DOM とする。md 以上では親グリッド
  * の高さに contain で収め、md 未満（縦積み）では計測用 wrapper に `aspect-[1280/670]`
  * を与えて幅基準でスケールを決める。
  *
  * メインプレビューの下に、note タイムライン実寸相当の縮小プレビューを表示する。
- * AutoFitTitle が確定したフォントサイズは Cover の `onTitleMeasured` で受け取り、
- * StatusBar 用に `onTitleFontSizeChange` で親に通知する。
+ * 台紙が確定したタイトルのフォントサイズは Cover の `onTitleMeasured` で受け取り、
+ * `onTitleFontSizeChange` で親に渡す。パネルの可読性の警告がこれを使う。
  */
 export function Stage({
 	fields,

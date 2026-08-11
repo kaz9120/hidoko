@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { SiteFooter } from "~/components/layout/site-footer";
 import { SiteHeader } from "~/components/layout/site-header";
-import { StatusBar } from "~/components/layout/status-bar";
 import { useNoteOgpState } from "~/hooks/use-note-ogp-state";
 import { buildFileName, downloadPng } from "~/lib/download-png";
 import {
@@ -14,12 +13,10 @@ import { ControlPanel } from "./control-panel";
 import { Stage } from "./stage";
 
 export function NoteOgpEditor() {
-	const { state, update, reset, recordExport, lastSavedAt } = useNoteOgpState();
+	const { state, update, reset, recordExport } = useNoteOgpState();
 	const frameRef = useRef<HTMLDivElement | null>(null);
 	const [busy, setBusy] = useState(false);
-	// Stage から通知される表示倍率と AutoFitTitle の確定フォントサイズ。
-	// StatusBar に集約して出すための受け皿。
-	const [stageScale, setStageScale] = useState(0.5);
+	// 台紙が確定したタイトルのフォントサイズ。パネルの可読性の警告に使う
 	const [titleFontSize, setTitleFontSize] = useState<number | null>(null);
 	// サイドパネル折りたたみ (Issue #138)。初回マウント後に localStorage から復元、
 	// ⌘\ で開閉、ステージ右端のハンドルでも開閉できる。
@@ -84,7 +81,6 @@ export function NoteOgpEditor() {
 					<Stage
 						fields={state}
 						frameRef={frameRef}
-						onScaleChange={setStageScale}
 						onTitleFontSizeChange={setTitleFontSize}
 					/>
 					<button
@@ -122,13 +118,6 @@ export function NoteOgpEditor() {
 					/>
 				)}
 			</div>
-			<StatusBar
-				fields={state}
-				scale={stageScale}
-				titleFontSize={titleFontSize}
-				lastSavedAt={lastSavedAt}
-				sidebarCollapsed={sidebarCollapsed}
-			/>
 			<SiteFooter />
 		</div>
 	);

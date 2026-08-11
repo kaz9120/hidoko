@@ -25,9 +25,8 @@ import {
 	FieldTitle,
 } from "ui/components/field";
 import { Input } from "ui/components/input";
-import { Textarea } from "ui/components/textarea";
 import type { Fields } from "~/lib/og-templates";
-import { getTitleReadability } from "~/lib/title-readability";
+import { getTitleWarning } from "~/lib/title-readability";
 import { DateField } from "./date-field";
 import { ImageField } from "./image-field";
 import { KumiTiles, MilestoneTiles } from "./kumi-tiles";
@@ -106,6 +105,24 @@ function PhotoSection({
 }
 
 // ── タイトル ──────────────────────────────────────────
+
+// 和文の判定に使う範囲（かな・カタカナ・漢字・全角記号・半角カナ）
+const CJK = /[　-ヿ㐀-鿿豈-﫿ｦ-ﾟ]/;
+
+/**
+ * 貼り付けで混ざった改行を畳む。台紙が禁則つきで折るので、タイトルに改行は
+ * 要らない。和文どうしは詰め、欧文の語が隣り合うときだけ空白でつなぐ
+ * （「夜更けに\nコードを書く」に空白が入ると台紙に隙間として出るため）。
+ */
+export function collapseTitleNewlines(value: string): string {
+	return value.replace(/[ \t]*\r?\n[ \t]*/g, (match, offset: number) => {
+		const before = value[offset - 1] ?? "";
+		const after = value[offset + match.length] ?? "";
+		if (!before || !after) return "";
+		return CJK.test(before) || CJK.test(after) ? "" : " ";
+	});
+}
+
 function TitleSection({
 	state,
 	update,
@@ -116,8 +133,8 @@ function TitleSection({
 	titleFontSize: number | null;
 }) {
 	const titleId = useId();
-	// 警告はステータスバーにも出るが、直せる場所はここ。潰れているときだけ出す
-	const readability = state.title ? getTitleReadability(titleFontSize) : null;
+	// タイトルがタイムラインで潰れるときだけ出す。直せる場所はここ
+	const warning = state.title ? getTitleWarning(titleFontSize) : null;
 	return (
 		<>
 			<SectionTitle>タイトル</SectionTitle>
@@ -125,22 +142,23 @@ function TitleSection({
 				<FieldLabel htmlFor={titleId} className="sr-only">
 					タイトル
 				</FieldLabel>
-				<Textarea
+				<Input
 					id={titleId}
 					value={state.title}
-					onChange={(e) => update({ title: e.target.value })}
-					rows={2}
+					onChange={(e) =>
+						update({ title: collapseTitleNewlines(e.target.value) })
+					}
 					placeholder="夜更けにコードを書く理由"
 				/>
 				<div className="flex items-start gap-3">
-					{readability && readability.level !== "ok" && (
+					{warning && (
 						<p className="flex items-start gap-1.5 text-xs leading-relaxed text-(--warning)">
 							<TriangleAlertIcon
 								aria-hidden="true"
 								className="mt-0.5 size-3.5 flex-shrink-0"
 								strokeWidth={1.75}
 							/>
-							<span>{readability.message}</span>
+							<span>{warning.message}</span>
 						</p>
 					)}
 					<FieldDescription className="ml-auto shrink-0 tabular-nums">
