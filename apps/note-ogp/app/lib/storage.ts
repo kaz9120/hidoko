@@ -23,7 +23,9 @@ export const DEFAULTS: Fields = {
 	brand: "焚き火を愛するエンジニア",
 	showMark: true,
 	image: null,
-	kumi: "a1",
+	// 写真の静かな面を自分で探す h1 を既定にする。どれを選べばいいか分からない
+	// ときの答えが「自動で置く」なら、それは最初から選ばれているべき。
+	kumi: "h1",
 	mode: "normal",
 	milestone: "watermark",
 	scrim: false,

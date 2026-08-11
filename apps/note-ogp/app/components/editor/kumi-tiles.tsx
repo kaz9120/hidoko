@@ -1,18 +1,14 @@
 import { cn } from "ui/lib/utils";
 import type { KumiId, Milestone } from "~/lib/og-templates";
-import {
-	KUMI,
-	KUMI_IDS,
-	MILESTONE_NAMES,
-	MILESTONES,
-} from "~/lib/og-templates";
+import { KUMI_IDS, MILESTONES } from "~/lib/og-templates";
 
 /**
- * 組みセレクタ。実写プレビューではなく矩形の抽象で示す。
+ * レイアウト（内部識別子は kumi）のセレクタ。実写プレビューではなく矩形の抽象で
+ * 示す。
  *
- * 12 種を実写で並べると写真の印象が勝ち、組みの違い（タイトルの居場所と号数の
- * 身振りの関係）が読み取れない。灰の矩形がマストヘッドとタイトル、ember の
- * 矩形が号数、淡い ember が面と大判を表す。
+ * 12 種を実写で並べると写真の印象が勝ち、レイアウトの違い（タイトルの居場所と
+ * 号数の身振りの関係）が読み取れない。灰の矩形がマストヘッドとタイトル、ember の
+ * 矩形が号数、淡い ember が面と大判を表す。名前は面に出さず、矩形だけを比べる。
  *
  * 矩形の座標はタイルのためだけに作った近似で、台紙の KUMI の座標とは別物。
  * 台紙側を動かしたときは、ここも目で見て合わせる（自動では追従しない）。
@@ -108,7 +104,30 @@ const MILESTONE_SKELETONS: Record<Milestone, Rect[]> = {
 	],
 };
 
-/** 通常号の組み 12 種 */
+// 読み上げ用の名前。矩形だけでは何を選んでいるか分からないので button に持たせる。
+// 台紙側の KUMI[id].name が持つ記号（A1 / B1 …）は設計時の符牒なので使わない。
+const KUMI_LABELS: Record<KumiId, string> = {
+	a1: "定番",
+	b1: "見出し",
+	b7: "上段右",
+	c1: "右柱",
+	c11: "中柱",
+	d5: "扉",
+	d6: "中央大判",
+	e7: "重心外し",
+	f7: "浮き帯",
+	g7: "目次風",
+	g10: "対角巨大",
+	h1: "静けさ",
+};
+
+const MILESTONE_LABELS: Record<Milestone, string> = {
+	watermark: "透かし",
+	hero: "主役",
+	kanji: "漢数字",
+};
+
+/** 通常号のレイアウト 12 種 */
 export function KumiTiles({
 	value,
 	onSelect,
@@ -122,7 +141,7 @@ export function KumiTiles({
 				<Tile
 					key={id}
 					active={value === id}
-					label={KUMI[id].name}
+					label={KUMI_LABELS[id]}
 					rects={KUMI_SKELETONS[id]}
 					onClick={() => onSelect(id)}
 				/>
@@ -145,7 +164,7 @@ export function MilestoneTiles({
 				<Tile
 					key={id}
 					active={value === id}
-					label={MILESTONE_NAMES[id]}
+					label={MILESTONE_LABELS[id]}
 					rects={MILESTONE_SKELETONS[id]}
 					onClick={() => onSelect(id)}
 				/>
@@ -170,6 +189,7 @@ function Tile({
 			type="button"
 			onClick={onClick}
 			aria-pressed={active}
+			aria-label={label}
 			className={cn(
 				"relative aspect-[1280/670] cursor-pointer overflow-hidden rounded-md border bg-muted p-0 outline-none transition-colors",
 				"focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card",
@@ -195,14 +215,6 @@ function Tile({
 					}}
 				/>
 			))}
-			<span
-				className={cn(
-					"pointer-events-none absolute top-1 left-1 rounded-[2px] bg-background/70 px-1.5 py-px font-mono text-[9px] uppercase tracking-[0.18em]",
-					active ? "text-primary" : "text-foreground",
-				)}
-			>
-				{label}
-			</span>
 		</button>
 	);
 }

@@ -1,10 +1,10 @@
 import { NoteOgpEditor } from "~/components/editor/note-ogp-editor";
 
-const SITE_TITLE = "note OGP";
+const SITE_TITLE = "note カバー画像";
 const SITE_DESCRIPTION =
-	"note のアイキャッチ画像（1280×670 PNG）を、3 つのテンプレートと書体・テーマの切替だけで素早く作るブラウザ完結のエディタ。";
+	"note のカバー画像（1280×670 PNG）を、写真とタイトルとレイアウトの 3 つだけで作るブラウザ完結のエディタ。";
 const SITE_URL = "https://note-ogp.y-kaz.com/";
-// note-ogp 自身のテンプレート（Edition / ダーク / 明朝）で書き出した静的画像
+// このエディタ自身で書き出した静的画像
 const OG_IMAGE_URL = `${SITE_URL}ogp.png`;
 
 export function meta() {

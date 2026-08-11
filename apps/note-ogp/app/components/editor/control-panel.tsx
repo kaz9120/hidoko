@@ -33,14 +33,15 @@ import { SectionTitle } from "./section-title";
 import { SegmentedToggle } from "./segmented-toggle";
 
 /**
- * v10 の ControlPanel。「写真 → タイトル → 組み」の 3 手で完成する単一フロー。
+ * v10 の ControlPanel。写真 → タイトル → レイアウト の 3 手で完成する単一フロー。
  *
  * タイトルの居場所と号数の身振りを別々に選ばせるのはやめ、成立する組みだけを
  * 並べる。文字色・スクリムの向き・ハロは写真の輝度から台紙が決めるので、
- * ユーザーは意匠の判断をしない。
+ * ユーザーは意匠の判断をしない。手順や自動処理を画面で説明せず、操作そのもので
+ * 伝える（説明文を置くとユーザーは読んでから触ることになる）。
  *
- * 並び順：写真 → タイトル → vol. / 日付 → 号 → 組み → スクリム →
- * プロジェクト（連載の固定情報・accordion）。
+ * 並び順：写真 → タイトル（vol. と日付を含む）→ レイアウト（通常 / 節目の
+ * 切替とタイル、暗幕）→ プロジェクト（連載の固定情報・accordion）。
  */
 export function ControlPanel({
 	state,
@@ -57,13 +58,11 @@ export function ControlPanel({
 }) {
 	return (
 		<aside className="flex h-full flex-col overflow-hidden border-border border-l bg-card">
-			<PanelHeader />
 			<div className="flex-1 overflow-y-auto px-6 py-5">
 				<PhotoSection state={state} update={update} />
 				<TitleSection state={state} update={update} />
 				<IssueSection state={state} update={update} />
-				<ModeSection state={state} update={update} />
-				<KumiSection state={state} update={update} />
+				<LayoutSection state={state} update={update} />
 				<ProjectSection state={state} update={update} />
 			</div>
 			<PanelFooter
@@ -73,31 +72,6 @@ export function ControlPanel({
 				onReset={reset}
 			/>
 		</aside>
-	);
-}
-
-function PanelHeader() {
-	return (
-		<header className="flex-shrink-0 border-border border-b bg-card px-6 pt-5 pb-4">
-			<div className="mb-1.5 flex items-center gap-2">
-				<span
-					aria-hidden="true"
-					className="inline-block size-1.5 rounded-[1px] bg-primary"
-				/>
-				<span className="font-mono text-[11px] uppercase tracking-[0.22em] text-primary">
-					note OGP
-				</span>
-				<span className="ml-auto font-mono text-[10px] uppercase tracking-[0.22em] text-(--text-faint)">
-					v10 · kumi
-				</span>
-			</div>
-			<h2 className="text-base font-bold text-foreground leading-tight">
-				アイキャッチを作る
-			</h2>
-			<p className="mt-0.5 text-xs text-muted-foreground leading-[1.55]">
-				写真 → タイトル → 組み の 3 手で仕上げる。
-			</p>
-		</header>
 	);
 }
 
@@ -117,11 +91,6 @@ function PhotoSection({
 					value={state.image}
 					onChange={(v) => update({ image: v })}
 				/>
-				<FieldDescription>
-					明るさの判定・文字色・ハロは{" "}
-					<span className="text-muted-foreground font-medium">全自動</span>。
-					写真を替えるだけで組み直る。
-				</FieldDescription>
 			</Field>
 		</>
 	);
@@ -150,15 +119,13 @@ function TitleSection({
 					rows={2}
 					placeholder="夜更けにコードを書く理由"
 				/>
-				<FieldDescription>
-					{state.title.length}文字　·　改行は不要。詰めと折り返しは台紙が持つ。
-				</FieldDescription>
+				<FieldDescription>{state.title.length}文字</FieldDescription>
 			</Field>
 		</>
 	);
 }
 
-// ── vol. / 日付 ───────────────────────────────────────
+// ── vol. / 日付（見出しは置かない。各入力のラベルで足りる）─────
 function IssueSection({
 	state,
 	update,
@@ -170,7 +137,6 @@ function IssueSection({
 	const dateId = useId();
 	return (
 		<>
-			<SectionTitle>vol. / 日付</SectionTitle>
 			<div className="mb-1 grid grid-cols-2 gap-2.5">
 				<Field>
 					<FieldLabel
@@ -210,87 +176,55 @@ function IssueSection({
 	);
 }
 
-// ── 号（通常 / 節目）──────────────────────────────────
-function ModeSection({
+// ── レイアウト ────────────────────────────────────────
+//   通常 / 節目の切替をタイルの真上に置く。切り替えると同じ場所のタイルが
+//   入れ替わるので、2 つの関係は文字で説明しなくても動きで伝わる。
+function LayoutSection({
 	state,
 	update,
 }: {
 	state: Fields;
 	update: (patch: Partial<Fields>) => void;
 }) {
+	const dimLabelId = useId();
+	const milestone = state.mode === "milestone";
 	return (
 		<>
-			<SectionTitle>号</SectionTitle>
-			<Field className="mb-1">
+			<SectionTitle>レイアウト</SectionTitle>
+			<Field className="mb-3">
 				<SegmentedToggle
 					label="号の種類"
-					value={state.mode === "milestone"}
-					offLabel="通常号"
-					onLabel="節目号"
-					onChange={(milestone) =>
-						update({ mode: milestone ? "milestone" : "normal" })
-					}
+					value={milestone}
+					offLabel="通常"
+					onLabel="節目"
+					onChange={(next) => update({ mode: next ? "milestone" : "normal" })}
 				/>
-				<FieldDescription>
-					節目号は号数が主役。10・25・50 のような節目で使う。
-				</FieldDescription>
 			</Field>
-		</>
-	);
-}
-
-// ── 組み（通常号）/ 節目の見せ方（節目号）─────────────
-function KumiSection({
-	state,
-	update,
-}: {
-	state: Fields;
-	update: (patch: Partial<Fields>) => void;
-}) {
-	const scrimLabelId = useId();
-	if (state.mode === "milestone") {
-		return (
-			<>
-				<SectionTitle>節目の見せ方</SectionTitle>
-				<p className="mb-3 text-xs text-muted-foreground leading-relaxed">
-					号数が主役の 3 変奏。タイトルは左下に回る。
-				</p>
+			{milestone ? (
 				<MilestoneTiles
 					value={state.milestone}
-					onSelect={(milestone) => update({ milestone })}
+					onSelect={(next) => update({ milestone: next })}
 				/>
-			</>
-		);
-	}
-	return (
-		<>
-			<SectionTitle>組み</SectionTitle>
-			<p className="mb-3 text-xs text-muted-foreground leading-relaxed">
-				タイトルの居場所と号数の身振りは
-				<span className="text-foreground font-medium">セット</span>
-				。迷ったら{" "}
-				<span className="text-foreground font-medium">H1 静けさ</span>
-				。写真の静かな面を探して置く。
-			</p>
-			<KumiTiles value={state.kumi} onSelect={(kumi) => update({ kumi })} />
-			<Field className="mt-4 mb-1">
-				<FieldTitle
-					id={scrimLabelId}
-					className="font-mono text-[10px] uppercase tracking-[0.22em]"
-				>
-					スクリム（写真の上の暗幕）
-				</FieldTitle>
-				<SegmentedToggle
-					labelledBy={scrimLabelId}
-					value={state.scrim}
-					offLabel="自動"
-					onLabel="強制"
-					onChange={(scrim) => update({ scrim })}
-				/>
-				<FieldDescription>
-					自動で足りることが多い。敷く向きは組みが知っている。
-				</FieldDescription>
-			</Field>
+			) : (
+				<>
+					<KumiTiles value={state.kumi} onSelect={(kumi) => update({ kumi })} />
+					<Field className="mt-4 mb-1">
+						<FieldTitle
+							id={dimLabelId}
+							className="font-mono text-[10px] uppercase tracking-[0.22em]"
+						>
+							暗幕
+						</FieldTitle>
+						<SegmentedToggle
+							labelledBy={dimLabelId}
+							value={state.scrim}
+							offLabel="自動"
+							onLabel="常に敷く"
+							onChange={(scrim) => update({ scrim })}
+						/>
+					</Field>
+				</>
+			)}
 		</>
 	);
 }
@@ -365,14 +299,11 @@ function PanelFooter({
 				size="lg"
 				onClick={onDownload}
 				disabled={busy || !canDownload}
-				className="w-full justify-between"
+				className="w-full justify-center"
 			>
 				<span className="flex items-center gap-2">
 					<DownloadIcon className="size-4" strokeWidth={1.75} />
 					{busy ? "書き出し中…" : "PNG をダウンロード"}
-				</span>
-				<span className="font-mono text-[10px] uppercase tracking-[0.22em] opacity-70">
-					1280 × 670
 				</span>
 			</Button>
 			<AlertDialog>
@@ -389,7 +320,7 @@ function PanelFooter({
 					<AlertDialogHeader>
 						<AlertDialogTitle>入力内容をリセットする</AlertDialogTitle>
 						<AlertDialogDescription>
-							タイトル・vol.・組みの選択をすべて初期値に戻す。元には戻せない。
+							タイトル・vol.・レイアウトの選択をすべて初期値に戻す。元には戻せない。
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
