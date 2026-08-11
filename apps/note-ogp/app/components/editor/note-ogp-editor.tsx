@@ -3,17 +3,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { SiteFooter } from "~/components/layout/site-footer";
 import { SiteHeader } from "~/components/layout/site-header";
-import { StatusBar } from "~/components/layout/status-bar";
-import {
-	ProfileDialog,
-	type ProfileValues,
-} from "~/components/profile/profile-dialog";
 import { useNoteOgpState } from "~/hooks/use-note-ogp-state";
 import { buildFileName, downloadPng } from "~/lib/download-png";
-import {
-	isProfileBootstrapped,
-	markProfileBootstrapped,
-} from "~/lib/profile-storage";
 import {
 	loadSidebarCollapsed,
 	saveSidebarCollapsed,
@@ -22,27 +13,16 @@ import { ControlPanel } from "./control-panel";
 import { Stage } from "./stage";
 
 export function NoteOgpEditor() {
-	const { state, update, reset, recordExport, lastSavedAt } = useNoteOgpState();
+	const { state, update, reset, recordExport } = useNoteOgpState();
 	const frameRef = useRef<HTMLDivElement | null>(null);
 	const [busy, setBusy] = useState(false);
-	// Stage から通知される表示倍率と AutoFitTitle の確定フォントサイズ。
-	// StatusBar に集約して出すための受け皿。
-	const [stageScale, setStageScale] = useState(0.5);
+	// 台紙が確定したタイトルのフォントサイズ。パネルの可読性の警告に使う
 	const [titleFontSize, setTitleFontSize] = useState<number | null>(null);
-	// プロフィール編集ダイアログの開閉 (Issue #135)。`intro` が立っているときは
-	// 初回起動の文言を出す。チップから開いた時は intro = false。
-	const [profileDialogOpen, setProfileDialogOpen] = useState(false);
-	const [profileDialogIntro, setProfileDialogIntro] = useState(false);
 	// サイドパネル折りたたみ (Issue #138)。初回マウント後に localStorage から復元、
 	// ⌘\ で開閉、ステージ右端のハンドルでも開閉できる。
 	const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-	// 初回マウントでプロフィール未確定なら、ダイアログを開いて intro を出す。
 	useEffect(() => {
-		if (!isProfileBootstrapped()) {
-			setProfileDialogIntro(true);
-			setProfileDialogOpen(true);
-		}
 		setSidebarCollapsed(loadSidebarCollapsed());
 	}, []);
 
@@ -87,35 +67,9 @@ export function NoteOgpEditor() {
 		}
 	}, [busy, state.title, state.issue, recordExport]);
 
-	const handleProfileChipClick = () => {
-		setProfileDialogIntro(false);
-		setProfileDialogOpen(true);
-	};
-
-	const handleProfileSave = (values: ProfileValues) => {
-		update(values);
-		markProfileBootstrapped();
-		setProfileDialogOpen(false);
-	};
-
-	const handleProfileCancel = () => {
-		markProfileBootstrapped();
-		setProfileDialogOpen(false);
-	};
-
-	const profileValues: ProfileValues = {
-		brand: state.brand,
-		author: state.author,
-		account: state.account,
-		showMark: state.showMark,
-	};
-
 	return (
 		<div className="flex min-h-screen flex-col bg-background md:h-screen">
-			<SiteHeader
-				profile={{ brand: state.brand, author: state.author }}
-				onProfileClick={handleProfileChipClick}
-			/>
+			<SiteHeader />
 			<div
 				className={`grid min-h-0 flex-1 grid-cols-1 ${
 					sidebarCollapsed
@@ -127,7 +81,6 @@ export function NoteOgpEditor() {
 					<Stage
 						fields={state}
 						frameRef={frameRef}
-						onScaleChange={setStageScale}
 						onTitleFontSizeChange={setTitleFontSize}
 					/>
 					<button
@@ -161,24 +114,11 @@ export function NoteOgpEditor() {
 						reset={reset}
 						onDownload={handleDownload}
 						busy={busy}
+						titleFontSize={titleFontSize}
 					/>
 				)}
 			</div>
-			<StatusBar
-				fields={state}
-				scale={stageScale}
-				titleFontSize={titleFontSize}
-				lastSavedAt={lastSavedAt}
-				sidebarCollapsed={sidebarCollapsed}
-			/>
 			<SiteFooter />
-			<ProfileDialog
-				open={profileDialogOpen}
-				initialValues={profileValues}
-				intro={profileDialogIntro}
-				onSave={handleProfileSave}
-				onCancel={handleProfileCancel}
-			/>
 		</div>
 	);
 }

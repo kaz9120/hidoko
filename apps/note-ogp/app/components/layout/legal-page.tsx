@@ -24,7 +24,7 @@ export function LegalPage({
 				{/* 文字色は tokens.css のグローバルな a スタイル (accent) に任せる */}
 				<Link className="flex items-center gap-1.5 text-sm" to="/">
 					<ArrowLeftIcon aria-hidden="true" className="size-4" />
-					note OGP に戻る
+					note カバー画像に戻る
 				</Link>
 			</header>
 			<main className="mx-auto w-full max-w-[68ch] flex-1 px-4 py-10 md:px-6">

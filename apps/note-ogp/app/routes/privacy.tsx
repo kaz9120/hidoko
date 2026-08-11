@@ -2,27 +2,27 @@ import { LegalPage, LegalSection } from "~/components/layout/legal-page";
 
 export function meta() {
 	return [
-		{ title: "プライバシーポリシー | note OGP" },
+		{ title: "プライバシーポリシー | note カバー画像" },
 		{
 			name: "description",
-			content: "note OGP のプライバシーポリシー",
+			content: "note カバー画像のプライバシーポリシー",
 		},
 	];
 }
 
 export default function Privacy() {
 	return (
-		<LegalPage lastUpdated="2026-06-11" title="プライバシーポリシー">
+		<LegalPage lastUpdated="2026-08-12" title="プライバシーポリシー">
 			<LegalSection heading="基本方針">
 				<p>
-					note OGP（以下「本サービス」）は、note のアイキャッチ画像（1280×670
+					note カバー画像（以下「本サービス」）は、note のカバー画像（1280×670
 					PNG）の作成をブラウザだけで完結させることを目的としたツールです。運営者（@kyamamoto9120）は、利用者の情報を集めること自体を目的とせず、本サービスの提供に必要な最小限の範囲でのみ情報を扱います。
 				</p>
 			</LegalSection>
 
 			<LegalSection heading="入力内容と画像の取り扱い">
 				<p>
-					本サービスで入力したテキスト（タイトル・著者名など）とアップロードした画像は、すべて利用者のブラウザ内で処理されます。PNG
+					本サービスで入力したテキスト（タイトル・号数など）とアップロードした画像は、すべて利用者のブラウザ内で処理されます。PNG
 					の書き出しもブラウザ内で行われ、これらのデータが運営者のサーバーや第三者に送信されることはありません。
 				</p>
 			</LegalSection>
@@ -34,8 +34,8 @@ export default function Privacy() {
 					に保存します。これらは利用者の端末内にのみ保存され、外部へ送信されません。
 				</p>
 				<ul className="list-disc space-y-1 pl-5">
-					<li>エディタの入力内容（タイトル・著者名などのテキスト）</li>
-					<li>テンプレート・テーマ・書体などの設定</li>
+					<li>エディタの入力内容（タイトル・号数・日付などのテキスト）</li>
+					<li>レイアウトと暗幕の選択</li>
 					<li>アップロードした画像（サイズが大きい場合は保存されません）</li>
 				</ul>
 				<p>これらはブラウザのサイトデータ削除機能でいつでも削除できます。</p>

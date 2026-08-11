@@ -1,24 +1,32 @@
+export type {
+	Kumi,
+	MilestoneMeta,
+	ScrimDirection,
+	TitleRegion,
+} from "./cover-v10";
 export {
 	Cover,
 	FRAME_HEIGHT,
 	FRAME_WIDTH,
-	pickNumberCorner,
-	resolveScrim,
-	V3Mark,
-} from "./cover-v3";
+	HidokoMark,
+	KUMI,
+	MILESTONE,
+} from "./cover-v10";
 export type {
-	Fields,
-	NumberCorner,
-	NumberOpts,
-	NumberSide,
-	NumberTreatment,
-	Scrim,
-	TitleSlot,
-} from "./types";
+	ImageStats,
+	QuietPick,
+	QuietRegion,
+	QuietRegionId,
+	Region,
+} from "./image-stats";
 export {
-	NUMBER_CORNERS,
-	NUMBER_SIDES,
-	NUMBER_TREATMENTS,
-	SCRIMS,
-	TITLE_SLOTS,
-} from "./types";
+	pickQuietRegion,
+	QUIET_REGIONS,
+	regionMean,
+	useImageStats,
+} from "./image-stats";
+export { kanjiNumber } from "./kanji-number";
+export type { TsumeLevel, TsumeMetrics } from "./tsume";
+export { TSUME, TSUME_LEVELS, tsumeSpans } from "./tsume";
+export type { Fields, KumiId, Milestone, Mode } from "./types";
+export { KUMI_IDS, MILESTONES, MODES } from "./types";

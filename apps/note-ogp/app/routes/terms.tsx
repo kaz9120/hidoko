@@ -2,10 +2,10 @@ import { LegalPage, LegalSection } from "~/components/layout/legal-page";
 
 export function meta() {
 	return [
-		{ title: "利用規約 | note OGP" },
+		{ title: "利用規約 | note カバー画像" },
 		{
 			name: "description",
-			content: "note OGP の利用規約",
+			content: "note カバー画像の利用規約",
 		},
 	];
 }
@@ -15,8 +15,8 @@ export default function Terms() {
 		<LegalPage lastUpdated="2026-06-11" title="利用規約">
 			<LegalSection heading="第1条（適用）">
 				<p>
-					本規約は、運営者（@kyamamoto9120）が個人として無償で提供するアイキャッチ画像作成ツール「note
-					OGP」（以下「本サービス」）の利用条件を定めるものです。利用者は、本サービスを利用した時点で本規約に同意したものとみなします。
+					本規約は、運営者（@kyamamoto9120）が個人として無償で提供するカバー画像作成ツール「note
+					カバー画像」（以下「本サービス」）の利用条件を定めるものです。利用者は、本サービスを利用した時点で本規約に同意したものとみなします。
 				</p>
 			</LegalSection>
 
