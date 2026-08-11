@@ -24,6 +24,10 @@ type Ink = "ink" | "ember" | "wash";
 /** [役割, 左%, 上%, 幅%, 高さ%] */
 type Rect = [Ink, number, number, number, number];
 
+// ember は台紙の号数がその色で刷られていることの写しで、UI のアクセント
+// （CTA・リンク・フォーカスリング）として広げているわけではない。ここを灰に
+// すると号数の矩形がタイトルの矩形と見分けられず、タイルが伝える情報が消える。
+// 選択状態はタイルのボーダーとグローで示し、面の中とは層を分けてある。
 const KIND_CLASS: Record<Ink, string> = {
 	ink: "bg-(--text-faint)",
 	ember: "bg-primary",
