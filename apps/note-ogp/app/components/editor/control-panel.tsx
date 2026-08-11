@@ -18,15 +18,19 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "ui/components/alert-dialog";
-import { Field, FieldDescription, FieldLabel } from "ui/components/field";
+import {
+	Field,
+	FieldDescription,
+	FieldLabel,
+	FieldTitle,
+} from "ui/components/field";
 import { Input } from "ui/components/input";
 import { Textarea } from "ui/components/textarea";
-import { cn } from "ui/lib/utils";
 import type { Fields } from "~/lib/og-templates";
 import { ImageField } from "./image-field";
 import { KumiTiles, MilestoneTiles } from "./kumi-tiles";
-import { ScrimToggle } from "./scrim-toggle";
 import { SectionTitle } from "./section-title";
+import { SegmentedToggle } from "./segmented-toggle";
 
 /**
  * v10 の ControlPanel。「写真 → タイトル → 組み」の 3 手で完成する単一フロー。
@@ -218,7 +222,8 @@ function ModeSection({
 		<>
 			<SectionTitle>号</SectionTitle>
 			<Field className="mb-1">
-				<TwoWayToggle
+				<SegmentedToggle
+					label="号の種類"
 					value={state.mode === "milestone"}
 					offLabel="通常号"
 					onLabel="節目号"
@@ -242,6 +247,7 @@ function KumiSection({
 	state: Fields;
 	update: (patch: Partial<Fields>) => void;
 }) {
+	const scrimLabelId = useId();
 	if (state.mode === "milestone") {
 		return (
 			<>
@@ -268,11 +274,17 @@ function KumiSection({
 			</p>
 			<KumiTiles value={state.kumi} onSelect={(kumi) => update({ kumi })} />
 			<Field className="mt-4 mb-1">
-				<FieldLabel className="font-mono text-[10px] uppercase tracking-[0.22em]">
+				<FieldTitle
+					id={scrimLabelId}
+					className="font-mono text-[10px] uppercase tracking-[0.22em]"
+				>
 					スクリム（写真の上の暗幕）
-				</FieldLabel>
-				<ScrimToggle
+				</FieldTitle>
+				<SegmentedToggle
+					labelledBy={scrimLabelId}
 					value={state.scrim}
+					offLabel="自動"
+					onLabel="強制"
 					onChange={(scrim) => update({ scrim })}
 				/>
 				<FieldDescription>
@@ -292,6 +304,7 @@ function ProjectSection({
 	update: (patch: Partial<Fields>) => void;
 }) {
 	const brandId = useId();
+	const markLabelId = useId();
 	return (
 		<Accordion type="single" collapsible className="mt-5">
 			<AccordionItem value="project">
@@ -314,10 +327,14 @@ function ProjectSection({
 						<FieldDescription>マストヘッドに入る一言</FieldDescription>
 					</Field>
 					<Field>
-						<FieldLabel className="font-mono text-[10px] uppercase tracking-[0.22em]">
+						<FieldTitle
+							id={markLabelId}
+							className="font-mono text-[10px] uppercase tracking-[0.22em]"
+						>
 							炎マーク
-						</FieldLabel>
-						<TwoWayToggle
+						</FieldTitle>
+						<SegmentedToggle
+							labelledBy={markLabelId}
 							value={!state.showMark}
 							offLabel="表示"
 							onLabel="非表示"
@@ -327,53 +344,6 @@ function ProjectSection({
 				</AccordionContent>
 			</AccordionItem>
 		</Accordion>
-	);
-}
-
-/**
- * 2 択のセグメントトグル。副次 UI なので ember は使わず、選択側を bg-secondary の
- * 沈み込みで示す（ScrimToggle と同じ作法）。
- */
-function TwoWayToggle({
-	value,
-	offLabel,
-	onLabel,
-	onChange,
-}: {
-	/** true なら onLabel 側が選択されている */
-	value: boolean;
-	offLabel: string;
-	onLabel: string;
-	onChange: (next: boolean) => void;
-}) {
-	const optionClass = (active: boolean) =>
-		cn(
-			"flex-1 cursor-pointer border-border border-l px-2 py-2 text-sm outline-none transition-colors first:border-l-0",
-			"focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
-			"active:bg-accent/60",
-			active
-				? "bg-secondary text-secondary-foreground shadow-[inset_0_0_0_1px_var(--border-strong)]"
-				: "text-foreground hover:bg-accent/40",
-		);
-	return (
-		<div className="flex overflow-hidden rounded-md border border-border bg-input">
-			<button
-				type="button"
-				aria-pressed={!value}
-				onClick={() => onChange(false)}
-				className={optionClass(!value)}
-			>
-				{offLabel}
-			</button>
-			<button
-				type="button"
-				aria-pressed={value}
-				onClick={() => onChange(true)}
-				className={optionClass(value)}
-			>
-				{onLabel}
-			</button>
-		</div>
 	);
 }
 
