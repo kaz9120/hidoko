@@ -5,6 +5,7 @@ export {
 	FRAME_WIDTH,
 	HidokoMark,
 	KUMI,
+	MILESTONE_NAMES,
 } from "./cover-v10";
 export type {
 	ImageStats,

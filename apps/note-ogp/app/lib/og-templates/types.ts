@@ -75,10 +75,9 @@ export type Fields = {
 	issue: string;
 	date: string;
 
-	// プロジェクト（連載の固定情報）
+	// プロジェクト（連載の固定情報）。v10 の台紙が描くのはマストヘッドだけなので、
+	// ブランド表記と炎マークの 2 つに絞る（著者名とアカウントは廃止）。
 	brand: string;
-	author: string;
-	account: string;
 	showMark: boolean;
 
 	// 写真

@@ -1,40 +1,36 @@
 import { cn } from "ui/lib/utils";
-import type { Scrim } from "~/lib/og-templates";
 
-const SCRIMS: Array<{ id: Scrim; label: string; aria: string }> = [
-	{ id: "auto", label: "AUTO", aria: "自動" },
-	{ id: "lb", label: "↙", aria: "左下" },
-	{ id: "rb", label: "↘", aria: "右下" },
-	{ id: "lt", label: "↖", aria: "左上" },
-	{ id: "rt", label: "↗", aria: "右上" },
-	{ id: "t", label: "↑", aria: "上" },
-	{ id: "b", label: "↓", aria: "下" },
-	{ id: "c", label: "◎", aria: "中央" },
+const OPTIONS: Array<{ value: boolean; label: string; aria: string }> = [
+	{ value: false, label: "自動", aria: "自動" },
+	{ value: true, label: "強制", aria: "強制" },
 ];
 
 /**
- * スクリム方向の 8 方向 + AUTO トグル。副次 UI なので primary アクセント
- * (ember) は使わず、bg-secondary (= --bg-overlay) と border-strong の
- * インセットリングで「沈み込み」を出して選択状態を表す。
+ * スクリム（写真の上に重ねる暗幕）の 2 択。方向は組みが持っているので、
+ * ユーザーが決めるのは「輝度から自動で判断させるか、常に敷くか」だけ。
+ *
+ * 副次 UI なので primary アクセント (ember) は使わず、bg-secondary
+ * (= --bg-overlay) と border-strong のインセットリングで「沈み込み」を出して
+ * 選択状態を表す。
  */
 export function ScrimToggle({
 	value,
 	onChange,
 }: {
-	value: Scrim;
-	onChange: (next: Scrim) => void;
+	value: boolean;
+	onChange: (next: boolean) => void;
 }) {
 	return (
 		<div className="flex overflow-hidden rounded-md border border-border bg-input">
-			{SCRIMS.map((s) => {
-				const active = value === s.id;
+			{OPTIONS.map((option) => {
+				const active = value === option.value;
 				return (
 					<button
-						key={s.id}
+						key={option.label}
 						type="button"
-						aria-label={`スクリム: ${s.aria}`}
+						aria-label={`スクリム: ${option.aria}`}
 						aria-pressed={active}
-						onClick={() => onChange(s.id)}
+						onClick={() => onChange(option.value)}
 						className={cn(
 							"flex-1 cursor-pointer border-border border-l px-2 py-2 text-sm outline-none transition-colors first:border-l-0",
 							"focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
@@ -44,7 +40,7 @@ export function ScrimToggle({
 								: "text-foreground hover:bg-accent/40",
 						)}
 					>
-						{s.label}
+						{option.label}
 					</button>
 				);
 			})}

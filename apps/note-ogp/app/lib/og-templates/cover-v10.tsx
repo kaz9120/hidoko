@@ -10,7 +10,7 @@ import {
 } from "./image-stats";
 import { kanjiNumber } from "./kanji-number";
 import { TSUME, type TsumeLevel, tsumeSpans } from "./tsume";
-import type { Fields, KumiId } from "./types";
+import type { Fields, KumiId, Milestone } from "./types";
 
 // note-ogp v10 — 写真フルブリードを土台に固定し、号ごとに選ぶのは「組み」だけ。
 // 組みは「タイトルの居場所」と「号数の身振り」をセットにした名前付きレイアウトで、
@@ -359,6 +359,16 @@ export const KUMI: Record<KumiId, Kumi> = {
 		max: 76,
 	},
 	h1: { name: "H1 静けさ", region: null, scrim: "auto", max: 88 },
+};
+
+/**
+ * 節目号 3 変奏の表示名。通常の組みと別の族なので KUMI とは分けるが、
+ * パネルのタイルとステータスバーからは同じように引ける形にしておく。
+ */
+export const MILESTONE_NAMES: Record<Milestone, string> = {
+	watermark: "M1 透かし",
+	hero: "M2 主役",
+	kanji: "M4 漢数字",
 };
 
 // 自動配置で選ばれた面から、スクリムの方向を導く

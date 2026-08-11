@@ -1,17 +1,22 @@
 import { TriangleAlertIcon } from "lucide-react";
-import type { Fields, TitleSlot } from "~/lib/og-templates";
-import { FRAME_HEIGHT, FRAME_WIDTH } from "~/lib/og-templates";
+import type { Fields } from "~/lib/og-templates";
+import {
+	FRAME_HEIGHT,
+	FRAME_WIDTH,
+	KUMI,
+	MILESTONE_NAMES,
+} from "~/lib/og-templates";
 
 /**
  * 画面下端 24px のステータスバー。snapcrop の `status-bar.tsx` と同じ
  * 「下端 24px / `bg-card/50` の地・`text-muted-foreground` の文字色」を踏襲し、
  * note-ogp 用に並び順を組み替えたもの。
  *
- * 左から：出力寸法（1280 × 670 固定）·  表示倍率 % · 身振り（タイトル位置 + 号数）
- * 右から：自動保存時刻 · 可読性インジケータ · タイトル文字数 / 行数
+ * 左から：出力寸法（1280 × 670 固定）·  表示倍率 % · 組み名
+ * 右から：自動保存時刻 · 可読性インジケータ · タイトル文字数
  *
- * v3 では palette が廃止されたため、可読性はタイムライン実寸での「タイトルが
- * 読める大きさか」だけを見る。コントラスト判定はもう行わない。
+ * v10 では意匠の選択が組み 1 つに畳まれたので、身振りの内訳ではなく組み名を
+ * 出す。可読性はタイムライン実寸での「タイトルが読める大きさか」だけを見る。
  */
 export function StatusBar({
 	fields,
@@ -34,8 +39,12 @@ export function StatusBar({
 	sidebarCollapsed?: boolean;
 }) {
 	const titleLength = fields.title.length;
-	const lineCount = fields.title.split("\n").length;
 	const readability = fields.title ? getReadabilityStatus(titleFontSize) : null;
+	// 節目号は組みの選択と別の族なので、そのまま変奏名を出す
+	const kumiLabel =
+		fields.mode === "milestone"
+			? `節目号 ${MILESTONE_NAMES[fields.milestone]}`
+			: KUMI[fields.kumi].name;
 
 	return (
 		<footer className="flex h-6 shrink-0 items-center gap-3 border-border border-t bg-card/50 px-3 font-mono text-[11px] text-muted-foreground">
@@ -45,15 +54,11 @@ export function StatusBar({
 			<Sep />
 			<span>{Math.round(scale * 100)}%</span>
 			<Sep />
-			<span className="text-foreground/80">
-				{SLOT_LABEL[fields.titleSlot]} · {NUMBER_LABEL[fields.numberTreatment]}
-			</span>
+			<span className="text-foreground/80">{kumiLabel}</span>
 
 			<span className="ml-auto" />
 
-			<span>
-				{titleLength} 文字 · {lineCount} 行
-			</span>
+			<span>{titleLength} 文字</span>
 			<Sep />
 			<ReadabilityChip status={readability} />
 			<Sep />
@@ -122,23 +127,6 @@ function ReadabilityChip({ status }: { status: ReadabilityStatus | null }) {
 		</span>
 	);
 }
-
-const SLOT_LABEL: Record<TitleSlot, string> = {
-	bl: "S1 左下",
-	br: "S2 右下",
-	tl: "S3 左上",
-	center: "S4 中央",
-	rcol: "S5 右コラム",
-	topwide: "S6 横長",
-};
-
-const NUMBER_LABEL: Record<Fields["numberTreatment"], string> = {
-	corner: "N1 Corner",
-	vertical: "N2 Vertical",
-	written: "N3 Written",
-	plate: "N4 Plate",
-	watermark: "N5 Watermark",
-};
 
 function formatTime(d: Date): string {
 	const pad = (n: number) => n.toString().padStart(2, "0");

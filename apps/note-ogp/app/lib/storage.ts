@@ -21,8 +21,6 @@ export const DEFAULTS: Fields = {
 	issue: "013",
 	date: "2026.05",
 	brand: "焚き火を愛するエンジニア",
-	author: "山本一将",
-	account: "@kyamamoto9120",
 	showMark: true,
 	image: null,
 	kumi: "a1",
@@ -82,8 +80,6 @@ function pickCarriedOver(stored: Record<string, unknown>) {
 		issue: pickString(stored.issue, DEFAULTS.issue),
 		date: pickString(stored.date, DEFAULTS.date),
 		brand: pickString(stored.brand, DEFAULTS.brand),
-		author: pickString(stored.author, DEFAULTS.author),
-		account: pickString(stored.account, DEFAULTS.account),
 		showMark: pickBool(stored.showMark, DEFAULTS.showMark),
 		image: pickImage(stored.image),
 	};

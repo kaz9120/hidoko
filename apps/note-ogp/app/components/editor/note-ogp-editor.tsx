@@ -105,15 +105,13 @@ export function NoteOgpEditor() {
 
 	const profileValues: ProfileValues = {
 		brand: state.brand,
-		author: state.author,
-		account: state.account,
 		showMark: state.showMark,
 	};
 
 	return (
 		<div className="flex min-h-screen flex-col bg-background md:h-screen">
 			<SiteHeader
-				profile={{ brand: state.brand, author: state.author }}
+				profile={{ brand: state.brand }}
 				onProfileClick={handleProfileChipClick}
 			/>
 			<div

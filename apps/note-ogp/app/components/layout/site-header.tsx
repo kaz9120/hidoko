@@ -6,7 +6,7 @@ import { ThemeToggle } from "../theme-toggle";
 
 /**
  * 画面最上段のヘッダ。左はロゴ・アプリ名・バッジ、右は ThemeToggle と、
- * プロフィール設定が済んでいる場合はそのチップ（ブランド表記 + 名前）。
+ * プロフィール設定が済んでいる場合はそのチップ（ブランド表記）。
  *
  * `profile` を渡さない呼び出し（プロフィール未確定・Storybook 等）では
  * チップ自体を出さない。
@@ -15,7 +15,7 @@ export function SiteHeader({
 	profile,
 	onProfileClick,
 }: {
-	profile?: { brand: string; author: string } | null;
+	profile?: { brand: string } | null;
 	onProfileClick?: () => void;
 }) {
 	const { resolvedTheme } = useTheme();
@@ -52,11 +52,6 @@ export function SiteHeader({
 						<span className="truncate text-foreground/80">
 							{profile.brand || "プロフィール"}
 						</span>
-						{profile.author && (
-							<span className="hidden truncate text-(--text-faint) sm:inline">
-								· {profile.author}
-							</span>
-						)}
 					</button>
 				)}
 				<ThemeToggle />

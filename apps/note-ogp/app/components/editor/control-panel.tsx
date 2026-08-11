@@ -1,4 +1,4 @@
-import { DownloadIcon, TriangleAlertIcon } from "lucide-react";
+import { DownloadIcon } from "lucide-react";
 import { useId } from "react";
 import { Button } from "ui";
 import {
@@ -21,20 +21,22 @@ import {
 import { Field, FieldDescription, FieldLabel } from "ui/components/field";
 import { Input } from "ui/components/input";
 import { Textarea } from "ui/components/textarea";
-import type { Fields, NumberTreatment, TitleSlot } from "~/lib/og-templates";
-import { pickNumberCorner } from "~/lib/og-templates";
+import { cn } from "ui/lib/utils";
+import type { Fields } from "~/lib/og-templates";
 import { ImageField } from "./image-field";
-import { NumberTreatmentTiles } from "./number-treatment-tiles";
+import { KumiTiles, MilestoneTiles } from "./kumi-tiles";
 import { ScrimToggle } from "./scrim-toggle";
 import { SectionTitle } from "./section-title";
-import { TitleSlotTiles } from "./title-slot-tiles";
 
 /**
- * v3 の ControlPanel。「写真を主役に、タイトルの居場所と号数の見せ方を選ぶ」
- * の単一フロー。旧の三段ウィザード（台紙 → 内容 → 仕上げ）は廃止。
+ * v10 の ControlPanel。「写真 → タイトル → 組み」の 3 手で完成する単一フロー。
  *
- * 並び順：写真 → 内容 → タイトルの居場所 → 号数の身振り → スクリム / リード
- * 表示 → プロジェクト（連載の固定情報・accordion）。
+ * タイトルの居場所と号数の身振りを別々に選ばせるのはやめ、成立する組みだけを
+ * 並べる。文字色・スクリムの向き・ハロは写真の輝度から台紙が決めるので、
+ * ユーザーは意匠の判断をしない。
+ *
+ * 並び順：写真 → タイトル → vol. / 日付 → 号 → 組み → スクリム →
+ * プロジェクト（連載の固定情報・accordion）。
  */
 export function ControlPanel({
 	state,
@@ -54,10 +56,10 @@ export function ControlPanel({
 			<PanelHeader />
 			<div className="flex-1 overflow-y-auto px-6 py-5">
 				<PhotoSection state={state} update={update} />
-				<ContentSection state={state} update={update} />
-				<TitleSlotSection state={state} update={update} />
-				<NumberTreatmentSection state={state} update={update} />
-				<FinishSection state={state} update={update} />
+				<TitleSection state={state} update={update} />
+				<IssueSection state={state} update={update} />
+				<ModeSection state={state} update={update} />
+				<KumiSection state={state} update={update} />
 				<ProjectSection state={state} update={update} />
 			</div>
 			<PanelFooter
@@ -82,14 +84,14 @@ function PanelHeader() {
 					note OGP
 				</span>
 				<span className="ml-auto font-mono text-[10px] uppercase tracking-[0.22em] text-(--text-faint)">
-					v3 · foundation
+					v10 · kumi
 				</span>
 			</div>
 			<h2 className="text-base font-bold text-foreground leading-tight">
 				アイキャッチを作る
 			</h2>
 			<p className="mt-0.5 text-xs text-muted-foreground leading-[1.55]">
-				写真を主役に、タイトルの居場所と号数の見せ方を選ぶ。
+				写真 → タイトル → 組み の 3 手で仕上げる。
 			</p>
 		</header>
 	);
@@ -112,16 +114,17 @@ function PhotoSection({
 					onChange={(v) => update({ image: v })}
 				/>
 				<FieldDescription>
-					写真の <span className="text-muted-foreground font-medium">暗部</span>{" "}
-					を見て、次の「タイトルの居場所」を選ぶ
+					明るさの判定・文字色・ハロは{" "}
+					<span className="text-muted-foreground font-medium">全自動</span>。
+					写真を替えるだけで組み直る。
 				</FieldDescription>
 			</Field>
 		</>
 	);
 }
 
-// ── 内容 ──────────────────────────────────────────────
-function ContentSection({
+// ── タイトル ──────────────────────────────────────────
+function TitleSection({
 	state,
 	update,
 }: {
@@ -129,46 +132,41 @@ function ContentSection({
 	update: (patch: Partial<Fields>) => void;
 }) {
 	const titleId = useId();
-	const leadId = useId();
-	const issueId = useId();
-	const dateId = useId();
-	const titleLength = state.title.length;
 	return (
 		<>
-			<SectionTitle>内容</SectionTitle>
+			<SectionTitle>タイトル</SectionTitle>
 			<Field className="mb-3.5">
-				<FieldLabel
-					htmlFor={titleId}
-					className="font-mono text-[10px] uppercase tracking-[0.22em]"
-				>
+				<FieldLabel htmlFor={titleId} className="sr-only">
 					タイトル
 				</FieldLabel>
 				<Textarea
 					id={titleId}
 					value={state.title}
 					onChange={(e) => update({ title: e.target.value })}
-					rows={3}
-					placeholder={"夜更けに\nコードを書く理由"}
+					rows={2}
+					placeholder="夜更けにコードを書く理由"
 				/>
 				<FieldDescription>
-					{titleLength}文字　·　Enter で改行（自動折り返しなし）
+					{state.title.length}文字　·　改行は不要。詰めと折り返しは台紙が持つ。
 				</FieldDescription>
 			</Field>
-			<Field className="mb-3.5">
-				<FieldLabel
-					htmlFor={leadId}
-					className="font-mono text-[10px] uppercase tracking-[0.22em]"
-				>
-					リード（任意）
-				</FieldLabel>
-				<Textarea
-					id={leadId}
-					value={state.lead}
-					onChange={(e) => update({ lead: e.target.value })}
-					rows={2}
-					placeholder="一行で添える、温度のある説明。"
-				/>
-			</Field>
+		</>
+	);
+}
+
+// ── vol. / 日付 ───────────────────────────────────────
+function IssueSection({
+	state,
+	update,
+}: {
+	state: Fields;
+	update: (patch: Partial<Fields>) => void;
+}) {
+	const issueId = useId();
+	const dateId = useId();
+	return (
+		<>
+			<SectionTitle>vol. / 日付</SectionTitle>
 			<div className="mb-1 grid grid-cols-2 gap-2.5">
 				<Field>
 					<FieldLabel
@@ -183,7 +181,7 @@ function ContentSection({
 						onChange={(e) =>
 							update({ issue: e.target.value.replace(/[^\d]/g, "") })
 						}
-						placeholder="014"
+						placeholder="042"
 						inputMode="numeric"
 						className="font-mono"
 					/>
@@ -208,8 +206,8 @@ function ContentSection({
 	);
 }
 
-// ── タイトルの居場所 ──────────────────────────────────
-function TitleSlotSection({
+// ── 号（通常 / 節目）──────────────────────────────────
+function ModeSection({
 	state,
 	update,
 }: {
@@ -218,130 +216,68 @@ function TitleSlotSection({
 }) {
 	return (
 		<>
-			<SectionTitle>タイトルの居場所</SectionTitle>
-			<p className="mb-3 text-xs text-muted-foreground leading-relaxed">
-				写真の <span className="text-foreground font-medium">暗部</span>{" "}
-				に文字を置く。被写体が右なら左下（S1）、左なら右下（S2）。
-			</p>
-			<TitleSlotTiles
-				state={state}
-				onSelect={(slot: TitleSlot) =>
-					// N1 Corner / N4 Plate を使っているとき、新しいタイトル位置に応じて
-					// 号数のコーナーも追従させる（古い corner が残ってタイトルとぶつかる
-					// のを避ける）。N2/N3/N5 は corner を見ないので無害。
-					update({
-						titleSlot: slot,
-						numberOpts: {
-							...state.numberOpts,
-							corner: pickNumberCorner(slot),
-						},
-					})
-				}
-			/>
+			<SectionTitle>号</SectionTitle>
+			<Field className="mb-1">
+				<TwoWayToggle
+					value={state.mode === "milestone"}
+					offLabel="通常号"
+					onLabel="節目号"
+					onChange={(milestone) =>
+						update({ mode: milestone ? "milestone" : "normal" })
+					}
+				/>
+				<FieldDescription>
+					節目号は号数が主役。10・25・50 のような節目で使う。
+				</FieldDescription>
+			</Field>
 		</>
 	);
 }
 
-// ── 号数の身振り ──────────────────────────────────────
-function NumberTreatmentSection({
+// ── 組み（通常号）/ 節目の見せ方（節目号）─────────────
+function KumiSection({
 	state,
 	update,
 }: {
 	state: Fields;
 	update: (patch: Partial<Fields>) => void;
 }) {
-	const handleSelect = (treatment: NumberTreatment) => {
-		update({
-			numberTreatment: treatment,
-			numberOpts: {
-				corner: pickNumberCorner(state.titleSlot),
-				side: "right",
-				position: { left: 56, bottom: 92 },
-			},
-		});
-	};
-	return (
-		<>
-			<SectionTitle>号数の身振り</SectionTitle>
-			<p className="mb-3 text-xs text-muted-foreground leading-relaxed">
-				基本は <span className="text-foreground font-medium">N1 Corner</span>
-				。雑誌的に押し出したいときだけ別の身振りを使う。
-			</p>
-			<NumberTreatmentTiles state={state} onSelect={handleSelect} />
-			{state.numberTreatment === "watermark" && (
-				<p className="mt-3 flex items-start gap-1.5 text-xs leading-relaxed text-(--warning)">
-					<TriangleAlertIcon
-						aria-hidden="true"
-						className="mt-0.5 size-3.5 flex-shrink-0"
-						strokeWidth={1.75}
-					/>
-					<span>
-						<span className="font-medium">N5 Watermark は節目号専用。</span>{" "}
-						通常号で使うと声が大きすぎる。
-					</span>
+	if (state.mode === "milestone") {
+		return (
+			<>
+				<SectionTitle>節目の見せ方</SectionTitle>
+				<p className="mb-3 text-xs text-muted-foreground leading-relaxed">
+					号数が主役の 3 変奏。タイトルは左下に回る。
 				</p>
-			)}
-		</>
-	);
-}
-
-// ── スクリム / リード表示 ─────────────────────────────
-function FinishSection({
-	state,
-	update,
-}: {
-	state: Fields;
-	update: (patch: Partial<Fields>) => void;
-}) {
+				<MilestoneTiles
+					value={state.milestone}
+					onSelect={(milestone) => update({ milestone })}
+				/>
+			</>
+		);
+	}
 	return (
 		<>
-			<Field className="mt-5 mb-3.5">
-				<FieldLabel className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em]">
-					スクリムの方向
-					{state.scrim === "auto" && (
-						<span className="inline-flex items-center gap-1 rounded-[2px] border border-primary/40 px-1.5 py-px font-mono text-[9px] uppercase tracking-[0.22em] text-primary">
-							タイトルから推定
-						</span>
-					)}
+			<SectionTitle>組み</SectionTitle>
+			<p className="mb-3 text-xs text-muted-foreground leading-relaxed">
+				タイトルの居場所と号数の身振りは
+				<span className="text-foreground font-medium">セット</span>
+				。迷ったら{" "}
+				<span className="text-foreground font-medium">H1 静けさ</span>
+				。写真の静かな面を探して置く。
+			</p>
+			<KumiTiles value={state.kumi} onSelect={(kumi) => update({ kumi })} />
+			<Field className="mt-4 mb-1">
+				<FieldLabel className="font-mono text-[10px] uppercase tracking-[0.22em]">
+					スクリム（写真の上の暗幕）
 				</FieldLabel>
 				<ScrimToggle
 					value={state.scrim}
 					onChange={(scrim) => update({ scrim })}
 				/>
 				<FieldDescription>
-					写真の上に重ねる暗部の方向。AUTO のままで足りることが多い。
+					自動で足りることが多い。敷く向きは組みが知っている。
 				</FieldDescription>
-			</Field>
-			<Field className="mb-1">
-				<FieldLabel className="font-mono text-[10px] uppercase tracking-[0.22em]">
-					リード文の表示
-				</FieldLabel>
-				<div className="flex overflow-hidden rounded-md border border-border bg-input">
-					<button
-						type="button"
-						aria-pressed={state.showLead}
-						onClick={() => update({ showLead: true })}
-						className={
-							state.showLead
-								? "flex-1 cursor-pointer bg-secondary px-2 py-2 text-sm text-secondary-foreground shadow-[inset_0_0_0_1px_var(--border-strong)] outline-none transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset active:bg-accent/60"
-								: "flex-1 cursor-pointer px-2 py-2 text-sm text-foreground outline-none transition-colors hover:bg-accent/40 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset active:bg-accent/60"
-						}
-					>
-						表示
-					</button>
-					<button
-						type="button"
-						aria-pressed={!state.showLead}
-						onClick={() => update({ showLead: false })}
-						className={
-							!state.showLead
-								? "flex-1 cursor-pointer border-border border-l bg-secondary px-2 py-2 text-sm text-secondary-foreground shadow-[inset_0_0_0_1px_var(--border-strong)] outline-none transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset active:bg-accent/60"
-								: "flex-1 cursor-pointer border-border border-l px-2 py-2 text-sm text-foreground outline-none transition-colors hover:bg-accent/40 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset active:bg-accent/60"
-						}
-					>
-						非表示
-					</button>
-				</div>
 			</Field>
 		</>
 	);
@@ -356,9 +292,6 @@ function ProjectSection({
 	update: (patch: Partial<Fields>) => void;
 }) {
 	const brandId = useId();
-	const authorId = useId();
-	const accountId = useId();
-	const categoryId = useId();
 	return (
 		<Accordion type="single" collapsible className="mt-5">
 			<AccordionItem value="project">
@@ -378,88 +311,69 @@ function ProjectSection({
 							value={state.brand}
 							onChange={(e) => update({ brand: e.target.value })}
 						/>
-					</Field>
-					<div className="mb-3.5 grid grid-cols-2 gap-2.5">
-						<Field>
-							<FieldLabel
-								htmlFor={authorId}
-								className="font-mono text-[10px] uppercase tracking-[0.22em]"
-							>
-								名前
-							</FieldLabel>
-							<Input
-								id={authorId}
-								value={state.author}
-								onChange={(e) => update({ author: e.target.value })}
-							/>
-						</Field>
-						<Field>
-							<FieldLabel
-								htmlFor={accountId}
-								className="font-mono text-[10px] uppercase tracking-[0.22em]"
-							>
-								アカウント
-							</FieldLabel>
-							<Input
-								id={accountId}
-								value={state.account}
-								onChange={(e) => update({ account: e.target.value })}
-								className="font-mono"
-							/>
-						</Field>
-					</div>
-					<Field className="mb-3.5">
-						<FieldLabel
-							htmlFor={categoryId}
-							className="font-mono text-[10px] uppercase tracking-[0.22em]"
-						>
-							カテゴリ（任意）
-						</FieldLabel>
-						<Input
-							id={categoryId}
-							value={state.category}
-							onChange={(e) => update({ category: e.target.value })}
-							placeholder="ESSAY"
-							className="font-mono"
-						/>
-						<FieldDescription>
-							v3 では基本表示しない。N4 Plate を選んだときだけ補足情報に使う。
-						</FieldDescription>
+						<FieldDescription>マストヘッドに入る一言</FieldDescription>
 					</Field>
 					<Field>
 						<FieldLabel className="font-mono text-[10px] uppercase tracking-[0.22em]">
 							炎マーク
 						</FieldLabel>
-						<div className="flex overflow-hidden rounded-md border border-border bg-input">
-							<button
-								type="button"
-								aria-pressed={state.showMark}
-								onClick={() => update({ showMark: true })}
-								className={
-									state.showMark
-										? "flex-1 cursor-pointer bg-secondary px-2 py-2 text-sm text-secondary-foreground shadow-[inset_0_0_0_1px_var(--border-strong)] outline-none transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset active:bg-accent/60"
-										: "flex-1 cursor-pointer px-2 py-2 text-sm text-foreground outline-none transition-colors hover:bg-accent/40 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset active:bg-accent/60"
-								}
-							>
-								表示
-							</button>
-							<button
-								type="button"
-								aria-pressed={!state.showMark}
-								onClick={() => update({ showMark: false })}
-								className={
-									!state.showMark
-										? "flex-1 cursor-pointer border-border border-l bg-secondary px-2 py-2 text-sm text-secondary-foreground shadow-[inset_0_0_0_1px_var(--border-strong)] outline-none transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset active:bg-accent/60"
-										: "flex-1 cursor-pointer border-border border-l px-2 py-2 text-sm text-foreground outline-none transition-colors hover:bg-accent/40 focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset active:bg-accent/60"
-								}
-							>
-								非表示
-							</button>
-						</div>
+						<TwoWayToggle
+							value={!state.showMark}
+							offLabel="表示"
+							onLabel="非表示"
+							onChange={(hidden) => update({ showMark: !hidden })}
+						/>
 					</Field>
 				</AccordionContent>
 			</AccordionItem>
 		</Accordion>
+	);
+}
+
+/**
+ * 2 択のセグメントトグル。副次 UI なので ember は使わず、選択側を bg-secondary の
+ * 沈み込みで示す（ScrimToggle と同じ作法）。
+ */
+function TwoWayToggle({
+	value,
+	offLabel,
+	onLabel,
+	onChange,
+}: {
+	/** true なら onLabel 側が選択されている */
+	value: boolean;
+	offLabel: string;
+	onLabel: string;
+	onChange: (next: boolean) => void;
+}) {
+	const optionClass = (active: boolean) =>
+		cn(
+			"flex-1 cursor-pointer border-border border-l px-2 py-2 text-sm outline-none transition-colors first:border-l-0",
+			"focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
+			"active:bg-accent/60",
+			active
+				? "bg-secondary text-secondary-foreground shadow-[inset_0_0_0_1px_var(--border-strong)]"
+				: "text-foreground hover:bg-accent/40",
+		);
+	return (
+		<div className="flex overflow-hidden rounded-md border border-border bg-input">
+			<button
+				type="button"
+				aria-pressed={!value}
+				onClick={() => onChange(false)}
+				className={optionClass(!value)}
+			>
+				{offLabel}
+			</button>
+			<button
+				type="button"
+				aria-pressed={value}
+				onClick={() => onChange(true)}
+				className={optionClass(value)}
+			>
+				{onLabel}
+			</button>
+		</div>
 	);
 }
 
@@ -505,7 +419,7 @@ function PanelFooter({
 					<AlertDialogHeader>
 						<AlertDialogTitle>入力内容をリセットする</AlertDialogTitle>
 						<AlertDialogDescription>
-							タイトル・リード・著者などの入力をすべて初期値に戻す。元には戻せない。
+							タイトル・vol.・組みの選択をすべて初期値に戻す。元には戻せない。
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>

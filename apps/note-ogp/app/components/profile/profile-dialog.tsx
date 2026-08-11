@@ -14,15 +14,14 @@ import { Switch } from "ui/components/switch";
 
 export type ProfileValues = {
 	brand: string;
-	author: string;
-	account: string;
 	showMark: boolean;
 };
 
 /**
- * プロフィール（ブランド表記 / 名前 / アカウント / 炎マーク）の編集ダイアログ
- * (Issue #135)。初回起動時と、ヘッダー右のプロフィールチップをクリックした
- * ときの両方から開く。
+ * プロフィール（ブランド表記 / 炎マーク）の編集ダイアログ (Issue #135)。
+ * 初回起動時と、ヘッダー右のプロフィールチップをクリックしたときの両方から開く。
+ *
+ * v10 の台紙は著者名とアカウントを描かないので、その 2 つの入力は廃止した。
  *
  * 「保存」を押すまで親の state は更新しない（ダイアログ内のローカル state で
  * 編集を保持）。「キャンセル」を押すと変更を捨ててダイアログを閉じる。
@@ -54,8 +53,6 @@ export function ProfileDialog({
 	}, [open, initialValues]);
 
 	const brandId = useId();
-	const authorId = useId();
-	const accountId = useId();
 
 	const handleOpenChange = (next: boolean) => {
 		if (!next) onCancel();
@@ -91,42 +88,6 @@ export function ProfileDialog({
 						/>
 						<FieldDescription>マストヘッドに入る一言</FieldDescription>
 					</Field>
-
-					<div className="grid grid-cols-2 gap-2.5">
-						<Field>
-							<FieldLabel
-								htmlFor={authorId}
-								className="font-mono text-[10px] uppercase tracking-[0.22em]"
-							>
-								名前
-							</FieldLabel>
-							<Input
-								id={authorId}
-								value={values.author}
-								onChange={(e) =>
-									setValues((v) => ({ ...v, author: e.target.value }))
-								}
-								placeholder="山本一将"
-							/>
-						</Field>
-						<Field>
-							<FieldLabel
-								htmlFor={accountId}
-								className="font-mono text-[10px] uppercase tracking-[0.22em]"
-							>
-								アカウント
-							</FieldLabel>
-							<Input
-								id={accountId}
-								value={values.account}
-								onChange={(e) =>
-									setValues((v) => ({ ...v, account: e.target.value }))
-								}
-								placeholder="@kyamamoto9120"
-								className="font-mono"
-							/>
-						</Field>
-					</div>
 
 					<Field orientation="horizontal">
 						<FieldLabel
@@ -177,10 +138,6 @@ function MastheadPreview({ values }: { values: ProfileValues }) {
 					</span>
 				)}
 				<span className="text-foreground/80">{values.brand || "—"}</span>
-			</div>
-			<div className="mt-0.5 text-[10px] text-(--text-faint)">
-				{values.author || "—"}
-				{values.account ? ` · ${values.account}` : ""}
 			</div>
 		</div>
 	);
