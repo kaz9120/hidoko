@@ -252,19 +252,32 @@ export const HaloOnBrightPhoto: Story = {
 /**
  * スクリムを強制した状態。既定は自動で、写真が暗ければ敷かれない。
  * 敷く向きは組みが持っている（A1 定番なら左下）。
+ *
+ * F7 浮き帯は自動ではスクリムを敷かない。帯そのものが文字を守るからで、
+ * 強制したときだけ帯のある下から敷く。
  * @summary スクリム強制
  */
 export const ForcedScrim: Story = {
 	render: () => (
 		<Grid columns={2}>
 			<Panel
-				label="自動（既定）"
+				label="A1 自動（既定）"
 				f={base({ kumi: "a1", scrim: false })}
 				scale={PAIR_SCALE}
 			/>
 			<Panel
-				label="強制"
+				label="A1 強制"
 				f={base({ kumi: "a1", scrim: true })}
+				scale={PAIR_SCALE}
+			/>
+			<Panel
+				label="F7 自動（敷かない）"
+				f={base({ kumi: "f7", scrim: false })}
+				scale={PAIR_SCALE}
+			/>
+			<Panel
+				label="F7 強制（下から）"
+				f={base({ kumi: "f7", scrim: true })}
 				scale={PAIR_SCALE}
 			/>
 		</Grid>

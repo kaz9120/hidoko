@@ -371,6 +371,10 @@ export const MILESTONE_NAMES: Record<Milestone, string> = {
 	kanji: "M4 漢数字",
 };
 
+// F7 浮き帯を強制で暗くするときの向き。帯は下端に横いっぱいで寝ているので、
+// 斜めではなく下から敷く（KUMI.f7.scrim の "none" は自動時に敷かないことを指す）。
+const BAND_FORCED_SCRIM: ScrimDirection = "b";
+
 // 自動配置で選ばれた面から、スクリムの方向を導く
 const SCRIM_BY_PICK: Record<QuietRegionId, ScrimDirection> = {
 	bl: "lb",
@@ -1128,6 +1132,8 @@ function MilestoneCover({
 	const variant = f.milestone;
 	const numStr = String(Number.parseInt(f.issue, 10) || 0);
 	const mean = regionMean(stats, MILESTONE_TITLE_REGION);
+	// 節目号は f.scrim を見ない。パネルがスクリムの節ごと隠していて操作できないので、
+	// 死んだコントロールにはならない。スクリムは輝度からの自動判定だけで決める。
 	const plan = inkPlan(mean, false);
 	const ink = plan.ink;
 
@@ -1278,16 +1284,22 @@ export function Cover({
 		excludeVertical: true,
 	});
 	const region = kumi.region ?? quiet.region;
-	const scrimDir: ScrimDirection = kumi.region
-		? kumi.scrim === "auto"
-			? "lb"
-			: kumi.scrim
-		: SCRIM_BY_PICK[quiet.region.id];
+	const scrimDir: ScrimDirection =
+		f.kumi === "f7"
+			? BAND_FORCED_SCRIM
+			: kumi.region
+				? kumi.scrim === "auto"
+					? "lb"
+					: kumi.scrim
+				: SCRIM_BY_PICK[quiet.region.id];
 
 	const mean = regionMean(stats, region);
-	// f7 は半透明の帯の中に文字を置くので、写真の明るさに関わらずオフ白で通る
+	// f7 は半透明の帯の中に文字を置くので、写真の明るさに関わらずオフ白で通る。
+	// 自動でスクリムを敷く必要も無い（帯そのものが文字を守る）。ただし「強制」は
+	// ユーザーの操作なので効かせる。効かないと通常号のパネルに出ているトグルが
+	// 死んだコントロールになる。
 	const plan: InkPlan =
-		f.kumi === "f7" ? { ink: V10.ink, scrim: false } : inkPlan(mean, f.scrim);
+		f.kumi === "f7" ? { ink: V10.ink, scrim: f.scrim } : inkPlan(mean, f.scrim);
 	const ink = plan.ink;
 	const numStr = String(Number.parseInt(f.issue, 10) || 0);
 
