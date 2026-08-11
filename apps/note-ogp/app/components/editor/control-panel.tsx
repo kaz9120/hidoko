@@ -123,6 +123,13 @@ export function collapseTitleNewlines(value: string): string {
 	});
 }
 
+/** 号数は数字だけ。全角で打たれても半角に直してから受ける */
+export function normalizeIssue(value: string): string {
+	return value
+		.replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
+		.replace(/[^\d]/g, "");
+}
+
 function TitleSection({
 	state,
 	update,
@@ -152,7 +159,10 @@ function TitleSection({
 				/>
 				<div className="flex items-start gap-3">
 					{warning && (
-						<p className="flex items-start gap-1.5 text-xs leading-relaxed text-(--warning)">
+						<p
+							role="status"
+							className="flex items-start gap-1.5 text-xs leading-relaxed text-(--warning)"
+						>
 							<TriangleAlertIcon
 								aria-hidden="true"
 								className="mt-0.5 size-3.5 flex-shrink-0"
@@ -193,9 +203,7 @@ function IssueSection({
 					<Input
 						id={issueId}
 						value={state.issue}
-						onChange={(e) =>
-							update({ issue: e.target.value.replace(/[^\d]/g, "") })
-						}
+						onChange={(e) => update({ issue: normalizeIssue(e.target.value) })}
 						placeholder="042"
 						inputMode="numeric"
 						className="font-mono"
