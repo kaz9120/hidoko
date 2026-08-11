@@ -12,7 +12,7 @@ export function meta() {
 
 export default function Privacy() {
 	return (
-		<LegalPage lastUpdated="2026-06-11" title="プライバシーポリシー">
+		<LegalPage lastUpdated="2026-08-12" title="プライバシーポリシー">
 			<LegalSection heading="基本方針">
 				<p>
 					note カバー画像（以下「本サービス」）は、note のカバー画像（1280×670
@@ -22,8 +22,7 @@ export default function Privacy() {
 
 			<LegalSection heading="入力内容と画像の取り扱い">
 				<p>
-					本サービスで入力したテキスト（タイトル・vol.
-					番号など）とアップロードした画像は、すべて利用者のブラウザ内で処理されます。PNG
+					本サービスで入力したテキスト（タイトル・号数など）とアップロードした画像は、すべて利用者のブラウザ内で処理されます。PNG
 					の書き出しもブラウザ内で行われ、これらのデータが運営者のサーバーや第三者に送信されることはありません。
 				</p>
 			</LegalSection>
@@ -35,8 +34,8 @@ export default function Privacy() {
 					に保存します。これらは利用者の端末内にのみ保存され、外部へ送信されません。
 				</p>
 				<ul className="list-disc space-y-1 pl-5">
-					<li>エディタの入力内容（タイトル・vol. 番号などのテキスト）</li>
-					<li>レイアウトの選択などの設定</li>
+					<li>エディタの入力内容（タイトル・号数・日付などのテキスト）</li>
+					<li>レイアウトと暗幕の選択</li>
 					<li>アップロードした画像（サイズが大きい場合は保存されません）</li>
 				</ul>
 				<p>これらはブラウザのサイトデータ削除機能でいつでも削除できます。</p>
