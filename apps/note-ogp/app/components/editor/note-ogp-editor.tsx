@@ -118,6 +118,7 @@ export function NoteOgpEditor() {
 						reset={reset}
 						onDownload={handleDownload}
 						busy={busy}
+						titleFontSize={titleFontSize}
 					/>
 				)}
 			</div>

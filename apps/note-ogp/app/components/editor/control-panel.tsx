@@ -1,4 +1,4 @@
-import { DownloadIcon } from "lucide-react";
+import { DownloadIcon, TriangleAlertIcon } from "lucide-react";
 import { useId } from "react";
 import { Button } from "ui";
 import {
@@ -27,6 +27,7 @@ import {
 import { Input } from "ui/components/input";
 import { Textarea } from "ui/components/textarea";
 import type { Fields } from "~/lib/og-templates";
+import { getTitleReadability } from "~/lib/title-readability";
 import { DateField } from "./date-field";
 import { ImageField } from "./image-field";
 import { KumiTiles, MilestoneTiles } from "./kumi-tiles";
@@ -41,7 +42,7 @@ import { SegmentedToggle } from "./segmented-toggle";
  * ユーザーは意匠の判断をしない。手順や自動処理を画面で説明せず、操作そのもので
  * 伝える（説明文を置くとユーザーは読んでから触ることになる）。
  *
- * 並び順：写真 → タイトル（vol. と日付を含む）→ レイアウト（通常 / 節目の
+ * 並び順：写真 → タイトル（号数と日付を含む）→ レイアウト（通常 / 節目の
  * 切替とタイル、暗幕）→ プロジェクト（連載の固定情報・accordion）。
  */
 export function ControlPanel({
@@ -50,18 +51,25 @@ export function ControlPanel({
 	reset,
 	onDownload,
 	busy,
+	titleFontSize,
 }: {
 	state: Fields;
 	update: (patch: Partial<Fields>) => void;
 	reset: () => void;
 	onDownload: () => void;
 	busy: boolean;
+	/** 台紙が確定したタイトルのフォントサイズ。可読性の警告に使う */
+	titleFontSize: number | null;
 }) {
 	return (
 		<aside className="flex h-full flex-col overflow-hidden border-border border-l bg-card">
 			<div className="flex-1 overflow-y-auto px-6 py-5">
 				<PhotoSection state={state} update={update} />
-				<TitleSection state={state} update={update} />
+				<TitleSection
+					state={state}
+					update={update}
+					titleFontSize={titleFontSize}
+				/>
 				<IssueSection state={state} update={update} />
 				<LayoutSection state={state} update={update} />
 				<ProjectSection state={state} update={update} />
@@ -101,11 +109,15 @@ function PhotoSection({
 function TitleSection({
 	state,
 	update,
+	titleFontSize,
 }: {
 	state: Fields;
 	update: (patch: Partial<Fields>) => void;
+	titleFontSize: number | null;
 }) {
 	const titleId = useId();
+	// 警告はステータスバーにも出るが、直せる場所はここ。潰れているときだけ出す
+	const readability = state.title ? getTitleReadability(titleFontSize) : null;
 	return (
 		<>
 			<SectionTitle>タイトル</SectionTitle>
@@ -120,7 +132,21 @@ function TitleSection({
 					rows={2}
 					placeholder="夜更けにコードを書く理由"
 				/>
-				<FieldDescription>{state.title.length}文字</FieldDescription>
+				<div className="flex items-start gap-3">
+					{readability && readability.level !== "ok" && (
+						<p className="flex items-start gap-1.5 text-xs leading-relaxed text-(--warning)">
+							<TriangleAlertIcon
+								aria-hidden="true"
+								className="mt-0.5 size-3.5 flex-shrink-0"
+								strokeWidth={1.75}
+							/>
+							<span>{readability.message}</span>
+						</p>
+					)}
+					<FieldDescription className="ml-auto shrink-0 tabular-nums">
+						{state.title.length}文字
+					</FieldDescription>
+				</div>
 			</Field>
 		</>
 	);
@@ -317,9 +343,9 @@ function PanelFooter({
 				</AlertDialogTrigger>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>入力内容をリセットする</AlertDialogTitle>
+						<AlertDialogTitle>はじめから作り直す</AlertDialogTitle>
 						<AlertDialogDescription>
-							タイトル・vol.・レイアウトの選択をすべて初期値に戻す。元には戻せない。
+							タイトル・号数・レイアウトが初期値に戻る。取り消しはできない
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>

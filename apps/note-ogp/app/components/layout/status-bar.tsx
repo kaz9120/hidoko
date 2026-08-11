@@ -1,6 +1,10 @@
 import { TriangleAlertIcon } from "lucide-react";
 import type { Fields } from "~/lib/og-templates";
 import { FRAME_HEIGHT, FRAME_WIDTH } from "~/lib/og-templates";
+import {
+	getTitleReadability,
+	type TitleReadability,
+} from "~/lib/title-readability";
 
 /**
  * 画面下端 24px のステータスバー。snapcrop の `status-bar.tsx` と同じ
@@ -34,7 +38,7 @@ export function StatusBar({
 	sidebarCollapsed?: boolean;
 }) {
 	const titleLength = fields.title.length;
-	const readability = fields.title ? getReadabilityStatus(titleFontSize) : null;
+	const readability = fields.title ? getTitleReadability(titleFontSize) : null;
 
 	return (
 		<footer className="flex h-6 shrink-0 items-center gap-3 border-border border-t bg-card/50 px-3 font-mono text-[11px] text-muted-foreground">
@@ -65,29 +69,7 @@ export function StatusBar({
 	);
 }
 
-// ─────────────────────────────────────────────────────────
-// 可読性（タイムライン実寸でタイトルが読める大きさか）
-// ─────────────────────────────────────────────────────────
-const TIMELINE_CARD_WIDTH = 343;
-const TIMELINE_SCALE = TIMELINE_CARD_WIDTH / FRAME_WIDTH;
-const MIN_READABLE_PX = 10;
-const TITLE_FONT_WARN_PX = Math.ceil(MIN_READABLE_PX / TIMELINE_SCALE);
-
-type ReadabilityStatus = { level: "ok" | "warn" | "bad"; reason: string };
-
-function getReadabilityStatus(titleFontSize: number | null): ReadabilityStatus {
-	if (titleFontSize !== null && titleFontSize < TITLE_FONT_WARN_PX) {
-		const onTimeline = Math.round(titleFontSize * TIMELINE_SCALE);
-		const level = onTimeline <= 8 ? "bad" : "warn";
-		return {
-			level,
-			reason: `タイムラインで小さい — 1 行を短くする（${onTimeline}px）`,
-		};
-	}
-	return { level: "ok", reason: "タイムラインで読める" };
-}
-
-function ReadabilityChip({ status }: { status: ReadabilityStatus | null }) {
+function ReadabilityChip({ status }: { status: TitleReadability | null }) {
 	if (!status) {
 		return <span className="text-(--text-faint)">—</span>;
 	}
@@ -97,21 +79,21 @@ function ReadabilityChip({ status }: { status: ReadabilityStatus | null }) {
 				<span aria-hidden="true" className="text-[var(--moss)]">
 					●
 				</span>
-				<span className="hidden lg:inline">{status.reason}</span>
+				<span className="hidden lg:inline">{status.message}</span>
 			</span>
 		);
 	}
 	return (
 		<span
 			className="flex items-center gap-1 text-(--warning)"
-			title={status.reason}
+			title={status.message}
 		>
 			<TriangleAlertIcon
 				aria-hidden="true"
 				className="size-3 flex-shrink-0"
 				strokeWidth={1.75}
 			/>
-			<span className="hidden lg:inline">{status.reason}</span>
+			<span className="hidden lg:inline">{status.message}</span>
 		</span>
 	);
 }

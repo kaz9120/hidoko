@@ -72,7 +72,7 @@ export function ImageField({
 					</span>
 					<span className="flex items-center gap-1 font-mono text-[9px] uppercase tracking-[0.22em] text-muted-foreground/80">
 						<ImageIcon className="size-3" strokeWidth={1.75} />
-						JPG / PNG ／ クリックで選択
+						JPG / PNG
 					</span>
 				</button>
 			)}
