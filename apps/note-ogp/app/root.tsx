@@ -14,13 +14,18 @@ import "./globals.css";
 
 // note OGP の台紙は本文 UI と別の書体で組むため、追加 Web フォントを読む。
 // LINE Seed JP は packages/ui の fonts.css にすでに含まれているので重複読み込みしない。
-// JetBrains Mono だけは ui 側が 400/500 しか読まないので、台紙のラベルが使う
-// 600 をここで足す。
+//
+// ウェイトは台紙が実際に使うものだけに絞る。
+// ・Shippori Mincho 600 — タイトルとマストヘッドと漢数字
+// ・Newsreader 500（正体）— タイトル中のラテンと数字（tsume.ts）
+// ・Newsreader 400 / 500（斜体）— 号数。400 は B1 見出しのプレートだけ
+// ・JetBrains Mono 600 — VOL. ラベル。ui 側は 400/500 しか読まないのでここで足す
+// apps/storybook/.storybook/preview-head.html と同じ内容にすること。
 const OGP_FONTS_HREF =
 	"https://fonts.googleapis.com/css2?" +
 	[
-		"family=Shippori+Mincho:wght@400;500;600;700;800",
-		"family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500",
+		"family=Shippori+Mincho:wght@600",
+		"family=Newsreader:ital,opsz,wght@0,6..72,500;1,6..72,400;1,6..72,500",
 		"family=JetBrains+Mono:wght@600",
 		"display=swap",
 	].join("&");

@@ -14,7 +14,8 @@ import {
  * 身振りの関係）が読み取れない。灰の矩形がマストヘッドとタイトル、ember の
  * 矩形が号数、淡い ember が面と大判を表す。
  *
- * 座標は design/note-ogp v10 エディタモック.html の SKELS / MSKELS が正。
+ * 矩形の座標はタイルのためだけに作った近似で、台紙の KUMI の座標とは別物。
+ * 台紙側を動かしたときは、ここも目で見て合わせる（自動では追従しない）。
  */
 
 /** 矩形の役割。ink=文字の塊 / ember=号数 / wash=面・大判 */
@@ -24,7 +25,7 @@ type Ink = "ink" | "ember" | "wash";
 type Rect = [Ink, number, number, number, number];
 
 const KIND_CLASS: Record<Ink, string> = {
-	ink: "bg-(--ink-500)",
+	ink: "bg-muted-foreground",
 	ember: "bg-primary",
 	wash: "bg-primary/25",
 };

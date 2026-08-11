@@ -54,6 +54,17 @@ function base(patch: Partial<Fields> = {}): Fields {
 	};
 }
 
+// 自動インク計画の 3 分岐を story で通すための合成写真。実写を出荷物に含めない
+// ため、単色 1px の PNG を data URI で埋め込む。輝度は (0.2126R + 0.7152G +
+// 0.0722B) / 255 なので、無彩色なら画素値がそのまま平均輝度になる。
+//   #808080 → 0.502（中間調 = 自動スクリム）
+//   #d9d9d9 → 0.851（明るい面 = ハロ）
+// バイト列は固定なので VRT は揺れない。
+const MID_TONE_PHOTO =
+	"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR42mNoaGgAAAMEAYF1LgG8AAAAAElFTkSuQmCC";
+const BRIGHT_PHOTO =
+	"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR42mO4efMmAAUaAoyLTUsFAAAAAElFTkSuQmCC";
+
 // 縮尺は VRT のビューポート（1280×800）に収まる値。12 面は 3 列 4 段なので
 // いちばん小さく、単独と 2 面並びはその分だけ大きく見せる。
 const SOLO_SCALE = 0.5;
@@ -183,6 +194,57 @@ export const Tsume: Story = {
 				f={base({ kumi: "a1", title: "Rust と TypeScript で書いた 10 年" })}
 				scale={PAIR_SCALE}
 			/>
+		</Grid>
+	),
+};
+
+/**
+ * 自動インク計画の 3 分岐。写真が無いときは暗い面として扱われてオフ白のまま、
+ * 中間調（平均輝度 0.502）では自動でスクリムが敷かれ、明るい面（0.851）では
+ * ハロ（黒淵の白）で文字を浮かせる。ユーザーはこの判断をしない。
+ *
+ * 写真は単色の合成画像なので、写真そのものではなく分岐の効きだけを見る。
+ * @summary 自動インク計画（暗い / 中間調 / 明るい）
+ */
+export const InkPlan: Story = {
+	render: () => (
+		<Grid columns={3}>
+			<Panel
+				label="暗い（写真なし）"
+				f={base({ kumi: "a1" })}
+				scale={TRIO_SCALE}
+			/>
+			<Panel
+				label="中間調 → 自動スクリム"
+				f={base({ kumi: "a1", image: MID_TONE_PHOTO })}
+				scale={TRIO_SCALE}
+			/>
+			<Panel
+				label="明るい → ハロ"
+				f={base({ kumi: "a1", image: BRIGHT_PHOTO })}
+				scale={TRIO_SCALE}
+			/>
+		</Grid>
+	),
+};
+
+/**
+ * 明るい面のハロが、号数やマストヘッドなどの小物にも通っていることを見る。
+ * 組みによって小物の位置と種類が変わるので、コーナー・フィルム縁・判・
+ * 点線リーダーを 1 つずつ並べる。
+ * @summary ハロ（明るい写真の上の小物）
+ */
+export const HaloOnBrightPhoto: Story = {
+	render: () => (
+		<Grid columns={2}>
+			{(["a1", "c1", "d5", "g7"] as const).map((id) => (
+				<Panel
+					key={id}
+					label={KUMI[id].name}
+					f={base({ kumi: id, image: BRIGHT_PHOTO })}
+					scale={PAIR_SCALE}
+				/>
+			))}
 		</Grid>
 	),
 };

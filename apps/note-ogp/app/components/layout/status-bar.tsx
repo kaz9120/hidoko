@@ -58,7 +58,7 @@ export function StatusBar({
 
 			<span className="ml-auto" />
 
-			<span>{titleLength} 文字</span>
+			<span>{titleLength}文字</span>
 			<Sep />
 			<ReadabilityChip status={readability} />
 			<Sep />

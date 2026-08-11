@@ -532,6 +532,54 @@ type NumberProps = {
 	shadow?: string;
 };
 
+/**
+ * 「VOL.」ラベルの見た目。組みが変えるのは字の大きさと字送りだけで、
+ * 等幅・600・大きめのトラッキングという骨は号数の身振り全体で共通。
+ */
+function volLabelStyle({
+	fontSize,
+	letterSpacing,
+	color,
+	opacity,
+}: {
+	fontSize: number;
+	letterSpacing: string;
+	color: string;
+	opacity: number;
+}): CSSProperties {
+	return {
+		fontFamily: V10.mono,
+		fontSize,
+		fontWeight: 600,
+		letterSpacing,
+		color,
+		opacity,
+	};
+}
+
+/**
+ * 号数そのものの見た目。Newsreader のイタリックで ember に置く。組みが変えるのは
+ * 字の大きさと行送り、帯の中だけ淡い ember を使う。
+ */
+function issueNumberStyle({
+	fontSize,
+	lineHeight,
+	color = V10.ember,
+}: {
+	fontSize: number;
+	lineHeight: number;
+	color?: string;
+}): CSSProperties {
+	return {
+		fontFamily: V10.serif,
+		fontStyle: "italic",
+		fontSize,
+		fontWeight: 500,
+		color,
+		lineHeight,
+	};
+}
+
 function CornerNum({
 	issue,
 	date,
@@ -546,27 +594,16 @@ function CornerNum({
 	return (
 		<div style={{ position: "absolute", textShadow: shadow, ...pos }}>
 			<div
-				style={{
-					fontFamily: V10.mono,
+				style={volLabelStyle({
 					fontSize: 10,
-					fontWeight: 600,
 					letterSpacing: "0.32em",
 					color: ink,
 					opacity: 0.65,
-				}}
+				})}
 			>
 				VOL.
 			</div>
-			<div
-				style={{
-					fontFamily: V10.serif,
-					fontStyle: "italic",
-					fontSize: 34,
-					fontWeight: 500,
-					color: V10.ember,
-					lineHeight: 1.15,
-				}}
-			>
+			<div style={issueNumberStyle({ fontSize: 34, lineHeight: 1.15 })}>
 				{issue}
 			</div>
 			<div
@@ -703,27 +740,16 @@ function Stamp({
 			}}
 		>
 			<div
-				style={{
-					fontFamily: V10.mono,
+				style={volLabelStyle({
 					fontSize: 10,
-					fontWeight: 600,
 					letterSpacing: "0.32em",
 					color: ink,
 					opacity: 0.65,
-				}}
+				})}
 			>
 				VOL.
 			</div>
-			<div
-				style={{
-					fontFamily: V10.serif,
-					fontStyle: "italic",
-					fontSize: 32,
-					fontWeight: 500,
-					color: V10.ember,
-					lineHeight: 1.2,
-				}}
-			>
+			<div style={issueNumberStyle({ fontSize: 32, lineHeight: 1.2 })}>
 				{issue}
 			</div>
 			<div
@@ -852,6 +878,227 @@ function TitleBox({
 					textShadow: shadow,
 				}}
 			/>
+		</div>
+	);
+}
+
+// ─────────────────────────────────────────────────────────
+// タイトルと号数が同じ行に組まれる 3 組み
+//   f7 / g7 / h1 は号数がタイトルに寄るので、TitleBox の矩形では組めない。
+//   組みごとに専用の並びを持つ。
+// ─────────────────────────────────────────────────────────
+
+/** F7 浮き帯 — 下部の半透明帯の中にタイトルと号数を収める */
+function BandTitle({
+	f,
+	onTitleMeasured,
+}: {
+	f: Fields;
+	onTitleMeasured?: (px: number) => void;
+}) {
+	return (
+		<div
+			style={{
+				position: "absolute",
+				left: 40,
+				right: 40,
+				bottom: 40,
+				height: 132,
+				background: "rgba(10,9,7,0.66)",
+				backdropFilter: "blur(5px)",
+				WebkitBackdropFilter: "blur(5px)",
+				display: "flex",
+				alignItems: "center",
+				gap: 40,
+				padding: "0 52px",
+			}}
+		>
+			<FitV10
+				text={f.title}
+				box={{ w: 770, h: 96 }}
+				max={48}
+				min={26}
+				onMeasured={onTitleMeasured}
+				style={{ ...TITLE_BASE, lineHeight: 1.26, color: V10.ink }}
+			/>
+			<span
+				style={{
+					marginLeft: "auto",
+					width: 1,
+					height: 58,
+					background: V10.ink,
+					opacity: 0.22,
+					flexShrink: 0,
+				}}
+			/>
+			<div style={{ textAlign: "right", flexShrink: 0 }}>
+				<div
+					style={issueNumberStyle({
+						fontSize: 30,
+						lineHeight: 1.1,
+						color: V10.emberSoft,
+					})}
+				>
+					Vol.{f.issue}
+				</div>
+				<div
+					style={{
+						fontFamily: V10.mono,
+						fontSize: 10,
+						letterSpacing: "0.24em",
+						color: V10.ink,
+						opacity: 0.6,
+						marginTop: 3,
+					}}
+				>
+					{f.date}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+/** G7 目次風 — 左下の 1 行から点線リーダーで右の号数へ渡す */
+function TocTitle({
+	f,
+	ink,
+	plan,
+	onTitleMeasured,
+}: {
+	f: Fields;
+	ink: string;
+	plan: InkPlan;
+	onTitleMeasured?: (px: number) => void;
+}) {
+	return (
+		<div
+			style={{
+				position: "absolute",
+				left: 56,
+				right: 56,
+				bottom: 64,
+				display: "flex",
+				alignItems: "flex-end",
+				gap: 24,
+			}}
+		>
+			<FitV10
+				text={f.title}
+				box={{ w: 680, h: 84 }}
+				max={56}
+				min={28}
+				nowrap
+				onMeasured={onTitleMeasured}
+				style={{
+					...TITLE_BASE,
+					lineHeight: 1.2,
+					color: ink,
+					textShadow: plan.shadow,
+				}}
+			/>
+			<span
+				style={{
+					flex: 1,
+					borderBottom: `3px dotted ${ink}`,
+					opacity: plan.shadow ? 0.7 : 0.4,
+					marginBottom: 12,
+				}}
+			/>
+			<span
+				style={{
+					display: "flex",
+					alignItems: "baseline",
+					gap: 10,
+					flexShrink: 0,
+					textShadow: plan.msShadow,
+				}}
+			>
+				<span
+					style={volLabelStyle({
+						fontSize: 11,
+						letterSpacing: "0.28em",
+						color: ink,
+						opacity: plan.shadow ? 0.9 : 0.65,
+					})}
+				>
+					VOL.
+				</span>
+				<span style={issueNumberStyle({ fontSize: 44, lineHeight: 1 })}>
+					{f.issue}
+				</span>
+			</span>
+		</div>
+	);
+}
+
+/** H1 静けさ — 自動で選んだ静かな面にタイトルを置き、その尻に号数を添える */
+function QuietTitle({
+	f,
+	region,
+	max,
+	ink,
+	plan,
+	onTitleMeasured,
+}: {
+	f: Fields;
+	region: TitleRegion;
+	max: number;
+	ink: string;
+	plan: InkPlan;
+	onTitleMeasured?: (px: number) => void;
+}) {
+	return (
+		<div
+			style={{
+				position: "absolute",
+				left: region.x * FRAME_WIDTH,
+				top: region.y * FRAME_HEIGHT,
+				width: region.w * FRAME_WIDTH,
+				height: region.h * FRAME_HEIGHT,
+				display: "flex",
+				alignItems: "flex-end",
+				justifyContent: region.align === "right" ? "flex-end" : "flex-start",
+			}}
+		>
+			<div
+				style={{
+					display: "flex",
+					alignItems: "flex-end",
+					gap: 18,
+					maxWidth: "100%",
+				}}
+			>
+				<FitV10
+					text={f.title}
+					box={{
+						w: region.w * FRAME_WIDTH - 130,
+						h: region.h * FRAME_HEIGHT,
+					}}
+					max={max}
+					align={region.align}
+					onMeasured={onTitleMeasured}
+					style={{
+						...TITLE_BASE,
+						lineHeight: 1.26,
+						color: ink,
+						textShadow: plan.shadow,
+					}}
+				/>
+				<span
+					style={{
+						fontFamily: V10.serif,
+						fontStyle: "italic",
+						fontSize: 24,
+						fontWeight: 500,
+						color: V10.ember,
+						whiteSpace: "nowrap",
+						marginBottom: 5,
+						textShadow: plan.msShadow,
+					}}
+				>
+					vol.{f.issue}
+				</span>
+			</div>
 		</div>
 	);
 }
@@ -1160,190 +1407,23 @@ export function Cover({
 
 			{/* タイトル。f7 / g7 / h1 は号数と同じ行に組むので専用の並びを持つ */}
 			{f.kumi === "f7" ? (
-				<div
-					style={{
-						position: "absolute",
-						left: 40,
-						right: 40,
-						bottom: 40,
-						height: 132,
-						background: "rgba(10,9,7,0.66)",
-						backdropFilter: "blur(5px)",
-						WebkitBackdropFilter: "blur(5px)",
-						display: "flex",
-						alignItems: "center",
-						gap: 40,
-						padding: "0 52px",
-					}}
-				>
-					<FitV10
-						text={f.title}
-						box={{ w: 770, h: 96 }}
-						max={48}
-						min={26}
-						onMeasured={onTitleMeasured}
-						style={{ ...TITLE_BASE, lineHeight: 1.26, color: V10.ink }}
-					/>
-					<span
-						style={{
-							marginLeft: "auto",
-							width: 1,
-							height: 58,
-							background: V10.ink,
-							opacity: 0.22,
-							flexShrink: 0,
-						}}
-					/>
-					<div style={{ textAlign: "right", flexShrink: 0 }}>
-						<div
-							style={{
-								fontFamily: V10.serif,
-								fontStyle: "italic",
-								fontSize: 30,
-								fontWeight: 500,
-								color: V10.emberSoft,
-								lineHeight: 1.1,
-							}}
-						>
-							Vol.{f.issue}
-						</div>
-						<div
-							style={{
-								fontFamily: V10.mono,
-								fontSize: 10,
-								letterSpacing: "0.24em",
-								color: V10.ink,
-								opacity: 0.6,
-								marginTop: 3,
-							}}
-						>
-							{f.date}
-						</div>
-					</div>
-				</div>
+				<BandTitle f={f} onTitleMeasured={onTitleMeasured} />
 			) : f.kumi === "g7" ? (
-				<div
-					style={{
-						position: "absolute",
-						left: 56,
-						right: 56,
-						bottom: 64,
-						display: "flex",
-						alignItems: "flex-end",
-						gap: 24,
-					}}
-				>
-					<FitV10
-						text={f.title}
-						box={{ w: 680, h: 84 }}
-						max={56}
-						min={28}
-						nowrap
-						onMeasured={onTitleMeasured}
-						style={{
-							...TITLE_BASE,
-							lineHeight: 1.2,
-							color: ink,
-							textShadow: plan.shadow,
-						}}
-					/>
-					<span
-						style={{
-							flex: 1,
-							borderBottom: `3px dotted ${ink}`,
-							opacity: plan.shadow ? 0.7 : 0.4,
-							marginBottom: 12,
-						}}
-					/>
-					<span
-						style={{
-							display: "flex",
-							alignItems: "baseline",
-							gap: 10,
-							flexShrink: 0,
-							textShadow: plan.msShadow,
-						}}
-					>
-						<span
-							style={{
-								fontFamily: V10.mono,
-								fontSize: 11,
-								fontWeight: 600,
-								letterSpacing: "0.28em",
-								color: ink,
-								opacity: plan.shadow ? 0.9 : 0.65,
-							}}
-						>
-							VOL.
-						</span>
-						<span
-							style={{
-								fontFamily: V10.serif,
-								fontStyle: "italic",
-								fontSize: 44,
-								fontWeight: 500,
-								color: V10.ember,
-								lineHeight: 1,
-							}}
-						>
-							{f.issue}
-						</span>
-					</span>
-				</div>
+				<TocTitle
+					f={f}
+					ink={ink}
+					plan={plan}
+					onTitleMeasured={onTitleMeasured}
+				/>
 			) : f.kumi === "h1" ? (
-				<div
-					style={{
-						position: "absolute",
-						left: region.x * FRAME_WIDTH,
-						top: region.y * FRAME_HEIGHT,
-						width: region.w * FRAME_WIDTH,
-						height: region.h * FRAME_HEIGHT,
-						display: "flex",
-						alignItems: "flex-end",
-						justifyContent:
-							region.align === "right" ? "flex-end" : "flex-start",
-					}}
-				>
-					<div
-						style={{
-							display: "flex",
-							alignItems: "flex-end",
-							gap: 18,
-							maxWidth: "100%",
-						}}
-					>
-						<FitV10
-							text={f.title}
-							box={{
-								w: region.w * FRAME_WIDTH - 130,
-								h: region.h * FRAME_HEIGHT,
-							}}
-							max={kumi.max}
-							align={region.align}
-							onMeasured={onTitleMeasured}
-							style={{
-								...TITLE_BASE,
-								lineHeight: 1.26,
-								color: ink,
-								textShadow: plan.shadow,
-							}}
-						/>
-						<span
-							style={{
-								fontFamily: V10.serif,
-								fontStyle: "italic",
-								fontSize: 24,
-								fontWeight: 500,
-								color: V10.ember,
-								whiteSpace: "nowrap",
-								marginBottom: 5,
-								textShadow: plan.msShadow,
-							}}
-						>
-							vol.{f.issue}
-						</span>
-					</div>
-				</div>
+				<QuietTitle
+					f={f}
+					region={region}
+					max={kumi.max}
+					ink={ink}
+					plan={plan}
+					onTitleMeasured={onTitleMeasured}
+				/>
 			) : (
 				<TitleBox
 					text={f.title}

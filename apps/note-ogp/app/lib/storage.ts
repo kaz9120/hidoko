@@ -108,20 +108,18 @@ function migrateFromLegacy(stored: Record<string, unknown>): Fields {
 }
 
 /**
- * 保存済みの state があるかを確認する。useNoteOgpState 初期化時に「これは初回
+ * 復元できる state があるかを確認する。useNoteOgpState 初期化時に「これは初回
  * 起動か？」を判定するために使う（DEFAULTS の date を当月に差し替えるかどうかの
  * 分岐に効く）。移行対象の v3 も「保存済み」として数える。
+ *
+ * 判定は loadState() と同じ readRaw を通す。キーが存在するだけで真にすると、
+ * 壊れた文字列しか残っていない環境が「保存済み」に倒れ、loadState() は
+ * DEFAULTS を返すのに初回起動の処理（号数の採番と当月の日付）だけが永久に
+ * 飛ばされる。
  */
 export function hasStoredState(): boolean {
 	if (typeof window === "undefined") return false;
-	try {
-		return (
-			window.localStorage.getItem(STORAGE_KEY) !== null ||
-			window.localStorage.getItem(LEGACY_STORAGE_KEY) !== null
-		);
-	} catch {
-		return false;
-	}
+	return readRaw(STORAGE_KEY) !== null || readRaw(LEGACY_STORAGE_KEY) !== null;
 }
 
 export function loadState(): Fields {
