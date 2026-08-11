@@ -5,19 +5,12 @@ import logoDarkUrl from "ui/assets/logo/mark-dark.svg?url";
 import { ThemeToggle } from "../theme-toggle";
 
 /**
- * 画面最上段のヘッダ。左はロゴとアプリ名、右は ThemeToggle と、
- * プロフィール設定が済んでいる場合はそのチップ（ブランド表記）。
+ * 画面最上段のヘッダ。左はロゴとアプリ名、右は ThemeToggle。
  *
- * `profile` を渡さない呼び出し（プロフィール未確定・Storybook 等）では
- * チップ自体を出さない。
+ * プロフィール（ブランド表記と炎マーク）の編集はパネルのプロジェクト欄に
+ * 一本化したので、ここに編集の入口は置かない。
  */
-export function SiteHeader({
-	profile,
-	onProfileClick,
-}: {
-	profile?: { brand: string } | null;
-	onProfileClick?: () => void;
-}) {
+export function SiteHeader() {
 	const { resolvedTheme } = useTheme();
 	const [mounted, setMounted] = useState(false);
 
@@ -39,18 +32,6 @@ export function SiteHeader({
 				</h1>
 			</div>
 			<div className="ml-auto flex items-center gap-1.5">
-				{profile && onProfileClick && (
-					<button
-						type="button"
-						onClick={onProfileClick}
-						className="flex h-7 max-w-[220px] items-center gap-1.5 rounded-md border border-border bg-background px-2 text-xs text-muted-foreground transition-colors hover:border-primary/50 hover:text-foreground"
-						aria-label="プロフィールを編集"
-					>
-						<span className="truncate text-foreground/80">
-							{profile.brand || "プロフィール"}
-						</span>
-					</button>
-				)}
 				<ThemeToggle />
 			</div>
 		</header>

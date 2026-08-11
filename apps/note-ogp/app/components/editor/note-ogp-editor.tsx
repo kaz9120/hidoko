@@ -1,19 +1,11 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { SiteFooter } from "~/components/layout/site-footer";
 import { SiteHeader } from "~/components/layout/site-header";
 import { StatusBar } from "~/components/layout/status-bar";
-import {
-	ProfileDialog,
-	type ProfileValues,
-} from "~/components/profile/profile-dialog";
 import { useNoteOgpState } from "~/hooks/use-note-ogp-state";
 import { buildFileName, downloadPng } from "~/lib/download-png";
-import {
-	isProfileBootstrapped,
-	markProfileBootstrapped,
-} from "~/lib/profile-storage";
 import {
 	loadSidebarCollapsed,
 	saveSidebarCollapsed,
@@ -29,20 +21,11 @@ export function NoteOgpEditor() {
 	// StatusBar に集約して出すための受け皿。
 	const [stageScale, setStageScale] = useState(0.5);
 	const [titleFontSize, setTitleFontSize] = useState<number | null>(null);
-	// プロフィール編集ダイアログの開閉 (Issue #135)。`intro` が立っているときは
-	// 初回起動の文言を出す。チップから開いた時は intro = false。
-	const [profileDialogOpen, setProfileDialogOpen] = useState(false);
-	const [profileDialogIntro, setProfileDialogIntro] = useState(false);
 	// サイドパネル折りたたみ (Issue #138)。初回マウント後に localStorage から復元、
 	// ⌘\ で開閉、ステージ右端のハンドルでも開閉できる。
 	const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-	// 初回マウントでプロフィール未確定なら、ダイアログを開いて intro を出す。
 	useEffect(() => {
-		if (!isProfileBootstrapped()) {
-			setProfileDialogIntro(true);
-			setProfileDialogOpen(true);
-		}
 		setSidebarCollapsed(loadSidebarCollapsed());
 	}, []);
 
@@ -87,37 +70,9 @@ export function NoteOgpEditor() {
 		}
 	}, [busy, state.title, state.issue, recordExport]);
 
-	const handleProfileChipClick = () => {
-		setProfileDialogIntro(false);
-		setProfileDialogOpen(true);
-	};
-
-	const handleProfileSave = (values: ProfileValues) => {
-		update(values);
-		markProfileBootstrapped();
-		setProfileDialogOpen(false);
-	};
-
-	const handleProfileCancel = () => {
-		markProfileBootstrapped();
-		setProfileDialogOpen(false);
-	};
-
-	// ProfileDialog は initialValues を effect の依存に入れて、開いている間の
-	// 編集内容を initialValues で初期化し直す。毎レンダリングで新しい参照を渡すと、
-	// ダイアログを開いたまま親が再描画されるたび（自動保存の時刻更新など）に
-	// 入力中の値が捨てられる。値が変わったときだけ参照を変える。
-	const profileValues: ProfileValues = useMemo(
-		() => ({ brand: state.brand, showMark: state.showMark }),
-		[state.brand, state.showMark],
-	);
-
 	return (
 		<div className="flex min-h-screen flex-col bg-background md:h-screen">
-			<SiteHeader
-				profile={{ brand: state.brand }}
-				onProfileClick={handleProfileChipClick}
-			/>
+			<SiteHeader />
 			<div
 				className={`grid min-h-0 flex-1 grid-cols-1 ${
 					sidebarCollapsed
@@ -174,13 +129,6 @@ export function NoteOgpEditor() {
 				sidebarCollapsed={sidebarCollapsed}
 			/>
 			<SiteFooter />
-			<ProfileDialog
-				open={profileDialogOpen}
-				initialValues={profileValues}
-				intro={profileDialogIntro}
-				onSave={handleProfileSave}
-				onCancel={handleProfileCancel}
-			/>
 		</div>
 	);
 }
