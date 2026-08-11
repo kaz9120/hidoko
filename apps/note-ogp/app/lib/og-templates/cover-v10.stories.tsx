@@ -7,7 +7,7 @@ import {
 	FRAME_WIDTH,
 	KUMI,
 	KUMI_IDS,
-	MILESTONE_NAMES,
+	MILESTONE,
 	MILESTONES,
 } from "~/lib/og-templates";
 import { DEFAULTS } from "~/lib/storage";
@@ -64,6 +64,10 @@ const MID_TONE_PHOTO =
 	"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR42mNoaGgAAAMEAYF1LgG8AAAAAElFTkSuQmCC";
 const BRIGHT_PHOTO =
 	"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR42mO4efMmAAUaAoyLTUsFAAAAAElFTkSuQmCC";
+
+// カタログのラベルは設計時の符牒つきで見せる。100 案からの選抜を辿るときに
+// 記号が要るため。ユーザーに見える UI 側は和名だけを使う。
+const kumiLabel = (id: KumiId) => `${KUMI[id].code} ${KUMI[id].name}`;
 
 // 縮尺は VRT のビューポート（1280×800）に収まる値。12 面は 3 列 4 段なので
 // いちばん小さく、単独と 2 面並びはその分だけ大きく見せる。
@@ -130,7 +134,11 @@ function Grid({
  */
 export const Default: Story = {
 	render: () => (
-		<Panel label={KUMI.a1.name} f={base({ kumi: "a1" })} scale={SOLO_SCALE} />
+		<Panel
+			label={kumiLabel("a1")}
+			f={base({ kumi: "a1" })}
+			scale={SOLO_SCALE}
+		/>
 	),
 };
 
@@ -146,7 +154,7 @@ export const AllKumi: Story = {
 			{KUMI_IDS.map((id: KumiId) => (
 				<Panel
 					key={id}
-					label={KUMI[id].name}
+					label={kumiLabel(id)}
 					f={base({ kumi: id })}
 					scale={GRID_SCALE}
 				/>
@@ -166,7 +174,7 @@ export const Milestones: Story = {
 			{MILESTONES.map((id: Milestone) => (
 				<Panel
 					key={id}
-					label={MILESTONE_NAMES[id]}
+					label={`${MILESTONE[id].code} ${MILESTONE[id].name}`}
 					f={base({ mode: "milestone", milestone: id, issue: "050" })}
 					scale={TRIO_SCALE}
 				/>
@@ -240,7 +248,7 @@ export const HaloOnBrightPhoto: Story = {
 			{(["a1", "c1", "d5", "g7"] as const).map((id) => (
 				<Panel
 					key={id}
-					label={KUMI[id].name}
+					label={kumiLabel(id)}
 					f={base({ kumi: id, image: BRIGHT_PHOTO })}
 					scale={PAIR_SCALE}
 				/>

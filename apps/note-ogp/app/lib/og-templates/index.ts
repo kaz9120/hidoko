@@ -1,11 +1,16 @@
-export type { Kumi, ScrimDirection, TitleRegion } from "./cover-v10";
+export type {
+	Kumi,
+	MilestoneMeta,
+	ScrimDirection,
+	TitleRegion,
+} from "./cover-v10";
 export {
 	Cover,
 	FRAME_HEIGHT,
 	FRAME_WIDTH,
 	HidokoMark,
 	KUMI,
-	MILESTONE_NAMES,
+	MILESTONE,
 } from "./cover-v10";
 export type {
 	ImageStats,

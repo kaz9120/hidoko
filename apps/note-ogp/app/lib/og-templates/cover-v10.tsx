@@ -265,6 +265,12 @@ export type TitleRegion = Region & {
 };
 
 export type Kumi = {
+	/**
+	 * 設計時の符牒。100 案から選抜した経緯を辿るための記号で、ユーザーには
+	 * 見せない（Storybook のカタログだけが name と組み合わせて出す）。
+	 */
+	code: string;
+	/** UI に出す和名。レイアウト名の出典はここ 1 つ */
 	name: string;
 	/** null は自動配置（h1 静けさ）。写真の静かな面を探して決める */
 	region: TitleRegion | null;
@@ -277,13 +283,15 @@ export type Kumi = {
 
 export const KUMI: Record<KumiId, Kumi> = {
 	a1: {
-		name: "A1 定番",
+		code: "A1",
+		name: "定番",
 		region: { x: 0.044, y: 0.5, w: 0.58, h: 0.34, align: "left" },
 		scrim: "lb",
 		max: 96,
 	},
 	b1: {
-		name: "B1 見出し",
+		code: "B1",
+		name: "見出し",
 		region: {
 			x: 0.044,
 			y: 0.195,
@@ -296,27 +304,31 @@ export const KUMI: Record<KumiId, Kumi> = {
 		max: 80,
 	},
 	b7: {
-		name: "B7 上段右",
+		code: "B7",
+		name: "上段右",
 		region: { x: 0.376, y: 0.155, w: 0.58, h: 0.34, align: "right", v: "top" },
 		scrim: "rt",
 		max: 88,
 	},
 	c1: {
-		name: "C1 右柱",
+		code: "C1",
+		name: "右柱",
 		region: { x: 0.6, y: 0.11, w: 0.35, h: 0.78, align: "left" },
 		scrim: "r",
 		max: 88,
 		vertical: true,
 	},
 	c11: {
-		name: "C11 中柱・判上",
+		code: "C11",
+		name: "中柱",
 		region: { x: 0.36, y: 0.26, w: 0.28, h: 0.62, align: "center" },
 		scrim: "c",
 		max: 84,
 		vertical: true,
 	},
 	d5: {
-		name: "D5 扉",
+		code: "D5",
+		name: "扉",
 		region: {
 			x: 0.14,
 			y: 0.28,
@@ -329,46 +341,59 @@ export const KUMI: Record<KumiId, Kumi> = {
 		max: 84,
 	},
 	d6: {
-		name: "D6 中央大判",
+		code: "D6",
+		name: "中央大判",
 		region: { x: 0.14, y: 0.38, w: 0.72, h: 0.3, align: "center", v: "center" },
 		scrim: "c",
 		max: 84,
 	},
 	e7: {
-		name: "E7 重心外し",
+		code: "E7",
+		name: "重心外し",
 		region: { x: 0.13, y: 0.34, w: 0.48, h: 0.34, align: "left", v: "center" },
 		scrim: "l",
 		max: 88,
 	},
 	f7: {
-		name: "F7 浮き帯",
+		code: "F7",
+		name: "浮き帯",
 		region: { x: 0.06, y: 0.72, w: 0.6, h: 0.16, align: "left" },
 		scrim: "none",
 		max: 52,
 	},
 	g7: {
-		name: "G7 目次風",
+		code: "G7",
+		name: "目次風",
 		region: { x: 0.044, y: 0.74, w: 0.55, h: 0.14, align: "left" },
 		scrim: "b",
 		max: 58,
 	},
 	g10: {
-		name: "G10 対角巨大",
+		code: "G10",
+		name: "対角巨大",
 		region: { x: 0.044, y: 0.16, w: 0.55, h: 0.3, align: "left", v: "top" },
 		scrim: "lt",
 		max: 76,
 	},
-	h1: { name: "H1 静けさ", region: null, scrim: "auto", max: 88 },
+	h1: { code: "H1", name: "静けさ", region: null, scrim: "auto", max: 88 },
+};
+
+/** 節目号 1 変奏ぶんの名前。持ち方は KUMI の code / name と揃える */
+export type MilestoneMeta = {
+	/** 設計時の符牒。ユーザーには見せない */
+	code: string;
+	/** UI に出す和名 */
+	name: string;
 };
 
 /**
- * 節目号 3 変奏の表示名。通常の組みと別の族なので KUMI とは分けるが、
- * パネルのタイルとステータスバーからは同じように引ける形にしておく。
+ * 節目号 3 変奏の名前。通常の組みと別の族なので KUMI とは分けるが、
+ * パネルのタイルからは同じように引ける形にしておく。
  */
-export const MILESTONE_NAMES: Record<Milestone, string> = {
-	watermark: "M1 透かし",
-	hero: "M2 主役",
-	kanji: "M4 漢数字",
+export const MILESTONE: Record<Milestone, MilestoneMeta> = {
+	watermark: { code: "M1", name: "透かし" },
+	hero: { code: "M2", name: "主役" },
+	kanji: { code: "M4", name: "漢数字" },
 };
 
 // F7 浮き帯を強制で暗くするときの向き。帯は下端に横いっぱいで寝ているので、

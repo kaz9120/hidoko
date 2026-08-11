@@ -1,6 +1,6 @@
 import { cn } from "ui/lib/utils";
 import type { KumiId, Milestone } from "~/lib/og-templates";
-import { KUMI_IDS, MILESTONES } from "~/lib/og-templates";
+import { KUMI, KUMI_IDS, MILESTONE, MILESTONES } from "~/lib/og-templates";
 
 /**
  * レイアウト（内部識別子は kumi）のセレクタ。実写プレビューではなく矩形の抽象で
@@ -104,29 +104,6 @@ const MILESTONE_SKELETONS: Record<Milestone, Rect[]> = {
 	],
 };
 
-// 読み上げ用の名前。矩形だけでは何を選んでいるか分からないので button に持たせる。
-// 台紙側の KUMI[id].name が持つ記号（A1 / B1 …）は設計時の符牒なので使わない。
-const KUMI_LABELS: Record<KumiId, string> = {
-	a1: "定番",
-	b1: "見出し",
-	b7: "上段右",
-	c1: "右柱",
-	c11: "中柱",
-	d5: "扉",
-	d6: "中央大判",
-	e7: "重心外し",
-	f7: "浮き帯",
-	g7: "目次風",
-	g10: "対角巨大",
-	h1: "静けさ",
-};
-
-const MILESTONE_LABELS: Record<Milestone, string> = {
-	watermark: "透かし",
-	hero: "主役",
-	kanji: "漢数字",
-};
-
 /** 通常号のレイアウト 12 種 */
 export function KumiTiles({
 	value,
@@ -141,7 +118,7 @@ export function KumiTiles({
 				<Tile
 					key={id}
 					active={value === id}
-					label={KUMI_LABELS[id]}
+					label={KUMI[id].name}
 					rects={KUMI_SKELETONS[id]}
 					onClick={() => onSelect(id)}
 				/>
@@ -164,7 +141,7 @@ export function MilestoneTiles({
 				<Tile
 					key={id}
 					active={value === id}
-					label={MILESTONE_LABELS[id]}
+					label={MILESTONE[id].name}
 					rects={MILESTONE_SKELETONS[id]}
 					onClick={() => onSelect(id)}
 				/>
