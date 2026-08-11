@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.0](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.15.1...note-ogp-v0.16.0) (2026-08-11)
+
+
+### Features
+
+* **note-ogp:** 台紙とエディタを v10 の組みベース設計に載せ替える ([#371](https://github.com/kaz9120/hidoko/issues/371)) ([2321ff4](https://github.com/kaz9120/hidoko/commit/2321ff4ddf90f60090ea8f4ec456ea3e01ffcf38))
+
 ## [0.15.1](https://github.com/kaz9120/hidoko/compare/note-ogp-v0.15.0...note-ogp-v0.15.1) (2026-06-23)
 
 
