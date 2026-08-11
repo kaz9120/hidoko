@@ -1,52 +1,43 @@
-import type {
-	Fields,
-	NumberCorner,
-	NumberSide,
-	NumberTreatment,
-	Scrim,
-	TitleSlot,
-} from "./og-templates";
+// og-templates の barrel はまだ v10 の列挙値を公開していないため、ここでは
+// types.ts を直接読む（barrel への集約は後続の order で行う）。
+import type { Fields, KumiId, Milestone, Mode } from "./og-templates/types";
 import {
-	NUMBER_CORNERS as NUMBER_CORNER_VALUES,
-	NUMBER_SIDES as NUMBER_SIDE_VALUES,
-	NUMBER_TREATMENTS as NUMBER_TREATMENT_VALUES,
-	SCRIMS as SCRIM_VALUES,
-	TITLE_SLOTS as TITLE_SLOT_VALUES,
-} from "./og-templates";
+	KUMI_IDS as KUMI_ID_VALUES,
+	MILESTONES as MILESTONE_VALUES,
+	MODES as MODE_VALUES,
+} from "./og-templates/types";
 
 // localStorage は 5MB が一般的な上限。dataURL がそれを超えると quota error で
 // 全フィールドの保存に失敗するので、画像のサイズが大きすぎる場合は保存対象から外す。
 const MAX_IMAGE_BYTES = 1_500_000;
 
-// v3 で shape が大きく変わったため、保存キーも :v3 に切る。旧キー (:v1) は
-// 自然に放置 — DEFAULTS で安全に立ち上がる。
-const STORAGE_KEY = "hidoko-note-ogp:v3";
+// v10 で shape が大きく変わったため、保存キーも :v4 に切る。
+const STORAGE_KEY = "hidoko-note-ogp:v4";
+
+// 旧キー。:v4 が無いときだけ読み、テキストとプロフィールを引き継ぐ。消さずに
+// 放置するのは、古い版に戻したときに手入力が失われないようにするため。
+const LEGACY_STORAGE_KEY = "hidoko-note-ogp:v3";
 
 export const DEFAULTS: Fields = {
-	title: "夜更けに\nコードを書く理由",
-	lead: "手の動きを邪魔しない、夜の道具立てについて。",
+	title: "夜更けにコードを書く理由",
 	issue: "013",
 	date: "2026.05",
-	category: "ESSAY",
 	brand: "焚き火を愛するエンジニア",
 	author: "山本一将",
 	account: "@kyamamoto9120",
 	showMark: true,
 	image: null,
-	titleSlot: "bl",
-	numberTreatment: "corner",
-	numberOpts: { corner: "tr" },
-	scrim: "auto",
-	showLead: true,
+	kumi: "a1",
+	mode: "normal",
+	milestone: "watermark",
+	scrim: false,
 };
 
 // types.ts の const 配列を runtime validator に流用する。値を増やしたら
 // types.ts 1 箇所だけ更新すれば、Set もこれを通して自動で拡張される。
-const TITLE_SLOTS = new Set<TitleSlot>(TITLE_SLOT_VALUES);
-const NUMBER_TREATMENTS = new Set<NumberTreatment>(NUMBER_TREATMENT_VALUES);
-const NUMBER_CORNERS = new Set<NumberCorner>(NUMBER_CORNER_VALUES);
-const NUMBER_SIDES = new Set<NumberSide>(NUMBER_SIDE_VALUES);
-const SCRIMS = new Set<Scrim>(SCRIM_VALUES);
+const KUMI_IDS = new Set<KumiId>(KUMI_ID_VALUES);
+const MILESTONES = new Set<Milestone>(MILESTONE_VALUES);
+const MODES = new Set<Mode>(MODE_VALUES);
 
 function pickEnum<T extends string>(
 	value: unknown,
@@ -72,40 +63,68 @@ function pickImage(value: unknown): string | null {
 	return value;
 }
 
-function pickNumberOpts(value: unknown): Fields["numberOpts"] {
-	if (typeof value !== "object" || value === null) return DEFAULTS.numberOpts;
-	const v = value as Record<string, unknown>;
-	const opts: Fields["numberOpts"] = {};
-	if (
-		typeof v.corner === "string" &&
-		NUMBER_CORNERS.has(v.corner as NumberCorner)
-	) {
-		opts.corner = v.corner as NumberCorner;
+/** 保存済み JSON をオブジェクトとして読む。未保存・壊れた JSON はすべて null */
+function readRaw(key: string): Record<string, unknown> | null {
+	try {
+		const raw = window.localStorage.getItem(key);
+		if (!raw) return null;
+		const parsed: unknown = JSON.parse(raw);
+		if (typeof parsed !== "object" || parsed === null) return null;
+		return parsed as Record<string, unknown>;
+	} catch {
+		// JSON 破損・storage 無効。どちらも「保存されていない」に倒す
+		return null;
 	}
-	if (typeof v.side === "string" && NUMBER_SIDES.has(v.side as NumberSide)) {
-		opts.side = v.side as NumberSide;
-	}
-	if (
-		typeof v.position === "object" &&
-		v.position !== null &&
-		Number.isFinite((v.position as Record<string, unknown>).left) &&
-		Number.isFinite((v.position as Record<string, unknown>).bottom)
-	) {
-		const p = v.position as Record<string, number>;
-		opts.position = { left: p.left, bottom: p.bottom };
-	}
-	return opts;
+}
+
+/** v3 と v10 で意味が変わらないフィールド（テキストとプロフィール） */
+function pickCarriedOver(stored: Record<string, unknown>) {
+	return {
+		title: pickString(stored.title, DEFAULTS.title),
+		issue: pickString(stored.issue, DEFAULTS.issue),
+		date: pickString(stored.date, DEFAULTS.date),
+		brand: pickString(stored.brand, DEFAULTS.brand),
+		author: pickString(stored.author, DEFAULTS.author),
+		account: pickString(stored.account, DEFAULTS.account),
+		showMark: pickBool(stored.showMark, DEFAULTS.showMark),
+		image: pickImage(stored.image),
+	};
+}
+
+function parseFields(stored: Record<string, unknown>): Fields {
+	return {
+		...pickCarriedOver(stored),
+		kumi: pickEnum(stored.kumi, KUMI_IDS, DEFAULTS.kumi),
+		mode: pickEnum(stored.mode, MODES, DEFAULTS.mode),
+		milestone: pickEnum(stored.milestone, MILESTONES, DEFAULTS.milestone),
+		scrim: pickBool(stored.scrim, DEFAULTS.scrim),
+	};
 }
 
 /**
- * localStorage に v3 の state が保存済みかを確認する。useNoteOgpState 初期化時
- * に「これは初回起動か？」を判定するために使う（DEFAULTS の date を当月に
- * 差し替えるかどうかの分岐に効く）。
+ * v3 の state を v10 へ移す。引き継ぐのはテキストとプロフィールだけで、
+ * 意匠（titleSlot / numberTreatment / numberOpts / 方向つき scrim）は v10 に
+ * 対応する値が無いので DEFAULTS の組みで立ち上げる。
+ */
+function migrateFromLegacy(stored: Record<string, unknown>): Fields {
+	return {
+		...DEFAULTS,
+		...pickCarriedOver(stored),
+	};
+}
+
+/**
+ * 保存済みの state があるかを確認する。useNoteOgpState 初期化時に「これは初回
+ * 起動か？」を判定するために使う（DEFAULTS の date を当月に差し替えるかどうかの
+ * 分岐に効く）。移行対象の v3 も「保存済み」として数える。
  */
 export function hasStoredState(): boolean {
 	if (typeof window === "undefined") return false;
 	try {
-		return window.localStorage.getItem(STORAGE_KEY) !== null;
+		return (
+			window.localStorage.getItem(STORAGE_KEY) !== null ||
+			window.localStorage.getItem(LEGACY_STORAGE_KEY) !== null
+		);
 	} catch {
 		return false;
 	}
@@ -113,34 +132,17 @@ export function hasStoredState(): boolean {
 
 export function loadState(): Fields {
 	if (typeof window === "undefined") return DEFAULTS;
-	try {
-		const raw = window.localStorage.getItem(STORAGE_KEY);
-		if (!raw) return DEFAULTS;
-		const parsed = JSON.parse(raw) as Record<string, unknown>;
-		return {
-			title: pickString(parsed.title, DEFAULTS.title),
-			lead: pickString(parsed.lead, DEFAULTS.lead),
-			issue: pickString(parsed.issue, DEFAULTS.issue),
-			date: pickString(parsed.date, DEFAULTS.date),
-			category: pickString(parsed.category, DEFAULTS.category),
-			brand: pickString(parsed.brand, DEFAULTS.brand),
-			author: pickString(parsed.author, DEFAULTS.author),
-			account: pickString(parsed.account, DEFAULTS.account),
-			showMark: pickBool(parsed.showMark, DEFAULTS.showMark),
-			image: pickImage(parsed.image),
-			titleSlot: pickEnum(parsed.titleSlot, TITLE_SLOTS, DEFAULTS.titleSlot),
-			numberTreatment: pickEnum(
-				parsed.numberTreatment,
-				NUMBER_TREATMENTS,
-				DEFAULTS.numberTreatment,
-			),
-			numberOpts: pickNumberOpts(parsed.numberOpts),
-			scrim: pickEnum(parsed.scrim, SCRIMS, DEFAULTS.scrim),
-			showLead: pickBool(parsed.showLead, DEFAULTS.showLead),
-		};
-	} catch {
-		return DEFAULTS;
-	}
+
+	const current = readRaw(STORAGE_KEY);
+	if (current) return parseFields(current);
+
+	const legacy = readRaw(LEGACY_STORAGE_KEY);
+	if (!legacy) return DEFAULTS;
+
+	// 次回からは v4 だけを見れば済むように、移行結果をその場で保存する
+	const migrated = migrateFromLegacy(legacy);
+	saveState(migrated);
+	return migrated;
 }
 
 export function saveState(state: Fields): void {
