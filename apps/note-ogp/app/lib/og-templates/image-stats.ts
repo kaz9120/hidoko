@@ -53,6 +53,9 @@ export function useImageStats(
 		}
 		let canceled = false;
 		const img = new Image();
+		// 台紙の PhotoBg と同じ条件で読む。いまは dataURL しか渡らないが、
+		// 外部 URL を許すようになったときにここだけ canvas が汚れるのを防ぐ
+		img.crossOrigin = "anonymous";
 		img.onload = () => {
 			if (canceled) return;
 			setStats(measure(img));
@@ -186,7 +189,10 @@ function overlapRatio(a: Region, b: Region): number {
 export type QuietPickOptions = {
 	/** マストヘッドと重なる候補を減点する */
 	avoidMasthead?: boolean;
-	/** 縦組み用の右柱（rcol）を候補から外す */
+	/**
+	 * 縦組み用の右柱（rcol）を候補から外す。自動配置は横組みで組むので、
+	 * 唯一の呼び出し（台紙の h1）は常に true を渡す。false の経路は使っていない。
+	 */
 	excludeVertical?: boolean;
 };
 
