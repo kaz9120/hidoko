@@ -8,9 +8,10 @@
  * 台紙にはそのまま出す（勝手に書き換えない）。
  */
 
-/** Date を `2026.8.16` の形にする */
+/** Date を `2026.8.16` の形にする。年は 4 桁に揃える（parser が 4 桁を要求するため） */
 export function formatDateValue(date: Date): string {
-	return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
+	const year = String(date.getFullYear()).padStart(4, "0");
+	return `${year}.${date.getMonth() + 1}.${date.getDate()}`;
 }
 
 /** 今日の日付を `2026.8.16` の形で返す。SSR では使わない（実行日に依存する） */
@@ -33,8 +34,16 @@ export function parseDateValue(value: string): Date | undefined {
 	const month = Number(matched[2]);
 	const day = matched[3] === undefined ? 1 : Number(matched[3]);
 	if (month < 1 || month > 12 || day < 1 || day > 31) return undefined;
-	const date = new Date(year, month - 1, day);
+	// new Date(year, ...) は 0〜99 を 1900 年代として読むので、年は setFullYear で入れる
+	const date = new Date(0);
+	date.setFullYear(year, month - 1, day);
 	// 繰り上がり（2/31 → 3/3）を弾く
-	if (date.getMonth() !== month - 1 || date.getDate() !== day) return undefined;
+	if (
+		date.getFullYear() !== year ||
+		date.getMonth() !== month - 1 ||
+		date.getDate() !== day
+	) {
+		return undefined;
+	}
 	return date;
 }
