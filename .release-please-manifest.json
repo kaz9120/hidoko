@@ -1,7 +1,7 @@
 {
 	"apps/hidoko-id": "0.10.0",
 	"apps/homepage": "0.3.0",
-	"apps/note-ogp": "0.15.1",
+	"apps/note-ogp": "0.16.0",
 	"apps/snapcrop": "0.20.0",
 	"packages/ui": "0.7.0"
 }
