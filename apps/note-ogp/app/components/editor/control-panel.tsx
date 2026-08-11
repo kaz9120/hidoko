@@ -27,6 +27,7 @@ import {
 import { Input } from "ui/components/input";
 import { Textarea } from "ui/components/textarea";
 import type { Fields } from "~/lib/og-templates";
+import { DateField } from "./date-field";
 import { ImageField } from "./image-field";
 import { KumiTiles, MilestoneTiles } from "./kumi-tiles";
 import { SectionTitle } from "./section-title";
@@ -143,7 +144,7 @@ function IssueSection({
 						htmlFor={issueId}
 						className="font-mono text-[10px] uppercase tracking-[0.22em]"
 					>
-						vol. 番号
+						号数
 					</FieldLabel>
 					<Input
 						id={issueId}
@@ -163,12 +164,10 @@ function IssueSection({
 					>
 						日付
 					</FieldLabel>
-					<Input
+					<DateField
 						id={dateId}
 						value={state.date}
-						onChange={(e) => update({ date: e.target.value })}
-						placeholder="2026.06"
-						className="font-mono"
+						onChange={(date) => update({ date })}
 					/>
 				</Field>
 			</div>

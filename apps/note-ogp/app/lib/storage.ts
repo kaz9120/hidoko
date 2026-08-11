@@ -19,7 +19,7 @@ const LEGACY_STORAGE_KEY = "hidoko-note-ogp:v3";
 export const DEFAULTS: Fields = {
 	title: "夜更けにコードを書く理由",
 	issue: "013",
-	date: "2026.05",
+	date: "2026.5.16",
 	brand: "焚き火を愛するエンジニア",
 	showMark: true,
 	image: null,

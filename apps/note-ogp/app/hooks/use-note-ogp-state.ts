@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
 	computeNextIssue,
-	computeThisMonth,
+	computeToday,
 	saveLastIssue,
 } from "~/lib/issue-storage";
 import type { Fields } from "~/lib/og-templates";
@@ -48,7 +48,7 @@ export function useNoteOgpState(): NoteOgpStateHook {
 		setState((s) => ({
 			...s,
 			issue: computeNextIssue(DEFAULTS.issue),
-			date: computeThisMonth(),
+			date: computeToday(),
 		}));
 	}, []);
 
@@ -62,7 +62,7 @@ export function useNoteOgpState(): NoteOgpStateHook {
 		setState({
 			...DEFAULTS,
 			issue: computeNextIssue(DEFAULTS.issue),
-			date: computeThisMonth(),
+			date: computeToday(),
 		});
 	}, []);
 

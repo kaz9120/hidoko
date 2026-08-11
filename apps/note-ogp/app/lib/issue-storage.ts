@@ -8,6 +8,8 @@
  * 保ちたいため)。
  */
 
+import { todayValue } from "./date-value";
+
 const STORAGE_KEY = "hidoko-note-ogp:last-issue";
 
 export function saveLastIssue(issue: string): void {
@@ -47,11 +49,9 @@ export function computeNextIssue(fallback: string): string {
 }
 
 /**
- * 今月の `YYYY.MM` 文字列。`new Date()` を使うので SSR では使わない
- * (UI 側で useEffect / イベントハンドラ内から呼ぶ)。
+ * 今日の日付文字列 (`2026.8.16`)。`new Date()` を使うので SSR では使わない
+ * (UI 側で useEffect / イベントハンドラ内から呼ぶ)。書式は date-value.ts が持つ。
  */
-export function computeThisMonth(): string {
-	const now = new Date();
-	const pad = (n: number) => n.toString().padStart(2, "0");
-	return `${now.getFullYear()}.${pad(now.getMonth() + 1)}`;
+export function computeToday(): string {
+	return todayValue();
 }
