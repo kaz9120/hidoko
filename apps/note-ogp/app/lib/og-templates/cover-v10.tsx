@@ -1,12 +1,14 @@
 import { type CSSProperties, useLayoutEffect, useRef, useState } from "react";
 import { useDocumentFontsReady } from "~/hooks/use-document-fonts-ready";
 import {
+	type ImageStats,
 	pickQuietRegion,
 	type QuietRegionId,
 	type Region,
 	regionMean,
 	useImageStats,
 } from "./image-stats";
+import { kanjiNumber } from "./kanji-number";
 import { TSUME, type TsumeLevel, tsumeSpans } from "./tsume";
 import type { Fields, KumiId } from "./types";
 
@@ -730,19 +732,23 @@ function Stamp({
 	);
 }
 
-/** d6 / g10 の巨大数字に添える記録行 */
+/**
+ * 巨大数字に添える記録行。既定は右下だが、M2 主役だけは巨大数字と重なるので
+ * 右上に逃がす。
+ */
 function RecordLine({
 	issue,
 	date,
 	ink,
 	shadow,
-}: NumberProps & { shadow?: string }) {
+	corner = "br",
+}: NumberProps & { corner?: "br" | "tr" }) {
 	return (
 		<div
 			style={{
 				position: "absolute",
 				right: 56,
-				bottom: 40,
+				...(corner === "tr" ? { top: 44 } : { bottom: 40 }),
 				fontFamily: V10.mono,
 				fontSize: 11,
 				letterSpacing: "0.24em",
@@ -756,7 +762,7 @@ function RecordLine({
 	);
 }
 
-/** d6 / g10 の背後に敷く巨大数字 */
+/** 巨大数字（d6 / g10 の背後、および節目号の M1 / M2）の共通スタイル */
 const GIANT_NUMBER: CSSProperties = {
 	fontFamily: "'Newsreader', serif",
 	fontStyle: "italic",
@@ -841,6 +847,155 @@ function TitleBox({
 }
 
 // ─────────────────────────────────────────────────────────
+// 節目号 — 号数が主役になる別族。タイトルは左下に回る。
+//   通常の組みと違い居場所は 1 つだけで、変わるのは号数の見せ方。
+//   スクリムは常に自動（ユーザーの強制を効かせない）。
+// ─────────────────────────────────────────────────────────
+const MILESTONE_TITLE_REGION: TitleRegion = {
+	x: 0.044,
+	y: 0.5,
+	w: 0.52,
+	h: 0.34,
+	align: "left",
+};
+
+function MilestoneCover({
+	f,
+	stats,
+	onTitleMeasured,
+}: {
+	f: Fields;
+	stats: ImageStats | null;
+	onTitleMeasured?: (px: number) => void;
+}) {
+	const variant = f.milestone;
+	const numStr = String(Number.parseInt(f.issue, 10) || 0);
+	const mean = regionMean(stats, MILESTONE_TITLE_REGION);
+	const plan = inkPlan(mean, false);
+	const ink = plan.ink;
+
+	return (
+		<div style={FRAME}>
+			<PhotoBg src={f.image} scrim={plan.scrim ? "lb" : "none"} />
+
+			{variant === "watermark" && (
+				<div
+					aria-hidden="true"
+					style={{
+						...GIANT_NUMBER,
+						position: "absolute",
+						left: -30,
+						top: -70,
+						fontSize: 520,
+						opacity: 0.18,
+						pointerEvents: "none",
+					}}
+				>
+					{numStr}
+				</div>
+			)}
+			{variant === "hero" && (
+				<div
+					aria-hidden="true"
+					style={{
+						...GIANT_NUMBER,
+						position: "absolute",
+						right: -36,
+						bottom: -150,
+						fontSize: 560,
+						// 写真の明るい部分にだけ数字が乗る。暗部では沈むので数字が
+						// 前に出すぎない
+						mixBlendMode: "screen",
+						opacity: 0.95,
+						pointerEvents: "none",
+					}}
+				>
+					{numStr}
+				</div>
+			)}
+			{variant === "kanji" && (
+				<div
+					style={{
+						position: "absolute",
+						right: 66,
+						top: 0,
+						bottom: 0,
+						display: "flex",
+						flexDirection: "column",
+						alignItems: "center",
+						justifyContent: "center",
+						gap: 22,
+					}}
+				>
+					<span
+						style={{
+							writingMode: "vertical-rl",
+							fontFamily: V10.jpSerif,
+							fontWeight: 600,
+							fontSize: 92,
+							letterSpacing: "0.1em",
+							color: V10.ember,
+							lineHeight: 1,
+							textShadow: plan.msShadow,
+						}}
+					>
+						第{kanjiNumber(f.issue)}号
+					</span>
+					<span
+						style={{
+							writingMode: "vertical-rl",
+							fontFamily: V10.mono,
+							fontSize: 11,
+							letterSpacing: "0.3em",
+							color: ink,
+							opacity: plan.shadow ? 0.85 : 0.6,
+							textShadow: plan.msShadow,
+						}}
+					>
+						{f.date}
+					</span>
+				</div>
+			)}
+
+			<Masthead
+				brand={f.brand}
+				showMark={f.showMark}
+				ink={ink}
+				shadow={plan.msShadow}
+			/>
+
+			<TitleBox
+				text={f.title}
+				region={MILESTONE_TITLE_REGION}
+				ink={ink}
+				// M2 主役は巨大数字に場所を譲るので、タイトルの上限を下げる
+				max={variant === "hero" ? 62 : 72}
+				shadow={plan.shadow}
+				onMeasured={onTitleMeasured}
+			/>
+
+			{variant === "watermark" && (
+				<RecordLine
+					issue={f.issue}
+					date={f.date}
+					ink={ink}
+					shadow={plan.msShadow}
+				/>
+			)}
+			{variant === "hero" && (
+				<RecordLine
+					issue={f.issue}
+					date={f.date}
+					ink={ink}
+					shadow={plan.msShadow}
+					corner="tr"
+				/>
+			)}
+		</div>
+	);
+}
+
+// ─────────────────────────────────────────────────────────
 // Cover — 組みの設計図と自動インク計画を組み合わせる本体
 // ─────────────────────────────────────────────────────────
 export function Cover({
@@ -852,10 +1007,13 @@ export function Cover({
 }) {
 	const stats = useImageStats(f.image);
 	const kumi = KUMI[f.kumi];
-	// 節目号は号数が主役の別族。台紙は後続で足すので、今は通常の組みで描く。
-	// ただしスクリムの強制はここで落とす（節目号は自動判定に任せる持ち方）。
-	const milestone = f.mode === "milestone";
-	const forceScrim = milestone ? false : f.scrim;
+
+	// 節目号は号数が主役の別族。組みの選択には触れずに台紙ごと差し替える
+	if (f.mode === "milestone") {
+		return (
+			<MilestoneCover f={f} stats={stats} onTitleMeasured={onTitleMeasured} />
+		);
+	}
 
 	// h1 静けさは居場所を持たない。写真のいちばん静かな面を探して決める。
 	const quiet = pickQuietRegion(stats, {
@@ -872,9 +1030,7 @@ export function Cover({
 	const mean = regionMean(stats, region);
 	// f7 は半透明の帯の中に文字を置くので、写真の明るさに関わらずオフ白で通る
 	const plan: InkPlan =
-		f.kumi === "f7"
-			? { ink: V10.ink, scrim: false }
-			: inkPlan(mean, forceScrim);
+		f.kumi === "f7" ? { ink: V10.ink, scrim: false } : inkPlan(mean, f.scrim);
 	const ink = plan.ink;
 	const numStr = String(Number.parseInt(f.issue, 10) || 0);
 

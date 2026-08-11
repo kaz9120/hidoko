@@ -19,6 +19,7 @@ export {
 	regionMean,
 	useImageStats,
 } from "./image-stats";
+export { kanjiNumber } from "./kanji-number";
 export type { TsumeLevel, TsumeMetrics } from "./tsume";
 export { TSUME, TSUME_LEVELS, tsumeSpans } from "./tsume";
 export type { Fields, KumiId, Milestone, Mode } from "./types";

@@ -21,7 +21,6 @@ const OGP_FONTS_HREF =
 	[
 		"family=Shippori+Mincho:wght@400;500;600;700;800",
 		"family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500",
-		"family=Archivo:wght@400;500;600;700;800",
 		"family=JetBrains+Mono:wght@600",
 		"display=swap",
 	].join("&");
