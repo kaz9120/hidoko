@@ -1,5 +1,5 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { SiteFooter } from "~/components/layout/site-footer";
 import { SiteHeader } from "~/components/layout/site-header";
@@ -103,10 +103,14 @@ export function NoteOgpEditor() {
 		setProfileDialogOpen(false);
 	};
 
-	const profileValues: ProfileValues = {
-		brand: state.brand,
-		showMark: state.showMark,
-	};
+	// ProfileDialog は initialValues を effect の依存に入れて、開いている間の
+	// 編集内容を initialValues で初期化し直す。毎レンダリングで新しい参照を渡すと、
+	// ダイアログを開いたまま親が再描画されるたび（自動保存の時刻更新など）に
+	// 入力中の値が捨てられる。値が変わったときだけ参照を変える。
+	const profileValues: ProfileValues = useMemo(
+		() => ({ brand: state.brand, showMark: state.showMark }),
+		[state.brand, state.showMark],
+	);
 
 	return (
 		<div className="flex min-h-screen flex-col bg-background md:h-screen">
