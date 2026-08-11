@@ -1,11 +1,9 @@
-// og-templates の barrel はまだ v10 の列挙値を公開していないため、ここでは
-// types.ts を直接読む（barrel への集約は後続の order で行う）。
-import type { Fields, KumiId, Milestone, Mode } from "./og-templates/types";
+import type { Fields, KumiId, Milestone, Mode } from "./og-templates";
 import {
 	KUMI_IDS as KUMI_ID_VALUES,
 	MILESTONES as MILESTONE_VALUES,
 	MODES as MODE_VALUES,
-} from "./og-templates/types";
+} from "./og-templates";
 
 // localStorage は 5MB が一般的な上限。dataURL がそれを超えると quota error で
 // 全フィールドの保存に失敗するので、画像のサイズが大きすぎる場合は保存対象から外す。

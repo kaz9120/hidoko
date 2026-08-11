@@ -12,16 +12,17 @@ import faviconUrl from "ui/assets/logo/mark-cream.svg?url";
 import type { Route } from "./+types/root";
 import "./globals.css";
 
-// note OGP テンプレ内のタイトルだけ書体を切り替えるため、追加 Web フォントを読む。
+// note OGP の台紙は本文 UI と別の書体で組むため、追加 Web フォントを読む。
 // LINE Seed JP は packages/ui の fonts.css にすでに含まれているので重複読み込みしない。
+// JetBrains Mono だけは ui 側が 400/500 しか読まないので、台紙のラベルが使う
+// 600 をここで足す。
 const OGP_FONTS_HREF =
 	"https://fonts.googleapis.com/css2?" +
 	[
 		"family=Shippori+Mincho:wght@400;500;600;700;800",
-		"family=Zen+Kaku+Gothic+New:wght@400;500;700;900",
-		"family=Klee+One:wght@400;600",
 		"family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500",
 		"family=Archivo:wght@400;500;600;700;800",
+		"family=JetBrains+Mono:wght@600",
 		"display=swap",
 	].join("&");
 
