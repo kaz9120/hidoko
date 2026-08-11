@@ -363,7 +363,7 @@ function PanelFooter({
 					<AlertDialogHeader>
 						<AlertDialogTitle>はじめから作り直す</AlertDialogTitle>
 						<AlertDialogDescription>
-							タイトル・号数・レイアウトが初期値に戻る。取り消しはできない
+							写真が消え、タイトル・号数・日付・レイアウト・プロフィールが初期値に戻る。写真は元に戻せない
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
