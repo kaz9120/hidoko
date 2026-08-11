@@ -20,23 +20,27 @@ export type NoteOgpStateHook = {
 
 export function useNoteOgpState(): NoteOgpStateHook {
 	const [state, setState] = useState<Fields>(() => loadState());
+	// 「初回起動か」は最初のレンダリング中に確定させる。effect で見に行くと、
+	// 先に宣言した保存 effect が localStorage を埋めた後になり、必ず
+	// 「保存済み」に倒れる。loadState() は v3 からの移行時だけ書き込むので、
+	// この順（loadState → 判定）なら移行してきた人は保存済みとして扱われる。
+	const [isFirstRun] = useState(() => !hasStoredState());
 
 	useEffect(() => {
 		saveState(state);
 	}, [state]);
 
-	// 初回起動（localStorage 未登録）のときは、DEFAULTS の固定 date ではなく
-	// 当月で立ち上げる。DEFAULTS.date を `new Date()` 由来にすると prerender で
-	// 焼き込まれた古い月が出てしまうため、SSR では DEFAULTS を保ち、クライアント
-	// マウント後にだけ当月で上書きする。
+	// 初回起動のときは、DEFAULTS の固定値ではなく前号 +1 と今日で立ち上げる。
+	// DEFAULTS.date を `new Date()` 由来にすると prerender で焼き込まれた古い日付が
+	// 出てしまうため、SSR では DEFAULTS を保ち、クライアントマウント後に上書きする。
 	useEffect(() => {
-		if (hasStoredState()) return;
+		if (!isFirstRun) return;
 		setState((s) => ({
 			...s,
 			issue: computeNextIssue(DEFAULTS.issue),
 			date: computeToday(),
 		}));
-	}, []);
+	}, [isFirstRun]);
 
 	const update = useCallback((patch: Partial<Fields>) => {
 		setState((s) => ({ ...s, ...patch }));
