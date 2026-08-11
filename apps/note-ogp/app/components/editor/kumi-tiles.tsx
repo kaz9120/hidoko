@@ -25,7 +25,7 @@ type Ink = "ink" | "ember" | "wash";
 type Rect = [Ink, number, number, number, number];
 
 const KIND_CLASS: Record<Ink, string> = {
-	ink: "bg-muted-foreground",
+	ink: "bg-(--text-faint)",
 	ember: "bg-primary",
 	wash: "bg-primary/25",
 };
