@@ -1,0 +1,18 @@
+<!--
+	note-ogp の台紙 (og-templates) が使う Web フォント。
+	アプリ側は apps/note-ogp/app/root.tsx の OGP_FONTS_HREF で読んでいるが、
+	Storybook のプレビュー文書はそれを通らないので、ここで同じ 3 つを読む。
+	これが無いと台紙の story がフォールバック書体で描かれ、カタログと VRT の
+	見え方が実物とずれる。
+
+	Inter / LINE Seed JP / JetBrains Mono 400・500 は packages/ui の tokens.css
+	→ fonts.css がすでに読んでいる。二重読み込みを避けるため、ここで足すのは
+	台紙固有の Shippori Mincho・Newsreader と、台紙のラベルだけが使う
+	JetBrains Mono 600 に絞る。
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+	rel="stylesheet"
+	href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&family=JetBrains+Mono:wght@600&display=swap"
+/>

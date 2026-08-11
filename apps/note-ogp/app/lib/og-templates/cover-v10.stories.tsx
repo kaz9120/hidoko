@@ -19,7 +19,8 @@ import { DEFAULTS } from "~/lib/storage";
  *
  * story では写真を渡さない（`image: null`）。フォールバックの熾火グラデーション
  * で描かれるので、組みごとの骨格だけを比べられる。号数と日付は固定値にして
- * VRT が日付で揺れないようにしてある。
+ * VRT が日付や乱数で揺れないようにしてある。縮尺も、12 面が VRT の
+ * ビューポート（1280×800）に収まる値に固定してある。
  *
  * @summary 台紙 v10（組み 12 種）
  */
@@ -53,25 +54,38 @@ function base(patch: Partial<Fields> = {}): Fields {
 	};
 }
 
-const SCALE = 0.5;
+// 縮尺は VRT のビューポート（1280×800）に収まる値。12 面は 3 列 4 段なので
+// いちばん小さく、単独と 2 面並びはその分だけ大きく見せる。
+const SOLO_SCALE = 0.5;
+const PAIR_SCALE = 0.45;
+const TRIO_SCALE = 0.3;
+const GRID_SCALE = 0.24;
 
 /** 1 面ぶんの縮小プレビュー。上に組み名を添える */
-function Panel({ label, f }: { label: string; f: Fields }) {
+function Panel({
+	label,
+	f,
+	scale,
+}: {
+	label: string;
+	f: Fields;
+	scale: number;
+}) {
 	return (
-		<figure className="m-0 flex flex-col gap-1.5">
-			<figcaption className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+		<figure className="m-0 flex flex-col gap-1">
+			<figcaption className="font-mono text-[9px] uppercase leading-[1.2] tracking-[0.18em] text-muted-foreground">
 				{label}
 			</figcaption>
 			<div
-				className="overflow-hidden rounded-[4px] border border-border"
-				style={{ width: FRAME_WIDTH * SCALE, height: FRAME_HEIGHT * SCALE }}
+				className="overflow-hidden rounded-[3px] border border-border"
+				style={{ width: FRAME_WIDTH * scale, height: FRAME_HEIGHT * scale }}
 			>
 				<div
 					className="origin-top-left"
 					style={{
 						width: FRAME_WIDTH,
 						height: FRAME_HEIGHT,
-						transform: `scale(${SCALE})`,
+						transform: `scale(${scale})`,
 					}}
 				>
 					<Cover f={f} />
@@ -81,8 +95,22 @@ function Panel({ label, f }: { label: string; f: Fields }) {
 	);
 }
 
-function Stack({ children }: { children: React.ReactNode }) {
-	return <div className="flex flex-col gap-5 p-4">{children}</div>;
+/** 面を並べる格子。列数ぶんの max-content で組み、はみ出させない */
+function Grid({
+	columns,
+	children,
+}: {
+	columns: number;
+	children: React.ReactNode;
+}) {
+	return (
+		<div
+			className="grid w-fit gap-3 p-2"
+			style={{ gridTemplateColumns: `repeat(${columns}, max-content)` }}
+		>
+			{children}
+		</div>
+	);
 }
 
 /**
@@ -90,21 +118,29 @@ function Stack({ children }: { children: React.ReactNode }) {
  * @summary A1 定番（既定）
  */
 export const Default: Story = {
-	render: () => <Panel label={KUMI.a1.name} f={base({ kumi: "a1" })} />,
+	render: () => (
+		<Panel label={KUMI.a1.name} f={base({ kumi: "a1" })} scale={SOLO_SCALE} />
+	),
 };
 
 /**
- * 組み 12 種を縦に並べたカタログ。タイトルの居場所と号数の身振りが
- * セットで動くことを、同じタイトル・同じ号数で見比べられる。
+ * 組み 12 種のカタログ。タイトルの居場所と号数の身振りがセットで動くことを、
+ * 同じタイトル・同じ号数で見比べられる。3 列 4 段で VRT のビューポートに
+ * 全 12 面が収まるので、どれか 1 つが崩れれば差分に出る。
  * @summary 組み 12 種のカタログ
  */
 export const AllKumi: Story = {
 	render: () => (
-		<Stack>
+		<Grid columns={3}>
 			{KUMI_IDS.map((id: KumiId) => (
-				<Panel key={id} label={KUMI[id].name} f={base({ kumi: id })} />
+				<Panel
+					key={id}
+					label={KUMI[id].name}
+					f={base({ kumi: id })}
+					scale={GRID_SCALE}
+				/>
 			))}
-		</Stack>
+		</Grid>
 	),
 };
 
@@ -115,42 +151,39 @@ export const AllKumi: Story = {
  */
 export const Milestones: Story = {
 	render: () => (
-		<Stack>
+		<Grid columns={3}>
 			{MILESTONES.map((id: Milestone) => (
 				<Panel
 					key={id}
 					label={MILESTONE_NAMES[id]}
 					f={base({ mode: "milestone", milestone: id, issue: "050" })}
+					scale={TRIO_SCALE}
 				/>
 			))}
-		</Stack>
+		</Grid>
 	),
 };
 
 /**
- * ポスター詰めの効き。上は鉤括弧と読点を含むタイトルで、約物が字形の分だけ
- * 詰まる。下は英数字を含むタイトルで、ラテンの連なりが Newsreader に切り替わり
+ * ポスター詰めの効き。左は鉤括弧と読点を含むタイトルで、約物が字形の分だけ
+ * 詰まる。右は英数字を含むタイトルで、ラテンの連なりが Newsreader に切り替わり
  * 前後に四分アキが入る。どちらも同じ組み（A1 定番）で比べる。
  * @summary 詰め（約物とラテン）
  */
 export const Tsume: Story = {
 	render: () => (
-		<Stack>
+		<Grid columns={2}>
 			<Panel
 				label="約物（「」と、。）"
-				f={base({
-					kumi: "a1",
-					title: "「静けさ」を、探しに行く。",
-				})}
+				f={base({ kumi: "a1", title: "「静けさ」を、探しに行く。" })}
+				scale={PAIR_SCALE}
 			/>
 			<Panel
 				label="ラテンと数字"
-				f={base({
-					kumi: "a1",
-					title: "Rust と TypeScript で書いた 10 年",
-				})}
+				f={base({ kumi: "a1", title: "Rust と TypeScript で書いた 10 年" })}
+				scale={PAIR_SCALE}
 			/>
-		</Stack>
+		</Grid>
 	),
 };
 
@@ -161,9 +194,17 @@ export const Tsume: Story = {
  */
 export const ForcedScrim: Story = {
 	render: () => (
-		<Stack>
-			<Panel label="自動（既定）" f={base({ kumi: "a1", scrim: false })} />
-			<Panel label="強制" f={base({ kumi: "a1", scrim: true })} />
-		</Stack>
+		<Grid columns={2}>
+			<Panel
+				label="自動（既定）"
+				f={base({ kumi: "a1", scrim: false })}
+				scale={PAIR_SCALE}
+			/>
+			<Panel
+				label="強制"
+				f={base({ kumi: "a1", scrim: true })}
+				scale={PAIR_SCALE}
+			/>
+		</Grid>
 	),
 };
