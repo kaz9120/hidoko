@@ -208,7 +208,7 @@ export function CropFloatingToolbar({
 				size="sm"
 				title="この範囲で切り取る"
 			>
-				<CheckIcon strokeWidth={2} />
+				<CheckIcon strokeWidth={1.75} />
 				切り取る
 				<Kbd className="bg-primary-foreground/15 text-primary-foreground/80">
 					⏎
