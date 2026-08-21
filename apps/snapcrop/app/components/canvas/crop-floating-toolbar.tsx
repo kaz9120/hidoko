@@ -1,4 +1,8 @@
-import { RectangleHorizontalIcon, RectangleVerticalIcon } from "lucide-react";
+import {
+	CheckIcon,
+	RectangleHorizontalIcon,
+	RectangleVerticalIcon,
+} from "lucide-react";
 import {
 	type ChangeEvent,
 	type KeyboardEvent,
@@ -6,7 +10,8 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { Toggle, ToggleGroup, ToggleGroupItem } from "ui";
+import { Button, Toggle, ToggleGroup, ToggleGroupItem } from "ui";
+import { Kbd } from "ui/components/kbd";
 import { FloatingToolbar } from "~/components/canvas/floating-toolbar";
 import type { CropEngineHandle } from "~/hooks/use-crop-engine";
 import { type CropRect, MIN_CROP_SIZE } from "~/lib/crop-engine";
@@ -50,6 +55,8 @@ type Props = {
 	onAspectRatioIdChange: (id: string) => void;
 	isPortrait: boolean;
 	onPortraitChange: (portrait: boolean) => void;
+	/** 現在の枠で確定する。Enter / 枠のダブルクリックと同じ動き。 */
+	onCommit: () => void;
 };
 
 /**
@@ -58,7 +65,8 @@ type Props = {
  * 乗っているので、画像位置に関係なく常に同じ場所に見える。
  *
  * 補助アクション (中央寄せ・全画面・リセット) は ⌘A 等のショートカットに
- * 任せて UI からは省く。確定/× も live update のため不要。
+ * 任せて UI からは省く。右端の「切り取る」だけは残す。確定するとキャンバスが
+ * 切り取り後に切り替わるので、キーボードを使わない人にも入口が要る。
  */
 export function CropFloatingToolbar({
 	cropRect,
@@ -67,6 +75,7 @@ export function CropFloatingToolbar({
 	onAspectRatioIdChange,
 	isPortrait,
 	onPortraitChange,
+	onCommit,
 }: Props) {
 	const cropWidth = Math.round(cropRect.width);
 	const cropHeight = Math.round(cropRect.height);
@@ -191,6 +200,20 @@ export function CropFloatingToolbar({
 				onCommit={(n) => setCropSize({ height: n })}
 				value={cropHeight}
 			/>
+
+			<span aria-hidden="true" className="mx-1 h-4 w-px shrink-0 bg-border" />
+			<Button
+				aria-label="この範囲で切り取る"
+				onClick={onCommit}
+				size="sm"
+				title="この範囲で切り取る"
+			>
+				<CheckIcon strokeWidth={2} />
+				切り取る
+				<Kbd className="bg-primary-foreground/15 text-primary-foreground/80">
+					⏎
+				</Kbd>
+			</Button>
 		</FloatingToolbar>
 	);
 }

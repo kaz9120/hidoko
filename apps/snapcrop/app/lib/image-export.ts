@@ -1,4 +1,4 @@
-import type { CropEngineHandle } from "~/hooks/use-crop-engine";
+import type { CropEngineHandle, CropRect } from "~/hooks/use-crop-engine";
 import {
 	groupAnnotationRuns,
 	sortAnnotationsByZ,
@@ -22,8 +22,23 @@ import {
 	textBackgroundColor,
 } from "~/lib/text-engine";
 
+export type CropExportOptions = {
+	/**
+	 * 書き出す範囲 (画像座標)。確定済みクロップをそのまま渡す。省略すると
+	 * engine が持つ編集中の枠になる。キャンバスの表示範囲と同じ値を渡すことで、
+	 * 画面で見えているものと書き出すものを一致させる。
+	 */
+	rect?: CropRect;
+	/** MIME タイプ。省略時は image/png。 */
+	type?: string;
+	annotations?: readonly RectAnnotation[];
+	arrows?: readonly ArrowAnnotation[];
+	texts?: readonly TextAnnotation[];
+	highlights?: readonly HighlightAnnotation[];
+};
+
 /**
- * 現在のクロップ範囲を Blob に変換する。
+ * 指定した範囲を Blob に変換する。
  * MIME タイプを指定しない場合は image/png にフォールバックする。
  *
  * annotations が指定されていれば、画像座標系で各 annotation を baked-in する。
@@ -38,12 +53,16 @@ import {
  */
 export async function getCroppedBlob(
 	engine: CropEngineHandle,
-	type = "image/png",
-	annotations: readonly RectAnnotation[] = [],
-	arrows: readonly ArrowAnnotation[] = [],
-	texts: readonly TextAnnotation[] = [],
-	highlights: readonly HighlightAnnotation[] = [],
+	options: CropExportOptions = {},
 ): Promise<Blob> {
+	const {
+		rect,
+		type = "image/png",
+		annotations = [],
+		arrows = [],
+		texts = [],
+		highlights = [],
+	} = options;
 	const canvas =
 		annotations.length > 0 ||
 		arrows.length > 0 ||
@@ -51,12 +70,13 @@ export async function getCroppedBlob(
 		highlights.length > 0
 			? renderAnnotatedCroppedCanvas(
 					engine,
+					rect,
 					annotations,
 					arrows,
 					texts,
 					highlights,
 				)
-			: engine.toCanvas({ imageSmoothingQuality: "high" });
+			: engine.toCanvas({ imageSmoothingQuality: "high", rect });
 	return await new Promise<Blob>((resolve, reject) => {
 		canvas.toBlob((blob) => {
 			if (blob) {
@@ -78,12 +98,13 @@ export async function getCroppedBlob(
  */
 function renderAnnotatedCroppedCanvas(
 	engine: CropEngineHandle,
+	rect: CropRect | undefined,
 	annotations: readonly RectAnnotation[],
 	arrows: readonly ArrowAnnotation[],
 	texts: readonly TextAnnotation[],
 	highlights: readonly HighlightAnnotation[],
 ): HTMLCanvasElement {
-	const cropRect = engine.getData();
+	const cropRect = rect ?? engine.getData();
 	const source = engine.getSourceImage();
 	if (!source) {
 		throw new Error("crop engine: image is not ready");

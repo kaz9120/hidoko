@@ -3,19 +3,23 @@ import type { CropEngineHandle } from "~/hooks/use-crop-engine";
 
 type Options = {
 	cropperRef: React.RefObject<CropEngineHandle | null>;
-	hasImage: boolean;
+	/** クロップ枠を編集中のときだけ true。確定後は枠を動かせない。 */
+	enabled: boolean;
 };
 
 /**
  * Cmd/Ctrl+A でクロップ範囲を画像全体に広げるショートカット。
  *
+ * 枠を編集している間だけ効く。確定後にも効かせると、画面に映っている範囲と
+ * 書き出す範囲が黙ってずれてしまう。
+ *
  * 入力欄上やテキスト選択中はブラウザ標準の全選択を優先する。
  */
-export function useSelectAllShortcut({ cropperRef, hasImage }: Options) {
+export function useSelectAllShortcut({ cropperRef, enabled }: Options) {
 	const cropperRefRef = useRef(cropperRef);
 	cropperRefRef.current = cropperRef;
-	const hasImageRef = useRef(hasImage);
-	hasImageRef.current = hasImage;
+	const enabledRef = useRef(enabled);
+	enabledRef.current = enabled;
 
 	useEffect(() => {
 		const handler = (event: KeyboardEvent) => {
@@ -25,7 +29,7 @@ export function useSelectAllShortcut({ cropperRef, hasImage }: Options) {
 			if (event.key !== "a" && event.key !== "A") {
 				return;
 			}
-			if (!hasImageRef.current) {
+			if (!enabledRef.current) {
 				return;
 			}
 			const cropper = cropperRefRef.current.current;

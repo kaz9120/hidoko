@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { type ReactNode, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import { ImageStage } from "~/components/canvas/image-stage";
 import { Viewport } from "~/components/canvas/viewport";
@@ -10,7 +10,8 @@ import { useArrowShortcuts } from "~/hooks/use-arrow-shortcuts";
 import { useCanvasShortcuts } from "~/hooks/use-canvas-shortcuts";
 import { useClipboardPaste } from "~/hooks/use-clipboard-paste";
 import { useCopyShortcut } from "~/hooks/use-copy-shortcut";
-import { useCropEngine } from "~/hooks/use-crop-engine";
+import { type CropRect, useCropEngine } from "~/hooks/use-crop-engine";
+import { useCropShortcuts } from "~/hooks/use-crop-shortcuts";
 import { useDuplicateShortcut } from "~/hooks/use-duplicate-shortcut";
 import { useFileDrop } from "~/hooks/use-file-drop";
 import { useHighlightShortcuts } from "~/hooks/use-highlight-shortcuts";
@@ -25,6 +26,10 @@ export function EditorCanvas() {
 		image,
 		loadImageFromBlob,
 		cropperRef,
+		activeTool,
+		crop,
+		cropEditing,
+		commitCrop,
 		annotations,
 		arrows,
 		texts,
@@ -35,6 +40,9 @@ export function EditorCanvas() {
 	useCopyShortcut({
 		cropperRef,
 		hasImage: image !== null,
+		crop,
+		cropEditing,
+		commitCrop,
 		annotations,
 		arrows,
 		texts,
@@ -42,7 +50,11 @@ export function EditorCanvas() {
 		onSuccess: () => toast.success("クリップボードにコピーしました"),
 		onFailure: () => toast.error("クリップボードへのコピーに失敗しました"),
 	});
-	useSelectAllShortcut({ cropperRef, hasImage: image !== null });
+	useSelectAllShortcut({
+		cropperRef,
+		enabled: image !== null && activeTool === "crop" && cropEditing,
+	});
+	useCropShortcuts();
 	useRectShortcuts();
 	useArrowShortcuts();
 	useTextShortcuts();
@@ -70,7 +82,15 @@ function ImageCanvas({
 }) {
 	// zoom / viewportRef は context 持ち。ヘッダーの ZoomControl が % 表示と
 	// fit / 拡縮の操作で参照するため、ここで Viewport と結線する。
-	const { cropperRef, setCropData, zoom, setZoom, viewportRef } = useSnapcrop();
+	const {
+		cropperRef,
+		setCropData,
+		zoom,
+		setZoom,
+		viewportRef,
+		crop,
+		cropEditing,
+	} = useSnapcrop();
 	const imgRef = useRef<HTMLImageElement | null>(null);
 
 	const imageMetrics = useMemo(
@@ -100,27 +120,111 @@ function ImageCanvas({
 
 	useCanvasShortcuts(viewportRef);
 
+	// 確定済みクロップがあり、かつ枠を編集していないときだけ切り取り表示にする。
+	// クロップツールに戻ると元画像の全体が返ってくる。
+	const croppedView = !cropEditing && crop !== null ? crop : null;
+	const viewSize = croppedView
+		? { width: croppedView.width, height: croppedView.height }
+		: { width: image.width, height: image.height };
+
+	// engine の枠は書き出し範囲そのもの。確定済みクロップが枠のドラッグ以外
+	// (⌘Z / 全体に戻す) で変わったときは engine 側も追従させないと、表示と
+	// 出力が食い違う。枠のドラッグでは crop は変わらないので、ここは走らない。
+	useEffect(() => {
+		const handle = cropperRef.current;
+		if (!handle) return;
+		handle.setData(
+			crop ?? { x: 0, y: 0, width: image.width, height: image.height },
+		);
+	}, [crop, cropperRef, image.width, image.height]);
+
+	// 表示範囲が切り替わったら fit し直す。切り取った結果が描画領域より大きくても
+	// 全体が一度で見えるようにする。
+	// biome-ignore lint/correctness/useExhaustiveDependencies: refit on view-size change only
+	useEffect(() => {
+		viewportRef.current?.fitToContainer();
+	}, [viewportRef, viewSize.width, viewSize.height]);
+
 	return (
 		<section className="relative flex flex-1 overflow-hidden bg-[var(--ink-0)]">
 			<ToolRail />
 			<div className="relative min-w-0 flex-1">
 				<Viewport
-					image={{ width: image.width, height: image.height }}
+					image={viewSize}
 					onZoomChange={setZoom}
 					ref={viewportRef}
 					zoom={zoom}
 				>
-					<ImageStage
-						cropEngine={engine}
-						image={image}
-						imgRef={imgRef}
-						zoom={zoom}
-					/>
+					<CropWindow crop={croppedView} image={image} zoom={zoom}>
+						<ImageStage
+							cropEngine={engine}
+							image={image}
+							imgRef={imgRef}
+							zoom={zoom}
+						/>
+					</CropWindow>
 				</Viewport>
 				<SelectionToolbar />
 				{isDragging && <DropOverlay />}
 			</div>
 		</section>
+	);
+}
+
+/**
+ * 確定済みクロップの内側だけを映す窓。stage は切り取り後のサイズになるので、
+ * 中身 (画像と全レイヤー) を元画像サイズのまま負のオフセットでずらして重ねる。
+ * こうすると各レイヤーの座標系は元画像のまま変わらず、注釈の平行移動も
+ * 焼き込みもいらない。
+ *
+ * 切り替えのたびに DESIGN.md の settle を掛け直す。キャンバスの中身が丸ごと
+ * 入れ替わる操作なので、静止したまま差し替わると何が起きたか分からない。
+ */
+function CropWindow({
+	crop,
+	image,
+	zoom,
+	children,
+}: {
+	crop: CropRect | null;
+	image: LoadedImage;
+	zoom: number;
+	children: ReactNode;
+}) {
+	const frameRef = useRef<HTMLDivElement | null>(null);
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: replay on view-mode change
+	useEffect(() => {
+		const el = frameRef.current;
+		if (!el) return;
+		// クラスを付け直すだけでは animation が再生されないので、間に reflow を挟む
+		el.classList.remove("hi-motion-settle");
+		void el.offsetWidth;
+		el.classList.add("hi-motion-settle");
+	}, [crop === null, crop?.x, crop?.y, crop?.width, crop?.height]);
+
+	if (!crop) {
+		return (
+			<div className="absolute inset-0" ref={frameRef}>
+				{children}
+			</div>
+		);
+	}
+
+	return (
+		<div className="absolute inset-0 overflow-hidden" ref={frameRef}>
+			<div
+				className="absolute"
+				style={{
+					left: -crop.x * zoom,
+					top: -crop.y * zoom,
+					width: image.width * zoom,
+					height: image.height * zoom,
+				}}
+			>
+				{children}
+			</div>
+		</div>
 	);
 }
 
