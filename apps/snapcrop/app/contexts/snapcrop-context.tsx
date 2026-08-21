@@ -459,8 +459,7 @@ type Action =
 	| { type: "HIGHLIGHT_DELETE"; id: string; timestamp: number }
 	| { type: "ANNOT_UNDO" }
 	| { type: "ANNOT_REDO" }
-	| { type: "CROP_COMMIT"; rect: CropData | null; timestamp: number }
-	| { type: "CROP_EDIT_START" };
+	| { type: "CROP_COMMIT"; rect: CropData | null; timestamp: number };
 
 const EMPTY_ANNOTATION: AnnotationHistoryState = {
 	annotations: [],
@@ -1265,9 +1264,6 @@ function reducer(state: State, action: Action): State {
 				cropEditing: nextEditing,
 			};
 		}
-		case "CROP_EDIT_START":
-			if (state.cropEditing && state.activeTool === "crop") return state;
-			return { ...state, activeTool: "crop", cropEditing: true };
 	}
 }
 
