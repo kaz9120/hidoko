@@ -1,4 +1,10 @@
-import { type ReactNode, useEffect, useMemo, useRef } from "react";
+import {
+	type ReactNode,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+} from "react";
 import { toast } from "sonner";
 import { ImageStage } from "~/components/canvas/image-stage";
 import { Viewport } from "~/components/canvas/viewport";
@@ -193,14 +199,17 @@ function CropWindow({
 }) {
 	const frameRef = useRef<HTMLDivElement | null>(null);
 
+	// 表示範囲が切り替わるたびに settle を掛け直す。
+	//
+	// CSS クラスの付け外しでは 2 回目以降が再生されなかった (remove → reflow →
+	// add が同じフレームにまとまり、ブラウザが同一の animation とみなす)。
+	// クラスを JSX に固定しても、終わった animation は getAnimations() から
+	// 消えるので再生し直せない。そのため WAAPI で明示的に回す。
 	// biome-ignore lint/correctness/useExhaustiveDependencies: replay on view-mode change
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const el = frameRef.current;
 		if (!el) return;
-		// クラスを付け直すだけでは animation が再生されないので、間に reflow を挟む
-		el.classList.remove("hi-motion-settle");
-		void el.offsetWidth;
-		el.classList.add("hi-motion-settle");
+		playSettle(el);
 	}, [crop === null, crop?.x, crop?.y, crop?.width, crop?.height]);
 
 	if (!crop) {
@@ -226,6 +235,45 @@ function CropWindow({
 			</div>
 		</div>
 	);
+}
+
+/**
+ * 着地 (settle) を 1 回再生する。keyframes は packages/ui の motion.css が持つ
+ * `hi-settle` と同じ内容で、duration と easing は DESIGN.md のトークンから読む。
+ * `prefers-reduced-motion` 下では動かさない (motion.css の方針と同じ)。
+ */
+function playSettle(el: HTMLElement): void {
+	if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+	// 前の再生が残っていたら畳む。連続で切り替えたときに重ならないように。
+	for (const running of el.getAnimations()) {
+		running.cancel();
+	}
+	const styles = getComputedStyle(el);
+	const duration = parseDurationMs(
+		styles.getPropertyValue("--duration-relax"),
+		560,
+	);
+	const easing =
+		styles.getPropertyValue("--ease-settle").trim() ||
+		"cubic-bezier(0.34, 1.12, 0.32, 1)";
+	el.animate(
+		[
+			{
+				opacity: 0,
+				transform: "translateY(14px) scale(0.992)",
+				filter: "blur(2px)",
+			},
+			{ opacity: 1, transform: "translateY(0) scale(1)", filter: "blur(0)" },
+		],
+		{ duration, easing },
+	);
+}
+
+/** `560ms` / `0.56s` のどちらの表記でも ms に揃える。 */
+function parseDurationMs(raw: string, fallback: number): number {
+	const value = Number.parseFloat(raw);
+	if (!Number.isFinite(value)) return fallback;
+	return raw.trim().endsWith("ms") ? value : value * 1000;
 }
 
 function DropOverlay() {
