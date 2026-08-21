@@ -17,10 +17,28 @@ import {
  * 書き出す。コピーは ⌘C ショートカット (use-copy-shortcut.ts) と同じ処理。
  */
 export function ExportActions() {
-	const { cropperRef, image, annotations, arrows, texts, highlights } =
-		useSnapcrop();
+	const {
+		cropperRef,
+		image,
+		crop,
+		cropEditing,
+		commitCrop,
+		annotations,
+		arrows,
+		texts,
+		highlights,
+	} = useSnapcrop();
 	const [isCopying, setIsCopying] = useState(false);
 	const [isDownloading, setIsDownloading] = useState(false);
+
+	// 枠を触っている途中で書き出したら、そこで確定させる。書き出した直後の
+	// 画面が、書き出した内容そのものになる。
+	const exportRect = () => {
+		if (!cropEditing) return crop;
+		const rect = cropperRef.current?.getData() ?? null;
+		commitCrop();
+		return rect;
+	};
 
 	const handleCopy = async () => {
 		const cropper = cropperRef.current;
@@ -29,14 +47,13 @@ export function ExportActions() {
 		}
 		setIsCopying(true);
 		try {
-			const blob = await getCroppedBlob(
-				cropper,
-				"image/png",
+			const blob = await getCroppedBlob(cropper, {
+				rect: exportRect() ?? undefined,
 				annotations,
 				arrows,
 				texts,
 				highlights,
-			);
+			});
 			const ok = await writeImageToClipboard(blob);
 			if (ok) {
 				toast.success("クリップボードにコピーしました");
@@ -57,14 +74,13 @@ export function ExportActions() {
 		}
 		setIsDownloading(true);
 		try {
-			const blob = await getCroppedBlob(
-				cropper,
-				"image/png",
+			const blob = await getCroppedBlob(cropper, {
+				rect: exportRect() ?? undefined,
 				annotations,
 				arrows,
 				texts,
 				highlights,
-			);
+			});
 			downloadBlob(blob, makeDownloadFilename("png"));
 		} catch {
 			toast.error("画像の書き出しに失敗しました");

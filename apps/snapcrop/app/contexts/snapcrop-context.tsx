@@ -155,6 +155,19 @@ type SnapcropContextValue = {
 	cropperRef: RefObject<CropEngineHandle | null>;
 	cropData: CropData | null;
 	setCropData: (data: CropData | null) => void;
+
+	/**
+	 * 確定済みのクロップ範囲 (画像座標)。null は「まだ切り取っていない = 画像全体」。
+	 * 確定するとキャンバスがこの範囲だけを映すようになり、表示と書き出しが一致する。
+	 * 元画像は捨てないので、クロップツールに戻れば枠を広げ直せる。
+	 */
+	crop: CropData | null;
+	/** クロップ枠を編集中か。true の間はキャンバスが元画像の全体を映す。 */
+	cropEditing: boolean;
+	/** 現在の枠で確定する (= キャンバスを切り取った状態に切り替える)。 */
+	commitCrop: () => void;
+	/** 確定済みクロップを解除して画像全体に戻す。 */
+	resetCrop: () => void;
 	historyIndex: number;
 	historyLength: number;
 	canUndo: boolean;
@@ -308,7 +321,8 @@ type AnnotationOp =
 			prev: HighlightAnnotation;
 			next: HighlightAnnotation;
 	  }
-	| { type: "highlight.delete"; annotation: HighlightAnnotation };
+	| { type: "highlight.delete"; annotation: HighlightAnnotation }
+	| { type: "crop.commit"; prev: CropData | null; next: CropData | null };
 
 /** rect 系 op だけを抜き出した補助型。applyForward / applyReverse が受け取る。 */
 type RectOp = Extract<
@@ -349,11 +363,25 @@ function isHighlightOp(op: AnnotationOp): op is HighlightOp {
 	return op.type.startsWith("highlight.");
 }
 
+/** クロップ確定 op だけを抜き出した補助型。 */
+type CropOp = Extract<AnnotationOp, { type: "crop.commit" }>;
+
+/**
+ * op の種別ルーター (crop 版)。クロップ確定は注釈と同じ 1 本の履歴に積む。
+ * 別スタックに分けると「矢印を足す → クロップ確定 → ⌘Z」で矢印の方が先に
+ * 消えてしまい、操作順と巻き戻し順が食い違う。
+ */
+function isCropOp(op: AnnotationOp): op is CropOp {
+	return op.type === "crop.commit";
+}
+
 type AnnotationHistoryState = {
 	annotations: readonly RectAnnotation[];
 	arrows: readonly ArrowAnnotation[];
 	texts: readonly TextAnnotation[];
 	highlights: readonly HighlightAnnotation[];
+	/** 確定済みクロップ。null = 画像全体。 */
+	crop: CropData | null;
 	ops: AnnotationOp[];
 	/** -1 = まだ何も適用されていない、N = ops[N] を直前に適用済。 */
 	cursor: number;
@@ -365,6 +393,12 @@ type State = {
 	image: ImageHistoryState;
 	annotation: AnnotationHistoryState;
 	activeTool: ActiveTool;
+	/**
+	 * クロップ枠を編集中か。activeTool === "crop" と対になるが独立している。
+	 * 確定するとツールは crop のまま編集だけ終わり、キャンバスが切り取り後に
+	 * 切り替わる。もう一度クロップツールを選ぶと編集が再開する。
+	 */
+	cropEditing: boolean;
 	selectedAnnotationId: string | null;
 	rectDefaults: RectDefaults;
 	arrowDefaults: ArrowDefaults;
@@ -424,13 +458,15 @@ type Action =
 	  }
 	| { type: "HIGHLIGHT_DELETE"; id: string; timestamp: number }
 	| { type: "ANNOT_UNDO" }
-	| { type: "ANNOT_REDO" };
+	| { type: "ANNOT_REDO" }
+	| { type: "CROP_COMMIT"; rect: CropData | null; timestamp: number };
 
 const EMPTY_ANNOTATION: AnnotationHistoryState = {
 	annotations: [],
 	arrows: [],
 	texts: [],
 	highlights: [],
+	crop: null,
 	ops: [],
 	cursor: -1,
 	lastOpTimestamp: 0,
@@ -441,6 +477,7 @@ const initialState: State = {
 	image: { history: [], index: -1 },
 	annotation: EMPTY_ANNOTATION,
 	activeTool: "crop",
+	cropEditing: true,
 	selectedAnnotationId: null,
 	rectDefaults: DEFAULT_RECT_DEFAULTS,
 	arrowDefaults: DEFAULT_ARROW_DEFAULTS,
@@ -746,9 +783,9 @@ function pushOp(
 		nextCursor -= 1;
 	}
 
-	// op の種別に応じて rect / arrow / text / highlight いずれかの配列にだけ適用する
+	// op の種別に応じて rect / arrow / text / highlight / crop のどれかにだけ適用する
 	const nextAnnotations =
-		isArrowOp(op) || isTextOp(op) || isHighlightOp(op)
+		isArrowOp(op) || isTextOp(op) || isHighlightOp(op) || isCropOp(op)
 			? state.annotations
 			: applyForward(state.annotations, op);
 	const nextArrows = isArrowOp(op)
@@ -760,12 +797,14 @@ function pushOp(
 	const nextHighlights = isHighlightOp(op)
 		? applyHighlightForward(state.highlights, op)
 		: state.highlights;
+	const nextCrop = isCropOp(op) ? op.next : state.crop;
 
 	return {
 		annotations: nextAnnotations,
 		arrows: nextArrows,
 		texts: nextTexts,
 		highlights: nextHighlights,
+		crop: nextCrop,
 		ops: nextOps,
 		cursor: nextCursor,
 		lastOpTimestamp: timestamp,
@@ -797,6 +836,7 @@ function reducer(state: State, action: Action): State {
 				annotation: EMPTY_ANNOTATION,
 				selectedAnnotationId: null,
 				activeTool: "crop",
+				cropEditing: true,
 			};
 		}
 		case "UNDO_IMAGE":
@@ -807,6 +847,7 @@ function reducer(state: State, action: Action): State {
 				annotation: EMPTY_ANNOTATION,
 				selectedAnnotationId: null,
 				activeTool: "crop",
+				cropEditing: true,
 			};
 		case "REDO_IMAGE":
 			if (state.image.index >= state.image.history.length - 1) return state;
@@ -816,6 +857,7 @@ function reducer(state: State, action: Action): State {
 				annotation: EMPTY_ANNOTATION,
 				selectedAnnotationId: null,
 				activeTool: "crop",
+				cropEditing: true,
 			};
 		case "CLEAR": {
 			for (const item of state.image.history) {
@@ -832,12 +874,19 @@ function reducer(state: State, action: Action): State {
 		case "SET_ACTIVE_TOOL":
 			// 画像がない時に annotation 系ツールは無意味なので強制 crop fallback
 			if (state.image.index < 0 && action.tool !== "crop") {
-				return { ...state, activeTool: "crop" };
+				return { ...state, activeTool: "crop", cropEditing: true };
+			}
+			// 確定済みの状態でクロップツールを選び直したら編集を再開する。
+			// ツールが同じでも状態が変わるので、同一ツールの早期 return より先に置く。
+			if (action.tool === "crop") {
+				if (state.activeTool === "crop" && state.cropEditing) return state;
+				return { ...state, activeTool: "crop", cropEditing: true };
 			}
 			if (state.activeTool === action.tool) return state;
 			return {
 				...state,
 				activeTool: action.tool,
+				cropEditing: false,
 				// ツール切替時、新しいツールが扱う種類の annotation だけ選択を維持する
 				selectedAnnotationId:
 					action.tool === "rect"
@@ -1114,7 +1163,7 @@ function reducer(state: State, action: Action): State {
 			if (state.annotation.cursor < 0) return state;
 			const op = state.annotation.ops[state.annotation.cursor];
 			const nextAnnotations =
-				isArrowOp(op) || isTextOp(op) || isHighlightOp(op)
+				isArrowOp(op) || isTextOp(op) || isHighlightOp(op) || isCropOp(op)
 					? state.annotation.annotations
 					: applyReverse(state.annotation.annotations, op);
 			const nextArrows = isArrowOp(op)
@@ -1126,14 +1175,18 @@ function reducer(state: State, action: Action): State {
 			const nextHighlights = isHighlightOp(op)
 				? applyHighlightReverse(state.annotation.highlights, op)
 				: state.annotation.highlights;
+			const nextCrop = isCropOp(op) ? op.prev : state.annotation.crop;
 			return {
 				...state,
+				// 巻き戻して切り取りが無くなったら枠を出す (CROP_COMMIT と同じ理由)
+				cropEditing: nextCrop === null ? true : state.cropEditing,
 				annotation: {
 					...state.annotation,
 					annotations: nextAnnotations,
 					arrows: nextArrows,
 					texts: nextTexts,
 					highlights: nextHighlights,
+					crop: nextCrop,
 					cursor: state.annotation.cursor - 1,
 					// 直後の連続操作と batch merge されないように batchKey をリセット
 					lastOpBatchKey: null,
@@ -1152,7 +1205,7 @@ function reducer(state: State, action: Action): State {
 				return state;
 			const op = state.annotation.ops[state.annotation.cursor + 1];
 			const nextAnnotations =
-				isArrowOp(op) || isTextOp(op) || isHighlightOp(op)
+				isArrowOp(op) || isTextOp(op) || isHighlightOp(op) || isCropOp(op)
 					? state.annotation.annotations
 					: applyForward(state.annotation.annotations, op);
 			const nextArrows = isArrowOp(op)
@@ -1164,14 +1217,17 @@ function reducer(state: State, action: Action): State {
 			const nextHighlights = isHighlightOp(op)
 				? applyHighlightForward(state.annotation.highlights, op)
 				: state.annotation.highlights;
+			const nextCrop = isCropOp(op) ? op.next : state.annotation.crop;
 			return {
 				...state,
+				cropEditing: nextCrop === null ? true : state.cropEditing,
 				annotation: {
 					...state.annotation,
 					annotations: nextAnnotations,
 					arrows: nextArrows,
 					texts: nextTexts,
 					highlights: nextHighlights,
+					crop: nextCrop,
 					cursor: state.annotation.cursor + 1,
 					lastOpBatchKey: null,
 				},
@@ -1184,7 +1240,55 @@ function reducer(state: State, action: Action): State {
 				),
 			};
 		}
+		case "CROP_COMMIT": {
+			const prev = state.annotation.crop;
+			// 切り取っていない状態 (= 画像全体) では枠を出したままにする。クロップ
+			// ツールを選んでいるのに枠もバーも出ていない、という手掛かりのない画面を
+			// 作らないため。
+			const nextEditing = action.rect === null;
+			// 範囲が変わらない確定 (枠を触らずに Enter、ツール切替時の自動確定など) は
+			// 履歴に積まない。⌘Z が空振りするステップを増やさないため。
+			if (sameCropRect(prev, action.rect)) {
+				return state.cropEditing === nextEditing
+					? state
+					: { ...state, cropEditing: nextEditing };
+			}
+			return {
+				...state,
+				annotation: pushOp(
+					state.annotation,
+					{ type: "crop.commit", prev, next: action.rect },
+					null,
+					action.timestamp,
+				),
+				cropEditing: nextEditing,
+			};
+		}
 	}
+}
+
+/** 枠が画像全体を覆っているか。1px 未満の差は覆っているとみなす。 */
+function coversWholeImage(
+	rect: CropData,
+	image: { width: number; height: number },
+): boolean {
+	return (
+		rect.x <= 1 &&
+		rect.y <= 1 &&
+		rect.width >= image.width - 1 &&
+		rect.height >= image.height - 1
+	);
+}
+
+/** クロップ範囲の同値判定。サブピクセルの誤差は同じ範囲とみなす。 */
+function sameCropRect(a: CropData | null, b: CropData | null): boolean {
+	if (a === null || b === null) return a === b;
+	return (
+		Math.abs(a.x - b.x) < 0.5 &&
+		Math.abs(a.y - b.y) < 0.5 &&
+		Math.abs(a.width - b.width) < 0.5 &&
+		Math.abs(a.height - b.height) < 0.5
+	);
 }
 
 export function SnapcropProvider({ children }: { children: ReactNode }) {
@@ -1264,6 +1368,16 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 		const imageCanUndo = state.image.index > 0;
 		const imageCanRedo = state.image.index < state.image.history.length - 1;
 
+		// 編集中の枠で確定する。枠が画像全体と一致するときは「切り取っていない」
+		// 状態 (null) に寄せて、見た目が変わらない確定でキャンバスを組み替えない。
+		const commitCrop = () => {
+			if (!state.cropEditing) return;
+			const rect = cropperRef.current?.getData() ?? null;
+			const next =
+				rect && image && !coversWholeImage(rect, image) ? rect : null;
+			dispatch({ type: "CROP_COMMIT", rect: next, timestamp: Date.now() });
+		};
+
 		return {
 			image: image ?? null,
 			loadImageFromBlob: async (blob: Blob, source: ImageSource = "file") => {
@@ -1294,8 +1408,20 @@ export function SnapcropProvider({ children }: { children: ReactNode }) {
 				}
 			},
 
+			crop: state.annotation.crop,
+			cropEditing: state.cropEditing,
+			commitCrop,
+			resetCrop: () =>
+				dispatch({ type: "CROP_COMMIT", rect: null, timestamp: Date.now() }),
+
 			activeTool: state.activeTool,
-			setActiveTool: (tool) => dispatch({ type: "SET_ACTIVE_TOOL", tool }),
+			setActiveTool: (tool) => {
+				// クロップ枠を触ったまま別のツールへ移るときは、そこで確定する。
+				// 「画面に見えているもの」と「書き出されるもの」がずれる唯一の経路を
+				// ここで塞ぐ。
+				if (tool !== "crop") commitCrop();
+				dispatch({ type: "SET_ACTIVE_TOOL", tool });
+			},
 
 			stylePreset,
 			setStylePreset: (id: StylePresetId) => {

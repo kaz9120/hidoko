@@ -58,6 +58,8 @@ export type CropEngineHandle = {
 	selectAll: () => void;
 	toCanvas: (opts?: {
 		imageSmoothingQuality?: "low" | "medium" | "high";
+		/** 切り出す範囲。未指定なら編集中の枠。 */
+		rect?: CropRect;
 	}) => HTMLCanvasElement;
 	/** annotation を export 時に flatten するため、ソース <img> を直接取りに行く */
 	getSourceImage: () => HTMLImageElement | null;
@@ -232,7 +234,7 @@ export function useCropEngine(args: UseCropEngineArgs): UseCropEngineResult {
 				);
 			},
 			toCanvas: (opts) => {
-				const rect = cropRectRef.current;
+				const rect = opts?.rect ?? cropRectRef.current;
 				const source = imgElementRef.current;
 				if (!rect || !source) {
 					throw new Error("crop engine: image is not ready");
