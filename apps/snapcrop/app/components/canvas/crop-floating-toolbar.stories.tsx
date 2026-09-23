@@ -97,6 +97,7 @@ function Stage({
 				cropperRef={cropperRef}
 				isPortrait={isPortrait}
 				onAspectRatioIdChange={setAspectRatioId}
+				onCommit={() => {}}
 				onPortraitChange={setIsPortrait}
 			/>
 		</div>
@@ -114,6 +115,7 @@ export const Default: Story = {
 		cropperRef: { current: null },
 		isPortrait: false,
 		onAspectRatioIdChange: () => {},
+		onCommit: () => {},
 		onPortraitChange: () => {},
 	},
 	render: (args) => (
@@ -139,6 +141,7 @@ export const FullStage: Story = {
 		cropperRef: { current: null },
 		isPortrait: false,
 		onAspectRatioIdChange: () => {},
+		onCommit: () => {},
 		onPortraitChange: () => {},
 	},
 	render: (args) => (
@@ -163,6 +166,7 @@ export const Portrait: Story = {
 		cropperRef: { current: null },
 		isPortrait: true,
 		onAspectRatioIdChange: () => {},
+		onCommit: () => {},
 		onPortraitChange: () => {},
 	},
 	render: (args) => (

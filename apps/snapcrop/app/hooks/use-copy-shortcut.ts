@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { CropEngineHandle } from "~/hooks/use-crop-engine";
+import type { CropEngineHandle, CropRect } from "~/hooks/use-crop-engine";
 import type { ArrowAnnotation } from "~/lib/arrow-engine";
 import { writeImageToClipboard } from "~/lib/clipboard";
 import type { HighlightAnnotation } from "~/lib/highlight-engine";
@@ -10,6 +10,11 @@ import type { TextAnnotation } from "~/lib/text-engine";
 type Options = {
 	cropperRef: React.RefObject<CropEngineHandle | null>;
 	hasImage: boolean;
+	/** 確定済みクロップ。null なら画像全体。キャンバスの表示範囲と同じ値。 */
+	crop: CropRect | null;
+	/** クロップ枠を編集中か。編集中のコピーは、まず枠を確定させてから行う。 */
+	cropEditing: boolean;
+	commitCrop: () => void;
 	annotations: readonly RectAnnotation[];
 	arrows: readonly ArrowAnnotation[];
 	texts: readonly TextAnnotation[];
@@ -30,6 +35,9 @@ type Options = {
 export function useCopyShortcut({
 	cropperRef,
 	hasImage,
+	crop,
+	cropEditing,
+	commitCrop,
 	annotations,
 	arrows,
 	texts,
@@ -41,6 +49,12 @@ export function useCopyShortcut({
 	cropperRefRef.current = cropperRef;
 	const hasImageRef = useRef(hasImage);
 	hasImageRef.current = hasImage;
+	const cropRef = useRef(crop);
+	cropRef.current = crop;
+	const cropEditingRef = useRef(cropEditing);
+	cropEditingRef.current = cropEditing;
+	const commitCropRef = useRef(commitCrop);
+	commitCropRef.current = commitCrop;
 	const annotationsRef = useRef(annotations);
 	annotationsRef.current = annotations;
 	const arrowsRef = useRef(arrows);
@@ -87,16 +101,22 @@ export function useCopyShortcut({
 			}
 
 			event.preventDefault();
+			// 枠を触っている途中でコピーしたら、そこで確定させる。コピー直後の
+			// 画面が、コピーした内容そのものになる。
+			const editing = cropEditingRef.current;
+			const rect = editing ? cropper.getData() : cropRef.current;
+			if (editing) {
+				commitCropRef.current();
+			}
 			void (async () => {
 				try {
-					const blob = await getCroppedBlob(
-						cropper,
-						"image/png",
-						annotationsRef.current,
-						arrowsRef.current,
-						textsRef.current,
-						highlightsRef.current,
-					);
+					const blob = await getCroppedBlob(cropper, {
+						rect: rect ?? undefined,
+						annotations: annotationsRef.current,
+						arrows: arrowsRef.current,
+						texts: textsRef.current,
+						highlights: highlightsRef.current,
+					});
 					const ok = await writeImageToClipboard(blob);
 					if (ok) {
 						onSuccessRef.current();

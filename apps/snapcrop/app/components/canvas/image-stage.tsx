@@ -71,7 +71,7 @@ export type ImageStageProps = {
  *                                     テキストは preview の代わりにインライン編集の
  *                                     <TextEditorOverlay> が「まだ commit されて
  *                                     いない状態」を担う
- *  11. <CropFrame>                    activeTool==='crop' のとき
+ *  11. <CropFrame>                    クロップ枠を編集中のとき (確定後は出さない)
  *  12. <DimensionHud>                 クロップ枠に追従する W × H 表示
  */
 export function ImageStage({
@@ -82,6 +82,8 @@ export function ImageStage({
 }: ImageStageProps) {
 	const {
 		activeTool,
+		cropEditing,
+		commitCrop,
 		annotations,
 		selectedAnnotationId,
 		rectDefaults,
@@ -101,6 +103,10 @@ export function ImageStage({
 		() => ({ naturalWidth: image.width, naturalHeight: image.height }),
 		[image.width, image.height],
 	);
+
+	// クロップ枠は「クロップツール選択中」ではなく「枠を編集中」のときだけ出す。
+	// 確定後はキャンバス自体が切り取り後に切り替わるので、枠を重ねる意味がない。
+	const isCropEditing = activeTool === "crop" && cropEditing;
 
 	const rectEngine = useRectEngine(imageMetrics);
 	const arrowEngine = useArrowEngine(imageMetrics);
@@ -360,8 +366,10 @@ export function ImageStage({
 					previewHighlight={highlightEngine.previewHighlight}
 				/>
 			)}
-			{activeTool === "crop" && <CropFrame engine={cropEngine} zoom={zoom} />}
-			{activeTool === "crop" && cropEngine.cropRect && (
+			{isCropEditing && (
+				<CropFrame engine={cropEngine} onCommit={commitCrop} zoom={zoom} />
+			)}
+			{isCropEditing && cropEngine.cropRect && (
 				<DimensionHud
 					imageHeight={image.height}
 					imageWidth={image.width}

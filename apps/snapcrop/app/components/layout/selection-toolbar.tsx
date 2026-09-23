@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { ArrowFloatingToolbar } from "~/components/canvas/arrow-floating-toolbar";
+import { CropCommittedToolbar } from "~/components/canvas/crop-committed-toolbar";
 import { CropFloatingToolbar } from "~/components/canvas/crop-floating-toolbar";
 import { HighlightFloatingToolbar } from "~/components/canvas/highlight-floating-toolbar";
 import { RectFloatingToolbar } from "~/components/canvas/rect-floating-toolbar";
@@ -40,6 +41,11 @@ export function SelectionToolbar() {
 		deleteHighlight,
 		cropperRef,
 		cropData,
+		crop,
+		cropEditing,
+		commitCrop,
+		resetCrop,
+		setActiveTool,
 		cropAspectRatioId,
 		setCropAspectRatioId,
 		cropIsPortrait,
@@ -67,15 +73,27 @@ export function SelectionToolbar() {
 
 	// crop モードは選択中の注釈がなくても出す (枠は必ず存在する)
 	if (activeTool === "crop") {
-		if (!cropData) return null;
+		if (cropEditing) {
+			if (!cropData) return null;
+			return (
+				<CropFloatingToolbar
+					aspectRatioId={cropAspectRatioId}
+					cropRect={cropData}
+					cropperRef={cropperRef}
+					isPortrait={cropIsPortrait}
+					onAspectRatioIdChange={setCropAspectRatioId}
+					onCommit={commitCrop}
+					onPortraitChange={setCropIsPortrait}
+				/>
+			);
+		}
+		// 確定済み: 枠は出ていないので、やり直せることをここで示す
+		if (!crop) return null;
 		return (
-			<CropFloatingToolbar
-				aspectRatioId={cropAspectRatioId}
-				cropRect={cropData}
-				cropperRef={cropperRef}
-				isPortrait={cropIsPortrait}
-				onAspectRatioIdChange={setCropAspectRatioId}
-				onPortraitChange={setCropIsPortrait}
+			<CropCommittedToolbar
+				crop={crop}
+				onEdit={() => setActiveTool("crop")}
+				onReset={resetCrop}
 			/>
 		);
 	}

@@ -14,6 +14,10 @@ const HANDLES: ReadonlyArray<ResizeHandle> = [
 	"nw",
 ];
 
+/** ダブルクリックとみなす間隔と、その間の許容移動量 (CSS px)。 */
+const DOUBLE_CLICK_MS = 400;
+const DOUBLE_CLICK_SLOP = 6;
+
 const HANDLE_CURSORS: Record<ResizeHandle, string> = {
 	n: "ns-resize",
 	s: "ns-resize",
@@ -41,6 +45,8 @@ const HANDLE_POS: Record<ResizeHandle, React.CSSProperties> = {
 export type CropFrameProps = {
 	engine: UseCropEngineResult;
 	zoom: number;
+	/** 枠の内側をダブルクリックしたときの確定。Enter と同じ意味。 */
+	onCommit?: () => void;
 };
 
 /**
@@ -52,7 +58,7 @@ export type CropFrameProps = {
  * 画像座標 → stage 座標は `× zoom`、pointer delta (CSS px) は `/ zoom` で
  * 画像座標に戻して engine に渡す。
  */
-export function CropFrame({ engine, zoom }: CropFrameProps) {
+export function CropFrame({ engine, zoom, onCommit }: CropFrameProps) {
 	const {
 		cropRect,
 		beginMove,
@@ -65,6 +71,8 @@ export function CropFrame({ engine, zoom }: CropFrameProps) {
 		startX: number;
 		startY: number;
 	} | null>(null);
+	// ダブルクリック判定用に、直前の pointerdown の時刻と位置を覚えておく
+	const lastDownRef = useRef<{ t: number; x: number; y: number } | null>(null);
 
 	if (!cropRect) return null;
 
@@ -83,6 +91,23 @@ export function CropFrame({ engine, zoom }: CropFrameProps) {
 		if (e.button !== 0) return;
 		e.preventDefault();
 		e.stopPropagation();
+		// 枠の内側をダブルクリックしたら確定する (Enter と同じ)。pointerdown の
+		// detail は仕様上つねに 0 なので、間隔と移動量から自前で 2 回目を判定する。
+		if (kind === "move" && onCommit) {
+			const now = performance.now();
+			const last = lastDownRef.current;
+			lastDownRef.current = { t: now, x: e.clientX, y: e.clientY };
+			if (
+				last &&
+				now - last.t < DOUBLE_CLICK_MS &&
+				Math.abs(e.clientX - last.x) < DOUBLE_CLICK_SLOP &&
+				Math.abs(e.clientY - last.y) < DOUBLE_CLICK_SLOP
+			) {
+				lastDownRef.current = null;
+				onCommit();
+				return;
+			}
+		}
 		dragRef.current = {
 			pointerId: e.pointerId,
 			startX: e.clientX,

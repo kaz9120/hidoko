@@ -7,7 +7,7 @@ import { formatBytes, formatMimeType } from "~/lib/format";
 
 /**
  * 画面下端 24px のステータスバー。ファイル名・元画像サイズ・形式・容量と、
- * 選択範囲 (寸法 + 出力推定容量)・図形数・履歴位置・準備状態を横一列に表示する。
+ * 出力範囲 (寸法 + 推定容量)・図形数・履歴位置・準備状態を横一列に表示する。
  * 画像未ロード時は空のヒントだけ。
  */
 export function StatusBar() {
@@ -70,7 +70,7 @@ export function StatusBarView({
 			</span>
 			<span className="ml-auto" />
 			<span>
-				選択: <span className="text-foreground/80">{cropDims}</span>
+				出力: <span className="text-foreground/80">{cropDims}</span>
 				{estimatedBytes !== null && (
 					<span> · 約 {formatBytes(estimatedBytes)}</span>
 				)}
