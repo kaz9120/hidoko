@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.21.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.20.0...snapcrop-v0.21.0) (2026-09-23)
+
+
+### Features
+
+* **snapcrop:** クロップを確定してキャンバスを切り取り後に切り替える ([#377](https://github.com/kaz9120/hidoko/issues/377)) ([296937b](https://github.com/kaz9120/hidoko/commit/296937bc7c4866024128a06eefec043f695052e9))
+
 ## [0.20.0](https://github.com/kaz9120/hidoko/compare/snapcrop-v0.19.0...snapcrop-v0.20.0) (2026-06-23)
 
 
