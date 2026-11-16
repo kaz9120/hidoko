@@ -1,5 +1,5 @@
 import { AgentationDebugGate, Analytics } from "app-kit";
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import {
 	isRouteErrorResponse,
 	Links,
@@ -77,7 +77,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
 	// React が prerender の HTML を引き継ぐと、描く前に当てた data-theme が外れるので、引き継いだあとに当て直す
-	useEffect(() => restoreTheme(), []);
+	// 描く前に当て直す。useEffect だと、昼の利用者に夜の画面が 1 フレーム出る
+	useLayoutEffect(() => restoreTheme(), []);
 	return (
 		<TooltipProvider>
 			<Outlet />

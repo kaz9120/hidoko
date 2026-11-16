@@ -34,7 +34,7 @@ export function ThemeToggle() {
 				render={
 					<Button
 						aria-label={label}
-						data-theme-value={theme}
+						data-theme-value={isDark ? "dark" : "light"}
 						onClick={() => setPreference(isDark ? "light" : "dark")}
 						size="icon"
 						variant="ghost"

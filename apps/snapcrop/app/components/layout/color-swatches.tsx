@@ -61,7 +61,7 @@ export function ColorSwatches({
 						/>
 					}
 				>
-					<PlusIcon className="size-2.5 text-(--ink-0)/60" strokeWidth={2.5} />
+					<PlusIcon className="size-2.5 text-(--ink-0)/60 [stroke-width:2.5]" />
 				</TooltipTrigger>
 				<TooltipContent>近日対応</TooltipContent>
 			</Tooltip>

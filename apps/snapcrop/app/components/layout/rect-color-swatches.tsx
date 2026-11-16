@@ -108,12 +108,11 @@ function CustomColorSwatch({
 				}
 			>
 				<PlusIcon
-					className={`size-2.5 ${
+					className={`size-2.5 [stroke-width:2.5] ${
 						active && !isLightColor(value)
 							? "text-(--ink-900)/80"
 							: "text-(--ink-0)/60"
 					}`}
-					strokeWidth={2.5}
 				/>
 			</PopoverTrigger>
 			<PopoverContent align="end" className="w-44 p-3" sideOffset={8}>

@@ -156,7 +156,7 @@ export function ExportActionsView({
 				onClick={onCopy}
 				size="sm"
 			>
-				<CopyIcon strokeWidth={2} />
+				<CopyIcon className="[stroke-width:2]" />
 				コピー
 				<Kbd className="border-transparent bg-fg-on-brand/15 text-fg-on-brand/80">
 					⌘C

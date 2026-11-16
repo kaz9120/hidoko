@@ -98,8 +98,8 @@ export const FontVariants: Story = {
 
 /**
  * 太字 / 斜体 / 太字斜体の組み合わせと、背景 (白 / 黒) の見え方。背景は
- * 画像へ焼き込む注釈の機能色なので、純白 / 純黒を使う (DESIGN.md の純白禁止
- * は UI クロームが対象)。
+ * 画像へ焼き込む注釈の機能色なので、純白 / 純黒を使う (Takibi の「純白・純黒を使わない」
+ * は UI の見た目が対象)。
  * @summary スタイルと背景の比較
  */
 export const StyleAndBackground: Story = {
