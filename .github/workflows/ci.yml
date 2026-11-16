@@ -27,8 +27,8 @@ jobs:
       - name: Biome check
         run: bun run check:ci
 
-  design-lint:
-    name: DESIGN.md lint
+  takibi-classes:
+    name: Takibi classes
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -37,8 +37,8 @@ jobs:
           bun-version: ${{ env.BUN_VERSION }}
       - name: Install dependencies
         run: bun install --frozen-lockfile
-      - name: Validate DESIGN.md (Stitch spec)
-        run: bun run design:lint
+      - name: Check classes against Takibi Design System
+        run: bun run takibi:check
 
   typecheck:
     name: Type check

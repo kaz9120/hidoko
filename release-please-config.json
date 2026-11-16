@@ -10,7 +10,6 @@
 		"apps/hidoko-id": {},
 		"apps/homepage": {},
 		"apps/note-ogp": {},
-		"apps/snapcrop": {},
-		"packages/ui": {}
+		"apps/snapcrop": {}
 	}
 }
