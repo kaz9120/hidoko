@@ -1,4 +1,4 @@
-import { cn } from "ui/lib/utils";
+import { cn } from "takibi-design-system";
 import type { StrengthScore } from "~/lib/strength";
 
 interface PasswordStrengthProps {
@@ -6,13 +6,13 @@ interface PasswordStrengthProps {
 	className?: string;
 }
 
-// 4 セグメントの強度メーター。色は ember 系で 弱→強 を表す。
+// 4 セグメントの強度メーター。暗い橙から明るい橙へ、弱→強 を表す。
 // score 0 のセグメントだけは、空欄/baseline 未達なので落ち着いた色に寄せる。
 const SEGMENT_TONES = [
-	"bg-[var(--ember-700)]",
-	"bg-[var(--ember-600)]",
-	"bg-[var(--brand-active)]",
-	"bg-[var(--brand-hover)]",
+	"bg-danger-solid",
+	"bg-brand-active",
+	"bg-brand",
+	"bg-brand-hover",
 ] as const;
 
 /**
@@ -39,12 +39,12 @@ export function PasswordStrength({ score, className }: PasswordStrengthProps) {
 						key={tone}
 						className={cn(
 							"h-1.5 flex-1 rounded-full transition-colors",
-							i < lit ? tone : "bg-[var(--border)]",
+							i < lit ? tone : "bg-line",
 						)}
 					/>
 				))}
 			</div>
-			<span className="min-w-[2.5em] font-mono text-[11px] text-[var(--text-faint)] uppercase tracking-[0.12em]">
+			<span className="min-w-[2.5em] font-mono text-[11px] text-fg-subtle uppercase tracking-[0.12em]">
 				{score.label}
 			</span>
 		</div>

@@ -86,17 +86,17 @@ export default function AccountLayout() {
 	}
 
 	return (
-		<main className="min-h-dvh bg-[var(--bg)] text-[var(--text)]">
-			<header className="border-b border-[var(--border)] px-8 py-5">
+		<main className="min-h-dvh bg-surface text-fg">
+			<header className="border-b border-line px-8 py-5">
 				<div className="mx-auto flex max-w-[1080px] items-center justify-between">
 					<Link to="/account" className="flex items-center gap-3">
 						<LogoMark size={26} title="アカウント" />
-						<span className="font-semibold text-[15px] text-[var(--text-strong)] tracking-[-0.02em]">
+						<span className="font-semibold text-[15px] text-fg-strong tracking-[-0.02em]">
 							アカウント
 						</span>
 					</Link>
 					<div className="flex items-center gap-4 text-[13px]">
-						<span className="font-mono text-[12px] text-[var(--text-faint)]">
+						<span className="font-mono text-[12px] text-fg-subtle">
 							{user.email}
 						</span>
 						<AuthButton
@@ -117,8 +117,8 @@ export default function AccountLayout() {
 					<div
 						className={`rounded-md border px-3.5 py-2.5 text-[13px] ${
 							emailChangeBanner.tone === "moss"
-								? "border-[color-mix(in_oklab,var(--success)_35%,transparent)] bg-[color-mix(in_oklab,var(--success)_14%,transparent)] text-[#b9c79a]"
-								: "border-[color-mix(in_oklab,var(--danger)_35%,transparent)] bg-[color-mix(in_oklab,var(--danger)_14%,transparent)] text-[var(--danger)]"
+								? "border-success/35 bg-success/14 text-success"
+								: "border-danger/35 bg-danger/14 text-danger"
 						}`}
 					>
 						{emailChangeBanner.text}
@@ -127,7 +127,7 @@ export default function AccountLayout() {
 			) : null}
 
 			<div className="mx-auto grid max-w-[1080px] grid-cols-[220px_1fr] gap-10 px-8 py-10">
-				<aside className="border-r border-[var(--border-subtle)] pr-6">
+				<aside className="border-r border-line-subtle pr-6">
 					<Mark className="mb-3 px-3 text-[10px]">設定</Mark>
 					<AccountNav />
 				</aside>

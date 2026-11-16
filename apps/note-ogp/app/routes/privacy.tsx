@@ -66,7 +66,7 @@ export default function Privacy() {
 				<p>
 					本ポリシーに関するお問い合わせは、X（
 					<a
-						className="underline underline-offset-2"
+						className="text-brand underline underline-offset-2 transition-colors duration-(--duration-fast) ease-standard hover:text-brand-hover"
 						href="https://x.com/kyamamoto9120"
 						rel="noreferrer"
 						target="_blank"

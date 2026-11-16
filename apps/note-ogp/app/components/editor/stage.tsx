@@ -49,7 +49,7 @@ export function Stage({
 	}, [titleFontSize, onTitleFontSizeChange]);
 
 	return (
-		<section className="note-ogp-stage-bg flex h-full flex-col border-b border-border md:border-r md:border-b-0">
+		<section className="note-ogp-stage-bg flex h-full flex-col border-b border-line md:border-r md:border-b-0">
 			<div className="flex min-h-0 flex-1 flex-col items-center gap-3 p-4 md:gap-4 md:overflow-y-auto md:p-8">
 				<div
 					ref={wrapRef}
@@ -66,7 +66,7 @@ export function Stage({
 								height: FRAME_HEIGHT,
 								transform: `scale(${scale})`,
 								boxShadow:
-									"0 24px 80px color-mix(in oklab, var(--ink-0) 60%, transparent), 0 2px 0 color-mix(in oklab, var(--ink-0) 40%, transparent), 0 0 0 1px var(--border)",
+									"0 24px 80px color-mix(in oklab, var(--ink-0) 60%, transparent), 0 2px 0 color-mix(in oklab, var(--ink-0) 40%, transparent), 0 0 0 1px var(--color-line)",
 							}}
 						>
 							<Cover f={fields} onTitleMeasured={setTitleFontSize} />
@@ -77,7 +77,7 @@ export function Stage({
 					<button
 						type="button"
 						onClick={() => setTimelineOpen((open) => !open)}
-						className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/80 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+						className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface/80 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.22em] text-fg-muted transition-colors hover:border-brand/40 hover:text-fg"
 						aria-expanded={timelineOpen}
 					>
 						{timelineOpen ? (

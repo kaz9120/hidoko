@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { cn } from "ui/lib/utils";
+import { cn } from "takibi-design-system";
 
 /**
  * パネル内のセクション見出し。等幅・極小・字間 0.22em の編集的なタグ。
@@ -17,8 +17,8 @@ export function SectionTitle({
 	return (
 		<h2
 			className={cn(
-				"mt-4 mb-2.5 flex items-center gap-2 border-t border-dashed border-border pt-3.5",
-				"font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground",
+				"mt-4 mb-2.5 flex items-center gap-2 border-t border-dashed border-line pt-3.5",
+				"font-mono text-[10px] uppercase tracking-[0.22em] text-fg-muted",
 				"first:mt-0 first:border-t-0 first:pt-0",
 				className,
 			)}

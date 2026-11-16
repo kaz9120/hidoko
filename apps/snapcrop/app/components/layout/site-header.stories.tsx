@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ThemeProvider } from "next-themes";
-import { TooltipProvider } from "ui/components/tooltip";
+import { TooltipProvider } from "takibi-design-system";
 
 import { SnapcropProvider } from "~/contexts/snapcrop-context";
 
@@ -10,8 +9,8 @@ import { SiteHeader } from "./site-header";
  * snapcrop 画面最上段に貼り付くヘッダ。ロゴ・取り込み手段 (スクショ / 貼り付け
  * / ファイル)・編集系コントロール (ズーム / undo / redo) を左に、ヘルプ /
  * テーマ切替 / 設定と、書き出し系 (PNG ダウンロード / コピー / X シェア) を
- * 右に並べる。`SnapcropContext` と `next-themes` の両方を購読しているため、
- * Storybook では両方の Provider で wrap する必要がある。
+ * 右に並べる。`SnapcropContext` を購読しているため、
+ * Storybook では SnapcropProvider と TooltipProvider で wrap する必要がある。
  *
  * @summary 画面上端のヘッダ
  */
@@ -23,13 +22,11 @@ const meta = {
 	},
 	decorators: [
 		(Story) => (
-			<ThemeProvider attribute="class" defaultTheme="dark">
-				<SnapcropProvider>
-					<TooltipProvider>
-						<Story />
-					</TooltipProvider>
-				</SnapcropProvider>
-			</ThemeProvider>
+			<SnapcropProvider>
+				<TooltipProvider>
+					<Story />
+				</TooltipProvider>
+			</SnapcropProvider>
 		),
 	],
 } satisfies Meta<typeof SiteHeader>;

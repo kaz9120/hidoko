@@ -3,5 +3,5 @@
 	"apps/homepage": "0.3.0",
 	"apps/note-ogp": "0.16.0",
 	"apps/snapcrop": "0.21.0",
-	"packages/ui": "0.7.0"
+	"packages/app-kit": "0.0.0"
 }

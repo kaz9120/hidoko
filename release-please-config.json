@@ -11,6 +11,6 @@
 		"apps/homepage": {},
 		"apps/note-ogp": {},
 		"apps/snapcrop": {},
-		"packages/ui": {}
+		"packages/app-kit": {}
 	}
 }

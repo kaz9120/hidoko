@@ -5,7 +5,7 @@ import {
 	DialogDescription,
 	DialogHeader,
 	DialogTitle,
-} from "ui/components/dialog";
+} from "takibi-design-system";
 
 type Props = {
 	open: boolean;
@@ -34,7 +34,7 @@ export function LegalDialog({
 			<DialogContent className="max-h-[85dvh] max-w-2xl overflow-y-auto">
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>
-					<DialogDescription className="font-mono text-[var(--text-faint)] text-xs">
+					<DialogDescription className="font-mono text-fg-subtle text-xs">
 						最終更新日: {lastUpdated}
 					</DialogDescription>
 				</DialogHeader>

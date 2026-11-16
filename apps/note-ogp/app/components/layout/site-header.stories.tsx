@@ -1,14 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ThemeProvider } from "next-themes";
-import { TooltipProvider } from "ui/components/tooltip";
+import { TooltipProvider } from "takibi-design-system";
 
 import { SiteHeader } from "./site-header";
 
 /**
  * note-ogp 画面最上段のヘッダ。左にロゴ・アプリ名（「アイキャッチ台紙」）・
  * `NOTE OGP` バッジ、右にアプリのライト/ダークを切り替える ThemeToggle を
- * 並べる。`next-themes` を購読しているので Storybook では ThemeProvider と
- * ThemeToggle が依存する Tooltip の Provider で wrap する。
+ * 並べる。ThemeToggle が依存する Tooltip の Provider で wrap する。
  *
  * @summary 画面上端のヘッダ
  */
@@ -20,11 +18,9 @@ const meta = {
 	},
 	decorators: [
 		(Story) => (
-			<ThemeProvider attribute="class" defaultTheme="dark">
-				<TooltipProvider>
-					<Story />
-				</TooltipProvider>
-			</ThemeProvider>
+			<TooltipProvider>
+				<Story />
+			</TooltipProvider>
 		),
 	],
 } satisfies Meta<typeof SiteHeader>;

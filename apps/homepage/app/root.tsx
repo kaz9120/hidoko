@@ -1,4 +1,4 @@
-import { ThemeProvider } from "next-themes";
+import { Analytics } from "app-kit";
 import {
 	isRouteErrorResponse,
 	Links,
@@ -7,20 +7,29 @@ import {
 	Scripts,
 	ScrollRestoration,
 } from "react-router";
-import { Analytics, Toaster, TooltipProvider } from "ui";
-import faviconUrl from "ui/assets/logo/mark-cream.svg?url";
+import { Toaster, TooltipProvider } from "takibi-design-system";
+import faviconUrl from "takibi-design-system/assets/logo/mark-cream.svg?url";
 import type { Route } from "./+types/root";
 import "./globals.css";
 
 export const links: Route.LinksFunction = () => [
 	{ rel: "icon", type: "image/svg+xml", href: faviconUrl },
+	{ rel: "preconnect", href: "https://fonts.googleapis.com" },
+	{
+		rel: "preconnect",
+		href: "https://fonts.gstatic.com",
+		crossOrigin: "anonymous",
+	},
+	{
+		rel: "stylesheet",
+		href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=LINE+Seed+JP:wght@400;700&display=swap",
+	},
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
-		// next-themes が html.class を後付けで切り替えるため、prerender の HTML
-		// と差分が出る。SPA でも React の hydration 警告を抑える必要がある。
-		<html lang="ja" className="dark" suppressHydrationWarning>
+		// 夜（Takibi の既定）だけで見せるので、data-theme は付けない
+		<html lang="ja">
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -42,17 +51,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
 	return (
-		<ThemeProvider
-			attribute="class"
-			defaultTheme="dark"
-			disableTransitionOnChange
-			enableSystem={false}
-		>
-			<TooltipProvider>
-				<Outlet />
-				<Toaster position="bottom-center" />
-			</TooltipProvider>
-		</ThemeProvider>
+		<TooltipProvider>
+			<Outlet />
+			<Toaster />
+		</TooltipProvider>
 	);
 }
 
@@ -73,11 +75,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 	}
 
 	return (
-		<main className="mx-auto max-w-2xl px-6 pt-24 pb-16 text-foreground">
-			<h1 className="text-2xl font-semibold text-text-strong">{message}</h1>
-			<p className="mt-2 text-muted-foreground">{details}</p>
+		<main className="mx-auto max-w-2xl px-6 pt-24 pb-16 text-fg">
+			<h1 className="text-2xl font-semibold text-fg-strong">{message}</h1>
+			<p className="mt-2 text-fg-muted">{details}</p>
 			{stack && (
-				<pre className="mt-4 w-full overflow-x-auto rounded-md bg-secondary p-4 text-xs">
+				<pre className="mt-4 w-full overflow-x-auto rounded-md bg-surface-overlay p-4 text-xs">
 					<code>{stack}</code>
 				</pre>
 			)}

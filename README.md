@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="packages/ui/assets/logo/mark-cream.svg" alt="Hidoko" width="120" />
+  <img src="https://raw.githubusercontent.com/kaz9120/takibi-design-system/main/packages/takibi/assets/logo/mark-cream.svg" alt="Hidoko" width="120" />
 </p>
 
 <h1 align="center">Hidoko</h1>
@@ -23,18 +23,22 @@ hidoko/
 ├── apps/
 │   ├── homepage/          # y-kaz.com — 自己紹介とアウトプットのハブ
 │   ├── snapcrop/          # ブラウザで動く画像エディタ
-│   └── note-ogp/          # note のアイキャッチ画像を作るテンプレートエディタ
+│   ├── note-ogp/          # note のアイキャッチ画像を作るテンプレートエディタ
+│   ├── hidoko-id/         # 各アプリ共通のサインイン
+│   └── storybook/         # 各アプリのストーリーを集めた Storybook
 └── packages/
-    └── ui/                # トークン・shadcn/ui・ロゴ・火の粉を束ねた共通基盤
+    └── app-kit/           # 計測タグなど、見た目を持たない共通部品
 ```
 
 - [apps/homepage](apps/homepage) — React Router 7 (SPA, prerender) + Cloudflare Workers。
 - [apps/snapcrop](apps/snapcrop) — React Router 7 + Cloudflare Workers。Storybook + reg-suit で VRT。
 - [apps/note-ogp](apps/note-ogp) — React Router 7 (SPA) + Cloudflare Workers (Static Assets)。html-to-image で OGP 画像を書き出す。
-- [packages/ui](packages/ui) — design tokens / shadcn/ui コンポーネント / ロゴ / `<hi-embers>` をひとつの workspace パッケージで提供。
+- [packages/app-kit](packages/app-kit) — 計測タグ（GA4 / Clarity）などの、見た目を持たない共通部品。
+
+見た目（トークン、コンポーネント、ロゴ、火の粉のアニメーション）は [Takibi Design System](https://design-system.y-kaz.com)（npm の `takibi-design-system`）を使う。
 
 ## ドキュメント
 
 - [AGENTS.md](AGENTS.md) — 開発時のルール・コマンド・コミット規約
 - [BRAND.md](BRAND.md) — 作者「焚き火を愛するエンジニア」のパーソナルブランド定義（核・声・物語）
-- [DESIGN.md](DESIGN.md) — ブランドと視覚言語の単一仕様（色・タイポ・レイアウト・原則）
+- [Takibi Design System](https://design-system.y-kaz.com) — 色・文字・動き・コンポーネントの仕様

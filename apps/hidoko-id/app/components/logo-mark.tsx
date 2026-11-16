@@ -1,4 +1,4 @@
-import { cn } from "ui/lib/utils";
+import { cn } from "takibi-design-system";
 
 // 火床のハート形フィールド（142x142、142 circles）。
 // 親要素の color を currentColor で拾うので、color で色を切り替えられる。
@@ -56,7 +56,7 @@ export function LogoMark({ size = 28, className, title }: LogoMarkProps) {
 			width={size}
 			height={size}
 			viewBox="0 0 142 142"
-			className={cn("block text-[var(--brand)]", className)}
+			className={cn("block text-brand", className)}
 			role={title ? "img" : "presentation"}
 			aria-label={title}
 			aria-hidden={title ? undefined : true}

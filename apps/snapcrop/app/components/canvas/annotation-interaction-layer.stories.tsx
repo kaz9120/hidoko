@@ -36,7 +36,7 @@ const meta = {
 	decorators: [
 		(Story) => (
 			<SnapcropProvider>
-				<div className="relative h-[260px] w-[480px] overflow-hidden rounded-md border border-dashed border-border bg-bg-raised">
+				<div className="relative h-[260px] w-[480px] overflow-hidden rounded-md border border-dashed border-line bg-surface-raised">
 					<Story />
 				</div>
 			</SnapcropProvider>

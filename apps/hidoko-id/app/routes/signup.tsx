@@ -1,7 +1,7 @@
 import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { Checkbox } from "ui/components/checkbox";
+import { Checkbox } from "takibi-design-system";
 import { AuthButton } from "~/components/auth-button";
 import { AuthField, AuthInput } from "~/components/auth-input";
 import { GoogleGIcon } from "~/components/google-g-icon";
@@ -89,7 +89,7 @@ export default function SignupRoute() {
 		<form onSubmit={onSubmit} className="flex flex-col gap-4">
 			<div className="mb-2">
 				<Mark tone="ember">SIGN UP</Mark>
-				<h1 className="mt-2 mb-0 font-medium text-[28px] text-[var(--text-strong)] tracking-[-0.02em]">
+				<h1 className="mt-2 mb-0 font-medium text-[28px] text-fg-strong tracking-[-0.02em]">
 					アカウントを作る
 				</h1>
 			</div>
@@ -107,11 +107,11 @@ export default function SignupRoute() {
 			</AuthButton>
 
 			<div className="flex items-center gap-3.5">
-				<div className="h-px flex-1 bg-[var(--border)]" />
-				<span className="font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--text-faint)]">
+				<div className="h-px flex-1 bg-line" />
+				<span className="font-mono text-[11px] uppercase tracking-[0.18em] text-fg-subtle">
 					メールで作成
 				</span>
-				<div className="h-px flex-1 bg-[var(--border)]" />
+				<div className="h-px flex-1 bg-line" />
 			</div>
 
 			<AuthField label="メール" htmlFor="signup-email" error={error}>
@@ -148,26 +148,26 @@ export default function SignupRoute() {
 
 			<label
 				htmlFor="signup-terms"
-				className="mt-1 flex items-start gap-2.5 text-[13px] text-[var(--text-muted)]"
+				className="mt-1 flex items-start gap-2.5 text-[13px] text-fg-muted"
 			>
 				<Checkbox
 					id="signup-terms"
 					required
 					checked={terms}
-					onCheckedChange={(v) => setTerms(v === true)}
-					className="mt-0.5 data-[state=checked]:border-[var(--ember-600)] data-[state=checked]:bg-[var(--brand)] data-[state=checked]:text-[#1a0d05]"
+					onCheckedChange={(checked) => setTerms(checked)}
+					className="mt-0.5"
 				/>
 				<span>
 					<Link
 						to="/terms"
-						className="font-medium text-[var(--brand)] hover:text-[var(--brand-hover)]"
+						className="font-medium text-brand hover:text-brand-hover"
 					>
 						利用規約
 					</Link>{" "}
 					と{" "}
 					<Link
 						to="/privacy"
-						className="font-medium text-[var(--brand)] hover:text-[var(--brand-hover)]"
+						className="font-medium text-brand hover:text-brand-hover"
 					>
 						プライバシーポリシー
 					</Link>{" "}
@@ -191,14 +191,14 @@ export default function SignupRoute() {
 	if (!isWide) {
 		// narrow（< 1024px）: 左パネル非表示。右パネルだけ中央寄せ。
 		return (
-			<main className="relative grid min-h-dvh place-items-center bg-[var(--bg)] px-6 py-10 text-[var(--text)]">
-				<div className="absolute inset-x-6 top-6 flex items-center justify-between text-[13px] text-[var(--text-faint)]">
+			<main className="relative grid min-h-dvh place-items-center bg-surface px-6 py-10 text-fg">
+				<div className="absolute inset-x-6 top-6 flex items-center justify-between text-[13px] text-fg-subtle">
 					<LogoMark size={22} title="アカウント" />
 					<div className="flex items-center gap-3">
 						<span>すでに使っている</span>
 						<Link
 							to={signinHref}
-							className="inline-flex items-center gap-1 font-medium text-[var(--brand)] hover:text-[var(--brand-hover)]"
+							className="inline-flex items-center gap-1 font-medium text-brand hover:text-brand-hover"
 						>
 							サインイン
 							<ArrowUpRight aria-hidden className="size-3.5" />
@@ -212,34 +212,31 @@ export default function SignupRoute() {
 
 	// desktop（≥ 1024px）: 520px ブランド面 + フォーム面の左右分割。
 	return (
-		<main className="relative grid min-h-dvh grid-cols-[520px_1fr] text-[var(--text)]">
+		<main className="relative grid min-h-dvh grid-cols-[520px_1fr] text-fg">
 			{/* brand panel */}
-			<aside className="hidoko-id-brand-panel-bg relative flex flex-col overflow-hidden border-[var(--border)] border-r p-11">
+			<aside className="hidoko-id-brand-panel-bg relative flex flex-col overflow-hidden border-line border-r p-11">
 				<div className="flex items-center gap-3.5">
 					<LogoMark size={28} title="アカウント" />
-					<span className="font-semibold text-[17px] text-[var(--text-strong)] tracking-[-0.02em]">
+					<span className="font-semibold text-[17px] text-fg-strong tracking-[-0.02em]">
 						共通アカウント
 					</span>
 				</div>
 
 				<div className="my-auto max-w-[380px]">
 					<Mark tone="ember">新しいアカウント</Mark>
-					<h2 className="mt-3.5 mb-5 font-medium text-[36px] text-[var(--text-strong)] leading-[1.15] tracking-[-0.025em]">
+					<h2 className="mt-3.5 mb-5 font-medium text-[36px] text-fg-strong leading-[1.15] tracking-[-0.025em]">
 						道具を、
 						<br />
 						ひとつの灯で繋ぐ。
 					</h2>
-					<p className="mb-7 text-[14px] text-[var(--text-muted)] leading-[1.75]">
+					<p className="mb-7 text-[14px] text-fg-muted leading-[1.75]">
 						アカウントを作ると、同じ ID で複数の道具にサインインできる
 					</p>
 
-					<ul className="m-0 flex list-none flex-col gap-3 p-0 text-[13px] text-[var(--text-muted)]">
+					<ul className="m-0 flex list-none flex-col gap-3 p-0 text-[13px] text-fg-muted">
 						{BENEFITS.map((b) => (
 							<li key={b} className="flex items-start gap-2.5">
-								<Check
-									aria-hidden
-									className="mt-1 size-3.5 text-[var(--brand)]"
-								/>
+								<Check aria-hidden className="mt-1 size-3.5 text-brand" />
 								<span>{b}</span>
 							</li>
 						))}
@@ -253,11 +250,11 @@ export default function SignupRoute() {
 
 			{/* form panel */}
 			<section className="flex flex-col p-11 pr-16">
-				<div className="flex items-center justify-end gap-3 text-[13px] text-[var(--text-faint)]">
+				<div className="flex items-center justify-end gap-3 text-[13px] text-fg-subtle">
 					<span>すでに使っている</span>
 					<Link
 						to={signinHref}
-						className="inline-flex items-center gap-1 font-medium text-[var(--brand)] hover:text-[var(--brand-hover)]"
+						className="inline-flex items-center gap-1 font-medium text-brand hover:text-brand-hover"
 					>
 						サインイン
 						<ArrowUpRight aria-hidden className="size-3.5" />

@@ -20,7 +20,7 @@ const meta = {
 	},
 	decorators: [
 		(Story) => (
-			<div className="relative h-[320px] w-[480px] overflow-hidden rounded-md border border-border bg-bg-base">
+			<div className="relative h-[320px] w-[480px] overflow-hidden rounded-md border border-line bg-surface">
 				{/* dim を映えさせるため、stage に写真風のグラデを敷く */}
 				<div className="absolute inset-0 bg-gradient-to-br from-[var(--ember-700)] via-[var(--ember-500)] to-[var(--moon)] opacity-40" />
 				<Story />

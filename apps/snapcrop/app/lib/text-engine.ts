@@ -110,8 +110,8 @@ export const TEXT_FONT_STACKS: Record<TextFontFamily, string> = {
 };
 
 /**
- * 背景の機能色。画像へ焼き込む注釈色なので、UI クロームの「純白禁止」
- * (DESIGN.md) の対象外として純白 / 純黒を使う。
+ * 背景の機能色。画像へ焼き込む注釈色なので、UI の「純白・純黒を使わない」
+ * (Takibi Design System) の対象外として純白 / 純黒を使う。
  */
 export function textBackgroundColor(bg: TextBackground): string | null {
 	if (bg === "white") return "#ffffff";

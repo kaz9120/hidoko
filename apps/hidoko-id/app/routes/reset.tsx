@@ -40,7 +40,7 @@ export default function ResetRoute() {
 	}
 
 	return (
-		<main className="relative grid min-h-dvh place-items-center bg-[var(--bg)] px-6 py-12 text-[var(--text)]">
+		<main className="relative grid min-h-dvh place-items-center bg-surface px-6 py-12 text-fg">
 			<div className="absolute inset-x-6 top-6 flex items-center">
 				<LogoMark size={22} title="アカウント" />
 			</div>
@@ -48,10 +48,10 @@ export default function ResetRoute() {
 			<div className="w-full max-w-[400px]">
 				<div className="mb-7">
 					<Mark tone="ember">パスワード再設定</Mark>
-					<h1 className="mt-2 mb-2 font-medium text-[24px] text-[var(--text-strong)] tracking-[-0.01em]">
+					<h1 className="mt-2 mb-2 font-medium text-[24px] text-fg-strong tracking-[-0.01em]">
 						メールで再設定する
 					</h1>
-					<p className="m-0 text-[13px] text-[var(--text-muted)] leading-[1.7]">
+					<p className="m-0 text-[13px] text-fg-muted leading-[1.7]">
 						登録メールアドレスに再設定リンクを送る。リンクの有効期限は 24 時間
 					</p>
 				</div>
@@ -86,7 +86,7 @@ export default function ResetRoute() {
 				<div className="mt-8 text-center">
 					<Link
 						to="/signin"
-						className="inline-flex items-center gap-1.5 font-medium text-[13px] text-[var(--brand)] hover:text-[var(--brand-hover)]"
+						className="inline-flex items-center gap-1.5 font-medium text-[13px] text-brand hover:text-brand-hover"
 					>
 						<ArrowLeft aria-hidden className="size-3.5" />
 						サインインに戻る

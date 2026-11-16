@@ -21,7 +21,7 @@ const meta = {
 	},
 	decorators: [
 		(Story) => (
-			<div className="relative h-[360px] w-[480px] overflow-hidden rounded-md border border-border bg-[#f5efe4]">
+			<div className="relative h-[360px] w-[480px] overflow-hidden rounded-md border border-line bg-[#f5efe4]">
 				{/* multiply の重ね味が分かるよう、下にダミーの「文字」を敷く */}
 				<div className="space-y-5 p-8 font-mono text-[#3a2f24] text-sm leading-6">
 					<p>焚き火を愛するエンジニアのための画像エディタ。</p>

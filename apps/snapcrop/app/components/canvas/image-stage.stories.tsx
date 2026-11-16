@@ -92,7 +92,7 @@ function Frame({ zoom }: { zoom: number }) {
 	});
 	return (
 		<div
-			className="relative overflow-hidden rounded-md border border-border bg-bg-base"
+			className="relative overflow-hidden rounded-md border border-line bg-surface"
 			style={{
 				width: STUB_IMAGE.width * zoom,
 				height: STUB_IMAGE.height * zoom,

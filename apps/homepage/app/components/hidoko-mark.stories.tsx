@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { HidokoMark } from "./hidoko-mark";
 
 /**
- * Hidoko の角丸ロゴマーク。`ui/assets/logo/mark-dark.svg` をそのまま `<img>`
+ * Hidoko の角丸ロゴマーク。`takibi-design-system/assets/logo/mark-dark.svg` をそのまま `<img>`
  * で出すだけの薄いラッパで、`size` を px 単位で指定すると正方形で描画する。
  * 装飾扱いのため `aria-hidden` で alt は空にしている。
  *

@@ -1,5 +1,5 @@
 import type { ComponentPropsWithoutRef } from "react";
-import { cn } from "ui/lib/utils";
+import { cn } from "takibi-design-system";
 
 /**
  * `hi-mark` 相当の小ラベル。JetBrains Mono / 11px / letter-spacing 0.18em /
@@ -18,7 +18,7 @@ export function Mark({
 			className={cn(
 				"inline-flex items-center font-mono text-[11px] uppercase",
 				"tracking-[0.18em]",
-				tone === "ember" ? "text-[var(--brand)]" : "text-[var(--text-faint)]",
+				tone === "ember" ? "text-brand" : "text-fg-subtle",
 				className,
 			)}
 			{...props}

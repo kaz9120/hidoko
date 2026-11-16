@@ -58,7 +58,7 @@ const mkRect = (overrides: Partial<RectAnnotation>): RectAnnotation => ({
 function Frame({ annotations }: { annotations: readonly RectAnnotation[] }) {
 	const imgRef = useRef<HTMLImageElement | null>(null);
 	return (
-		<div className="relative h-[300px] w-[480px] overflow-hidden rounded-md border border-border bg-bg-raised">
+		<div className="relative h-[300px] w-[480px] overflow-hidden rounded-md border border-line bg-surface-raised">
 			<img
 				alt="モザイク確認用のスタブ画像"
 				className="pointer-events-none absolute inset-0 block size-full select-none"

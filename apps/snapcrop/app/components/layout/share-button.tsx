@@ -1,4 +1,4 @@
-import { Button } from "ui";
+import { Button } from "takibi-design-system";
 
 const APP_URL = "https://snapcrop.y-kaz.com/?ref=share";
 
@@ -19,12 +19,7 @@ export function ShareButton() {
 	};
 
 	return (
-		<Button
-			className="rounded-full"
-			onClick={handleClick}
-			size="sm"
-			variant="outline"
-		>
+		<Button onClick={handleClick} size="sm" variant="secondary">
 			<XLogoIcon />
 			シェア
 		</Button>

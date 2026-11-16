@@ -11,7 +11,7 @@ const PERSONAL_SITE_URL = "https://y-kaz.com/";
  */
 export function SiteFooter() {
 	return (
-		<footer className="flex min-h-[22px] shrink-0 flex-wrap items-center gap-x-3 gap-y-0.5 border-border border-t bg-[var(--bg-sunken)] px-3 py-0.5 font-mono text-[10px] text-muted-foreground">
+		<footer className="flex min-h-[22px] shrink-0 flex-wrap items-center gap-x-3 gap-y-0.5 border-line border-t bg-surface-sunken px-3 py-0.5 font-mono text-[10px] text-fg-muted">
 			<span>v{packageJson.version}</span>
 			<Sep />
 			<FooterLink to="/privacy">プライバシーポリシー</FooterLink>
@@ -26,10 +26,12 @@ export function SiteFooter() {
 }
 
 /**
- * フッター内のリンク。色は tokens.css のグローバルな `a` スタイル
- * (accent + hover で accent-hover) に任せる。`to` なら内部遷移 (Link)、
+ * フッター内のリンク。ブランドカラーで示し、hover で brand-hover にする。`to` なら内部遷移 (Link)、
  * `href` なら外部リンク (別タブ)。
  */
+const FOOTER_LINK =
+	"text-brand transition-colors duration-(--duration-fast) ease-standard hover:text-brand-hover";
+
 function FooterLink({
 	to,
 	href,
@@ -40,10 +42,14 @@ function FooterLink({
 	children: React.ReactNode;
 }) {
 	if (to) {
-		return <Link to={to}>{children}</Link>;
+		return (
+			<Link className={FOOTER_LINK} to={to}>
+				{children}
+			</Link>
+		);
 	}
 	return (
-		<a href={href} rel="noreferrer" target="_blank">
+		<a className={FOOTER_LINK} href={href} rel="noreferrer" target="_blank">
 			{children}
 		</a>
 	);
@@ -51,7 +57,7 @@ function FooterLink({
 
 function Sep() {
 	return (
-		<span aria-hidden="true" className="text-[var(--text-faint)]">
+		<span aria-hidden="true" className="text-fg-subtle">
 			·
 		</span>
 	);

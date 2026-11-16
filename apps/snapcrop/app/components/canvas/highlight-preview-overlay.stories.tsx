@@ -20,7 +20,7 @@ const meta = {
 	},
 	decorators: [
 		(Story) => (
-			<div className="relative h-[300px] w-[480px] overflow-hidden rounded-md border border-border bg-[#f5efe4]">
+			<div className="relative h-[300px] w-[480px] overflow-hidden rounded-md border border-line bg-[#f5efe4]">
 				<div className="space-y-5 p-8 font-mono text-[#3a2f24] text-sm leading-6">
 					<p>ドラッグ中のマーカーが上を通るテキスト。</p>
 					<p>multiply 合成なので preview でも下の文字が読める。</p>

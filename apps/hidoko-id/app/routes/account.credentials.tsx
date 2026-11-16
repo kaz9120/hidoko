@@ -105,10 +105,10 @@ export default function AccountCredentialsRoute() {
 			<section className="flex flex-col gap-5">
 				<header>
 					<Mark tone="ember">メール</Mark>
-					<h1 className="mt-2 mb-1 font-medium text-[22px] text-[var(--text-strong)] tracking-[-0.01em]">
+					<h1 className="mt-2 mb-1 font-medium text-[22px] text-fg-strong tracking-[-0.01em]">
 						メールアドレスを変える
 					</h1>
-					<p className="m-0 text-[13px] text-[var(--text-muted)] leading-[1.7]">
+					<p className="m-0 text-[13px] text-fg-muted leading-[1.7]">
 						新しいメールアドレス宛に確認リンクを送る。リンクが踏まれるまで現在の
 						<span className="ml-1 font-mono text-[12px]">{user.email}</span>{" "}
 						のまま
@@ -117,10 +117,10 @@ export default function AccountCredentialsRoute() {
 
 				{emailSentTo ? (
 					<div
-						className="rounded-md border bg-[color-mix(in_oklab,var(--success)_14%,transparent)] px-3.5 py-3 text-[13px] text-[#b9c79a]"
+						className="rounded-md border bg-success/14 px-3.5 py-3 text-[13px] text-success"
 						style={{
 							borderColor:
-								"color-mix(in oklab, var(--success) 35%, transparent)",
+								"color-mix(in oklab, var(--color-success) 35%, transparent)",
 						}}
 					>
 						<span className="inline-flex items-center gap-2">
@@ -133,7 +133,7 @@ export default function AccountCredentialsRoute() {
 						{devVerifyUrl ? (
 							<a
 								href={devVerifyUrl}
-								className="mt-2 block break-all font-mono text-[11px] text-[var(--brand)] hover:text-[var(--brand-hover)]"
+								className="mt-2 block break-all font-mono text-[11px] text-brand hover:text-brand-hover"
 							>
 								DEV ONLY: {devVerifyUrl}
 							</a>
@@ -173,25 +173,25 @@ export default function AccountCredentialsRoute() {
 				</form>
 			</section>
 
-			<div className="h-px bg-[var(--border-subtle)]" />
+			<div className="h-px bg-line-subtle" />
 
 			<section className="flex flex-col gap-5">
 				<header>
 					<Mark tone="ember">パスワード</Mark>
-					<h1 className="mt-2 mb-1 font-medium text-[22px] text-[var(--text-strong)] tracking-[-0.01em]">
+					<h1 className="mt-2 mb-1 font-medium text-[22px] text-fg-strong tracking-[-0.01em]">
 						パスワードを変える
 					</h1>
-					<p className="m-0 text-[13px] text-[var(--text-muted)] leading-[1.7]">
+					<p className="m-0 text-[13px] text-fg-muted leading-[1.7]">
 						変更すると、他端末からはサインアウトされる
 					</p>
 				</header>
 
 				{pwDone ? (
 					<div
-						className="rounded-md border bg-[color-mix(in_oklab,var(--success)_14%,transparent)] px-3.5 py-3 text-[13px] text-[#b9c79a]"
+						className="rounded-md border bg-success/14 px-3.5 py-3 text-[13px] text-success"
 						style={{
 							borderColor:
-								"color-mix(in oklab, var(--success) 35%, transparent)",
+								"color-mix(in oklab, var(--color-success) 35%, transparent)",
 						}}
 					>
 						<span className="inline-flex items-center gap-2">

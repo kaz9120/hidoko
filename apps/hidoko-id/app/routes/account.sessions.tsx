@@ -128,10 +128,10 @@ export default function AccountSessionsRoute() {
 			<header className="flex items-start justify-between gap-4">
 				<div>
 					<Mark tone="ember">セッション</Mark>
-					<h1 className="mt-2 mb-1 font-medium text-[22px] text-[var(--text-strong)] tracking-[-0.01em]">
+					<h1 className="mt-2 mb-1 font-medium text-[22px] text-fg-strong tracking-[-0.01em]">
 						サインインしている端末
 					</h1>
-					<p className="m-0 text-[13px] text-[var(--text-muted)] leading-[1.7]">
+					<p className="m-0 text-[13px] text-fg-muted leading-[1.7]">
 						身に覚えのない端末があれば失効する
 					</p>
 				</div>
@@ -146,43 +146,38 @@ export default function AccountSessionsRoute() {
 				</AuthButton>
 			</header>
 
-			{error ? (
-				<p className="text-[12px] text-[var(--danger)]">{error}</p>
-			) : null}
+			{error ? <p className="text-[12px] text-danger">{error}</p> : null}
 
 			{sessions == null ? (
-				<p className="text-[13px] text-[var(--text-faint)]">読み込み中…</p>
+				<p className="text-[13px] text-fg-subtle">読み込み中…</p>
 			) : (
 				<ul className="m-0 flex flex-col gap-2.5 p-0">
 					{sessions.map((s) => (
 						<li
 							key={s.id}
-							className="flex items-start gap-4 rounded-md border border-[var(--border)] bg-[var(--bg-overlay)] px-4 py-3.5"
+							className="flex items-start gap-4 rounded-md border border-line bg-surface-overlay px-4 py-3.5"
 						>
-							<Monitor
-								aria-hidden
-								className="mt-1 size-4 text-[var(--brand)]"
-							/>
+							<Monitor aria-hidden className="mt-1 size-4 text-brand" />
 							<div className="min-w-0 flex-1">
 								<div className="flex items-center gap-2.5">
-									<span className="text-[14px] text-[var(--text-strong)]">
+									<span className="text-[14px] text-fg-strong">
 										{summarizeUserAgent(s.userAgent)}
 									</span>
 									{s.isCurrent ? (
 										<span
-											className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[10px] tracking-[0.1em] text-[var(--brand)]"
+											className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[10px] tracking-[0.1em] text-brand"
 											style={{
 												borderColor:
-													"color-mix(in oklab, var(--brand) 32%, transparent)",
+													"color-mix(in oklab, var(--color-brand) 32%, transparent)",
 												backgroundColor:
-													"color-mix(in oklab, var(--brand) 14%, transparent)",
+													"color-mix(in oklab, var(--color-brand) 14%, transparent)",
 											}}
 										>
 											このブラウザ
 										</span>
 									) : null}
 								</div>
-								<div className="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 font-mono text-[11px] text-[var(--text-faint)]">
+								<div className="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 font-mono text-[11px] text-fg-subtle">
 									<span className="flex items-center gap-1">
 										<Clock aria-hidden className="size-3" />
 										最終 {formatTimestamp(s.lastSeenAt ?? s.createdAt)}

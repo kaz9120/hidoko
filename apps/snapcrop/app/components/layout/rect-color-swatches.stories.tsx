@@ -19,7 +19,7 @@ const meta = {
 	component: RectColorSwatches,
 	decorators: [
 		(Story) => (
-			<div className="flex h-[38px] items-center bg-[var(--bg-overlay)] px-3.5">
+			<div className="flex h-[38px] items-center bg-surface-overlay px-3.5">
 				<Story />
 			</div>
 		),

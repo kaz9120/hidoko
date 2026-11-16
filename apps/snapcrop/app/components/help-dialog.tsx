@@ -1,13 +1,17 @@
 import { CircleHelpIcon, ExternalLinkIcon } from "lucide-react";
-import { Fragment, useEffect, useState } from "react";
-import { Button, Tooltip, TooltipContent, TooltipTrigger } from "ui";
+import { Fragment, useEffect, useRef, useState } from "react";
 import {
+	Button,
 	Dialog,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
-} from "ui/components/dialog";
-import { Kbd, KbdGroup } from "ui/components/kbd";
+	Kbd,
+	KbdGroup,
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "takibi-design-system";
 import { isApplePlatform } from "~/lib/platform";
 
 type Shortcut = {
@@ -108,6 +112,9 @@ const SECTIONS: readonly ShortcutSection[] = [
 export function HelpDialog() {
 	const [open, setOpen] = useState(false);
 	const [mounted, setMounted] = useState(false);
+	// 中で最初にフォーカスできるのは末尾の作者リンクなので、そのままだと開いた瞬間に
+	// いちばん下までスクロールされる。ダイアログ本体にフォーカスを置き、先頭から見せる
+	const contentRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
 		setMounted(true);
@@ -142,22 +149,25 @@ export function HelpDialog() {
 	return (
 		<>
 			<Tooltip>
-				<TooltipTrigger asChild>
-					<Button
-						aria-label="ヘルプ (?)"
-						onClick={() => setOpen(true)}
-						size="icon"
-						variant="ghost"
-					>
-						<CircleHelpIcon strokeWidth={1.75} />
-					</Button>
+				<TooltipTrigger
+					render={
+						<Button
+							aria-label="ヘルプ (?)"
+							onClick={() => setOpen(true)}
+							size="icon"
+							variant="ghost"
+						/>
+					}
+				>
+					<CircleHelpIcon strokeWidth={1.75} />
 				</TooltipTrigger>
 				<TooltipContent>ヘルプ (?)</TooltipContent>
 			</Tooltip>
 
 			<Dialog onOpenChange={setOpen} open={open}>
 				<DialogContent
-					aria-describedby={undefined}
+					ref={contentRef}
+					initialFocus={contentRef}
 					className="max-h-[85dvh] max-w-xl overflow-y-auto"
 				>
 					<DialogHeader>
@@ -167,7 +177,7 @@ export function HelpDialog() {
 					<div className="flex flex-col gap-4">
 						{SECTIONS.map((section) => (
 							<section key={section.heading}>
-								<h3 className="mb-1.5 font-mono text-[11px] text-muted-foreground tracking-[0.08em] uppercase">
+								<h3 className="mb-1.5 font-mono text-[11px] text-fg-muted tracking-[0.08em] uppercase">
 									{section.heading}
 								</h3>
 								<dl className="flex flex-col">
@@ -176,7 +186,7 @@ export function HelpDialog() {
 											className="flex items-center justify-between gap-4 py-1"
 											key={shortcut.description}
 										>
-											<dt className="text-foreground text-sm">
+											<dt className="text-fg text-sm">
 												{shortcut.description}
 											</dt>
 											<dd>
@@ -186,7 +196,7 @@ export function HelpDialog() {
 															{index > 0 && (
 																<span
 																	aria-hidden="true"
-																	className="text-muted-foreground text-xs"
+																	className="text-fg-muted text-xs"
 																>
 																	+
 																</span>
@@ -203,10 +213,10 @@ export function HelpDialog() {
 						))}
 					</div>
 
-					<footer className="flex items-center gap-3 border-border border-t pt-3">
-						<span className="text-muted-foreground text-xs">created by</span>
+					<footer className="flex items-center gap-3 border-line border-t pt-3">
+						<span className="text-fg-muted text-xs">created by</span>
 						<a
-							className="inline-flex items-center gap-1 text-foreground text-xs underline-offset-2 hover:underline"
+							className="inline-flex items-center gap-1 text-fg text-xs underline-offset-2 hover:underline"
 							href="https://x.com/kyamamoto9120"
 							rel="noreferrer"
 							target="_blank"

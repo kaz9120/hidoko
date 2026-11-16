@@ -1,4 +1,4 @@
-import { cn } from "ui/lib/utils";
+import { cn } from "takibi-design-system";
 import type { KumiId, Milestone } from "~/lib/og-templates";
 import { KUMI, KUMI_IDS, MILESTONE, MILESTONES } from "~/lib/og-templates";
 
@@ -25,9 +25,9 @@ type Rect = [Ink, number, number, number, number];
 // すると号数の矩形がタイトルの矩形と見分けられず、タイルが伝える情報が消える。
 // 選択状態はタイルのボーダーとグローで示し、面の中とは層を分けてある。
 const KIND_CLASS: Record<Ink, string> = {
-	ink: "bg-(--text-faint)",
-	ember: "bg-primary",
-	wash: "bg-primary/25",
+	ink: "bg-fg-subtle",
+	ember: "bg-brand",
+	wash: "bg-brand/25",
 };
 
 /** マストヘッド。全タイル共通で左上に置く */
@@ -168,12 +168,12 @@ function Tile({
 			aria-pressed={active}
 			aria-label={label}
 			className={cn(
-				"relative aspect-[1280/670] cursor-pointer overflow-hidden rounded-md border bg-muted p-0 outline-none transition-colors",
-				"focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card",
+				"relative aspect-[1280/670] cursor-pointer overflow-hidden rounded-md border bg-surface-overlay p-0 outline-none transition-colors",
+				"focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface-raised",
 				"active:translate-y-px",
 				active
-					? "border-primary shadow-[var(--glow-ember)]"
-					: "border-border hover:border-muted-foreground/60",
+					? "border-brand shadow-glow"
+					: "border-line hover:border-fg-muted/60",
 			)}
 		>
 			{rects.map(([kind, left, top, width, height]) => (

@@ -20,16 +20,18 @@ export function LegalPage({
 }) {
 	return (
 		<div className="flex min-h-screen flex-col">
-			<header className="sticky top-0 z-30 flex items-center border-border border-b bg-background/95 px-3 py-2 backdrop-blur md:px-4">
-				{/* 文字色は tokens.css のグローバルな a スタイル (accent) に任せる */}
-				<Link className="flex items-center gap-1.5 text-sm" to="/">
+			<header className="sticky top-0 z-30 flex items-center border-line border-b bg-surface/95 px-3 py-2 backdrop-blur md:px-4">
+				<Link
+					className="flex items-center gap-1.5 text-sm text-brand transition-colors duration-(--duration-fast) ease-standard hover:text-brand-hover"
+					to="/"
+				>
 					<ArrowLeftIcon aria-hidden="true" className="size-4" />
 					snapcrop に戻る
 				</Link>
 			</header>
 			<main className="mx-auto w-full max-w-[68ch] flex-1 px-4 py-10 md:px-6">
-				<h1 className="font-semibold text-2xl text-foreground">{title}</h1>
-				<p className="mt-2 font-mono text-[var(--text-faint)] text-xs">
+				<h1 className="font-semibold text-2xl text-fg">{title}</h1>
+				<p className="mt-2 font-mono text-fg-subtle text-xs">
 					最終更新日: {lastUpdated}
 				</p>
 				<div className="mt-8 space-y-8">{children}</div>
@@ -49,8 +51,8 @@ export function LegalSection({
 }) {
 	return (
 		<section className="space-y-3">
-			<h2 className="font-semibold text-foreground text-lg">{heading}</h2>
-			<div className="space-y-3 text-muted-foreground text-sm leading-relaxed">
+			<h2 className="font-semibold text-fg text-lg">{heading}</h2>
+			<div className="space-y-3 text-fg-muted text-sm leading-relaxed">
 				{children}
 			</div>
 		</section>

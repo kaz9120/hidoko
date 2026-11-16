@@ -30,12 +30,12 @@ export const withRouter: Decorator = (Story, context) => {
 };
 
 /**
- * Hidoko のセマンティックトークン上で「面 (bg-raised)」に置かれる要素の
+ * Takibi の役割トークン上で「カードの面 (surface-raised)」に置かれる要素の
  * 見え方を確認するための薄い枠付き wrapper。layout: "padded" / "fullscreen"
  * では捉えにくい「カード上に載った時のスケール感」を story で再現する。
  */
 export const withSurfacePadding: Decorator = (Story) => (
-	<div className="w-full max-w-[640px] rounded-lg border border-border bg-bg-raised p-6 shadow-card">
+	<div className="w-full max-w-[640px] rounded-lg border border-line bg-surface-raised p-6 shadow-card">
 		<Story />
 	</div>
 );

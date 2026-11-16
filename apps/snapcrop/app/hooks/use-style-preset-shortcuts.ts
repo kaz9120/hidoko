@@ -1,7 +1,7 @@
 /**
  * 数字キー 1〜4 でスタイルプリセット (きっちり / 手書き / 強調 / やわらか) を
  * 切り替えるショートカット。tool-rail からの選択と同じく、切替時に
- * sonner トーストで「スタイル: XX — 以降の図形に適用」を 2.2s 出す。
+ * トーストで「スタイル: XX — 以降の図形に適用」を 2.2s 出す。
  *
  * - フォーム要素 (INPUT / TEXTAREA / contenteditable) にフォーカスがあるとき
  *   は何もしない (テキスト入力中の誤発火を避ける)
@@ -14,7 +14,7 @@
  */
 
 import { useEffect } from "react";
-import { toast } from "sonner";
+import { toast } from "takibi-design-system";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 import { STYLE_PRESET_ORDER, STYLE_PRESETS } from "~/lib/style-presets";
 
@@ -42,9 +42,11 @@ export function useStylePresetShortcuts() {
 			event.preventDefault();
 			setStylePreset(id);
 			const preset = STYLE_PRESETS[id];
-			toast.success(`スタイル: ${preset.label}`, {
+			toast.add({
+				title: `スタイル: ${preset.label}`,
 				description: `${preset.hint} — 以降の図形に適用`,
-				duration: 2200,
+				type: "success",
+				timeout: 2200,
 			});
 		};
 		document.addEventListener("keydown", onKey);

@@ -1,8 +1,12 @@
 import { CalendarIcon } from "lucide-react";
 import { useState } from "react";
-import { Calendar } from "ui/components/calendar";
-import { Input } from "ui/components/input";
-import { Popover, PopoverContent, PopoverTrigger } from "ui/components/popover";
+import {
+	Calendar,
+	Input,
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "takibi-design-system";
 import { formatDateValue, parseDateValue } from "~/lib/date-value";
 
 /**
@@ -11,13 +15,13 @@ import { formatDateValue, parseDateValue } from "~/lib/date-value";
  * 値は文字列のまま持つ。読めない文字列でも保存して台紙に出す（連載の表記は
  * 人が決めるもので、入力欄が書き換えてよいものではない）。カレンダーは
  * 読めたときだけ選択日を合わせ、読めないときは今月を開く。
+ *
+ * Field の中に置くと、FieldLabel が中の Input に自動で結び付く。
  */
 export function DateField({
-	id,
 	value,
 	onChange,
 }: {
-	id: string;
 	value: string;
 	onChange: (next: string) => void;
 }) {
@@ -27,21 +31,17 @@ export function DateField({
 	return (
 		<div className="relative">
 			<Input
-				id={id}
 				value={value}
 				onChange={(e) => onChange(e.target.value)}
 				placeholder="2026.8.16"
 				className="pr-9 font-mono"
 			/>
 			<Popover open={open} onOpenChange={setOpen}>
-				<PopoverTrigger asChild>
-					<button
-						type="button"
-						aria-label="カレンダーから選ぶ"
-						className="absolute inset-y-0 right-0 flex w-9 cursor-pointer items-center justify-center rounded-r-md text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
-					>
-						<CalendarIcon className="size-4" strokeWidth={1.75} />
-					</button>
+				<PopoverTrigger
+					aria-label="カレンダーから選ぶ"
+					className="motion-press-glyph absolute inset-y-0 right-0 flex w-9 cursor-pointer items-center justify-center rounded-r-md text-fg-muted outline-none transition-colors hover:text-fg focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-inset data-popup-open:text-brand"
+				>
+					<CalendarIcon className="size-4" />
 				</PopoverTrigger>
 				<PopoverContent align="end" className="w-auto p-0">
 					<Calendar

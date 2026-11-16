@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ThemeProvider } from "next-themes";
 import { KumiTiles, MilestoneTiles } from "./kumi-tiles";
 
 /**
@@ -20,11 +19,9 @@ const meta = {
 	args: { value: "a1", onSelect: () => {} },
 	decorators: [
 		(Story) => (
-			<ThemeProvider attribute="class" defaultTheme="dark">
-				<div className="w-[392px] bg-card p-4">
-					<Story />
-				</div>
-			</ThemeProvider>
+			<div className="w-[392px] bg-surface-raised p-4">
+				<Story />
+			</div>
 		),
 	],
 } satisfies Meta<typeof KumiTiles>;

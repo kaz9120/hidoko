@@ -3,7 +3,7 @@
 // disabled で並べる。
 
 import { NavLink } from "react-router";
-import { cn } from "ui/lib/utils";
+import { cn } from "takibi-design-system";
 
 interface NavItem {
 	label: string;
@@ -29,10 +29,10 @@ export function AccountNav() {
 						<span
 							key={item.label}
 							title={item.soon}
-							className="cursor-not-allowed rounded-md px-3 py-2 text-[13px] text-[var(--text-faint)]"
+							className="cursor-not-allowed rounded-md px-3 py-2 text-[13px] text-fg-subtle"
 						>
 							{item.label}
-							<span className="ml-2 font-mono text-[10px] tracking-[0.1em] text-[var(--text-faint)]">
+							<span className="ml-2 font-mono text-[10px] tracking-[0.1em] text-fg-subtle">
 								soon
 							</span>
 						</span>
@@ -47,8 +47,8 @@ export function AccountNav() {
 							cn(
 								"rounded-md px-3 py-2 text-[13px] transition-colors",
 								isActive
-									? "bg-[var(--bg-overlay)] font-medium text-[var(--text-strong)]"
-									: "text-[var(--text-muted)] hover:bg-[var(--bg-overlay)] hover:text-[var(--text-strong)]",
+									? "bg-surface-overlay font-medium text-fg-strong"
+									: "text-fg-muted hover:bg-surface-overlay hover:text-fg-strong",
 							)
 						}
 					>

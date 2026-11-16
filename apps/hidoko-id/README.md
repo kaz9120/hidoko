@@ -13,7 +13,7 @@
 
 ## 構成
 
-- React Router 7 SPA + Tailwind 4 + `packages/ui`（shadcn 系）
+- React Router 7 SPA + Tailwind 4 + `takibi-design-system`
 - Cloudflare Workers + D1（永続化）
 - `workers/app.ts` が `/api/*` と `/verify` を捌き、それ以外は SPA assets にフォールスルー
 - dev は `react-router dev`（Vite, 5173）と `wrangler dev`（8787）を `concurrently` で並走し、Vite 側の `server.proxy` で `/api/*` と `/verify` を Wrangler に流す

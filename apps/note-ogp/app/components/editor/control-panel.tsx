@@ -1,30 +1,24 @@
 import { DownloadIcon, TriangleAlertIcon } from "lucide-react";
 import { useId } from "react";
-import { Button } from "ui";
 import {
 	Accordion,
 	AccordionContent,
 	AccordionItem,
 	AccordionTrigger,
-} from "ui/components/accordion";
-import {
 	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
+	AlertDialogClose,
 	AlertDialogContent,
 	AlertDialogDescription,
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
 	AlertDialogTrigger,
-} from "ui/components/alert-dialog";
-import {
+	Button,
 	Field,
 	FieldDescription,
 	FieldLabel,
-	FieldTitle,
-} from "ui/components/field";
-import { Input } from "ui/components/input";
+	Input,
+} from "takibi-design-system";
 import type { Fields } from "~/lib/og-templates";
 import { getTitleWarning } from "~/lib/title-readability";
 import { DateField } from "./date-field";
@@ -61,7 +55,7 @@ export function ControlPanel({
 	titleFontSize: number | null;
 }) {
 	return (
-		<aside className="flex h-full flex-col overflow-hidden border-border border-l bg-card">
+		<aside className="flex h-full flex-col overflow-hidden border-line border-l bg-surface-raised">
 			<div className="flex-1 overflow-y-auto px-6 py-5">
 				<PhotoSection state={state} update={update} />
 				<TitleSection
@@ -80,6 +74,21 @@ export function ControlPanel({
 				onReset={reset}
 			/>
 		</aside>
+	);
+}
+
+/** 号数・日付などの小さな見出し。等幅の大文字で、本文のラベルより一段控える */
+const MARK_LABEL = "font-mono text-[10px] uppercase tracking-[0.22em]";
+
+/**
+ * ボタンの集まり（SegmentedToggle）に付ける見出し。label 要素で結べる相手が
+ * ないので、id を渡して aria-labelledby から参照させる。
+ */
+function FieldTitle({ id, children }: { id: string; children: string }) {
+	return (
+		<div id={id} className={`${MARK_LABEL} font-medium text-fg-strong`}>
+			{children}
+		</div>
 	);
 }
 
@@ -139,18 +148,14 @@ function TitleSection({
 	update: (patch: Partial<Fields>) => void;
 	titleFontSize: number | null;
 }) {
-	const titleId = useId();
 	// タイトルがタイムラインで潰れるときだけ出す。直せる場所はここ
 	const warning = state.title ? getTitleWarning(titleFontSize) : null;
 	return (
 		<>
 			<SectionTitle>タイトル</SectionTitle>
 			<Field className="mb-3.5">
-				<FieldLabel htmlFor={titleId} className="sr-only">
-					タイトル
-				</FieldLabel>
+				<FieldLabel className="sr-only">タイトル</FieldLabel>
 				<Input
-					id={titleId}
 					value={state.title}
 					onChange={(e) =>
 						update({ title: collapseTitleNewlines(e.target.value) })
@@ -161,12 +166,11 @@ function TitleSection({
 					{warning && (
 						<p
 							role="status"
-							className="flex items-start gap-1.5 text-xs leading-relaxed text-(--warning)"
+							className="flex items-start gap-1.5 text-xs leading-relaxed text-warning"
 						>
 							<TriangleAlertIcon
 								aria-hidden="true"
 								className="mt-0.5 size-3.5 flex-shrink-0"
-								strokeWidth={1.75}
 							/>
 							<span>{warning.message}</span>
 						</p>
@@ -188,20 +192,12 @@ function IssueSection({
 	state: Fields;
 	update: (patch: Partial<Fields>) => void;
 }) {
-	const issueId = useId();
-	const dateId = useId();
 	return (
 		<>
 			<div className="mb-1 grid grid-cols-2 gap-2.5">
 				<Field>
-					<FieldLabel
-						htmlFor={issueId}
-						className="font-mono text-[10px] uppercase tracking-[0.22em]"
-					>
-						号数
-					</FieldLabel>
+					<FieldLabel className={MARK_LABEL}>号数</FieldLabel>
 					<Input
-						id={issueId}
 						value={state.issue}
 						onChange={(e) => update({ issue: normalizeIssue(e.target.value) })}
 						placeholder="042"
@@ -210,17 +206,8 @@ function IssueSection({
 					/>
 				</Field>
 				<Field>
-					<FieldLabel
-						htmlFor={dateId}
-						className="font-mono text-[10px] uppercase tracking-[0.22em]"
-					>
-						日付
-					</FieldLabel>
-					<DateField
-						id={dateId}
-						value={state.date}
-						onChange={(date) => update({ date })}
-					/>
+					<FieldLabel className={MARK_LABEL}>日付</FieldLabel>
+					<DateField value={state.date} onChange={(date) => update({ date })} />
 				</Field>
 			</div>
 		</>
@@ -260,12 +247,7 @@ function LayoutSection({
 				<>
 					<KumiTiles value={state.kumi} onSelect={(kumi) => update({ kumi })} />
 					<Field className="mt-4 mb-1">
-						<FieldTitle
-							id={dimLabelId}
-							className="font-mono text-[10px] uppercase tracking-[0.22em]"
-						>
-							暗幕
-						</FieldTitle>
+						<FieldTitle id={dimLabelId}>暗幕</FieldTitle>
 						<SegmentedToggle
 							labelledBy={dimLabelId}
 							value={state.scrim}
@@ -288,36 +270,24 @@ function ProjectSection({
 	state: Fields;
 	update: (patch: Partial<Fields>) => void;
 }) {
-	const brandId = useId();
 	const markLabelId = useId();
 	return (
-		<Accordion type="single" collapsible className="mt-5">
+		<Accordion className="mt-5">
 			<AccordionItem value="project">
-				<AccordionTrigger className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+				<AccordionTrigger className="font-mono text-[10px] uppercase tracking-[0.22em] text-fg-muted">
 					プロジェクト（連載の固定情報）
 				</AccordionTrigger>
 				<AccordionContent className="pt-2">
 					<Field className="mb-3.5">
-						<FieldLabel
-							htmlFor={brandId}
-							className="font-mono text-[10px] uppercase tracking-[0.22em]"
-						>
-							ブランド表記
-						</FieldLabel>
+						<FieldLabel className={MARK_LABEL}>ブランド表記</FieldLabel>
 						<Input
-							id={brandId}
 							value={state.brand}
 							onChange={(e) => update({ brand: e.target.value })}
 						/>
 						<FieldDescription>マストヘッドに入る一言</FieldDescription>
 					</Field>
 					<Field>
-						<FieldTitle
-							id={markLabelId}
-							className="font-mono text-[10px] uppercase tracking-[0.22em]"
-						>
-							炎マーク
-						</FieldTitle>
+						<FieldTitle id={markLabelId}>炎マーク</FieldTitle>
 						<SegmentedToggle
 							labelledBy={markLabelId}
 							value={!state.showMark}
@@ -344,7 +314,7 @@ function PanelFooter({
 	onReset: () => void;
 }) {
 	return (
-		<footer className="flex flex-shrink-0 flex-col gap-2 border-border border-t bg-card px-6 pt-4 pb-5">
+		<footer className="flex flex-shrink-0 flex-col gap-2 border-line border-t bg-surface-raised px-6 pt-4 pb-5">
 			<Button
 				type="button"
 				size="lg"
@@ -353,19 +323,21 @@ function PanelFooter({
 				className="w-full justify-center"
 			>
 				<span className="flex items-center gap-2">
-					<DownloadIcon className="size-4" strokeWidth={1.75} />
+					<DownloadIcon className="size-4" />
 					{busy ? "書き出し中…" : "PNG をダウンロード"}
 				</span>
 			</Button>
 			<AlertDialog>
-				<AlertDialogTrigger asChild>
-					<Button
-						type="button"
-						variant="outline"
-						className="w-full justify-center font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground"
-					>
-						リセット
-					</Button>
+				<AlertDialogTrigger
+					render={
+						<Button
+							type="button"
+							variant="secondary"
+							className="w-full justify-center font-mono text-[10px] uppercase tracking-[0.22em] text-fg-muted"
+						/>
+					}
+				>
+					リセット
 				</AlertDialogTrigger>
 				<AlertDialogContent>
 					<AlertDialogHeader>
@@ -375,8 +347,15 @@ function PanelFooter({
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel>キャンセル</AlertDialogCancel>
-						<AlertDialogAction onClick={onReset}>リセット</AlertDialogAction>
+						<AlertDialogClose render={<Button variant="ghost" />}>
+							キャンセル
+						</AlertDialogClose>
+						<AlertDialogClose
+							render={<Button variant="danger" />}
+							onClick={onReset}
+						>
+							リセット
+						</AlertDialogClose>
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>

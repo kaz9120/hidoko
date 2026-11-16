@@ -104,7 +104,7 @@ export function PrivacyContent() {
 				<p>
 					Google Analytics 4 による計測を停止したい場合は、Google が提供する{" "}
 					<a
-						className="underline underline-offset-2"
+						className="text-brand underline underline-offset-2 hover:text-brand-hover"
 						href="https://tools.google.com/dlpage/gaoptout"
 						rel="noreferrer"
 						target="_blank"
@@ -121,7 +121,7 @@ export function PrivacyContent() {
 				<p>
 					本ポリシーに関するお問い合わせは、X（
 					<a
-						className="underline underline-offset-2"
+						className="text-brand underline underline-offset-2 hover:text-brand-hover"
 						href="https://x.com/kyamamoto9120"
 						rel="noreferrer"
 						target="_blank"
@@ -156,18 +156,18 @@ function ServiceDisclosure({
 }) {
 	return (
 		<div>
-			<h3 className="font-semibold text-foreground">{name}</h3>
+			<h3 className="font-semibold text-fg">{name}</h3>
 			<dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
-				<dt className="font-medium text-foreground">送信先</dt>
+				<dt className="font-medium text-fg">送信先</dt>
 				<dd>{recipient}</dd>
-				<dt className="font-medium text-foreground">送信される情報</dt>
+				<dt className="font-medium text-fg">送信される情報</dt>
 				<dd>{info}</dd>
-				<dt className="font-medium text-foreground">利用目的</dt>
+				<dt className="font-medium text-fg">利用目的</dt>
 				<dd>{purpose}</dd>
-				<dt className="font-medium text-foreground">プライバシーポリシー</dt>
+				<dt className="font-medium text-fg">プライバシーポリシー</dt>
 				<dd className="break-all">
 					<a
-						className="underline underline-offset-2"
+						className="text-brand underline underline-offset-2 hover:text-brand-hover"
 						href={policyHref}
 						rel="noreferrer"
 						target="_blank"

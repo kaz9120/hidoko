@@ -6,11 +6,11 @@ import type { ReactNode } from "react";
 export function Divider({ children }: { children: ReactNode }) {
 	return (
 		<div className="flex items-center gap-3.5">
-			<div className="h-px flex-1 bg-[var(--border)]" />
-			<span className="font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--text-faint)]">
+			<div className="h-px flex-1 bg-line" />
+			<span className="font-mono text-[11px] uppercase tracking-[0.18em] text-fg-subtle">
 				{children}
 			</span>
-			<div className="h-px flex-1 bg-[var(--border)]" />
+			<div className="h-px flex-1 bg-line" />
 		</div>
 	);
 }
