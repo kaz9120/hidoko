@@ -1,12 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ThemeProvider } from "next-themes";
-import { TooltipProvider } from "ui/components/tooltip";
+import { TooltipProvider } from "takibi-design-system";
 
 import { ThemeToggle } from "./theme-toggle";
 
 /**
  * コントロールパネルのヘッダー右上に座る、アプリ UI のテーマ切替ボタン。
- * `next-themes` の `useTheme` を読み、現在ダークなら太陽、ライトなら月の
+ * `<html>` の `data-theme` を読み、現在ダークなら太陽、ライトなら月の
  * アイコンを出して、押すと反対側に切り替わる。書き出す OGP 画像のテーマ
  * (コントロールパネルの「テーマ」) とは独立して動くので、ラベルは
  * 「アプリを〜」で始めて区別している。
@@ -21,11 +20,9 @@ const meta = {
 	},
 	decorators: [
 		(Story) => (
-			<ThemeProvider attribute="class" defaultTheme="dark">
-				<TooltipProvider>
-					<Story />
-				</TooltipProvider>
-			</ThemeProvider>
+			<TooltipProvider>
+				<Story />
+			</TooltipProvider>
 		),
 	],
 } satisfies Meta<typeof ThemeToggle>;

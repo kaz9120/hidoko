@@ -38,6 +38,10 @@ const FRAME: CSSProperties = {
 	overflow: "hidden",
 	WebkitFontSmoothing: "antialiased",
 	background: V10.base,
+	// 台紙の中の文字は、指定のない値を body から継ぐ。アプリの CSS が変わっても
+	// 書き出す画像が変わらないよう、旧 packages/ui の body と同じ値をここで固定する
+	lineHeight: 1.6,
+	textRendering: "optimizeLegibility",
 };
 
 // 詰めは常にポスター詰め。組み以外の意匠をユーザーに選ばせないため固定する。

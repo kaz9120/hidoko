@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ThemeProvider } from "next-themes";
 import { MemoryRouter } from "react-router";
-import { TooltipProvider } from "ui";
+import { TooltipProvider } from "takibi-design-system";
 import { NoteOgpEditor } from "./note-ogp-editor";
 
 /**
@@ -20,13 +19,11 @@ const meta = {
 	parameters: { layout: "fullscreen" },
 	decorators: [
 		(Story) => (
-			<ThemeProvider attribute="class" defaultTheme="dark">
-				<TooltipProvider>
-					<MemoryRouter>
-						<Story />
-					</MemoryRouter>
-				</TooltipProvider>
-			</ThemeProvider>
+			<TooltipProvider>
+				<MemoryRouter>
+					<Story />
+				</MemoryRouter>
+			</TooltipProvider>
 		),
 	],
 } satisfies Meta<typeof NoteOgpEditor>;

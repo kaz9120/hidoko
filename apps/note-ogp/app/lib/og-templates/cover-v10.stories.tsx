@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ThemeProvider } from "next-themes";
 import type { Fields, KumiId, Milestone } from "~/lib/og-templates";
 import {
 	Cover,
@@ -29,13 +28,6 @@ const meta = {
 	component: Cover,
 	parameters: { layout: "centered" },
 	args: { f: base() },
-	decorators: [
-		(Story) => (
-			<ThemeProvider attribute="class" defaultTheme="dark">
-				<Story />
-			</ThemeProvider>
-		),
-	],
 } satisfies Meta<typeof Cover>;
 
 export default meta;
@@ -88,11 +80,11 @@ function Panel({
 }) {
 	return (
 		<figure className="m-0 flex flex-col gap-1">
-			<figcaption className="font-mono text-[9px] uppercase leading-[1.2] tracking-[0.18em] text-muted-foreground">
+			<figcaption className="font-mono text-[9px] uppercase leading-[1.2] tracking-[0.18em] text-fg-muted">
 				{label}
 			</figcaption>
 			<div
-				className="overflow-hidden rounded-[3px] border border-border"
+				className="overflow-hidden rounded-[3px] border border-line"
 				style={{ width: FRAME_WIDTH * scale, height: FRAME_HEIGHT * scale }}
 			>
 				<div

@@ -1,6 +1,6 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
+import { toast } from "takibi-design-system";
 import { SiteFooter } from "~/components/layout/site-footer";
 import { SiteHeader } from "~/components/layout/site-header";
 import { useNoteOgpState } from "~/hooks/use-note-ogp-state";
@@ -58,17 +58,25 @@ export function NoteOgpEditor() {
 			const fileName = buildFileName(state.title, state.issue);
 			await downloadPng(frameRef.current, fileName);
 			recordExport(state.issue);
-			toast.success("PNG をダウンロードしました", { description: fileName });
+			toast.add({
+				title: "PNG をダウンロードしました",
+				description: fileName,
+				type: "success",
+			});
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
-			toast.error("書き出しに失敗しました", { description: message });
+			toast.add({
+				title: "書き出しに失敗しました",
+				description: message,
+				type: "danger",
+			});
 		} finally {
 			setBusy(false);
 		}
 	}, [busy, state.title, state.issue, recordExport]);
 
 	return (
-		<div className="flex min-h-screen flex-col bg-background md:h-screen">
+		<div className="flex min-h-screen flex-col bg-surface md:h-screen">
 			<SiteHeader />
 			<div
 				className={`grid min-h-0 flex-1 grid-cols-1 ${
@@ -86,7 +94,7 @@ export function NoteOgpEditor() {
 					<button
 						type="button"
 						onClick={() => setSidebarCollapsed((c) => !c)}
-						className="absolute top-1/2 right-0 z-10 hidden h-12 w-3.5 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:border-primary/40 hover:text-foreground md:flex"
+						className="absolute top-1/2 right-0 z-10 hidden h-12 w-3.5 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full border border-line bg-surface-raised text-fg-muted shadow-rim transition-colors hover:border-brand/40 hover:text-fg md:flex"
 						aria-label={
 							sidebarCollapsed ? "サイドパネルを開く" : "サイドパネルを閉じる"
 						}

@@ -1,22 +1,17 @@
 @import "tailwindcss" source(".");
-@source "../../../packages/ui/src";
-@import "ui/tokens.css";
-@import "ui/styles.css";
-
-@custom-variant dark (&:is(.dark *));
+@import "takibi-design-system/styles.css";
 
 @layer base {
-	* {
-		@apply border-border outline-ring/50;
-	}
-	body {
-		@apply bg-background text-foreground;
-		font-family: var(--font-sans);
+	/* 色を書かない border は標準の区切り線の色にする */
+	*,
+	::before,
+	::after {
+		border-color: var(--color-line);
 	}
 }
 
-/* Editor のステージ背景。ダーク基準で、上方からほのかに ember 光が差す。
-   tokens.css の --glow-ember-soft と同じ色域を radial で敷く。 */
+/* Editor のステージ背景。上方からほのかにブランドカラーの光が差す。
+   光の色は台紙と同じく固定の基本色（--ember-400）で、地はページの面に合わせる。 */
 .note-ogp-stage-bg {
 	background:
 		radial-gradient(
@@ -24,5 +19,5 @@
 			color-mix(in oklab, var(--ember-400) 6%, transparent),
 			transparent 70%
 		),
-		var(--bg-0);
+		var(--color-surface);
 }
