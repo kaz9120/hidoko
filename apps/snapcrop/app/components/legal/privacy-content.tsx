@@ -104,7 +104,7 @@ export function PrivacyContent() {
 				<p>
 					Google Analytics 4 による計測を停止したい場合は、Google が提供する{" "}
 					<a
-						className="underline underline-offset-2"
+						className="text-brand underline underline-offset-2 hover:text-brand-hover"
 						href="https://tools.google.com/dlpage/gaoptout"
 						rel="noreferrer"
 						target="_blank"
@@ -121,7 +121,7 @@ export function PrivacyContent() {
 				<p>
 					本ポリシーに関するお問い合わせは、X（
 					<a
-						className="underline underline-offset-2"
+						className="text-brand underline underline-offset-2 hover:text-brand-hover"
 						href="https://x.com/kyamamoto9120"
 						rel="noreferrer"
 						target="_blank"
@@ -167,7 +167,7 @@ function ServiceDisclosure({
 				<dt className="font-medium text-fg">プライバシーポリシー</dt>
 				<dd className="break-all">
 					<a
-						className="underline underline-offset-2"
+						className="text-brand underline underline-offset-2 hover:text-brand-hover"
 						href={policyHref}
 						rel="noreferrer"
 						target="_blank"

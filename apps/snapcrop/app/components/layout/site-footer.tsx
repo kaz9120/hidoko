@@ -93,10 +93,22 @@ function FooterLink({
 		);
 	}
 	if (to) {
-		return <Link to={to}>{children}</Link>;
+		return (
+			<Link
+				className="text-brand transition-colors duration-(--duration-fast) ease-standard hover:text-brand-hover"
+				to={to}
+			>
+				{children}
+			</Link>
+		);
 	}
 	return (
-		<a href={href} rel="noreferrer" target="_blank">
+		<a
+			className="text-brand transition-colors duration-(--duration-fast) ease-standard hover:text-brand-hover"
+			href={href}
+			rel="noreferrer"
+			target="_blank"
+		>
 			{children}
 		</a>
 	);

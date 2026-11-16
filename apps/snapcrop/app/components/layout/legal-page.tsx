@@ -21,8 +21,10 @@ export function LegalPage({
 	return (
 		<div className="flex min-h-screen flex-col">
 			<header className="sticky top-0 z-30 flex items-center border-line border-b bg-surface/95 px-3 py-2 backdrop-blur md:px-4">
-				{/* 文字色は tokens.css のグローバルな a スタイル (accent) に任せる */}
-				<Link className="flex items-center gap-1.5 text-sm" to="/">
+				<Link
+					className="flex items-center gap-1.5 text-sm text-brand transition-colors duration-(--duration-fast) ease-standard hover:text-brand-hover"
+					to="/"
+				>
 					<ArrowLeftIcon aria-hidden="true" className="size-4" />
 					snapcrop に戻る
 				</Link>
