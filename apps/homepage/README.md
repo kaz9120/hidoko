@@ -14,9 +14,9 @@ bun --filter homepage preview           # ビルド成果物をローカルで�
 ## 構成
 
 - React Router 7 (SPA mode, `ssr: false`, `/` を prerender)
-- Vite 7 + Tailwind 4 + shadcn/ui (snapcrop と揃えたスタック)
+- Vite 7 + Tailwind 4 + [Takibi Design System](https://design-system.y-kaz.com)
 - Cloudflare Workers (Static Assets only, no Worker code)
-- 共通トークン・mark・火の粉アニメは [`packages/ui`](../../packages/ui) workspace dep から import
+- トークン・mark・火の粉アニメは `takibi-design-system` から import
 
 `/` の HTML を build 時に prerender し、`build/client` を Static Assets として配信。
 未知のパスは `index.html` にフォールバック (`assets.not_found_handling: "single-page-application"`)。

@@ -37,7 +37,7 @@ Hidoko で開発するときに知っておくべきルールをまとめる。�
 |---|---|
 | コンセプト・リポジトリ構成 | [README.md](README.md) |
 | 作者のパーソナルブランド定義 | [BRAND.md](BRAND.md) |
-| ブランド・視覚言語の仕様 | [DESIGN.md](DESIGN.md) |
+| 色・文字・動き・コンポーネントの仕様 | [Takibi Design System](https://design-system.y-kaz.com)（[リポジトリ](https://github.com/kaz9120/takibi-design-system)） |
 
 ## ツールチェーン
 
@@ -52,6 +52,7 @@ Hidoko で開発するときに知っておくべきルールをまとめる。�
 | CI | GitHub Actions |
 | コードレビュー | CodeRabbit（設定は [.coderabbit.yaml](.coderabbit.yaml)） |
 | デプロイ | Cloudflare Workers Builds（PR ごとに preview URL を自動コメント） |
+| デザインシステム | [Takibi Design System](https://design-system.y-kaz.com)（npm の `takibi-design-system`） |
 | コンポーネントカタログ | [Storybook](https://storybook.js.org) v10 (`apps/storybook` に集約) |
 | VRT | [reg-suit](https://github.com/reg-viz/reg-suit) + `@storybook/test-runner` (PR コメントで差分通知) |
 
@@ -65,7 +66,8 @@ Hidoko で開発するときに知っておくべきルールをまとめる。�
 bun install              # 依存インストール（lockfile は bun.lock）
 bun run check            # Biome で format + lint + 自動修正
 bun run typecheck        # 全 workspace で tsc --noEmit
-bun run preflight        # push 前の一括チェック（check + typecheck + design:lint）
+bun run takibi:check     # Takibi に定義のないクラスや CSS 変数が残っていないかを調べる
+bun run preflight        # push 前の一括チェック（check + typecheck + takibi:check）
 ```
 
 特定の workspace に絞るとき:
@@ -86,7 +88,7 @@ bun --filter snapcrop build    # apps/snapcrop のビルド
 3. 実装する。push 前に `bun run preflight` を通す。
 4. コミットする（Conventional Commits 準拠。後述）。
 5. PR を出す。description は [PR テンプレート](.github/PULL_REQUEST_TEMPLATE.md) の構造（Why / What / Done / 確認方法）で書き、実装の進行に合わせて最新化し続ける。
-6. CI（lint / design-lint / typecheck / build / commitlint / vrt）と Cloudflare Workers Builds の preview を確認する。preview URL は Cloudflare 側が sticky コメントするので GitHub Actions で自前実装しない。
+6. CI（lint / takibi-classes / typecheck / build / commitlint / vrt）と Cloudflare Workers Builds の preview を確認する。preview URL は Cloudflare 側が sticky コメントするので GitHub Actions で自前実装しない。
 7. CodeRabbit のレビューに対応する。指摘は鵜呑みにせず妥当性を検証し、採用しない場合も理由を返信する。
 8. マージするかどうかは人間が判断する。
 
@@ -130,11 +132,10 @@ ci: PR ベースで lint / typecheck / build / commitlint を回す
 
 ## バージョン運用ルール
 
-各 app と `packages/ui` のバージョンは [release-please](https://github.com/googleapis/release-please) の manifest モードで管理する。設定は [release-please-config.json](release-please-config.json)、現在のバージョンは [.release-please-manifest.json](.release-please-manifest.json) を見る。
+各 app のバージョンは [release-please](https://github.com/googleapis/release-please) の manifest モードで管理する。設定は [release-please-config.json](release-please-config.json)、現在のバージョンは [.release-please-manifest.json](.release-please-manifest.json) を見る。
 
 - semver に従い、bump は Conventional Commits から自動算出する。`feat` は minor、`fix` は patch、`BREAKING CHANGE` は major。PR 著者がバージョンのために行う追加作業はない。
 - 1.0 未満の間は `BREAKING CHANGE` も minor 扱いになる（`bump-minor-pre-major`）。`1.0.0` を切る判断は自動化せず、人間がコミット footer に `Release-As: 1.0.0` を書いて明示する。
-- `packages/ui` に release 対象の変更が入ると、`node-workspace` plugin が依存する app にも patch bump を波及させる。
 - main にコミットが積まれるたび、[release-please.yml](.github/workflows/release-please.yml) がリリース PR を作成・更新し、auto-merge を有効化する。required checks（lint / typecheck）の通過後に自動でマージされ、`package.json` の version と `CHANGELOG.md` が更新され、タグ（`<package>-v<version>`）と GitHub Release が作られる。人間によるマージ判断は不要（バージョン表記を本番デプロイに追従させるため）。
 - npm への publish はしない。バージョンはフッター表示と変更履歴のためのもの。
 
@@ -146,8 +147,12 @@ ci: PR ベースで lint / typecheck / build / commitlint を回す
 
 ## デザインと UI
 
-- ブランドと視覚言語の単一仕様は [DESIGN.md](DESIGN.md)。新しい画面を作る前に必ず一読する。「らしくないもの」（純白 `#ffffff` を使わない、彩度の高い緑・青は避ける、絵文字を装飾で使わない 等）もここにある。
-- UI 実装は [packages/ui](packages/ui) に集約する。
+- 見た目は [Takibi Design System](https://design-system.y-kaz.com)（npm の `takibi-design-system`）に従う。新しい画面を作る前に、サイトの基本要素とコンポーネントを一読する。AI エージェントは https://design-system.y-kaz.com/llms.txt から読める。
+- コンポーネントは `takibi-design-system` から import する。足りない部品はアプリの中で Takibi のトークンを使って作り、汎用にできるものは Takibi のリポジトリに提案する。
+- 色は Takibi の役割のトークン（`bg-surface`、`text-fg-muted`、`border-line`、`text-brand` など）だけを使う。Tailwind の既定パレット・角丸・影・文字サイズは Takibi が消しているので、書いても CSS が出ない。`bun run takibi:check` で検出する。
+- 夜（ダーク）が既定で、昼は `<html data-theme="light">`。切り替えは Takibi の `ThemeToggle` / `setTheme()` を使う。
+- CSS の入口は `@import "tailwindcss";` のあとに `@import "takibi-design-system/styles.css";`。フォントは Google Fonts を `<link>` で読む（各アプリの `root.tsx` を参照）。
+- 計測タグなど、見た目を持たない共通部品は [packages/app-kit](packages/app-kit) に置く。
 
 ## AI エージェント向けの注意
 

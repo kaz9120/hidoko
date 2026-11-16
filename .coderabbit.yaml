@@ -11,7 +11,7 @@ language: ja-JP
 tone_instructions: |
   あなたは Hidoko の CodeRabbit レビュアーです。日本語で、親しみやすくかつ
   簡潔にレビューしてください。指摘は「何が問題か」「なぜ問題か」「どう直すと
-  良いか」の3点をセットで示し、AGENTS.md・DESIGN.md・.claude/rules/ 配下の
+  良いか」の3点をセットで示し、AGENTS.md・.claude/rules/ 配下の
   方針を尊重してください。装飾的な絵文字や顔文字は控えめにしてください。
 early_access: false
 
@@ -55,7 +55,6 @@ reviews:
     - "!**/build/**"
     - "!**/.wrangler/**"
     - "!**/.cache/**"
-    - "!packages/ui/assets/**"
 
   # パスごとのレビュー指針（短く、判断の足がかりだけ書く）。
   path_instructions:
@@ -79,18 +78,16 @@ reviews:
         - Cloudflare Workers 上で動くアプリです。Workers ランタイム互換性を
           意識し、Node 専用 API より Web 標準 API を優先してください。
 
-    - path: "packages/ui/**"
+    - path: "apps/**/*.{tsx,css}"
       instructions: |
-        - Hidoko のブランド言語そのものです。`DESIGN.md` と
-          `packages/ui/README.md` のルールを必ず参照したうえでレビューして
-          ください。
-        - `src/components/` の `*.tsx`（`*.stories.tsx` を除く）は shadcn/ui
-          からの同期で上書きされる前提のコードです。直接の手直しを提案する
-          より「app 側で wrap する」方向の提案を優先してください。
-        - 守るべき原則: 純粋な白 (`#ffffff`) は使わない / 彩度の高い緑・青は
-          避ける / 絵文字は控えめにする。
-        - 生のカラーコードを直書きせず、`tokens.css` のトークン経由で参照
-          しているか確認してください。
+        - 見た目は Takibi Design System（`takibi-design-system`、
+          https://design-system.y-kaz.com ）に従います。部品は
+          `takibi-design-system` から import し、アプリで同じものを作り直して
+          いないか確認してください。
+        - 色は Takibi の役割のトークン（`bg-surface`、`text-fg-muted`、
+          `border-line`、`text-brand` など）だけを使います。生のカラーコード、
+          純白・純黒、Tailwind の既定パレットを使っていないか見てください。
+          定義のないクラスは `bun run takibi:check` で検出します。
 
     - path: ".github/workflows/**"
       instructions: |
@@ -301,7 +298,6 @@ knowledge_base:
       - "CLAUDE.md"
       - "**/AGENTS.md"
       - "**/CLAUDE.md"
-      - "DESIGN.md"
       - ".claude/rules/**/*.md"
       - "packages/*/README.md"
       - "apps/*/README.md"
