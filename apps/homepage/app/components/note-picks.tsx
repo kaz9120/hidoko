@@ -29,16 +29,16 @@ function FeaturedNote({ note }: { note: NotePick }) {
 			href={note.href}
 			target="_blank"
 			rel="noreferrer"
-			className="block rounded-lg border border-[color-mix(in_oklab,var(--ember-400)_22%,var(--border))] bg-card px-9 py-8 text-foreground shadow-[var(--shadow-card)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color-mix(in_oklab,var(--ember-400)_40%,var(--border))]"
+			className="block rounded-lg border border-[color-mix(in_oklab,var(--color-brand)_22%,var(--color-line))] bg-surface-raised px-9 py-8 text-fg shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-[color-mix(in_oklab,var(--color-brand)_40%,var(--color-line))]"
 		>
-			<span className="font-mono text-xs text-text-faint">{note.date}</span>
-			<h3 className="mt-3.5 mb-3 text-[clamp(22px,2.4vw,28px)] font-semibold leading-[1.35] tracking-[-0.018em] text-text-strong">
+			<span className="font-mono text-xs text-fg-subtle">{note.date}</span>
+			<h3 className="mt-3.5 mb-3 text-[clamp(22px,2.4vw,28px)] font-semibold leading-[1.35] tracking-[-0.018em] text-fg-strong">
 				{note.title}
 			</h3>
-			<p className="mb-[18px] max-w-[64ch] text-[14.5px] leading-[1.8] text-muted-foreground">
+			<p className="mb-[18px] max-w-[64ch] text-[14.5px] leading-[1.8] text-fg-muted">
 				{note.excerpt}
 			</p>
-			<div className="inline-flex items-center gap-1.5 text-[13.5px] font-medium text-primary">
+			<div className="inline-flex items-center gap-1.5 text-[13.5px] font-medium text-brand">
 				note で読む
 				<ArrowUpRightIcon className="size-3.5" aria-hidden="true" />
 			</div>
@@ -52,16 +52,16 @@ function NoteCard({ note }: { note: NotePick }) {
 			href={note.href}
 			target="_blank"
 			rel="noreferrer"
-			className="flex flex-col gap-2.5 rounded-lg border bg-card p-[22px] text-foreground shadow-[var(--shadow-card)] transition-all duration-200 hover:-translate-y-px hover:border-border-strong"
+			className="flex flex-col gap-2.5 rounded-lg border bg-surface-raised p-[22px] text-fg shadow-card transition-all duration-200 hover:-translate-y-px hover:border-line-strong"
 		>
-			<span className="font-mono text-[11px] text-text-faint">{note.date}</span>
-			<h4 className="m-0 text-[16.5px] font-medium leading-[1.45] tracking-[-0.01em] text-text-strong">
+			<span className="font-mono text-[11px] text-fg-subtle">{note.date}</span>
+			<h4 className="m-0 text-[16.5px] font-medium leading-[1.45] tracking-[-0.01em] text-fg-strong">
 				{note.title}
 			</h4>
-			<p className="m-0 text-[13px] leading-[1.65] text-muted-foreground">
+			<p className="m-0 text-[13px] leading-[1.65] text-fg-muted">
 				{note.excerpt}
 			</p>
-			<div className="mt-auto flex items-center border-t border-border-subtle pt-3 text-text-faint">
+			<div className="mt-auto flex items-center border-t border-line-subtle pt-3 text-fg-subtle">
 				<ArrowUpRightIcon className="size-3.5" aria-hidden="true" />
 			</div>
 		</a>

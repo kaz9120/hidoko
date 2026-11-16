@@ -63,6 +63,7 @@ gtag('config', '${gaId}');`;
 				async
 				src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaId)}`}
 			/>
+			{/* biome-ignore lint/security/noDangerouslySetInnerHtml: ID だけを差し込む、固定の計測スニペット */}
 			<script dangerouslySetInnerHTML={{ __html: inline }} />
 		</>
 	);
@@ -89,5 +90,8 @@ y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
 				? `window.clarity && window.clarity('set', 'mask', 'none');`
 				: "";
 	const inline = maskCall ? `${loader}\n${maskCall}` : loader;
-	return <script dangerouslySetInnerHTML={{ __html: inline }} />;
+	return (
+		// biome-ignore lint/security/noDangerouslySetInnerHtml: ID だけを差し込む、固定の計測スニペット
+		<script dangerouslySetInnerHTML={{ __html: inline }} />
+	);
 }
