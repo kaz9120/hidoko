@@ -25,7 +25,7 @@ const FREEZE_CSS = `
 const config: TestRunnerConfig = {
 	async preVisit(page) {
 		await page.setViewportSize({ width: 1280, height: 800 });
-		// <hi-embers> など prefers-reduced-motion を尊重する実装を静止状態に倒す。
+		// <takibi-embers> など prefers-reduced-motion を尊重する実装を静止状態に倒す。
 		await page.emulateMedia({ reducedMotion: "reduce" });
 	},
 	async postVisit(page, context) {

@@ -1,19 +1,14 @@
 @import "tailwindcss" source(".");
-@source "../../../packages/ui/src";
 @source "../../snapcrop/app";
 @source "../../homepage/app";
 @source "../../note-ogp/app";
-@import "ui/tokens.css";
-@import "ui/styles.css";
-
-@custom-variant dark (&:is(.dark *));
+@import "takibi-design-system/styles.css";
 
 @layer base {
-	* {
-		@apply border-border outline-ring/50;
-	}
-	body {
-		@apply bg-background text-foreground;
-		font-family: var(--font-sans);
+	/* 色を書かない border は標準の区切り線の色にする */
+	*,
+	::before,
+	::after {
+		border-color: var(--color-line);
 	}
 }
