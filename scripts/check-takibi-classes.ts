@@ -140,7 +140,7 @@ const DIRS = [
 	"ee",
 ];
 const CLASS_RE =
-	/(?<![\w\-/.[])(?:[a-z0-9-]+:)*!?(-?[a-z]+(?:-[a-z0-9]+)+)(?:\/[\w.]+)?!?(?![\w\-[(=])/g;
+	/(?<![\w\-/.[])(?:[a-z0-9-]+:)*!?(-?[a-z]+(?:-[a-z0-9]+)+)(?:\/[\w.]+)?!?(?![\w\-[(=:])/g;
 
 /** true: 定義あり、false: 定義なし、undefined: 調べる対象外 */
 function check(cls: string): boolean | undefined {
@@ -183,7 +183,8 @@ function walk(dir: string, out: string[]) {
 			continue;
 		const p = join(dir, entry);
 		if (statSync(p).isDirectory()) walk(p, out);
-		else if (/\.(tsx|css)$/.test(entry)) out.push(p);
+		else if (/\.(tsx?|css)$/.test(entry) && !entry.endsWith(".d.ts"))
+			out.push(p);
 	}
 }
 
