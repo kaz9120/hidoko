@@ -132,10 +132,11 @@ ci: PR ベースで lint / typecheck / build / commitlint を回す
 
 ## バージョン運用ルール
 
-各 app のバージョンは [release-please](https://github.com/googleapis/release-please) の manifest モードで管理する。設定は [release-please-config.json](release-please-config.json)、現在のバージョンは [.release-please-manifest.json](.release-please-manifest.json) を見る。
+各 app と `packages/app-kit` のバージョンは [release-please](https://github.com/googleapis/release-please) の manifest モードで管理する。設定は [release-please-config.json](release-please-config.json)、現在のバージョンは [.release-please-manifest.json](.release-please-manifest.json) を見る。
 
 - semver に従い、bump は Conventional Commits から自動算出する。`feat` は minor、`fix` は patch、`BREAKING CHANGE` は major。PR 著者がバージョンのために行う追加作業はない。
 - 1.0 未満の間は `BREAKING CHANGE` も minor 扱いになる（`bump-minor-pre-major`）。`1.0.0` を切る判断は自動化せず、人間がコミット footer に `Release-As: 1.0.0` を書いて明示する。
+- `packages/app-kit` に release 対象の変更が入ると、`node-workspace` plugin が依存する app にも patch bump を波及させる。
 - main にコミットが積まれるたび、[release-please.yml](.github/workflows/release-please.yml) がリリース PR を作成・更新し、auto-merge を有効化する。required checks（lint / typecheck）の通過後に自動でマージされ、`package.json` の version と `CHANGELOG.md` が更新され、タグ（`<package>-v<version>`）と GitHub Release が作られる。人間によるマージ判断は不要（バージョン表記を本番デプロイに追従させるため）。
 - npm への publish はしない。バージョンはフッター表示と変更履歴のためのもの。
 
@@ -150,7 +151,7 @@ ci: PR ベースで lint / typecheck / build / commitlint を回す
 - 見た目は [Takibi Design System](https://design-system.y-kaz.com)（npm の `takibi-design-system`）に従う。新しい画面を作る前に、サイトの基本要素とコンポーネントを一読する。AI エージェントは https://design-system.y-kaz.com/llms.txt から読める。
 - コンポーネントは `takibi-design-system` から import する。足りない部品はアプリの中で Takibi のトークンを使って作り、汎用にできるものは Takibi のリポジトリに提案する。
 - 色は Takibi の役割のトークン（`bg-surface`、`text-fg-muted`、`border-line`、`text-brand` など）だけを使う。Tailwind の既定パレット・角丸・影・文字サイズは Takibi が消しているので、書いても CSS が出ない。`bun run takibi:check` で検出する。
-- 夜（ダーク）が既定で、昼は `<html data-theme="light">`。切り替えは Takibi の `ThemeToggle` / `setTheme()` を使う。
+- 夜（ダーク）が既定で、昼は `<html data-theme="light">`。切り替えのあるアプリは、描く前に `takibi-theme` を読んで `data-theme` を当てるスクリプトと、`useLayoutEffect(() => restoreTheme(), [])`、設定の保存に `useThemePreference` を使う（手本は `apps/snapcrop/app/root.tsx` と `theme-toggle.tsx`）。`setTheme()` だけでは設定が保存されない。
 - CSS の入口は `@import "tailwindcss";` のあとに `@import "takibi-design-system/styles.css";`。フォントは Google Fonts を `<link>` で読む（各アプリの `root.tsx` を参照）。
 - 計測タグなど、見た目を持たない共通部品は [packages/app-kit](packages/app-kit) に置く。
 
