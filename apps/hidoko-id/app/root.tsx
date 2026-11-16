@@ -1,4 +1,3 @@
-import { ThemeProvider } from "next-themes";
 import {
 	isRouteErrorResponse,
 	Links,
@@ -7,8 +6,8 @@ import {
 	Scripts,
 	ScrollRestoration,
 } from "react-router";
-import { Toaster, TooltipProvider } from "ui";
-import faviconUrl from "ui/assets/logo/mark-cream.svg?url";
+import { Toaster, TooltipProvider } from "takibi-design-system";
+import faviconUrl from "takibi-design-system/assets/logo/mark-cream.svg?url";
 import type { Route } from "./+types/root";
 import "./globals.css";
 
@@ -20,11 +19,16 @@ export const links: Route.LinksFunction = () => [
 		href: "https://fonts.gstatic.com",
 		crossOrigin: "anonymous",
 	},
+	{
+		rel: "stylesheet",
+		href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=LINE+Seed+JP:wght@400;700&display=swap",
+	},
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="ja" className="dark" suppressHydrationWarning>
+		// 夜（Takibi の既定）だけで見せるので、data-theme は付けない
+		<html lang="ja">
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -42,17 +46,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
 	return (
-		<ThemeProvider
-			attribute="class"
-			defaultTheme="dark"
-			disableTransitionOnChange
-			enableSystem={false}
-		>
-			<TooltipProvider>
-				<Outlet />
-				<Toaster position="bottom-center" />
-			</TooltipProvider>
-		</ThemeProvider>
+		<TooltipProvider>
+			<Outlet />
+			<Toaster />
+		</TooltipProvider>
 	);
 }
 
@@ -73,11 +70,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 	}
 
 	return (
-		<main className="container mx-auto p-4 pt-16">
-			<h1>{message}</h1>
-			<p>{details}</p>
+		<main className="mx-auto max-w-2xl px-6 pt-24 pb-16 text-fg">
+			<h1 className="font-semibold text-2xl text-fg-strong">{message}</h1>
+			<p className="mt-2 text-fg-muted">{details}</p>
 			{stack && (
-				<pre className="w-full overflow-x-auto p-4">
+				<pre className="mt-4 w-full overflow-x-auto rounded-md bg-surface-overlay p-4 text-xs">
 					<code>{stack}</code>
 				</pre>
 			)}

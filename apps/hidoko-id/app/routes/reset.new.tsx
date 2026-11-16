@@ -61,27 +61,27 @@ export default function ResetNewRoute() {
 
 	if (!token || expired) {
 		return (
-			<main className="relative grid min-h-dvh place-items-center bg-[var(--bg)] px-6 py-12 text-[var(--text)]">
+			<main className="relative grid min-h-dvh place-items-center bg-surface px-6 py-12 text-fg">
 				<div className="absolute inset-x-6 top-6 flex items-center">
 					<LogoMark size={22} title="アカウント" />
 				</div>
 
 				<div className="w-full max-w-[400px] text-center">
 					<div
-						className="mx-auto mb-5 inline-flex size-14 items-center justify-center rounded-full border bg-[color-mix(in_oklab,var(--danger)_14%,transparent)]"
+						className="mx-auto mb-5 inline-flex size-14 items-center justify-center rounded-full border bg-danger/14"
 						style={{
 							borderColor:
-								"color-mix(in oklab, var(--danger) 32%, transparent)",
+								"color-mix(in oklab, var(--color-danger) 32%, transparent)",
 						}}
 					>
-						<RotateCcw aria-hidden className="size-6 text-[var(--danger)]" />
+						<RotateCcw aria-hidden className="size-6 text-danger" />
 					</div>
 
 					<Mark tone="muted">リンクの有効期限</Mark>
-					<h1 className="mt-2 mb-3 font-medium text-[22px] text-[var(--text-strong)]">
+					<h1 className="mt-2 mb-3 font-medium text-[22px] text-fg-strong">
 						このリンクは使えない
 					</h1>
-					<p className="mb-6 text-[13px] text-[var(--text-muted)] leading-[1.75]">
+					<p className="mb-6 text-[13px] text-fg-muted leading-[1.75]">
 						リンクの有効期限が切れたか、すでに使われた。
 						<br />
 						最初からやり直す
@@ -108,7 +108,7 @@ export default function ResetNewRoute() {
 		: "英数字を含む 12 文字以上。記号は任意";
 
 	return (
-		<main className="relative grid min-h-dvh place-items-center bg-[var(--bg)] px-6 py-12 text-[var(--text)]">
+		<main className="relative grid min-h-dvh place-items-center bg-surface px-6 py-12 text-fg">
 			<div className="absolute inset-x-6 top-6 flex items-center">
 				<LogoMark size={22} title="アカウント" />
 			</div>
@@ -116,10 +116,10 @@ export default function ResetNewRoute() {
 			<div className="w-full max-w-[400px]">
 				<div className="mb-7">
 					<Mark tone="ember">新しいパスワード</Mark>
-					<h1 className="mt-2 mb-2 font-medium text-[24px] text-[var(--text-strong)] tracking-[-0.01em]">
+					<h1 className="mt-2 mb-2 font-medium text-[24px] text-fg-strong tracking-[-0.01em]">
 						パスワードを更新する
 					</h1>
-					<p className="m-0 text-[13px] text-[var(--text-muted)] leading-[1.7]">
+					<p className="m-0 text-[13px] text-fg-muted leading-[1.7]">
 						更新すると、他端末からはサインアウトされる
 					</p>
 				</div>

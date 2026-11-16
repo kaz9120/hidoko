@@ -1,6 +1,5 @@
-import { forwardRef, type ReactNode } from "react";
-import { Input } from "ui/components/input";
-import { cn } from "ui/lib/utils";
+import type { ReactNode } from "react";
+import { Input, type InputProps } from "takibi-design-system";
 
 interface AuthFieldProps {
 	label: string;
@@ -12,8 +11,8 @@ interface AuthFieldProps {
 }
 
 /**
- * design の `hi-field` 相当。label + 入力 + small ヘルプ + error の縦配置。
- * packages/ui の `Input` をそのまま使い、見た目調整は `AuthInput` で行う。
+ * label + 入力 + small ヘルプ + error の縦配置。
+ * 入力欄は `AuthInput`（Takibi の `Input`）を子に置く。
  */
 export function AuthField({
 	label,
@@ -27,51 +26,29 @@ export function AuthField({
 		<div className="flex flex-col gap-1.5">
 			<label
 				htmlFor={htmlFor}
-				className="flex items-baseline justify-between font-medium text-[var(--text-muted)] text-sm"
+				className="flex items-baseline justify-between font-medium text-fg-muted text-sm"
 			>
 				<span>{label}</span>
 				{rightLabel}
 			</label>
 			{children}
 			{error ? (
-				<small className="text-[var(--danger)] text-xs">{error}</small>
+				<small className="text-danger text-xs">{error}</small>
 			) : hint ? (
-				<small className="text-[var(--text-faint)] text-xs">{hint}</small>
+				<small className="text-fg-subtle text-xs">{hint}</small>
 			) : null}
 		</div>
 	);
 }
 
-interface AuthInputProps extends React.ComponentProps<"input"> {
+interface AuthInputProps extends Omit<InputProps, "size"> {
 	hasError?: boolean;
 }
 
 /**
- * packages/ui の `<Input>` を design の hidoko-id 用に整える薄いラッパ。
- * 背景・パディング・ember フォーカスだけ上書きし、focus-visible / aria-invalid の
- * 既定挙動は ui 側に任せる（shadcn 同期で改善が降りてくる）。
+ * Takibi の `<Input>` を大きいサイズで使う薄いラッパ。
+ * `hasError` を `aria-invalid` に渡し、枠を danger の色にする。
  */
-export const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(
-	function AuthInput({ className, hasError, ...props }, ref) {
-		return (
-			<Input
-				ref={ref}
-				aria-invalid={hasError || undefined}
-				className={cn(
-					"h-11 rounded-md bg-[var(--bg-sunken)] px-3.5 text-[15px]",
-					"border-[var(--border)] hover:border-[var(--border-strong)]",
-					"shadow-[inset_0_1px_0_rgba(0,0,0,0.3)]",
-					"focus-visible:border-[var(--brand)]",
-					"focus-visible:shadow-[var(--glow-ember),inset_0_1px_0_rgba(0,0,0,0.3)] focus-visible:ring-0",
-					hasError && [
-						"border-[var(--danger)]",
-						"focus-visible:border-[var(--danger)]",
-						"focus-visible:shadow-[0_0_0_3px_color-mix(in_oklab,var(--danger)_25%,transparent),inset_0_1px_0_rgba(0,0,0,0.3)]",
-					],
-					className,
-				)}
-				{...props}
-			/>
-		);
-	},
-);
+export function AuthInput({ hasError, ...props }: AuthInputProps) {
+	return <Input size="lg" aria-invalid={hasError || undefined} {...props} />;
+}

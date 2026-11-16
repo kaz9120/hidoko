@@ -48,21 +48,22 @@ export default function AccountDangerRoute() {
 		<div className="flex flex-col gap-6">
 			<header>
 				<Mark tone="muted">危険な操作</Mark>
-				<h1 className="mt-2 mb-1 font-medium text-[22px] text-[var(--text-strong)] tracking-[-0.01em]">
+				<h1 className="mt-2 mb-1 font-medium text-[22px] text-fg-strong tracking-[-0.01em]">
 					アカウントの削除
 				</h1>
-				<p className="m-0 text-[13px] text-[var(--text-muted)] leading-[1.7]">
+				<p className="m-0 text-[13px] text-fg-muted leading-[1.7]">
 					削除するとアカウントとセッション・連携・トークンを含めて消える。元には戻せない
 				</p>
 			</header>
 
 			<div
-				className="rounded-md border bg-[color-mix(in_oklab,var(--danger)_8%,transparent)] p-4"
+				className="rounded-md border bg-danger/8 p-4"
 				style={{
-					borderColor: "color-mix(in oklab, var(--danger) 35%, transparent)",
+					borderColor:
+						"color-mix(in oklab, var(--color-danger) 35%, transparent)",
 				}}
 			>
-				<div className="mb-2 inline-flex items-center gap-2 text-[13px] text-[var(--danger)]">
+				<div className="mb-2 inline-flex items-center gap-2 text-[13px] text-danger">
 					<AlertTriangle aria-hidden className="size-3.5" />
 					ここから先は不可逆
 				</div>
@@ -92,10 +93,9 @@ export default function AccountDangerRoute() {
 
 					<AuthButton
 						type="submit"
-						variant="primary"
+						variant="danger"
 						size="md"
 						disabled={submitting || !matches}
-						className="bg-[linear-gradient(180deg,var(--danger)_0%,#8b3a1f_100%)] hover:bg-[linear-gradient(180deg,#c2553a_0%,#a04428_100%)]"
 					>
 						<Trash2 aria-hidden className="size-4" />
 						{submitting ? "削除中…" : "アカウントを削除"}

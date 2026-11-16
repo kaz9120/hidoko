@@ -14,26 +14,27 @@ export function meta() {
 export default function ResetDoneRoute() {
 	const navigate = useNavigate();
 	return (
-		<main className="relative grid min-h-dvh place-items-center bg-[var(--bg)] px-6 py-12 text-[var(--text)]">
+		<main className="relative grid min-h-dvh place-items-center bg-surface px-6 py-12 text-fg">
 			<div className="absolute inset-x-6 top-6 flex items-center">
 				<LogoMark size={22} title="アカウント" />
 			</div>
 
 			<div className="w-full max-w-[420px] text-center">
 				<div
-					className="mx-auto mb-5 inline-flex size-14 items-center justify-center rounded-full border bg-[color-mix(in_oklab,var(--success)_18%,transparent)]"
+					className="mx-auto mb-5 inline-flex size-14 items-center justify-center rounded-full border bg-success/18"
 					style={{
-						borderColor: "color-mix(in oklab, var(--success) 40%, transparent)",
+						borderColor:
+							"color-mix(in oklab, var(--color-success) 40%, transparent)",
 					}}
 				>
-					<Check aria-hidden className="size-6 text-[#b9c79a]" />
+					<Check aria-hidden className="size-6 text-success" />
 				</div>
 
 				<Mark tone="ember">更新が完了</Mark>
-				<h1 className="mt-2 mb-3.5 font-medium text-[22px] text-[var(--text-strong)]">
+				<h1 className="mt-2 mb-3.5 font-medium text-[22px] text-fg-strong">
 					新しいパスワードで続行する
 				</h1>
-				<p className="mb-7 text-[13px] text-[var(--text-muted)] leading-[1.75]">
+				<p className="mb-7 text-[13px] text-fg-muted leading-[1.75]">
 					パスワードを更新した。
 					<br />
 					安全のため、他端末からはサインアウトした

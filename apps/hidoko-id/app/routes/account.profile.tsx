@@ -53,10 +53,10 @@ export default function AccountProfileEditRoute() {
 		<div className="flex flex-col gap-6">
 			<header>
 				<Mark tone="ember">プロフィール編集</Mark>
-				<h1 className="mt-2 mb-1 font-medium text-[22px] text-[var(--text-strong)] tracking-[-0.01em]">
+				<h1 className="mt-2 mb-1 font-medium text-[22px] text-fg-strong tracking-[-0.01em]">
 					表示名とアバター
 				</h1>
-				<p className="m-0 text-[13px] text-[var(--text-muted)] leading-[1.7]">
+				<p className="m-0 text-[13px] text-fg-muted leading-[1.7]">
 					未入力で保存すると、表示名・アバターはリセットされる
 				</p>
 			</header>
@@ -103,7 +103,7 @@ export default function AccountProfileEditRoute() {
 						<ArrowRight aria-hidden className="size-4" />
 					</AuthButton>
 					{savedAt ? (
-						<span className="font-mono text-[12px] text-[var(--text-faint)]">
+						<span className="font-mono text-[12px] text-fg-subtle">
 							保存済み
 						</span>
 					) : null}

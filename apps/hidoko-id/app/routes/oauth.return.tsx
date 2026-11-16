@@ -39,22 +39,22 @@ export default function OAuthReturnRoute() {
 
 	if (!valid) {
 		return (
-			<main className="grid min-h-dvh place-items-center bg-[var(--bg)] px-6 py-12 text-[var(--text)]">
+			<main className="grid min-h-dvh place-items-center bg-surface px-6 py-12 text-fg">
 				<div className="w-full max-w-[420px] text-center">
 					<LogoMark size={28} title="アカウント" />
 					<Mark tone="ember" className="mt-6">
 						REDIRECT BLOCKED
 					</Mark>
-					<h1 className="mt-2 mb-3.5 font-medium text-[22px] text-[var(--text-strong)]">
+					<h1 className="mt-2 mb-3.5 font-medium text-[22px] text-fg-strong">
 						戻り先が不正
 					</h1>
-					<p className="text-[13px] text-[var(--text-muted)] leading-[1.75]">
+					<p className="text-[13px] text-fg-muted leading-[1.75]">
 						許可されていない URL への遷移は止めた。最初からやり直す
 					</p>
 					<div className="mt-6">
 						<Link
 							to="/signin"
-							className="font-medium text-[13px] text-[var(--brand)] hover:text-[var(--brand-hover)]"
+							className="font-medium text-[13px] text-brand hover:text-brand-hover"
 						>
 							サインインへ →
 						</Link>
@@ -65,45 +65,42 @@ export default function OAuthReturnRoute() {
 	}
 
 	return (
-		<main className="relative grid min-h-dvh place-items-center bg-[var(--bg)] px-6 py-12 text-[var(--text)]">
+		<main className="relative grid min-h-dvh place-items-center bg-surface px-6 py-12 text-fg">
 			<div className="absolute inset-x-6 top-6 flex items-center">
 				<LogoMark size={22} title="アカウント" />
 			</div>
 
 			<div className="w-full max-w-[380px] text-center">
 				<div className="relative mx-auto mb-5 size-14">
-					<div className="absolute inset-0 rounded-full border-2 border-[var(--border)]" />
-					<div className="hidoko-id-spin absolute inset-0 rounded-full border-2 border-transparent border-t-[var(--brand)] border-r-[var(--brand)]" />
+					<div className="absolute inset-0 rounded-full border-2 border-line" />
+					<div className="hidoko-id-spin absolute inset-0 rounded-full border-2 border-transparent border-t-brand border-r-brand" />
 					<div className="absolute inset-0 grid place-items-center">
-						<Flame
-							aria-hidden
-							className="hidoko-id-pulse size-5 text-[var(--brand)]"
-						/>
+						<Flame aria-hidden className="hidoko-id-pulse size-5 text-brand" />
 					</div>
 				</div>
 
 				<Mark tone="ember">REDIRECTING</Mark>
-				<h1 className="mt-2 mb-3.5 font-medium text-[20px] text-[var(--text-strong)]">
+				<h1 className="mt-2 mb-3.5 font-medium text-[20px] text-fg-strong">
 					<span className="font-mono">{label}</span> に戻る
 				</h1>
-				<p className="text-[13px] text-[var(--text-muted)] leading-[1.75]">
+				<p className="text-[13px] text-fg-muted leading-[1.75]">
 					そのまま待つ。自動的に元のアプリへ戻る
 				</p>
 
-				<div className="mt-7 inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--bg-raised)] px-3 py-1.5 font-mono text-[11px] text-[var(--text-faint)] tracking-[0.05em]">
+				<div className="mt-7 inline-flex items-center gap-2 rounded-full border border-line bg-surface-raised px-3 py-1.5 font-mono text-[11px] text-fg-subtle tracking-[0.05em]">
 					<span
 						className="hidoko-id-pulse size-1.5 rounded-full"
-						style={{ background: "var(--brand)" }}
+						style={{ background: "var(--color-brand)" }}
 					/>
 					<span>{host}</span>
 				</div>
 
 				{tickedOnce ? (
-					<p className="mt-6 text-[12px] text-[var(--text-faint)]">
+					<p className="mt-6 text-[12px] text-fg-subtle">
 						自動で遷移しない場合は{" "}
 						<a
 							href={next}
-							className="font-medium text-[var(--brand)] hover:text-[var(--brand-hover)]"
+							className="font-medium text-brand hover:text-brand-hover"
 						>
 							ここを押す
 						</a>

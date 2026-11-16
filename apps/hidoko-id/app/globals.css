@@ -1,56 +1,50 @@
 @import "tailwindcss" source(".");
-@source "../../../packages/ui/src";
-@import "ui/tokens.css";
-@import "ui/styles.css";
-
-@custom-variant dark (&:is(.dark *));
+@import "takibi-design-system/styles.css";
 
 @layer base {
-	* {
-		@apply border-border outline-ring/50;
-	}
-	body {
-		@apply bg-background text-foreground;
-		font-family: var(--font-sans);
+	/* 色を書かない border は標準の区切り線の色にする */
+	*,
+	::before,
+	::after {
+		border-color: var(--color-line);
 	}
 }
 
 /* サインインのデスクトップで使うフルブリードヒーロー背景。
-   下から ember-400 のほのかな放射が立ち上がる「夜の机に、ひとつの灯」のメタファ。 */
+   下からブランドカラーのほのかな放射が立ち上がる。 */
 .hidoko-id-hero-bg {
 	background:
 		radial-gradient(
 			ellipse at 50% 100%,
-			color-mix(in oklab, var(--brand) 10%, transparent) 0%,
+			color-mix(in oklab, var(--color-brand) 10%, transparent) 0%,
 			transparent 55%
 		),
-		var(--bg);
+		var(--color-surface);
 }
 
-/* サインアップ左パネルなど、カード裏の「燃える夜」面に使う subtle なテクスチャ。 */
+/* サインアップ左パネルなど、カード裏の面に使う subtle なテクスチャ。 */
 .hidoko-id-brand-panel-bg {
 	background:
 		radial-gradient(
 			ellipse at 30% 110%,
-			color-mix(in oklab, var(--brand) 8%, transparent) 0%,
+			color-mix(in oklab, var(--color-brand) 8%, transparent) 0%,
 			transparent 60%
 		),
-		var(--bg-raised);
+		var(--color-surface-raised);
 }
 
 /* フォームカード：背景を半透明にして backdrop-blur で hero の embers を透かす。 */
 .hidoko-id-form-card {
-	background: color-mix(in oklab, var(--bg-raised) 78%, transparent);
+	background: color-mix(in oklab, var(--color-surface-raised) 78%, transparent);
 	backdrop-filter: blur(14px);
-	border: 1px solid var(--border);
+	border: 1px solid var(--color-line);
 	border-radius: var(--radius-xl);
 	box-shadow: var(--shadow-pop);
 }
 
 /* リダイレクト loader 用のローカル motion。
- * `.hi-motion-ember-pulse` (motion.css) は background-gradient で skeleton 代替
- * を作る別パターン。ここは Flame アイコンや小さな点の opacity 脈動なので、
- * 名前衝突を避けるため `hidoko-id-icon-pulse` として独自で持つ。 */
+ * Takibi の `motion-ember-pulse` は読み込み中の面に流れる帯を出す別パターン。
+ * ここは Flame アイコンや小さな点の opacity 脈動なので、独自で持つ。 */
 @keyframes hidoko-id-icon-pulse {
 	0%,
 	100% {
@@ -69,5 +63,5 @@
 	animation: hidoko-id-spin 1.2s linear infinite;
 }
 .hidoko-id-pulse {
-	animation: hidoko-id-icon-pulse 2.4s ease-in-out infinite;
+	animation: hidoko-id-icon-pulse 2.4s var(--ease-standard) infinite;
 }

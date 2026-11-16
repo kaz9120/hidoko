@@ -45,31 +45,30 @@ export default function VerifyEmailRoute() {
 	const inbox = inboxUrl(email);
 
 	return (
-		<main className="relative grid min-h-dvh place-items-center bg-[var(--bg)] px-6 py-12 text-[var(--text)]">
+		<main className="relative grid min-h-dvh place-items-center bg-surface px-6 py-12 text-fg">
 			<div className="absolute inset-x-6 top-6 flex items-center">
 				<LogoMark size={22} title="アカウント" />
 			</div>
 
 			<div className="w-full max-w-[420px] text-center">
 				<div
-					className="mx-auto mb-5 inline-flex size-14 items-center justify-center rounded-full border bg-[color-mix(in_oklab,var(--brand)_14%,transparent)]"
+					className="mx-auto mb-5 inline-flex size-14 items-center justify-center rounded-full border bg-brand/14"
 					style={{
-						borderColor: "color-mix(in oklab, var(--brand) 32%, transparent)",
+						borderColor:
+							"color-mix(in oklab, var(--color-brand) 32%, transparent)",
 					}}
 				>
-					<MailCheck aria-hidden className="size-6 text-[var(--brand)]" />
+					<MailCheck aria-hidden className="size-6 text-brand" />
 				</div>
 
 				<Mark tone="ember">メール確認</Mark>
-				<h1 className="mt-2 mb-3.5 font-medium text-[22px] text-[var(--text-strong)]">
+				<h1 className="mt-2 mb-3.5 font-medium text-[22px] text-fg-strong">
 					受信箱を開く
 				</h1>
-				<p className="mb-2 text-[13px] text-[var(--text-muted)] leading-[1.75]">
+				<p className="mb-2 text-[13px] text-fg-muted leading-[1.75]">
 					{email ? (
 						<>
-							<span className="font-mono text-[12px] text-[var(--text)]">
-								{email}
-							</span>
+							<span className="font-mono text-[12px] text-fg">{email}</span>
 							{" 宛に"}
 						</>
 					) : null}
@@ -92,12 +91,9 @@ export default function VerifyEmailRoute() {
 					</AuthButton>
 				</div>
 
-				<p className="mt-6 font-mono text-[11px] tracking-[0.1em] text-[var(--text-faint)]">
+				<p className="mt-6 font-mono text-[11px] tracking-[0.1em] text-fg-subtle">
 					違うメールで作成{" "}
-					<Link
-						to="/signup"
-						className="text-[var(--brand)] hover:text-[var(--brand-hover)]"
-					>
+					<Link to="/signup" className="text-brand hover:text-brand-hover">
 						→
 					</Link>
 				</p>
@@ -105,14 +101,14 @@ export default function VerifyEmailRoute() {
 				{devVerifyUrl ? (
 					// dev で Email Service の宛先が未設定のとき、ここに検証 URL を出してそのまま踏める。
 					// prod では /api/signup 側で発行されないため、このブロックは表示されない。
-					<div className="mt-8 rounded-md border border-[var(--border)] bg-[var(--bg-overlay)] p-4 text-left">
+					<div className="mt-8 rounded-md border border-line bg-surface-overlay p-4 text-left">
 						<Mark tone="ember">DEV ONLY</Mark>
-						<p className="mt-2 mb-2 text-[12px] text-[var(--text-muted)]">
+						<p className="mt-2 mb-2 text-[12px] text-fg-muted">
 							sender 未設定のため検証リンクをここに表示する
 						</p>
 						<a
 							href={devVerifyUrl}
-							className="break-all font-mono text-[11px] text-[var(--brand)] hover:text-[var(--brand-hover)]"
+							className="break-all font-mono text-[11px] text-brand hover:text-brand-hover"
 						>
 							{devVerifyUrl}
 						</a>
@@ -122,7 +118,7 @@ export default function VerifyEmailRoute() {
 				<div className="mt-8">
 					<Link
 						to="/signin"
-						className="inline-flex items-center gap-1.5 font-medium text-[13px] text-[var(--brand)] hover:text-[var(--brand-hover)]"
+						className="inline-flex items-center gap-1.5 font-medium text-[13px] text-brand hover:text-brand-hover"
 					>
 						<ArrowLeft aria-hidden className="size-3.5" />
 						サインインに戻る

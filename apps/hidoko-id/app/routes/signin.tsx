@@ -77,13 +77,13 @@ export default function SigninRoute() {
 		<form onSubmit={onSubmit} className="flex flex-col gap-4">
 			<div className="flex flex-col gap-1.5">
 				<Mark tone={isWide ? "muted" : "ember"}>SIGN IN</Mark>
-				<h1 className="m-0 font-medium text-[var(--text-strong)] text-2xl tracking-[-0.01em]">
+				<h1 className="m-0 font-medium text-fg-strong text-2xl tracking-[-0.01em]">
 					{isWide ? "続行する" : "サインイン"}
 				</h1>
 			</div>
 
 			{justVerified ? (
-				<div className="rounded-md border border-[color-mix(in_oklab,var(--success)_35%,transparent)] bg-[color-mix(in_oklab,var(--success)_14%,transparent)] px-3.5 py-2.5 text-[13px] text-[#b9c79a]">
+				<div className="rounded-md border border-success/35 bg-success/14 px-3.5 py-2.5 text-[13px] text-success">
 					メールアドレスを確認した。続けてサインインする
 				</div>
 			) : null}
@@ -107,7 +107,7 @@ export default function SigninRoute() {
 				rightLabel={
 					<Link
 						to="/reset"
-						className="text-[12px] font-normal text-[var(--brand)] hover:text-[var(--brand-hover)]"
+						className="text-[12px] font-normal text-brand hover:text-brand-hover"
 					>
 						忘れた
 					</Link>
@@ -157,14 +157,14 @@ export default function SigninRoute() {
 	if (!isWide) {
 		// 中央ミニマル（< 1024px）— top-bar・hero テキスト・marquee・embers なし。
 		return (
-			<main className="relative grid min-h-dvh place-items-center bg-[var(--bg)] px-6 py-10 text-[var(--text)]">
-				<div className="absolute inset-x-6 top-6 flex items-center justify-between text-[13px] text-[var(--text-faint)]">
+			<main className="relative grid min-h-dvh place-items-center bg-surface px-6 py-10 text-fg">
+				<div className="absolute inset-x-6 top-6 flex items-center justify-between text-[13px] text-fg-subtle">
 					<LogoMark size={22} title="アカウント" />
 					<div className="flex items-center gap-3">
 						<span>アカウントがない</span>
 						<Link
 							to={signupHref}
-							className="inline-flex items-center gap-1 font-medium text-[var(--brand)] hover:text-[var(--brand-hover)]"
+							className="inline-flex items-center gap-1 font-medium text-brand hover:text-brand-hover"
 						>
 							作成
 							<ArrowUpRight aria-hidden className="size-3.5" />
@@ -178,27 +178,24 @@ export default function SigninRoute() {
 
 	// フルブリード — ヒーロー型（≥ 1024px）。
 	return (
-		<main className="hidoko-id-hero-bg relative min-h-dvh overflow-hidden text-[var(--text)]">
+		<main className="hidoko-id-hero-bg relative min-h-dvh overflow-hidden text-fg">
 			<Embers density={36} wind={0.03} />
 
 			{/* top bar */}
 			<div className="absolute inset-x-11 top-7 z-30 flex items-center justify-between">
 				<div className="flex items-center gap-3">
 					<LogoMark size={28} title="アカウント" />
-					<span className="font-semibold text-[15px] text-[var(--text-strong)] tracking-[-0.02em]">
+					<span className="font-semibold text-[15px] text-fg-strong tracking-[-0.02em]">
 						共通アカウント
 					</span>
 				</div>
-				<div className="flex items-center gap-5 text-[13px] text-[var(--text-faint)]">
-					<Link
-						to="/about"
-						className="text-[var(--text-muted)] hover:text-[var(--text-strong)]"
-					>
+				<div className="flex items-center gap-5 text-[13px] text-fg-subtle">
+					<Link to="/about" className="text-fg-muted hover:text-fg-strong">
 						使われている場所
 					</Link>
 					<Link
 						to={signupHref}
-						className="inline-flex items-center gap-1 font-medium text-[var(--brand)] hover:text-[var(--brand-hover)]"
+						className="inline-flex items-center gap-1 font-medium text-brand hover:text-brand-hover"
 					>
 						アカウントを作成
 						<ArrowUpRight aria-hidden className="size-3.5" />
@@ -214,15 +211,15 @@ export default function SigninRoute() {
 						<span className="block h-px w-4 bg-current" />
 						共通アカウント
 					</Mark>
-					<h1 className="m-0 mb-5 font-semibold text-[56px] text-[var(--text-strong)] leading-[1.05] tracking-[-0.025em]">
+					<h1 className="m-0 mb-5 font-semibold text-[56px] text-fg-strong leading-[1.05] tracking-[-0.025em]">
 						夜の机に、
 						<br />
 						ひとつの灯。
 					</h1>
-					<p className="m-0 mb-3 max-w-[460px] text-[17px] text-[var(--text-muted)] leading-[1.75]">
+					<p className="m-0 mb-3 max-w-[460px] text-[17px] text-fg-muted leading-[1.75]">
 						一度サインインすれば、次のアプリへは何も訊かれずに戻る。アカウントはひとつ
 					</p>
-					<p className="m-0 max-w-[460px] text-[14px] text-[var(--text-faint)] leading-[1.75]">
+					<p className="m-0 max-w-[460px] text-[14px] text-fg-subtle leading-[1.75]">
 						認証は OAuth 2.1 + PKCE。サードパーティ製のクライアントや MCP
 						サーバーも、許可した範囲だけアカウントに触れる
 					</p>
@@ -232,21 +229,19 @@ export default function SigninRoute() {
 			</div>
 
 			{/* used by marquee */}
-			<div className="absolute inset-x-11 bottom-7 z-20 flex items-center gap-4 border-t border-[var(--border-subtle)] pt-5 font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--text-faint)]">
-				<span className="text-[var(--brand)]">USED BY ／</span>
+			<div className="absolute inset-x-11 bottom-7 z-20 flex items-center gap-4 border-t border-line-subtle pt-5 font-mono text-[11px] uppercase tracking-[0.18em] text-fg-subtle">
+				<span className="text-brand">USED BY ／</span>
 				{FOOTER_APPS.map((name, i) => (
 					<span key={name} className="flex items-center gap-4">
 						{i > 0 ? (
-							<span className="text-[var(--border)]" aria-hidden>
+							<span className="text-line" aria-hidden>
 								·
 							</span>
 						) : null}
 						<span>{name}</span>
 					</span>
 				))}
-				<span className="ml-auto text-[var(--brand)]">
-					— {FOOTER_APPS.length} APPS
-				</span>
+				<span className="ml-auto text-brand">— {FOOTER_APPS.length} APPS</span>
 			</div>
 		</main>
 	);
