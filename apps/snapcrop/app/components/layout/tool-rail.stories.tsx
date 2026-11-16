@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { TooltipProvider } from "ui/components/tooltip";
+import { TooltipProvider } from "takibi-design-system";
 
 import { SnapcropProvider } from "~/contexts/snapcrop-context";
 
@@ -24,9 +24,9 @@ const meta = {
 		(Story) => (
 			<SnapcropProvider>
 				<TooltipProvider>
-					<div className="flex h-[400px] bg-[var(--ink-0)]">
+					<div className="flex h-[400px] bg-surface-sunken">
 						<Story />
-						<div className="flex flex-1 items-center justify-center text-muted-foreground text-sm">
+						<div className="flex flex-1 items-center justify-center text-fg-muted text-sm">
 							キャンバス領域 (story では未描画)
 						</div>
 					</div>

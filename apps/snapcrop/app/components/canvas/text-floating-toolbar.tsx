@@ -5,7 +5,7 @@ import {
 	BoldIcon,
 	ItalicIcon,
 } from "lucide-react";
-import { Toggle, ToggleGroup, ToggleGroupItem } from "ui";
+import { Toggle, ToggleGroup, ToggleGroupItem } from "takibi-design-system";
 import { FloatingToolbar } from "~/components/canvas/floating-toolbar";
 import { FloatingToolbarActions } from "~/components/canvas/floating-toolbar-actions";
 import type { TextAlign, TextAnnotation } from "~/lib/text-engine";
@@ -56,10 +56,11 @@ export function TextFloatingToolbar({
 			<ToggleGroup
 				aria-label="寄せ"
 				onValueChange={(next) => {
-					if (next) onAlignChange(next as TextAlign);
+					const value = next[0];
+					if (value) onAlignChange(value as TextAlign);
 				}}
-				type="single"
-				value={text.align}
+				size="sm"
+				value={[text.align]}
 				variant="outline"
 			>
 				{ALIGN_OPTIONS.map((opt) => {
@@ -68,7 +69,6 @@ export function TextFloatingToolbar({
 						<ToggleGroupItem
 							aria-label={opt.label}
 							key={opt.id}
-							size="sm"
 							title={opt.label}
 							value={opt.id}
 						>

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
-import { TooltipProvider } from "ui/components/tooltip";
+import { TooltipProvider } from "takibi-design-system";
 
 import { PRESET_COLORS } from "~/lib/rect-engine";
 
@@ -23,7 +23,7 @@ const meta = {
 	decorators: [
 		(Story) => (
 			<TooltipProvider>
-				<div className="flex h-[38px] items-center rounded-md border border-border bg-[var(--bg-overlay)] px-3.5">
+				<div className="flex h-[38px] items-center rounded-md border border-line bg-surface-overlay px-3.5">
 					<Story />
 				</div>
 			</TooltipProvider>

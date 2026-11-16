@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ThemeProvider } from "next-themes";
-import { TooltipProvider } from "ui/components/tooltip";
+import { TooltipProvider } from "takibi-design-system";
 
 import { SnapcropProvider } from "~/contexts/snapcrop-context";
 
@@ -25,15 +24,13 @@ const meta = {
 	},
 	decorators: [
 		(Story) => (
-			<ThemeProvider attribute="class" defaultTheme="dark">
-				<SnapcropProvider>
-					<TooltipProvider>
-						<div className="flex h-[480px] flex-col bg-[var(--ink-0)]">
-							<Story />
-						</div>
-					</TooltipProvider>
-				</SnapcropProvider>
-			</ThemeProvider>
+			<SnapcropProvider>
+				<TooltipProvider>
+					<div className="flex h-[480px] flex-col bg-surface-sunken">
+						<Story />
+					</div>
+				</TooltipProvider>
+			</SnapcropProvider>
 		),
 	],
 } satisfies Meta<typeof EditorCanvas>;

@@ -1,13 +1,17 @@
 import { PlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Input } from "ui/components/input";
-import { Popover, PopoverContent, PopoverTrigger } from "ui/components/popover";
+import {
+	Input,
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "takibi-design-system";
 import { PRESET_COLORS } from "~/lib/rect-engine";
 
 const SWATCH_BASE_CLASS =
 	"size-[18px] cursor-pointer rounded-full border-[1.5px] p-0 transition-transform not-disabled:hover:scale-110 disabled:cursor-not-allowed";
 const SWATCH_ACTIVE_CLASS =
-	"border-foreground shadow-[0_0_0_1.5px_var(--background)]";
+	"border-fg shadow-[0_0_0_1.5px_var(--color-surface)]";
 const RAINBOW_GRADIENT =
 	"conic-gradient(from 0deg, #f44, #fa3, #fd0, #4d4, #4af, #94f, #f4a, #f44)";
 
@@ -69,7 +73,7 @@ export function RectColorSwatches({
 /**
  * `+` スウォッチ + カラーピッカー Popover。active (現在色がカスタム) のときは
  * 現在色で塗り、虹色グラデーションのときと同様に Plus アイコンを重ねる。
- * アイコン色は背景の明度でブラック / ホワイトを切り替える。
+ * アイコン色は背景の明度で暗い色 / 明るい色を切り替える（テーマに関係なく固定）。
  */
 function CustomColorSwatch({
 	value,
@@ -89,33 +93,37 @@ function CustomColorSwatch({
 
 	return (
 		<Popover onOpenChange={setOpen} open={effectiveOpen}>
-			<PopoverTrigger asChild>
-				<button
-					aria-label={active ? `カスタム色 ${value}` : "カスタム色を選ぶ"}
-					aria-pressed={active}
-					className={`inline-flex items-center justify-center ${SWATCH_BASE_CLASS} ${
-						active ? SWATCH_ACTIVE_CLASS : "border-transparent"
-					}`}
-					disabled={disabled}
-					style={{ background: active ? value : RAINBOW_GRADIENT }}
-					type="button"
-				>
-					<PlusIcon
-						className={`size-2.5 ${
-							active && !isLightColor(value) ? "text-white/80" : "text-black/60"
+			<PopoverTrigger
+				render={
+					<button
+						aria-label={active ? `カスタム色 ${value}` : "カスタム色を選ぶ"}
+						aria-pressed={active}
+						className={`inline-flex items-center justify-center ${SWATCH_BASE_CLASS} ${
+							active ? SWATCH_ACTIVE_CLASS : "border-transparent"
 						}`}
-						strokeWidth={2.5}
+						disabled={disabled}
+						style={{ background: active ? value : RAINBOW_GRADIENT }}
+						type="button"
 					/>
-				</button>
+				}
+			>
+				<PlusIcon
+					className={`size-2.5 ${
+						active && !isLightColor(value)
+							? "text-(--ink-900)/80"
+							: "text-(--ink-0)/60"
+					}`}
+					strokeWidth={2.5}
+				/>
 			</PopoverTrigger>
 			<PopoverContent align="end" className="w-44 p-3" sideOffset={8}>
 				<div className="flex flex-col gap-2">
-					<span className="font-mono text-xs text-muted-foreground uppercase tracking-[0.08em]">
+					<span className="font-mono text-xs text-fg-muted uppercase tracking-[0.08em]">
 						カスタム色
 					</span>
 					<input
 						aria-label="カラーピッカー"
-						className="h-9 w-full cursor-pointer rounded-md border border-border bg-transparent p-0.5"
+						className="h-9 w-full cursor-pointer rounded-md border border-line bg-transparent p-0.5"
 						onChange={(e) => onChange(e.target.value)}
 						type="color"
 						value={value}

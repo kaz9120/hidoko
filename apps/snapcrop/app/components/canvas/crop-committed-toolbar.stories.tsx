@@ -20,7 +20,7 @@ const meta = {
 	},
 	render: (args) => (
 		<div
-			className="relative overflow-visible rounded-md border border-border bg-bg-base"
+			className="relative overflow-visible rounded-md border border-line bg-surface"
 			style={{ width: 720, height: 240 }}
 		>
 			<div className="absolute inset-0 bg-gradient-to-br from-[var(--ember-700)] via-[var(--ember-500)] to-[var(--moon)] opacity-40" />

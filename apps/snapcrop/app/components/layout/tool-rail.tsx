@@ -10,17 +10,23 @@ import {
 	TypeIcon,
 	WavesIcon,
 } from "lucide-react";
-import { toast } from "sonner";
-import { Toggle, Tooltip, TooltipContent, TooltipTrigger } from "ui";
 import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuRadioGroup,
-	DropdownMenuRadioItem,
-	DropdownMenuShortcut,
-	DropdownMenuTrigger,
-} from "ui/components/dropdown-menu";
-import { Popover, PopoverContent, PopoverTrigger } from "ui/components/popover";
+	Button,
+	Menu,
+	MenuContent,
+	MenuRadioGroup,
+	MenuRadioItem,
+	MenuShortcut,
+	MenuTrigger,
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+	Toggle,
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+	toast,
+} from "takibi-design-system";
 import {
 	type ActiveTool,
 	type StylePresetId,
@@ -85,9 +91,11 @@ export function ToolRail() {
 	const handleStylePresetChange = (id: StylePresetId) => {
 		setStylePreset(id);
 		const preset = STYLE_PRESETS[id];
-		toast.success(`スタイル: ${preset.label}`, {
+		toast.add({
+			title: `スタイル: ${preset.label}`,
 			description: `${preset.hint} — 以降の図形に適用`,
-			duration: 2200,
+			type: "success",
+			timeout: 2200,
 		});
 	};
 
@@ -95,7 +103,7 @@ export function ToolRail() {
 		<aside
 			aria-label="編集ツール"
 			aria-disabled={disabled}
-			className={`flex w-12 shrink-0 flex-col items-center gap-1 border-border border-r bg-card py-2 transition-opacity ${
+			className={`flex w-12 shrink-0 flex-col items-center gap-1 border-line border-r bg-surface-raised py-2 transition-opacity ${
 				disabled ? "pointer-events-none opacity-40" : ""
 			}`}
 		>
@@ -104,18 +112,19 @@ export function ToolRail() {
 				const pressed = activeTool === tool.id;
 				return (
 					<Tooltip key={tool.id}>
-						<TooltipTrigger asChild>
-							<Toggle
-								aria-label={`${tool.label} (${tool.shortcut})`}
-								onPressedChange={(next) => {
-									if (next) setActiveTool(tool.id);
-								}}
-								pressed={pressed}
-								size="lg"
-								variant="default"
-							>
-								<Icon strokeWidth={1.75} />
-							</Toggle>
+						<TooltipTrigger
+							render={
+								<Toggle
+									aria-label={`${tool.label} (${tool.shortcut})`}
+									className="size-10 px-0"
+									onPressedChange={(next) => {
+										if (next) setActiveTool(tool.id);
+									}}
+									pressed={pressed}
+								/>
+							}
+						>
+							<Icon strokeWidth={1.75} />
 						</TooltipTrigger>
 						<TooltipContent side="right">
 							{tool.label} ({tool.shortcut})
@@ -124,31 +133,36 @@ export function ToolRail() {
 				);
 			})}
 
-			<span aria-hidden="true" className="my-3 h-px w-6 shrink-0 bg-border" />
+			<span aria-hidden="true" className="my-3 h-px w-6 shrink-0 bg-line" />
 
 			{(() => {
 				const current = STYLE_PRESETS[stylePreset];
 				const CurrentIcon = STYLE_PRESET_ICONS[stylePreset];
 				return (
-					<DropdownMenu>
+					<Menu>
 						<Tooltip>
-							<TooltipTrigger asChild>
-								<DropdownMenuTrigger asChild>
-									<Toggle
-										aria-label={`スタイル: ${current.label}`}
-										size="lg"
-										variant="default"
-									>
-										<CurrentIcon strokeWidth={1.75} />
-									</Toggle>
-								</DropdownMenuTrigger>
+							<TooltipTrigger
+								render={
+									<MenuTrigger
+										render={
+											<Button
+												aria-label={`スタイル: ${current.label}`}
+												className="size-10 data-popup-open:bg-surface-hover data-popup-open:text-fg"
+												size="icon"
+												variant="ghost"
+											/>
+										}
+									/>
+								}
+							>
+								<CurrentIcon strokeWidth={1.75} />
 							</TooltipTrigger>
 							<TooltipContent side="right">
 								スタイル: {current.label}
 							</TooltipContent>
 						</Tooltip>
-						<DropdownMenuContent side="right" align="start">
-							<DropdownMenuRadioGroup
+						<MenuContent side="right" align="start">
+							<MenuRadioGroup
 								value={stylePreset}
 								onValueChange={(value) =>
 									handleStylePresetChange(value as StylePresetId)
@@ -158,36 +172,40 @@ export function ToolRail() {
 									const preset = STYLE_PRESETS[id];
 									const Icon = STYLE_PRESET_ICONS[id];
 									return (
-										<DropdownMenuRadioItem key={id} value={id}>
+										<MenuRadioItem closeOnClick key={id} value={id}>
 											<Icon strokeWidth={1.75} />
 											<span className="flex-1">{preset.label}</span>
-											<span className="text-muted-foreground text-xs">
+											<span className="text-fg-muted text-xs">
 												{preset.hint}
 											</span>
-											<DropdownMenuShortcut>{i + 1}</DropdownMenuShortcut>
-										</DropdownMenuRadioItem>
+											<MenuShortcut>{i + 1}</MenuShortcut>
+										</MenuRadioItem>
 									);
 								})}
-							</DropdownMenuRadioGroup>
-						</DropdownMenuContent>
-					</DropdownMenu>
+							</MenuRadioGroup>
+						</MenuContent>
+					</Menu>
 				);
 			})()}
 
-			<span aria-hidden="true" className="my-3 h-px w-6 shrink-0 bg-border" />
+			<span aria-hidden="true" className="my-3 h-px w-6 shrink-0 bg-line" />
 
 			<Popover>
 				<Tooltip>
-					<TooltipTrigger asChild>
-						<PopoverTrigger asChild>
-							<button
-								type="button"
-								aria-label="色を変える"
-								className="size-10 shrink-0 rounded-full border-2 border-border ring-offset-2 ring-offset-card transition-shadow hover:ring-2 hover:ring-primary/40"
-								style={{ backgroundColor: rectDefaults.color }}
+					<TooltipTrigger
+						render={
+							<PopoverTrigger
+								render={
+									<button
+										type="button"
+										aria-label="色を変える"
+										className="size-10 shrink-0 rounded-full border-2 border-line ring-offset-2 ring-offset-surface-raised transition-shadow hover:ring-2 hover:ring-brand/40"
+										style={{ backgroundColor: rectDefaults.color }}
+									/>
+								}
 							/>
-						</PopoverTrigger>
-					</TooltipTrigger>
+						}
+					/>
 					<TooltipContent side="right">注釈の色</TooltipContent>
 				</Tooltip>
 				<PopoverContent side="right" align="end" className="w-56 p-3">
@@ -224,7 +242,7 @@ function ColorRow({
 }) {
 	return (
 		<div className="flex flex-col gap-1.5">
-			<span className="font-mono text-xs uppercase tracking-[0.12em] text-muted-foreground">
+			<span className="font-mono text-xs uppercase tracking-[0.12em] text-fg-muted">
 				{title}
 			</span>
 			<div className="flex flex-wrap items-center gap-1.5">
@@ -236,8 +254,8 @@ function ColorRow({
 							type="button"
 							aria-label={`色 ${c}`}
 							onClick={() => onChange(c)}
-							className={`size-5 shrink-0 rounded-full border ring-offset-1 ring-offset-(--popover) transition-all hover:scale-110 ${
-								active ? "ring-2 ring-foreground" : "border-border"
+							className={`size-5 shrink-0 rounded-full border ring-offset-1 ring-offset-surface-overlay transition-all hover:scale-110 ${
+								active ? "ring-2 ring-fg" : "border-line"
 							}`}
 							style={{ backgroundColor: c }}
 						/>

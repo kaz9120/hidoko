@@ -51,7 +51,7 @@ const mkText = (overrides: Partial<TextAnnotation>): TextAnnotation => ({
 
 const withLayer = (text: TextAnnotation, zoom: number) => (
 	<div
-		className="relative overflow-hidden rounded-md border border-border bg-bg-raised"
+		className="relative overflow-hidden rounded-md border border-line bg-surface-raised"
 		style={{ width: IMAGE_WIDTH * zoom, height: IMAGE_HEIGHT * zoom }}
 	>
 		<TextLayer

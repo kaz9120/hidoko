@@ -1,4 +1,4 @@
-import { ToggleGroup, ToggleGroupItem } from "ui";
+import { ToggleGroup, ToggleGroupItem } from "takibi-design-system";
 import { FloatingToolbar } from "~/components/canvas/floating-toolbar";
 import { FloatingToolbarActions } from "~/components/canvas/floating-toolbar-actions";
 import type {
@@ -48,17 +48,17 @@ export function HighlightFloatingToolbar({
 			<ToggleGroup
 				aria-label="帯の太さ"
 				onValueChange={(next) => {
-					if (next) onThicknessChange(next as HighlightThickness);
+					const value = next[0];
+					if (value) onThicknessChange(value as HighlightThickness);
 				}}
-				type="single"
-				value={highlight.thickness}
+				size="sm"
+				value={[highlight.thickness]}
 				variant="outline"
 			>
 				{THICKNESS_OPTIONS.map((opt) => (
 					<ToggleGroupItem
 						aria-label={`太さ: ${opt.label}`}
 						key={opt.id}
-						size="sm"
 						title={`太さ: ${opt.label}`}
 						value={opt.id}
 					>

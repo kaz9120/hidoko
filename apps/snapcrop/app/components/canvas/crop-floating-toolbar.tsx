@@ -10,8 +10,13 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { Button, Toggle, ToggleGroup, ToggleGroupItem } from "ui";
-import { Kbd } from "ui/components/kbd";
+import {
+	Button,
+	Kbd,
+	Toggle,
+	ToggleGroup,
+	ToggleGroupItem,
+} from "takibi-design-system";
 import { FloatingToolbar } from "~/components/canvas/floating-toolbar";
 import type { CropEngineHandle } from "~/hooks/use-crop-engine";
 import { type CropRect, MIN_CROP_SIZE } from "~/lib/crop-engine";
@@ -144,15 +149,14 @@ export function CropFloatingToolbar({
 		<FloatingToolbar>
 			<ToggleGroup
 				aria-label="アスペクト比"
-				onValueChange={handleAspectChange}
-				type="single"
-				value={aspectRatioId}
+				onValueChange={(next) => handleAspectChange(next[0] ?? "")}
+				size="sm"
+				value={[aspectRatioId]}
 				variant="outline"
 			>
 				{ASPECT_RATIOS.map((aspect) => (
 					<ToggleGroupItem
 						key={aspect.id}
-						size="sm"
 						title={aspect.title}
 						value={aspect.id}
 					>
@@ -189,10 +193,7 @@ export function CropFloatingToolbar({
 				onCommit={(n) => setCropSize({ width: n })}
 				value={cropWidth}
 			/>
-			<span
-				aria-hidden="true"
-				className="font-mono text-muted-foreground text-xs"
-			>
+			<span aria-hidden="true" className="font-mono text-fg-muted text-xs">
 				×
 			</span>
 			<NumberField
@@ -201,7 +202,7 @@ export function CropFloatingToolbar({
 				value={cropHeight}
 			/>
 
-			<span aria-hidden="true" className="mx-1 h-4 w-px shrink-0 bg-border" />
+			<span aria-hidden="true" className="mx-1 h-4 w-px shrink-0 bg-line" />
 			<Button
 				aria-label="この範囲で切り取る"
 				onClick={onCommit}
@@ -210,7 +211,7 @@ export function CropFloatingToolbar({
 			>
 				<CheckIcon strokeWidth={1.75} />
 				切り取る
-				<Kbd className="bg-primary-foreground/15 text-primary-foreground/80">
+				<Kbd className="border-transparent bg-fg-on-brand/15 text-fg-on-brand/80">
 					⏎
 				</Kbd>
 			</Button>
@@ -266,7 +267,7 @@ function NumberField({
 	return (
 		<input
 			aria-label={axis === "w" ? "クロップ幅 (px)" : "クロップ高さ (px)"}
-			className="h-7 w-14 rounded-sm border border-border bg-input/30 px-2 text-right font-mono text-foreground text-xs outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-50"
+			className="h-7 w-14 rounded-sm border border-line bg-surface-sunken/30 px-2 text-right font-mono text-fg text-xs outline-none focus-visible:border-focus focus-visible:ring-2 focus-visible:ring-focus/40 disabled:opacity-50"
 			inputMode="numeric"
 			onBlur={commit}
 			onChange={handleChange}

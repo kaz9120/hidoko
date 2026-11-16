@@ -4,7 +4,12 @@ import {
 	SendToBackIcon,
 	Trash2Icon,
 } from "lucide-react";
-import { Button, Tooltip, TooltipContent, TooltipTrigger } from "ui";
+import {
+	Button,
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "takibi-design-system";
 
 type Props = {
 	canBringForward: boolean;
@@ -31,58 +36,66 @@ export function FloatingToolbarActions({
 }: Props) {
 	return (
 		<>
-			<span aria-hidden="true" className="mx-1 h-4 w-px shrink-0 bg-border" />
+			<span aria-hidden="true" className="mx-1 h-4 w-px shrink-0 bg-line" />
 			<Tooltip>
-				<TooltipTrigger asChild>
-					<Button
-						aria-label="選択中の図形を複製"
-						onClick={onDuplicate}
-						size="icon-sm"
-						variant="ghost"
-					>
-						<CopyPlusIcon strokeWidth={1.75} />
-					</Button>
+				<TooltipTrigger
+					render={
+						<Button
+							aria-label="選択中の図形を複製"
+							onClick={onDuplicate}
+							size="icon-sm"
+							variant="ghost"
+						/>
+					}
+				>
+					<CopyPlusIcon strokeWidth={1.75} />
 				</TooltipTrigger>
 				<TooltipContent>複製 (⌘D)</TooltipContent>
 			</Tooltip>
 			<Tooltip>
-				<TooltipTrigger asChild>
-					<Button
-						aria-label="選択中の図形を前面へ"
-						disabled={!canBringForward}
-						onClick={onBringForward}
-						size="icon-sm"
-						variant="ghost"
-					>
-						<BringToFrontIcon strokeWidth={1.75} />
-					</Button>
+				<TooltipTrigger
+					render={
+						<Button
+							aria-label="選択中の図形を前面へ"
+							disabled={!canBringForward}
+							onClick={onBringForward}
+							size="icon-sm"
+							variant="ghost"
+						/>
+					}
+				>
+					<BringToFrontIcon strokeWidth={1.75} />
 				</TooltipTrigger>
 				<TooltipContent>前面へ (])</TooltipContent>
 			</Tooltip>
 			<Tooltip>
-				<TooltipTrigger asChild>
-					<Button
-						aria-label="選択中の図形を背面へ"
-						disabled={!canSendBackward}
-						onClick={onSendBackward}
-						size="icon-sm"
-						variant="ghost"
-					>
-						<SendToBackIcon strokeWidth={1.75} />
-					</Button>
+				<TooltipTrigger
+					render={
+						<Button
+							aria-label="選択中の図形を背面へ"
+							disabled={!canSendBackward}
+							onClick={onSendBackward}
+							size="icon-sm"
+							variant="ghost"
+						/>
+					}
+				>
+					<SendToBackIcon strokeWidth={1.75} />
 				</TooltipTrigger>
 				<TooltipContent>背面へ ([)</TooltipContent>
 			</Tooltip>
 			<Tooltip>
-				<TooltipTrigger asChild>
-					<Button
-						aria-label="選択中の図形を削除"
-						onClick={onDelete}
-						size="icon-sm"
-						variant="ghost"
-					>
-						<Trash2Icon strokeWidth={1.75} />
-					</Button>
+				<TooltipTrigger
+					render={
+						<Button
+							aria-label="選択中の図形を削除"
+							onClick={onDelete}
+							size="icon-sm"
+							variant="ghost"
+						/>
+					}
+				>
+					<Trash2Icon strokeWidth={1.75} />
 				</TooltipTrigger>
 				<TooltipContent>削除 (⌫)</TooltipContent>
 			</Tooltip>

@@ -1,4 +1,4 @@
-import { ToggleGroup, ToggleGroupItem } from "ui";
+import { ToggleGroup, ToggleGroupItem } from "takibi-design-system";
 import { FloatingToolbar } from "~/components/canvas/floating-toolbar";
 import { FloatingToolbarActions } from "~/components/canvas/floating-toolbar-actions";
 import type { ArrowAnnotation, ArrowThickness } from "~/lib/arrow-engine";
@@ -45,17 +45,17 @@ export function ArrowFloatingToolbar({
 			<ToggleGroup
 				aria-label="太さ"
 				onValueChange={(next) => {
-					if (next) onThicknessChange(next as ArrowThickness);
+					const value = next[0];
+					if (value) onThicknessChange(value as ArrowThickness);
 				}}
-				type="single"
-				value={arrow.thickness}
+				size="sm"
+				value={[arrow.thickness]}
 				variant="outline"
 			>
 				{THICKNESS_OPTIONS.map((opt) => (
 					<ToggleGroupItem
 						aria-label={`太さ: ${opt.label}`}
 						key={opt.id}
-						size="sm"
 						title={`太さ: ${opt.label}`}
 						value={opt.id}
 					>

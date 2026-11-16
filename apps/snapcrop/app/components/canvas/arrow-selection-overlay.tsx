@@ -107,7 +107,7 @@ export function ArrowSelectionOverlay({
 			{/* 端点ハンドル — rect の 12px ハンドルと同サイズ・同色。丸で「端点」を示す */}
 			{endpoints.map(({ endpoint, x, y }) => (
 				<div
-					className="pointer-events-auto absolute size-3 rounded-full border-[1.5px] border-[#1a0d05] bg-[var(--ember-400)] shadow-sm"
+					className="pointer-events-auto absolute size-3 rounded-full border-[1.5px] border-[#1a0d05] bg-[var(--ember-400)] shadow-rim"
 					key={endpoint}
 					onPointerCancel={onHandleUp}
 					onPointerDown={(e) => onHandleDown(e, endpoint)}

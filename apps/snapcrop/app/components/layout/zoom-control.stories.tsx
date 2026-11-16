@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
-import { TooltipProvider } from "ui/components/tooltip";
+import { TooltipProvider } from "takibi-design-system";
 
 import { ZOOM_STEP } from "~/components/canvas/viewport";
 
@@ -27,7 +27,7 @@ const meta = {
 	decorators: [
 		(Story) => (
 			<TooltipProvider>
-				<div className="flex items-center rounded-md bg-background px-4 py-2">
+				<div className="flex items-center rounded-md bg-surface px-4 py-2">
 					<Story />
 				</div>
 			</TooltipProvider>

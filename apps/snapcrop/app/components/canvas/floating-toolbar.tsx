@@ -20,7 +20,7 @@ export function FloatingToolbar({ children }: { children: ReactNode }) {
 		<div
 			role="toolbar"
 			aria-label="選択中のプロパティ"
-			className="pointer-events-auto absolute top-3 left-1/2 z-20 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-md border border-border bg-[rgba(26,24,20,0.96)] px-2 py-1.5 text-(--text) shadow-[0_8px_24px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,240,220,0.04)] backdrop-blur"
+			className="pointer-events-auto absolute top-3 left-1/2 z-20 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-md border border-line bg-surface-overlay/95 px-2 py-1.5 text-fg shadow-pop backdrop-blur"
 		>
 			{children}
 		</div>

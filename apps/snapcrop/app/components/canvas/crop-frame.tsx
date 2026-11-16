@@ -162,7 +162,7 @@ export function CropFrame({ engine, zoom, onCommit }: CropFrameProps) {
 				{HANDLES.map((h) => (
 					<div
 						aria-hidden="true"
-						className="absolute size-3 rounded-[2px] border-[1.5px] border-[#1a0d05] bg-[var(--ember-400)] shadow-sm"
+						className="absolute size-3 rounded-[2px] border-[1.5px] border-[#1a0d05] bg-[var(--ember-400)] shadow-rim"
 						key={h}
 						onPointerCancel={endDrag}
 						onPointerDown={(e) => startDrag(e, { resize: h })}
@@ -185,7 +185,7 @@ function Dim({
 }: {
 	view: { x: number; y: number; w: number; h: number };
 }) {
-	const cls = "pointer-events-none absolute bg-black/55";
+	const cls = "pointer-events-none absolute bg-(--ink-0)/55";
 	return (
 		<>
 			<div

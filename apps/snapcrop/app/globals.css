@@ -1,17 +1,12 @@
 @import "tailwindcss" source(".");
-@source "../../../packages/ui/src";
-@import "ui/tokens.css";
-@import "ui/styles.css";
-
-@custom-variant dark (&:is(.dark *));
+@import "takibi-design-system/styles.css";
 
 @layer base {
-	* {
-		@apply border-border outline-ring/50;
-	}
-	body {
-		@apply bg-background text-foreground;
-		font-family: var(--font-sans);
+	/* 色を書かない border は標準の区切り線の色にする */
+	*,
+	::before,
+	::after {
+		border-color: var(--color-line);
 	}
 }
 
@@ -23,17 +18,16 @@
 	.snapcrop-hero-glow {
 		background: radial-gradient(
 			ellipse at 50% 110%,
-			rgba(244, 125, 58, 0.1) 0%,
+			color-mix(in oklab, var(--color-brand) 10%, transparent) 0%,
 			transparent 55%
 		);
 	}
 }
 
-/* Editor canvas のスクロールバーをプライマリ色（差し色）で描く。中性的なグレーだと
-   ライトモードで背景に溶けて視認できないため、ライト・ダーク共通で目立つ ember 系を
-   thumb に置く。 */
+/* Editor canvas のスクロールバーをブランドカラーで描く。中性的なグレーだと
+   昼のテーマで背景に溶けて見えないため、夜・昼共通で目立つ色を thumb に置く。 */
 .snapcrop-viewport-scroll {
-	scrollbar-color: color-mix(in srgb, var(--primary) 70%, transparent)
+	scrollbar-color: color-mix(in srgb, var(--color-brand) 70%, transparent)
 		transparent;
 }
 .snapcrop-viewport-scroll::-webkit-scrollbar {
@@ -44,13 +38,13 @@
 	background: transparent;
 }
 .snapcrop-viewport-scroll::-webkit-scrollbar-thumb {
-	background-color: color-mix(in srgb, var(--primary) 70%, transparent);
+	background-color: color-mix(in srgb, var(--color-brand) 70%, transparent);
 	background-clip: padding-box;
 	border: 3px solid transparent;
 	border-radius: 6px;
 }
 .snapcrop-viewport-scroll::-webkit-scrollbar-thumb:hover {
-	background-color: var(--primary);
+	background-color: var(--color-brand);
 	background-clip: padding-box;
 }
 .snapcrop-viewport-scroll::-webkit-scrollbar-corner {

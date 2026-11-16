@@ -77,7 +77,7 @@ export function DimensionHud({
 	return (
 		<div
 			aria-hidden="true"
-			className="pointer-events-none absolute select-none whitespace-nowrap rounded-[4px] border border-[var(--ember-400)]/40 bg-[#1a0d05]/85 px-1.5 py-0.5 font-mono text-[11px] text-[var(--ember-100)] tabular-nums shadow-sm"
+			className="pointer-events-none absolute select-none whitespace-nowrap rounded-[4px] border border-[var(--ember-400)]/40 bg-[#1a0d05]/85 px-1.5 py-0.5 font-mono text-[11px] text-[var(--ember-100)] tabular-nums shadow-rim"
 			ref={ref}
 			style={{ left, top }}
 		>

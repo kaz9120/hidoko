@@ -38,13 +38,13 @@ function Stage({
 }) {
 	return (
 		<div
-			className="relative overflow-hidden rounded-md border border-border bg-bg-base"
+			className="relative overflow-hidden rounded-md border border-line bg-surface"
 			style={{ width: imageWidth * zoom, height: imageHeight * zoom }}
 		>
 			<div className="absolute inset-0 bg-gradient-to-br from-[var(--ember-700)] via-[var(--ember-500)] to-[var(--moon)] opacity-40" />
 			<div
 				aria-hidden="true"
-				className="absolute border border-[var(--ember-400)] border-dashed"
+				className="absolute border border-brand border-dashed"
 				style={{
 					left: rect.x * zoom,
 					top: rect.y * zoom,

@@ -31,7 +31,7 @@ function Stage({ width, height }: { width: number; height: number }) {
 			className="absolute inset-0 bg-gradient-to-br from-[var(--ember-700)] via-[var(--ember-500)] to-[var(--moon)]"
 			style={{ width: "100%", height: "100%" }}
 		>
-			<div className="absolute inset-0 flex items-center justify-center text-sm text-white/70">
+			<div className="absolute inset-0 flex items-center justify-center text-sm text-(--ink-900)/70">
 				{width} × {height}
 			</div>
 		</div>
@@ -49,7 +49,7 @@ export const Default: Story = {
 		const [zoom, setZoom] = useState(1);
 		const image = { width: 1280, height: 720 };
 		return (
-			<div className="h-[480px] w-full bg-bg-base">
+			<div className="h-[480px] w-full bg-surface">
 				<Viewport image={image} onZoomChange={setZoom} zoom={zoom}>
 					<Stage height={image.height} width={image.width} />
 				</Viewport>
@@ -68,7 +68,7 @@ export const PortraitImage: Story = {
 		const [zoom, setZoom] = useState(1);
 		const image = { width: 750, height: 1624 };
 		return (
-			<div className="h-[480px] w-full bg-bg-base">
+			<div className="h-[480px] w-full bg-surface">
 				<Viewport image={image} onZoomChange={setZoom} zoom={zoom}>
 					<Stage height={image.height} width={image.width} />
 				</Viewport>
@@ -87,7 +87,7 @@ export const SmallImage: Story = {
 		const [zoom, setZoom] = useState(1);
 		const image = { width: 320, height: 200 };
 		return (
-			<div className="h-[480px] w-full bg-bg-base">
+			<div className="h-[480px] w-full bg-surface">
 				<Viewport image={image} onZoomChange={setZoom} zoom={zoom}>
 					<Stage height={image.height} width={image.width} />
 				</Viewport>

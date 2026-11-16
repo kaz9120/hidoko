@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ThemeProvider } from "next-themes";
 
 import { EmptyHero } from "./empty-hero";
 
@@ -21,11 +20,9 @@ const meta = {
 	},
 	decorators: [
 		(Story) => (
-			<ThemeProvider attribute="class" defaultTheme="dark">
-				<div className="flex h-[480px] flex-col bg-[var(--ink-0)]">
-					<Story />
-				</div>
-			</ThemeProvider>
+			<div className="flex h-[480px] flex-col bg-surface-sunken">
+				<Story />
+			</div>
 		),
 	],
 } satisfies Meta<typeof EmptyHero>;

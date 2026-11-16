@@ -55,39 +55,39 @@ export function StatusBarView({
 	const estimatedBytes = estimateOutputBytes(image, cropData);
 
 	return (
-		<footer className="flex h-6 shrink-0 items-center gap-3 border-border border-t bg-card/50 px-3 font-mono text-[11px] text-muted-foreground">
+		<footer className="flex h-6 shrink-0 items-center gap-3 border-line border-t bg-surface-raised/50 px-3 font-mono text-[11px] text-fg-muted">
 			<span
-				className="max-w-[200px] truncate text-foreground/80"
+				className="max-w-[200px] truncate text-fg/80"
 				title={image.fileName}
 			>
 				{image.fileName}
 			</span>
 			<Sep />
-			<span className="text-foreground/80">{dims}</span>
+			<span className="text-fg/80">{dims}</span>
 			<Sep />
 			<span>
 				{formatMimeType(image.format)} · {formatBytes(image.fileSize)}
 			</span>
 			<span className="ml-auto" />
 			<span>
-				出力: <span className="text-foreground/80">{cropDims}</span>
+				出力: <span className="text-fg/80">{cropDims}</span>
 				{estimatedBytes !== null && (
 					<span> · 約 {formatBytes(estimatedBytes)}</span>
 				)}
 			</span>
 			<Sep />
 			<span>
-				図形: <span className="text-foreground/80">{annotationCount}</span>
+				図形: <span className="text-fg/80">{annotationCount}</span>
 			</span>
 			<Sep />
 			<span>
 				履歴:{" "}
-				<span className="text-foreground/80">
+				<span className="text-fg/80">
 					{historyIndex + 1} / {historyLength}
 				</span>
 			</span>
 			<Sep />
-			<span aria-hidden="true" className="text-[var(--moss)]">
+			<span aria-hidden="true" className="text-success">
 				●
 			</span>
 			<span>準備完了</span>
@@ -117,7 +117,7 @@ function estimateOutputBytes(
 
 function Sep() {
 	return (
-		<span aria-hidden="true" className="text-[var(--text-faint)]">
+		<span aria-hidden="true" className="text-fg-subtle">
 			·
 		</span>
 	);

@@ -5,7 +5,7 @@ import {
 	useMemo,
 	useRef,
 } from "react";
-import { toast } from "sonner";
+import { toast } from "takibi-design-system";
 import { ImageStage } from "~/components/canvas/image-stage";
 import { Viewport } from "~/components/canvas/viewport";
 import { EmptyHero } from "~/components/layout/empty-hero";
@@ -53,8 +53,13 @@ export function EditorCanvas() {
 		arrows,
 		texts,
 		highlights,
-		onSuccess: () => toast.success("クリップボードにコピーしました"),
-		onFailure: () => toast.error("クリップボードへのコピーに失敗しました"),
+		onSuccess: () =>
+			toast.add({ title: "クリップボードにコピーしました", type: "success" }),
+		onFailure: () =>
+			toast.add({
+				title: "クリップボードへのコピーに失敗しました",
+				type: "danger",
+			}),
 	});
 	useSelectAllShortcut({
 		cropperRef,
@@ -152,7 +157,7 @@ function ImageCanvas({
 	}, [viewportRef, viewSize.width, viewSize.height]);
 
 	return (
-		<section className="relative flex flex-1 overflow-hidden bg-[var(--ink-0)]">
+		<section className="relative flex flex-1 overflow-hidden bg-surface-sunken">
 			<ToolRail />
 			<div className="relative min-w-0 flex-1">
 				<Viewport
@@ -238,9 +243,9 @@ function CropWindow({
 }
 
 /**
- * 着地 (settle) を 1 回再生する。keyframes は packages/ui の motion.css が持つ
- * `hi-settle` と同じ内容で、duration と easing は DESIGN.md のトークンから読む。
- * `prefers-reduced-motion` 下では動かさない (motion.css の方針と同じ)。
+ * 着地 (settle) を 1 回再生する。keyframes はここに直に持ち、duration と easing は
+ * Takibi のトークン（--duration-relax / --ease-settle）から読む。
+ * `prefers-reduced-motion` 下では動かさない (Takibi の motion.css の方針と同じ)。
  */
 function playSettle(el: HTMLElement): void {
 	if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
@@ -278,10 +283,8 @@ function parseDurationMs(raw: string, fallback: number): number {
 
 function DropOverlay() {
 	return (
-		<div className="pointer-events-none absolute inset-5 flex items-center justify-center rounded-xl border-2 border-primary border-dashed bg-primary/10">
-			<p className="font-medium text-foreground text-lg">
-				ここにドロップして差し替え
-			</p>
+		<div className="pointer-events-none absolute inset-5 flex items-center justify-center rounded-xl border-2 border-brand border-dashed bg-brand/10">
+			<p className="font-medium text-fg text-lg">ここにドロップして差し替え</p>
 		</div>
 	);
 }

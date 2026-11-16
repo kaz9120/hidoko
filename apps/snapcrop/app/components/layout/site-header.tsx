@@ -6,12 +6,16 @@ import {
 	Redo2Icon,
 	Undo2Icon,
 } from "lucide-react";
-import { useTheme } from "next-themes";
 import { type ChangeEvent, useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
-import { Button, Tooltip, TooltipContent, TooltipTrigger } from "ui";
-import logoCreamUrl from "ui/assets/logo/mark-cream.svg?url";
-import logoDarkUrl from "ui/assets/logo/mark-dark.svg?url";
+import {
+	Button,
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+	toast,
+} from "takibi-design-system";
+import logoCreamUrl from "takibi-design-system/assets/logo/mark-cream.svg?url";
+import logoDarkUrl from "takibi-design-system/assets/logo/mark-dark.svg?url";
 import { HelpDialog } from "~/components/help-dialog";
 import { ExportActions } from "~/components/layout/export-actions";
 import { ShareButton } from "~/components/layout/share-button";
@@ -23,19 +27,9 @@ import { captureScreen, isScreenCaptureSupported } from "~/lib/screen-capture";
 
 export function SiteHeader() {
 	const { loadImageFromBlob, canUndo, canRedo, undo, redo } = useSnapcrop();
-	const { resolvedTheme } = useTheme();
-	const [mounted, setMounted] = useState(false);
 	const [isCapturing, setIsCapturing] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const screenshotSupported = isScreenCaptureSupported();
-
-	useEffect(() => {
-		setMounted(true);
-	}, []);
-
-	// hydration 前は dark 想定で描画。tokens.css は dark が初期状態。
-	const logoUrl =
-		mounted && resolvedTheme === "light" ? logoCreamUrl : logoDarkUrl;
 
 	// Cmd/Ctrl+Z で undo、Cmd/Ctrl+Shift+Z または Cmd/Ctrl+Y で redo
 	useEffect(() => {
@@ -85,7 +79,10 @@ export function SiteHeader() {
 		if (blob) {
 			await loadImageFromBlob(blob, "clipboard");
 		} else {
-			toast.error("クリップボードに画像が見つかりません");
+			toast.add({
+				title: "クリップボードに画像が見つかりません",
+				type: "danger",
+			});
 		}
 	};
 
@@ -101,9 +98,21 @@ export function SiteHeader() {
 	};
 
 	return (
-		<header className="sticky top-0 z-30 flex flex-wrap items-center gap-2 border-border border-b bg-background/95 px-3 py-2 backdrop-blur md:px-4">
-			<h1 className="flex items-center gap-2 font-semibold text-foreground text-lg">
-				<img alt="" aria-hidden="true" className="size-6" src={logoUrl} />
+		<header className="sticky top-0 z-30 flex flex-wrap items-center gap-2 border-line border-b bg-surface/95 px-3 py-2 backdrop-blur md:px-4">
+			<h1 className="flex items-center gap-2 font-semibold text-fg text-lg">
+				{/* 夜と昼でロゴを替える。data-theme を CSS で見るので、描く前に当てたテーマとずれない */}
+				<img
+					alt=""
+					aria-hidden="true"
+					className="size-6 light:hidden"
+					src={logoDarkUrl}
+				/>
+				<img
+					alt=""
+					aria-hidden="true"
+					className="hidden size-6 light:block"
+					src={logoCreamUrl}
+				/>
 				snapcrop
 			</h1>
 
@@ -167,7 +176,7 @@ export function SiteHeader() {
 }
 
 function Divider() {
-	return <span aria-hidden="true" className="h-5 w-px shrink-0 bg-border" />;
+	return <span aria-hidden="true" className="h-5 w-px shrink-0 bg-line" />;
 }
 
 function TooltipIconButton({
@@ -183,16 +192,18 @@ function TooltipIconButton({
 }) {
 	return (
 		<Tooltip>
-			<TooltipTrigger asChild>
-				<Button
-					aria-label={label}
-					disabled={disabled}
-					onClick={onClick}
-					size="icon"
-					variant="ghost"
-				>
-					<Icon strokeWidth={1.75} />
-				</Button>
+			<TooltipTrigger
+				render={
+					<Button
+						aria-label={label}
+						disabled={disabled}
+						onClick={onClick}
+						size="icon"
+						variant="ghost"
+					/>
+				}
+			>
+				<Icon strokeWidth={1.75} />
 			</TooltipTrigger>
 			<TooltipContent>{label}</TooltipContent>
 		</Tooltip>

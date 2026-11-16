@@ -1,6 +1,5 @@
 import { CropIcon, Maximize2Icon } from "lucide-react";
-import { Button } from "ui";
-import { Kbd } from "ui/components/kbd";
+import { Button, Kbd } from "takibi-design-system";
 import { FloatingToolbar } from "~/components/canvas/floating-toolbar";
 import type { CropRect } from "~/lib/crop-engine";
 
@@ -23,16 +22,16 @@ type Props = {
 export function CropCommittedToolbar({ crop, onEdit, onReset }: Props) {
 	return (
 		<FloatingToolbar>
-			<span className="px-1 font-mono text-muted-foreground text-xs">
+			<span className="px-1 font-mono text-fg-muted text-xs">
 				{Math.round(crop.width)} × {Math.round(crop.height)}
 			</span>
-			<span aria-hidden="true" className="mx-1 h-4 w-px shrink-0 bg-border" />
+			<span aria-hidden="true" className="mx-1 h-4 w-px shrink-0 bg-line" />
 			<Button
 				aria-label="切り取り範囲を調整する"
 				onClick={onEdit}
 				size="sm"
 				title="切り取り範囲を調整する"
-				variant="outline"
+				variant="secondary"
 			>
 				<CropIcon strokeWidth={1.75} />
 				範囲を調整

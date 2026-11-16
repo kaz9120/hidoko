@@ -1,8 +1,6 @@
 import { MonitorIcon } from "lucide-react";
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
-import logoCreamUrl from "ui/assets/logo/mark-cream.svg?url";
-import logoDarkUrl from "ui/assets/logo/mark-dark.svg?url";
+import logoCreamUrl from "takibi-design-system/assets/logo/mark-cream.svg?url";
+import logoDarkUrl from "takibi-design-system/assets/logo/mark-dark.svg?url";
 import { useEmbers } from "~/lib/use-embers";
 
 const X_PROFILE_URL = "https://x.com/kyamamoto9120";
@@ -20,33 +18,34 @@ const X_PROFILE_URL = "https://x.com/kyamamoto9120";
  */
 export function EmptyHero({ isDragging }: { isDragging: boolean }) {
 	useEmbers();
-	const { resolvedTheme } = useTheme();
-	const [mounted, setMounted] = useState(false);
-
-	useEffect(() => {
-		setMounted(true);
-	}, []);
-
-	// hydration 前は dark 想定で描画。tokens.css は dark が初期状態。
-	const logoUrl =
-		mounted && resolvedTheme === "light" ? logoCreamUrl : logoDarkUrl;
-
 	return (
 		<section className="snapcrop-hero-glow relative flex flex-1 items-center justify-center overflow-hidden p-5">
-			<hi-embers density={28} wind="0" glow="off" />
+			<takibi-embers density={28} wind="0" glow="off" />
 			<div
 				className={`absolute inset-5 flex flex-col items-center justify-center gap-8 rounded-xl border-2 border-dashed px-6 text-center transition-colors ${
-					isDragging ? "border-primary bg-primary/10" : "border-border"
+					isDragging ? "border-brand bg-brand/10" : "border-line"
 				}`}
 			>
 				<div className="flex flex-col items-center gap-3">
-					<img alt="" aria-hidden="true" className="size-16" src={logoUrl} />
-					<h2 className="font-bold text-2xl text-foreground tracking-tight">
+					{/* 夜と昼でロゴを替える。data-theme を CSS で見るので、描く前に当てたテーマとずれない */}
+					<img
+						alt=""
+						aria-hidden="true"
+						className="size-16 light:hidden"
+						src={logoDarkUrl}
+					/>
+					<img
+						alt=""
+						aria-hidden="true"
+						className="hidden size-16 light:block"
+						src={logoCreamUrl}
+					/>
+					<h2 className="font-bold text-2xl text-fg tracking-tight">
 						撮って、書いて、すぐ共有
 					</h2>
 					{/* 見出しと併走するユースケース。snapcrop の典型動作と使い道を
 					    1 行で示す。「便利」のような評価語を避け、動詞で「何が起きるか」を出す。 */}
-					<p className="text-muted-foreground text-sm">
+					<p className="text-fg-muted text-sm">
 						矢印を 1 本足したスクショを、そのまま Slack へ
 					</p>
 				</div>
@@ -56,7 +55,7 @@ export function EmptyHero({ isDragging }: { isDragging: boolean }) {
 					    「画面を撮る」体験を示し、isDragging で D&D 受け入れに切り替える。 */}
 					<p
 						className={`flex items-center gap-2 text-base transition-colors sm:text-lg ${
-							isDragging ? "text-primary" : "text-foreground"
+							isDragging ? "text-brand" : "text-fg"
 						}`}
 					>
 						<MonitorIcon aria-hidden="true" size={20} strokeWidth={1.75} />
@@ -66,13 +65,13 @@ export function EmptyHero({ isDragging }: { isDragging: boolean }) {
 					</p>
 					{/* 補助: ファイル D&D も受け入れていることを小さく伝える。
 					    ショートカット表記 (⌘V) はヘルプダイアログに分離。 */}
-					<p className="text-muted-foreground text-xs">
+					<p className="text-fg-muted text-xs">
 						ファイルのドラッグ&ドロップも対応
 					</p>
 				</div>
 
 				<a
-					className="absolute bottom-4 text-muted-foreground text-xs transition-colors hover:text-primary"
+					className="absolute bottom-4 text-fg-muted text-xs transition-colors hover:text-brand"
 					href={X_PROFILE_URL}
 					rel="noreferrer"
 					target="_blank"

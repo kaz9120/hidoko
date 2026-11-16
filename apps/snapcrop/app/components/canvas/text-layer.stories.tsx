@@ -21,7 +21,7 @@ const meta = {
 	},
 	decorators: [
 		(Story) => (
-			<div className="relative h-[360px] w-[480px] overflow-hidden rounded-md border border-border bg-bg-raised">
+			<div className="relative h-[360px] w-[480px] overflow-hidden rounded-md border border-line bg-surface-raised">
 				<Story />
 			</div>
 		),
@@ -116,13 +116,13 @@ export const StyleAndBackground: Story = {
 				bold: true,
 				italic: true,
 			}),
-			mkText("bg-white", {
+			mkText("on-white", {
 				y: 140,
 				text: "背景: 白",
 				color: "#3b82f6",
 				background: "white",
 			}),
-			mkText("bg-black", {
+			mkText("on-black", {
 				y: 230,
 				text: "背景: 黒",
 				color: "#ffffff",

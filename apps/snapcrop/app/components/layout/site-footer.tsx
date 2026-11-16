@@ -29,7 +29,7 @@ export function SiteFooter() {
 
 	return (
 		<>
-			<footer className="flex h-[22px] shrink-0 items-center gap-3 border-border border-t bg-[var(--bg-sunken)] px-3 font-mono text-[10px] text-muted-foreground">
+			<footer className="flex h-[22px] shrink-0 items-center gap-3 border-line border-t bg-surface-sunken px-3 font-mono text-[10px] text-fg-muted">
 				<span>v{packageJson.version}</span>
 				<Sep />
 				<FooterLink onClick={() => setPrivacyOpen(true)}>
@@ -84,7 +84,7 @@ function FooterLink({
 		// tokens.css の a スタイルを button に手で合わせる。
 		return (
 			<button
-				className="cursor-pointer text-[var(--brand)] transition-colors duration-(--duration) ease-(--ease) hover:text-[var(--brand-hover)]"
+				className="cursor-pointer text-brand transition-colors duration-(--duration-fast) ease-standard hover:text-brand-hover"
 				onClick={onClick}
 				type="button"
 			>
@@ -104,7 +104,7 @@ function FooterLink({
 
 function Sep() {
 	return (
-		<span aria-hidden="true" className="text-[var(--text-faint)]">
+		<span aria-hidden="true" className="text-fg-subtle">
 			·
 		</span>
 	);

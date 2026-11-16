@@ -112,7 +112,7 @@ export function RectSelectionOverlay({
 			<div className="pointer-events-none absolute inset-0 border border-[var(--ember-400)] shadow-[0_0_0_1px_rgba(0,0,0,0.45)]" />
 			{HANDLES.map((h) => (
 				<div
-					className="pointer-events-auto absolute size-3 rounded-[2px] border-[1.5px] border-[#1a0d05] bg-[var(--ember-400)] shadow-sm"
+					className="pointer-events-auto absolute size-3 rounded-[2px] border-[1.5px] border-[#1a0d05] bg-[var(--ember-400)] shadow-rim"
 					key={h}
 					onPointerCancel={onHandleUp}
 					onPointerDown={(e) => onHandleDown(e, h)}

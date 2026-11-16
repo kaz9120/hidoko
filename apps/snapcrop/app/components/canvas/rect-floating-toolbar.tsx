@@ -1,4 +1,4 @@
-import { ToggleGroup, ToggleGroupItem } from "ui";
+import { ToggleGroup, ToggleGroupItem } from "takibi-design-system";
 import { FloatingToolbar } from "~/components/canvas/floating-toolbar";
 import { FloatingToolbarActions } from "~/components/canvas/floating-toolbar-actions";
 import type { RectAnnotation, RectThickness } from "~/lib/rect-engine";
@@ -46,17 +46,17 @@ export function RectFloatingToolbar({
 			<ToggleGroup
 				aria-label="枠線の太さ"
 				onValueChange={(next) => {
-					if (next) onThicknessChange(next as RectThickness);
+					const value = next[0];
+					if (value) onThicknessChange(value as RectThickness);
 				}}
-				type="single"
-				value={rect.thickness}
+				size="sm"
+				value={[rect.thickness]}
 				variant="outline"
 			>
 				{THICKNESS_OPTIONS.map((opt) => (
 					<ToggleGroupItem
 						aria-label={`太さ: ${opt.id}`}
 						key={opt.id}
-						size="sm"
 						title={`太さ: ${opt.id}`}
 						value={opt.id}
 					>

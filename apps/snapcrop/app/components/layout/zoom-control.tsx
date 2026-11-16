@@ -4,13 +4,16 @@ import {
 	ZoomInIcon,
 	ZoomOutIcon,
 } from "lucide-react";
-import { Button, Tooltip, TooltipContent, TooltipTrigger } from "ui";
 import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "ui/components/dropdown-menu";
+	Button,
+	Menu,
+	MenuContent,
+	MenuItem,
+	MenuTrigger,
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "takibi-design-system";
 import { ZOOM_STEP } from "~/components/canvas/viewport";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 
@@ -78,42 +81,46 @@ export function ZoomControlView({
 				label="縮小 (⌘−)"
 				onClick={onZoomOut}
 			/>
-			<DropdownMenu>
+			<Menu>
 				<Tooltip>
-					<TooltipTrigger asChild>
-						<DropdownMenuTrigger asChild>
-							<Button
-								aria-label="ズーム倍率"
-								className="w-14 px-1 font-mono text-xs tabular-nums"
+					<TooltipTrigger
+						render={
+							<MenuTrigger
 								disabled={disabled}
-								size="sm"
-								variant="ghost"
-							>
-								{Math.round(zoom * 100)}%
-							</Button>
-						</DropdownMenuTrigger>
+								render={
+									<Button
+										aria-label="ズーム倍率"
+										className="w-14 px-1 font-mono text-xs tabular-nums"
+										size="sm"
+										variant="ghost"
+									/>
+								}
+							/>
+						}
+					>
+						{Math.round(zoom * 100)}%
 					</TooltipTrigger>
 					<TooltipContent>ズーム倍率</TooltipContent>
 				</Tooltip>
-				<DropdownMenuContent align="center">
+				<MenuContent align="center">
 					{ZOOM_PRESETS.map((preset) => (
-						<DropdownMenuItem
+						<MenuItem
 							key={preset.label}
-							onSelect={() => onZoomPreset(preset.zoom)}
+							onClick={() => onZoomPreset(preset.zoom)}
 						>
 							{preset.label}
-						</DropdownMenuItem>
+						</MenuItem>
 					))}
-					<DropdownMenuItem onSelect={onFit}>画面に合わせる</DropdownMenuItem>
-				</DropdownMenuContent>
-			</DropdownMenu>
+					<MenuItem onClick={onFit}>画面に合わせる</MenuItem>
+				</MenuContent>
+			</Menu>
 			<ZoomIconButton
 				disabled={disabled}
 				icon={ZoomInIcon}
 				label="拡大 (⌘+)"
 				onClick={onZoomIn}
 			/>
-			<span aria-hidden="true" className="mx-1 h-5 w-px shrink-0 bg-border" />
+			<span aria-hidden="true" className="mx-1 h-5 w-px shrink-0 bg-line" />
 			<ZoomIconButton
 				disabled={disabled}
 				icon={MaximizeIcon}
@@ -137,16 +144,18 @@ function ZoomIconButton({
 }) {
 	return (
 		<Tooltip>
-			<TooltipTrigger asChild>
-				<Button
-					aria-label={label}
-					disabled={disabled}
-					onClick={onClick}
-					size="icon"
-					variant="ghost"
-				>
-					<Icon strokeWidth={1.75} />
-				</Button>
+			<TooltipTrigger
+				render={
+					<Button
+						aria-label={label}
+						disabled={disabled}
+						onClick={onClick}
+						size="icon"
+						variant="ghost"
+					/>
+				}
+			>
+				<Icon strokeWidth={1.75} />
 			</TooltipTrigger>
 			<TooltipContent>{label}</TooltipContent>
 		</Tooltip>

@@ -1,8 +1,13 @@
 import { CopyIcon, DownloadIcon } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
-import { Button, Tooltip, TooltipContent, TooltipTrigger } from "ui";
-import { Kbd } from "ui/components/kbd";
+import {
+	Button,
+	Kbd,
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+	toast,
+} from "takibi-design-system";
 import { useSnapcrop } from "~/contexts/snapcrop-context";
 import { writeImageToClipboard } from "~/lib/clipboard";
 import {
@@ -56,12 +61,18 @@ export function ExportActions() {
 			});
 			const ok = await writeImageToClipboard(blob);
 			if (ok) {
-				toast.success("クリップボードにコピーしました");
+				toast.add({ title: "クリップボードにコピーしました", type: "success" });
 			} else {
-				toast.error("クリップボードへのコピーに失敗しました");
+				toast.add({
+					title: "クリップボードへのコピーに失敗しました",
+					type: "danger",
+				});
 			}
 		} catch {
-			toast.error("クリップボードへのコピーに失敗しました");
+			toast.add({
+				title: "クリップボードへのコピーに失敗しました",
+				type: "danger",
+			});
 		} finally {
 			setIsCopying(false);
 		}
@@ -83,7 +94,7 @@ export function ExportActions() {
 			});
 			downloadBlob(blob, makeDownloadFilename("png"));
 		} catch {
-			toast.error("画像の書き出しに失敗しました");
+			toast.add({ title: "画像の書き出しに失敗しました", type: "danger" });
 		} finally {
 			setIsDownloading(false);
 		}
@@ -123,30 +134,31 @@ export function ExportActionsView({
 	return (
 		<div className="flex items-center gap-1">
 			<Tooltip>
-				<TooltipTrigger asChild>
-					<Button
-						aria-busy={isDownloading}
-						aria-label="PNG でダウンロード"
-						disabled={disabled || isDownloading}
-						onClick={onDownload}
-						size="icon"
-						variant="ghost"
-					>
-						<DownloadIcon strokeWidth={1.75} />
-					</Button>
+				<TooltipTrigger
+					render={
+						<Button
+							aria-busy={isDownloading}
+							aria-label="PNG でダウンロード"
+							disabled={disabled || isDownloading}
+							onClick={onDownload}
+							size="icon"
+							variant="ghost"
+						/>
+					}
+				>
+					<DownloadIcon strokeWidth={1.75} />
 				</TooltipTrigger>
 				<TooltipContent>PNG でダウンロード</TooltipContent>
 			</Tooltip>
 			<Button
 				aria-busy={isCopying}
-				className="rounded-full"
 				disabled={disabled || isCopying}
 				onClick={onCopy}
 				size="sm"
 			>
 				<CopyIcon strokeWidth={2} />
 				コピー
-				<Kbd className="bg-primary-foreground/15 text-primary-foreground/80">
+				<Kbd className="border-transparent bg-fg-on-brand/15 text-fg-on-brand/80">
 					⌘C
 				</Kbd>
 			</Button>
